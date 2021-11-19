@@ -1,7 +1,7 @@
 package main
 
 import (
-	"backend/packages/utils/hello"
+	"github.com/SOMAS2021/SOMAS2021/packages/utils/hello"
 	"fmt"
 )
 
