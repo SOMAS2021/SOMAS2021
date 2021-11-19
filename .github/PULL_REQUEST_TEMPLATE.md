@@ -4,7 +4,7 @@ Please provide a summary of the change. What does this PR do? What does it solve
 
 ## Additional Information
 
-Auxiliary information goes here.
+Auxiliary information and additional context for the change goes here.
 
 ## Test Plan
 
