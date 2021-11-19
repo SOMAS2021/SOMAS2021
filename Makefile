@@ -19,7 +19,7 @@ build: dep ## Build the binary file
 	@go build -o bin/backend $(PKG)
  
 clean: ## Remove previous build
-	@rm -f $(PROJECT_NAME)/build
+	@rm -rf ./bin
  
 help: ## Display this help screen
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
