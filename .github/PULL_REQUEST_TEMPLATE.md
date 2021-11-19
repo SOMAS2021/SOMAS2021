@@ -1,6 +1,6 @@
 # Summary
 
-Please provide a summary of the change.
+Please provide a summary of the change. What does this PR do? What does it solve?
 
 ## Additional Information
 
