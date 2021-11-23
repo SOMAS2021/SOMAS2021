@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/SOMAS2021/SOMAS2021/packages/utils/hello"
 	"fmt"
+
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/hello"
 )
 
 func main() {

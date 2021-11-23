@@ -15,5 +15,5 @@
 # vendor/
 
 # Backend build
-backend
+bin/
 **/.DS_Store
