@@ -23,10 +23,8 @@ jobs:
 
       - name: Lint Go Code
         uses: golangci/golangci-lint-action@v2
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin # temporary fix. See https://github.com/actions/setup-go/issues/14
-          go get -u golang.org/x/lint/golint 
-          make lint
+        with:
+          go-version: 1.17
           
   test:
     name: Test
