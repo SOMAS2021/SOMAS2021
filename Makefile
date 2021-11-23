@@ -9,10 +9,10 @@ dep: ## Get the dependencies
 lint: ## Lint Golang files
 	@golangci-lint run
 
-test: ## Run unittests
+test: dep ## Run unittests
 	@go test ./...
 
-test-coverage: ## Run tests with coverage
+test-coverage: dep ## Run tests with coverage
 	@go test -coverprofile ./bin/cover.out -covermode=atomic ./...
 	@cat ./bin/cover.out
 
