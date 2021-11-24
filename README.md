@@ -40,6 +40,8 @@ s4 := S{name: "pittson"} // OK if `pittson`'s age is 0
 - Do not review your own code. That completely defeats the purpose of code review.
 - Team leads: when doing a PR for your team's code, try not review it yourself - get another team lead to review it.
 - Review PRs in a timely manner! Ideally by the next day so that other teams aren't blocked.
+- If you create a PR, use the "assign" feature on the PR to assign who should be merging it once the review is completed (this can be you)
+- If you are a reviewer, do not merge in PRs that are not assigned to you once you finish reviewing.
 ## Team Leads
 1. Jaafar Rammal (JaafarRammal) and Cyrus Goodarzi (Silvertrousers)
 2. Tom Eaton (tomeaton17)
