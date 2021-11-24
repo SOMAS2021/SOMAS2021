@@ -36,10 +36,10 @@ s4 := S{name: "pittson"} // OK if `pittson`'s age is 0
 - When working on your own team's features, please name your branch as: `teamX/FEATURE_NAME/WHATEVER_YOU_LIKE_HERE`
 - When ready to merge into your team's feature branch, create a PR to merge into `teamX/FEATURE_NAME`. When the feature is complete, then create a PR into `main`.
 - Keep PRs small: if they are too large, you will be told to split your code into smaller PRs. This ensures they can be reviewed properly.
-- You need to make sure your code is up-to-date with the `main` branch. Merge commits are *not allowed*: learn how to rebase. Ask some in the #git-env-infra channel if you don't know how to do this.
+- You need to make sure your code is up-to-date with the `main` branch. Merge commits are *not allowed*: learn how to rebase. Ask someone in the #git-env-infra channel if you don't know how to do this.
 - Do not review your own code. That completely defeats the purpose of code review.
 - Team leads: when doing a PR for your team's code, try not review it yourself - get another team lead to review it.
-- Review PRs in a timely manner!
+- Review PRs in a timely manner! Ideally by the next day so that other teams aren't blocked.
 ## Team Leads
 1. Jaafar Rammal (JaafarRammal) and Cyrus Goodarzi (Silvertrousers)
 2. Tom Eaton (tomeaton17)
