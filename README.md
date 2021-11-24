@@ -22,7 +22,7 @@ s2 := S {"pitt"} // NO (even though it initialises age to 0)
 s3 := S{name: "pitt", age: 42} // OK, if we add fields into S, this will still be correct
 s4 := S{name: "pittson"} // OK if `pittson`'s age is 0
 ```
-3. Write tests where required. There is ample guide online on how to do this in Golang. Tests will be run alongside CI when you pull into the main repo. If anyone breaks anything, it's easy to observe that if you have tests. Otherwise, your code will be broken unknowingly.
+3. Write tests where required. There are many guides online on how to do this in Golang. Tests will be run alongside CI when you pull into the main repo. If anyone breaks anything, it's easy to observe that if you have tests. Otherwise, your code will be broken unknowingly.
 
 4. DO NOT TOUCH code you don't own unless you have a good reason to. If you have a good reason to, do it in a separate PR and notify the owners of the code.
 
