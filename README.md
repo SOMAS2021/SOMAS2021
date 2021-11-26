@@ -33,9 +33,9 @@ s4 := S{name: "pittson"} // OK if `pittson`'s age is 0
 7. Use the superior `errors.Errorf` to create your errors so that we have a stack trace.
 ### Code Reviews and PRs
 - Do not push to the `main` branch. Make your own branch and create a PR into `main` when it's ready for review.
-- When working on your own team's features, please name your branch as: `teamX/FEATURE_NAME/WHATEVER_YOU_LIKE_HERE`
+- When working on your own team's features, please name your branch as: `teamX-FEATURE_NAME-WHATEVER_YOU_LIKE_HERE`
 - Do not use force push. Use `git push --force-with-lease` instead.
-- When ready to merge into your team's feature branch, create a PR to merge into `teamX/FEATURE_NAME`. When the feature is complete, then create a PR into `main`.
+- When ready to merge into your team's feature branch, create a PR to merge into `teamX-FEATURE_NAME`. When the feature is complete, then create a PR into `main`.
 - Make sure that you have reviewed your own code before creating the PR.
 - Keep PRs small: if they are too large, you will be told to split your code into smaller PRs. This ensures they can be reviewed properly.
 - You need to make sure your code is up-to-date with the `main` branch. Merge commits are *not allowed*: learn how to rebase. Ask someone in the #git-env-infra channel if you don't know how to do this.
