@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"strings"
 )
@@ -17,9 +17,34 @@ func (L *Logger) SetOutputFile(outputFile string) {
 		log.Fatal(err)
 	}
 	L.outputFile = file
+	}
+
+type DefaultFieldHooks struct {
+	GetValues func() map[string]string
 }
 
-func (L *Logger)  AddAgent(prefix string){
-		AgentLogger := log.New(L.outputFile, strings.ToUpper(prefix), log.LstdFlags)
-		L.AgentLoggers = append(L.AgentLoggers, AgentLogger)
+func (h *DefaultFieldHooks) Levels() []log.Level {
+	return log.AllLevels
+}
+
+func (h *DefaultFieldHooks) Fire(e *log.Entry) error {
+	for key, value := range h.GetValues() {
+		e.Data[key] = value
+	}
+	return nil
+}
+
+func (L *Logger)  AddAgent(agentName string, reporter string){
+	AgentLogger := log.New()
+	Fields := map[string]string{
+		"type":         "AGENT",
+		"subtype":			strings.ToUpper(agentName),
+		"reporter": 		strings.ToUpper(reporter),
+	}
+
+	AgentLogger.AddHook(&DefaultFieldHooks{GetValues: func() map[string]string {
+		return Fields
+	}})
+	AgentLogger.Out = L.outputFile
+	L.AgentLoggers = append(L.AgentLoggers, AgentLogger)
 }

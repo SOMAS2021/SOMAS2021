@@ -1,11 +1,4 @@
-WARNING: 2021/11/28 18:02:17 This is a warning
-WARNING: 2021/11/28 18:16:32 Warning log
-WARNING: 2021/11/28 18:16:39 Warning log
-WARNING: 2021/11/28 18:16:48 Warning log
-WARNING: 2021/11/28 18:16:48 Warning log
-WARNING: 2021/11/28 18:16:48 Warning log
-WARNING: 2021/11/28 18:16:48 Warning log
-TEAM 52021/11/28 18:48:53 Some logs
-TEAM 62021/11/28 18:48:53 Some logs
-TEAM 5: 2021/11/28 18:49:35 Some logs
-TEAM 6: 2021/11/28 18:49:35 Some logs
+time="2021-11-28T19:43:12Z" level=info msg="An agent log" reporter="TEAM 6" subtype=COLLABORATE type=AGENT
+time="2021-11-28T19:43:12Z" level=error msg="Another agent log" reporter="TEAM 6" subtype=COLLABORATE type=AGENT
+time="2021-11-28T19:43:12Z" level=info msg="An agent log" reporter="TEAM 5" subtype=SELFISH type=AGENT
+time="2021-11-28T19:43:12Z" level=error msg="Another agent log" reporter="TEAM 5" subtype=SELFISH type=AGENT
