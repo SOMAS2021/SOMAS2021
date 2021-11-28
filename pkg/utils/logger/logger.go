@@ -8,7 +8,7 @@ import (
 
 type Logger struct {
 	outputFile *os.File
-	AgentLoggers []*log.Logger
+	Loggers map[string]*log.Logger
 }
 
 func (L *Logger) SetOutputFile(outputFile string) {
@@ -34,17 +34,30 @@ func (h *DefaultFieldHooks) Fire(e *log.Entry) error {
 	return nil
 }
 
-func (L *Logger)  AddAgent(agentName string, reporter string){
-	AgentLogger := log.New()
+func (L *Logger)  AddLogger(logtype string, subtype string, reporter string){
+	Logger := log.New()
 	Fields := map[string]string{
-		"type":         "AGENT",
-		"subtype":			strings.ToUpper(agentName),
+		"type":         strings.ToUpper(logtype),
+		"subtype":			strings.ToUpper(subtype),
 		"reporter": 		strings.ToUpper(reporter),
 	}
 
-	AgentLogger.AddHook(&DefaultFieldHooks{GetValues: func() map[string]string {
+	Logger.AddHook(&DefaultFieldHooks{GetValues: func() map[string]string {
 		return Fields
 	}})
-	AgentLogger.Out = L.outputFile
-	L.AgentLoggers = append(L.AgentLoggers, AgentLogger)
+	Logger.Out = L.outputFile
+	// Move this check somewhere else, maybe to instance init
+	if L.Loggers == nil {
+		L.Loggers = map[string]*log.Logger{}
+	}
+	L.Loggers[GetLoggerKey(logtype, subtype, reporter)] = Logger
+}
+
+func GetLoggerKey(logtype string, subtype string, reporter string) string{
+	return logtype + "-" + subtype + "-" + reporter
+}
+
+func (L *Logger) GetLogger(logtype string, subtype string, reporter string) *log.Logger{
+	// TOOD: check if map exists and if key exists
+	return L.Loggers[GetLoggerKey(logtype, subtype, reporter)]
 }
