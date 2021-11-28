@@ -1,5 +1,8 @@
 # SOMAS2021
 
+[![Build and Test](https://github.com/SOMAS2021/SOMAS2021/actions/workflows/main.yaml/badge.svg?branch=main)](https://github.com/SOMAS2021/SOMAS2021/actions/workflows/main.yaml)
+[![Release](https://github.com/SOMAS2021/SOMAS2021/actions/workflows/release.yaml/badge.svg?branch=main)](https://github.com/SOMAS2021/SOMAS2021/actions/workflows/release.yaml)
+
 ## Set up
 
 1. Download Go 1.17 from [here](https://go.dev/doc/install).
