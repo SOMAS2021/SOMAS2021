@@ -1,21 +1,25 @@
 package logger
 
 import (
-	"fmt"
 	"log"
-)
-
-var (
-	WarningLogger *log.Logger
-	InfoLogger    *log.Logger
-	ErrorLogger   *log.Logger
+	"os"
+	"strings"
 )
 
 type Logger struct {
-	outputFile string
+	outputFile *os.File
+	AgentLoggers []*log.Logger
 }
 
-func (L *Logger) SetOutputFile(a string) {
-	L.outputFile = a
-	fmt.Printf(L.outputFile)
+func (L *Logger) SetOutputFile(outputFile string) {
+	file, err := os.OpenFile(outputFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	L.outputFile = file
+}
+
+func (L *Logger)  AddAgent(prefix string){
+		AgentLogger := log.New(L.outputFile, strings.ToUpper(prefix), log.LstdFlags)
+		L.AgentLoggers = append(L.AgentLoggers, AgentLogger)
 }
