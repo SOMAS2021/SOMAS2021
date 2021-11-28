@@ -1,8 +1,9 @@
 package logger
 
 import (
-	log "github.com/sirupsen/logrus"
 	"testing"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func TestLogger(t *testing.T) {
@@ -12,7 +13,7 @@ func TestLogger(t *testing.T) {
 	AgentLog(myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6"))
 }
 
-func AgentLog(logger *log.Logger){
+func AgentLog(logger *log.Logger) {
 	logger.Info("An agent log")
 	logger.Info("Another agent log")
 }

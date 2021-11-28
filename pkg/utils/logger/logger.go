@@ -1,14 +1,15 @@
 package logger
 
 import (
-	log "github.com/sirupsen/logrus"
 	"os"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Logger struct {
 	outputFile *os.File
-	Loggers map[string]*log.Logger
+	Loggers    map[string]*log.Logger
 }
 
 func (L *Logger) SetOutputFile(outputFile string) {
@@ -17,7 +18,7 @@ func (L *Logger) SetOutputFile(outputFile string) {
 		log.Fatal(err)
 	}
 	L.outputFile = file
-	}
+}
 
 type DefaultFieldHooks struct {
 	GetValues func() map[string]string
@@ -34,12 +35,12 @@ func (h *DefaultFieldHooks) Fire(e *log.Entry) error {
 	return nil
 }
 
-func (L *Logger)  AddLogger(logtype string, subtype string, reporter string){
+func (L *Logger) AddLogger(logtype string, subtype string, reporter string) {
 	Logger := log.New()
 	Fields := map[string]string{
-		"type":         strings.ToUpper(logtype),
-		"subtype":			strings.ToUpper(subtype),
-		"reporter": 		strings.ToUpper(reporter),
+		"type":     strings.ToUpper(logtype),
+		"subtype":  strings.ToUpper(subtype),
+		"reporter": strings.ToUpper(reporter),
 	}
 
 	Logger.AddHook(&DefaultFieldHooks{GetValues: func() map[string]string {
@@ -53,11 +54,11 @@ func (L *Logger)  AddLogger(logtype string, subtype string, reporter string){
 	L.Loggers[GetLoggerKey(logtype, subtype, reporter)] = Logger
 }
 
-func GetLoggerKey(logtype string, subtype string, reporter string) string{
+func GetLoggerKey(logtype string, subtype string, reporter string) string {
 	return logtype + "-" + subtype + "-" + reporter
 }
 
-func (L *Logger) GetLogger(logtype string, subtype string, reporter string) *log.Logger{
+func (L *Logger) GetLogger(logtype string, subtype string, reporter string) *log.Logger {
 	// TOOD: check if map exists and if key exists
 	return L.Loggers[GetLoggerKey(logtype, subtype, reporter)]
 }
