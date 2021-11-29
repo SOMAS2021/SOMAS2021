@@ -1,6 +1,7 @@
-// logger package supports a logger struct which encapsulates IDed subloggers
+// logmanager package supports a logmanager struct which encapsulates IDed subloggers
 // these can be passed to e.g. agents who can log independently to a shared file
-package logger
+
+package logmanager
 
 import (
 	"os"
@@ -10,20 +11,20 @@ import (
 )
 
 // struct definition
-type Logger struct {
+type LogManager struct {
 	outputFile *os.File
 	loggers    map[string]*log.Logger
 }
 
 // constructor
-func NewLogger() Logger {
-	var myLogger Logger
+func NewLogger() LogManager {
+	var myLogger LogManager
 	myLogger.loggers = map[string]*log.Logger{}
 	return myLogger
 }
 
 // set output file. also updates the destination of exsiting loggers
-func (L *Logger) SetOutputFile(outputFile string) (file *os.File, err error) {
+func (L *LogManager) SetOutputFile(outputFile string) (file *os.File, err error) {
 	file, err = os.OpenFile(outputFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		return file, err
@@ -63,7 +64,7 @@ func (h *defaultFieldHooks) Fire(e *log.Entry) error {
 }
 
 // adding a new logger
-func (L *Logger) AddLogger(logtype string, subtype string, reporter string) {
+func (L *LogManager) AddLogger(logtype string, subtype string, reporter string) {
 	Logger := log.New()
 	Fields := map[string]string{
 		"type":     strings.ToUpper(logtype),
@@ -83,7 +84,7 @@ func (L *Logger) AddLogger(logtype string, subtype string, reporter string) {
 }
 
 // getting an existing logger
-func (L *Logger) GetLogger(logtype string, subtype string, reporter string) *log.Logger {
+func (L *LogManager) GetLogger(logtype string, subtype string, reporter string) *log.Logger {
 	if L.loggers == nil {
 		return nil
 	}

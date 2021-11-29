@@ -1,4 +1,4 @@
-package logger
+package logmanager
 
 import (
 	"bufio"
@@ -51,7 +51,7 @@ const filepath = "log.txt"
 
 func Test1(t *testing.T) {
 	t.Log("Logger using constructor and output file")
-	var myLogger Logger = NewLogger()
+	var myLogger LogManager = NewLogger()
 	removeFile(filepath)
 	_, _ = myLogger.SetOutputFile(filepath)
 	myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
@@ -64,7 +64,7 @@ func Test1(t *testing.T) {
 
 func Test2(t *testing.T) {
 	t.Log("Logger using constructor without output file")
-	var myLogger Logger = NewLogger()
+	var myLogger LogManager = NewLogger()
 	removeFile(filepath)
 	myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
 	AgentLog(myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6"))
@@ -75,7 +75,7 @@ func Test2(t *testing.T) {
 
 func Test3(t *testing.T) {
 	t.Log("Verifying logger output contains default fields")
-	var myLogger Logger = NewLogger()
+	var myLogger LogManager = NewLogger()
 	removeFile(filepath)
 	_, _ = myLogger.SetOutputFile(filepath)
 	myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
@@ -97,7 +97,7 @@ func Test3(t *testing.T) {
 
 func Test4(t *testing.T) {
 	t.Log("Changing output")
-	var myLogger Logger = NewLogger()
+	var myLogger LogManager = NewLogger()
 	logger := myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6")
 	if logger != nil {
 		t.Errorf("Expected nil logger")
@@ -115,7 +115,7 @@ func Test4(t *testing.T) {
 
 func Test5(t *testing.T) {
 	t.Log("Coverage edge cases")
-	var myLogger Logger
+	var myLogger LogManager
 	logger := myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6")
 	if logger != nil {
 		t.Errorf("Expected nil logger")
