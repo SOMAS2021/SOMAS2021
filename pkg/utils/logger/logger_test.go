@@ -53,7 +53,7 @@ func Test1(t *testing.T) {
 	t.Log("Logger using constructor and output file")
 	var myLogger Logger = NewLogger()
 	removeFile(filepath)
-	myLogger.SetOutputFile(filepath)
+	_, _ = myLogger.SetOutputFile(filepath)
 	myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
 	AgentLog(myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6"))
 	if !fileExists(filepath) {
@@ -77,7 +77,7 @@ func Test3(t *testing.T) {
 	t.Log("Verifying logger output contains default fields")
 	var myLogger Logger = NewLogger()
 	removeFile(filepath)
-	myLogger.SetOutputFile(filepath)
+	_, _ = myLogger.SetOutputFile(filepath)
 	myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
 	AgentLog(myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6"))
 	lines, err := readLines(filepath)
@@ -105,7 +105,7 @@ func Test4(t *testing.T) {
 	myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
 	logger = myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6")
 	removeFile("log.txt")
-	myLogger.SetOutputFile("log.txt")
+	_, _ = myLogger.SetOutputFile(filepath)
 	AgentLog(logger)
 	if !fileExists(filepath) {
 		t.Errorf("File %s does not exist", filepath)
