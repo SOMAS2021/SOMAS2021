@@ -1,3 +1,0 @@
-time="2021-11-28T19:58:42Z" level=info msg="An agent log" reporter="TEAM 6" subtype=SELFISH type=AGENT
-time="2021-11-28T19:58:54Z" level=info msg="An agent log" reporter="TEAM 6" subtype=SELFISH type=AGENT
-time="2021-11-28T19:58:54Z" level=info msg="Another agent log" reporter="TEAM 6" subtype=SELFISH type=AGENT
