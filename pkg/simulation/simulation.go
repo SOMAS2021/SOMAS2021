@@ -1,7 +1,17 @@
+package simulation
+
+import (
+	"math/rand"
+
+	. "../agents/team1"
+	. "../messages"
+	. "../tower"
+)
+
 //Ask people to be nice and to not break the simulation rules!!!!!!!!!
 type simEnv struct {
-	agents_per_floor           int
-	platformStatingFood        int
+	agents_per_floor           uint64
+	platformStatingFood        float64
 	timeSpentByPlatformOnFloor int
 }
 
@@ -11,17 +21,40 @@ type simEnv struct {
 // Number of messages that can be sent during a turn (time between the movement of the platform) or time taken for given message types to be sent
 // Time taken for agents to respond to messages
 
-func (sE *simEnv) Replace( /*add relevant inputs*/ ) /*add relevant return values*/ {
+func replace(sE *simEnv) /*add relevant return values*/ {
 	//implementation
 }
 
-func (eE *simEnv) reshuffle() {
+func reshuffle(agents *[]BaseAgent, agentsPerFloor uint64) {
+
+}
+
+func communication(agents *[]BaseAgent, messages *[]Message, commFloor int) {
+
+	// allocate curr Messages
+
+	// collect messages from agents
+
+	// put new messages in inboxes
+
+}
+
+func eating(currAgent *BaseAgent, foodLeft *float64, maxHealthPoints int) {
+
+	// first eating - ask agent to return food taken
+
+	// second - updated health of curr Agent
+
+}
+
+func death(agents *[]BaseAgent) {
 
 }
 
 // by making stuff lower case, they dont get access to it in other files, oh baby yeah lets do this
 func (sE *simEnv) Simulate() {
 	//come up with rules
+
 	// Initialisation Phase - set intial parameters of sim
 	// time parameters
 	var simLength int
@@ -43,58 +76,67 @@ func (sE *simEnv) Simulate() {
 	var foodToSatisfice float64 // don't loose HP, dont gain HP
 	var foodToSatisfy float64   // gain HP?
 	var maxHealthPoints int = 100
-	var minHealthPoints int = 0
-	var numberOfAgents int
+	// var minHealthPoints int = 0
+	var numberOfAgents uint64
 	var totalFood float64
 
-	totalFood = foodToSatisfice * numberOfAgents
-	// replace foodToSatisfice with rand(foodToSatisfice, foodToSatisfy)
+	foodRange := foodToSatisfy - foodToSatisfice
+	totalFood = foodToSatisfice + rand.Float64()*foodRange
 
 	//-- instantiate agents here !! TALK ABOUT THIS WITH THE GROUP
 
 	//-- HP decay function
 
 	//tower params (- could be set in tower and called.)
-	var numFloors int
-	var agentsPerFloor int
+	var numFloors uint64
+	var agentsPerFloor uint64
 	var currFloor int
 
 	numFloors = numberOfAgents / agentsPerFloor
 
 	var environment = simEnv{agentsPerFloor, foodLeft, ticksSpentByPlatformOnFloor}
 
-	var tower = Tower{foodLeft, topFloor, agents}
+	var agentListTemp []BaseAgent = []BaseAgent{{HP: 12, Floor: 2}}
 
-	for currentDay; currentDay < simLength; currentDay++ {
+	var tower = Tower{FoodOnPlatform: foodLeft, FloorOfPlatform: 0, Agents: agentListTemp}
+
+	for currentDay < simLength {
 		// ticks for loop TODO: import time package
 		// time.tick()
 		var tickTmp int = 0
-		currFloor = numFloors
+		currFloor = 0
 		foodLeft = totalFood
+		currentDay++
+
+		//message instantiation
+		var messages []Message
 
 		for tickTmp < ticksPerDay {
+
 			//wake up (do we need to define agents sleeping?)
 
 			// communicate phase
-			communication(tower.agents, messages, tickTmp)
+			communication(&tower.Agents, &messages, commFloors)
 			// every tick/increment - communication function passes through the outbox
 			// of every agent and checks whether there is a message 'waiting' to be sent
 			// (this wait would be a very short period of time == one tick)
 			// if ther a message to be sent - it is allocated to the right agent to be
 			// received on the next tick/increment
 
-			// platform move phase
-			eating(tower.agents, currFloor, agentsPerFloor, maxHealthPoints)
-			//do we need to reset platform or just pass the top floor in the eating function
-			currFloor--
+			if currFloor != int(numFloors) {
+				// platform move phase
+				eating(&tower.Agents[int(currFloor)], &foodLeft, maxHealthPoints)
+				//do we need to reset platform or just pass the top floor in the eating function
+				currFloor++
+			}
 
 		}
-		death(tower.agents)
+		death(&tower.Agents)
 		// when do we replace agents, as soon as they die or on the reshuffle?
-		replace(environment)
+		replace(&environment)
 		daysUntilReshuffle--
 		if daysUntilReshuffle == 0 {
-			reshuffle(tower.agents, agentsPerFloor)
+			reshuffle(&tower.Agents, agentsPerFloor)
 			daysUntilReshuffle = daysPerReshuffle
 		}
 		// print data requested by the frontend team
