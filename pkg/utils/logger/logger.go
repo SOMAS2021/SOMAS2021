@@ -23,22 +23,22 @@ func NewLogger() Logger {
 }
 
 // set output file. also updates the destination of exsiting loggers
-func (L *Logger) SetOutputFile(outputFile string) {
-	file, err := os.OpenFile(outputFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+func (L *Logger) SetOutputFile(outputFile string) (file *os.File, err error) {
+	file, err = os.OpenFile(outputFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		log.Fatal(err)
+		return file, err
 	}
 	L.outputFile = file
+
 	// update all loggers to start writing again to same file
 	if file != nil {
 		for _, logger := range L.loggers {
 			if file != nil {
 				logger.Out = file
-			} else {
-				logger.Out = os.Stdout
 			}
 		}
 	}
+	return file, err
 }
 
 // helper function to build logger key

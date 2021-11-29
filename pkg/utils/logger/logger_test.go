@@ -94,3 +94,34 @@ func Test3(t *testing.T) {
 	}
 	removeFile(filepath)
 }
+
+func Test4(t *testing.T) {
+	t.Log("Changing output")
+	var myLogger Logger = NewLogger()
+	logger := myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6")
+	if logger != nil {
+		t.Errorf("Expected nil logger")
+	}
+	myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
+	logger = myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6")
+	removeFile("log.txt")
+	myLogger.SetOutputFile("log.txt")
+	AgentLog(logger)
+	if !fileExists(filepath) {
+		t.Errorf("File %s does not exist", filepath)
+	}
+	removeFile(filepath)
+}
+
+func Test5(t *testing.T) {
+	t.Log("Coverage edge cases")
+	var myLogger Logger
+	logger := myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6")
+	if logger != nil {
+		t.Errorf("Expected nil logger")
+	}
+	_, err := myLogger.SetOutputFile("")
+	if !os.IsNotExist(err) {
+		t.Errorf("Expected file not found error")
+	}
+}
