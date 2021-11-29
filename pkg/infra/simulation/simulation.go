@@ -3,9 +3,9 @@ package simulation
 import (
 	"math/rand"
 
-	. "../agents/team1"
-	. "../messages"
-	. "../tower"
+	. "github.com/SOMAS2021/SOMAS2021/pkg/agents/default"
+	. "github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
+	. "github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
 )
 
 //Ask people to be nice and to not break the simulation rules!!!!!!!!!
