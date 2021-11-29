@@ -64,8 +64,9 @@ func (h *defaultFieldHooks) Fire(e *log.Entry) error {
 }
 
 // adding a new logger
-func (L *LogManager) AddLogger(logtype string, subtype string, reporter string) {
+func (L *LogManager) AddLogger(logtype string, subtype string, reporter string) (created bool, logger *log.Logger) {
 	Logger := log.New()
+	key := getLoggerKey(logtype, subtype, reporter)
 	Fields := map[string]string{
 		"type":     strings.ToUpper(logtype),
 		"subtype":  strings.ToUpper(subtype),
@@ -80,7 +81,11 @@ func (L *LogManager) AddLogger(logtype string, subtype string, reporter string) 
 	} else {
 		Logger.Out = os.Stdout
 	}
-	L.loggers[getLoggerKey(logtype, subtype, reporter)] = Logger
+	_, exists := L.loggers[getLoggerKey(logtype, subtype, reporter)]
+	if !exists {
+		L.loggers[key] = Logger
+	}
+	return !exists, Logger
 }
 
 // getting an existing logger

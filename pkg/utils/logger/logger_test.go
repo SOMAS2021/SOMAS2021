@@ -54,8 +54,8 @@ func Test1(t *testing.T) {
 	var myLogger LogManager = NewLogger()
 	removeFile(filepath)
 	_, _ = myLogger.SetOutputFile(filepath)
-	myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
-	AgentLog(myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6"))
+	_, agentLogger := myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
+	AgentLog(agentLogger)
 	if !fileExists(filepath) {
 		t.Errorf("File %s does not exist", filepath)
 	}
@@ -66,8 +66,8 @@ func Test2(t *testing.T) {
 	t.Log("Logger using constructor without output file")
 	var myLogger LogManager = NewLogger()
 	removeFile(filepath)
-	myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
-	AgentLog(myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6"))
+	_, agentLogger := myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
+	AgentLog(agentLogger)
 	if fileExists(filepath) {
 		t.Errorf("File %s should not exist", filepath)
 	}
@@ -78,8 +78,8 @@ func Test3(t *testing.T) {
 	var myLogger LogManager = NewLogger()
 	removeFile(filepath)
 	_, _ = myLogger.SetOutputFile(filepath)
-	myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
-	AgentLog(myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6"))
+	_, agentLogger := myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
+	AgentLog(agentLogger)
 	lines, err := readLines(filepath)
 	if err != nil {
 		t.Errorf("readLines: %s", err)
