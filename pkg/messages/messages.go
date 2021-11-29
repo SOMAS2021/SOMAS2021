@@ -1,9 +1,11 @@
+package Messages
+
 //Define message types to enable basic protocols, voting systems ...etc
-type Message struct{
-    senderID
-    content
+type Message struct {
+	// senderID
+	// content
 }
-type ackMessage struct{
-    msg Message
-    ack bool
+type AckMessage struct {
+	msg Message
+	ack bool
 }

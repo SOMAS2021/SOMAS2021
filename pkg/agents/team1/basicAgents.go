@@ -1,13 +1,19 @@
+package Agent
+
+import "fmt"
+
+type BaseAgent struct {
+    //don't direclty access or modify these during runtime pls
+    HP int
+    Floor int
+    // uuid
+    //personality Personality
+}
+
 type Agent interface{
     Run(t *Tower) // maybe include tick Time (can also be sim phases)
 }
-type baseAgent struct {
-    //don't direclty access or modify these during runtime pls
-    HP 
-    uuid
-    floor
-    //personality Personality
-}
+
 type seflishAgent struct{
     bA baseAgent 
     const selfishness float64 = 1.0
@@ -43,7 +49,7 @@ func (bA *baseAgent) Communicate(floor type_with_3_vals, msg Message){
     //  broadcast message to everyone on only your floor
 }
 
-func (bA *baseAgent) ObserveTowerState(t Tower) <big ass list of stuff that the agent is allowed to see from the tower>{
+func (bA *baseAgent) ObserveTowerState(t Tower) // <big ass list of stuff that the agent is allowed to see from the tower>{
 } 
 
 func (bA *baseAgent) MemoryDecay() //needs to be implemented later, assume agents can remeber forever atm? the agent teams will handle how to remember stuff
