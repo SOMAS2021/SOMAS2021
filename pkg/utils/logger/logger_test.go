@@ -104,7 +104,7 @@ func Test4(t *testing.T) {
 	}
 	myLogger.AddLogger("AGENT", "SELFISH", "TEAM 6")
 	logger = myLogger.GetLogger("AGENT", "SELFISH", "TEAM 6")
-	removeFile("log.txt")
+	removeFile(filepath)
 	_, _ = myLogger.SetOutputFile(filepath)
 	AgentLog(logger)
 	if !fileExists(filepath) {
