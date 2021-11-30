@@ -9,9 +9,9 @@ import (
 )
 
 type BaseAgent struct {
-	HP    int
-	Floor int
-	Tower *tower.Tower
+	hp    int
+	floor int
+	tower *tower.Tower
 }
 
 func New(abm *abm.ABM, floor, hp int) (*BaseAgent, error) {
@@ -24,12 +24,20 @@ func New(abm *abm.ABM, floor, hp int) (*BaseAgent, error) {
 		return nil, errors.New("Agent needs a Tower world to operate")
 	}
 	return &BaseAgent{
-		Floor: floor,
-		HP:    hp,
-		Tower: tower,
+		floor: floor,
+		hp:    hp,
+		tower: tower,
 	}, nil
 }
 
 func (a *BaseAgent) Run() {
-	log.Printf("An agent cycle executed from base agent %d", a.Floor)
+	log.Printf("An agent cycle executed from base agent %d", a.floor)
+}
+
+func (a *BaseAgent) GetHP() int {
+	return a.hp
+}
+
+func (a *BaseAgent) GetFloor() int {
+	return a.floor
 }
