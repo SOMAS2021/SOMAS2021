@@ -17,4 +17,3 @@
 # Backend build
 bin/
 **/.DS_Store
-go.sum
