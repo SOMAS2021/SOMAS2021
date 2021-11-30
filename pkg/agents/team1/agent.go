@@ -11,5 +11,5 @@ type CustomAgent struct {
 }
 
 func (a *CustomAgent) Run() {
-	log.Printf("Custom agent has floor: %d", a.GetFloor())
+	log.Printf("Custom agent has floor: %d", a.BaseAgent.GetFloor())
 }
