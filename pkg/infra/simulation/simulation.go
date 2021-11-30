@@ -1,19 +1,57 @@
 package simulation
 
 import (
-	"math/rand"
+	"log"
 
-	. "github.com/SOMAS2021/SOMAS2021/pkg/agents/default"
-	. "github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
-	. "github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
+	baseagent "github.com/SOMAS2021/SOMAS2021/pkg/agents/default"
+	tower "github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
+	"github.com/divan/goabm/abm"
 )
 
-//Ask people to be nice and to not break the simulation rules!!!!!!!!!
-type simEnv struct {
-	agents_per_floor           uint64
-	platformStatingFood        float64
-	timeSpentByPlatformOnFloor int
+type SimEnv struct {
+	FoodOnPlatform float64
+	AgentCount     int
+	AgentHP        int
+	Iterations     int
 }
+
+func New(foodOnPlat float64, agentCount int, agentHP int, iterations int) *SimEnv {
+
+	s := &SimEnv{
+		FoodOnPlatform: foodOnPlat,
+		AgentCount:     agentCount,
+		AgentHP:        agentHP,
+		Iterations:     iterations,
+	}
+	// can do other inits here
+	return s
+}
+
+func (sE *SimEnv) Simulate() {
+
+	a := abm.New()
+	tower := tower.New(sE.FoodOnPlatform, 1, sE.AgentCount)
+	a.SetWorld(tower)
+
+	for i := 0; i < sE.AgentCount; i++ {
+
+		agent, err := baseagent.New(a, i, sE.AgentHP)
+		if err != nil {
+			log.Fatal(err)
+		}
+		a.AddAgent(agent)
+		tower.SetAgent(i, agent)
+
+	}
+
+	a.LimitIterations(sE.Iterations)
+	a.StartSimulation()
+
+}
+
+// Draft for WIP
+
+/*
 
 //more parameters to be considered
 // What rules do the agents collectively agree on before they enter the tower.
@@ -21,7 +59,7 @@ type simEnv struct {
 // Number of messages that can be sent during a turn (time between the movement of the platform) or time taken for given message types to be sent
 // Time taken for agents to respond to messages
 
-func replace(sE *simEnv) /*add relevant return values*/ {
+func replace(sE *simEnv) {
 	//implementation
 }
 
@@ -133,7 +171,7 @@ func (sE *simEnv) Simulate() {
 		}
 		death(&tower.Agents)
 		// when do we replace agents, as soon as they die or on the reshuffle?
-		replace(&environment)
+		replace(&simEnv)
 		daysUntilReshuffle--
 		if daysUntilReshuffle == 0 {
 			reshuffle(&tower.Agents, agentsPerFloor)
@@ -155,3 +193,5 @@ func (sE *simEnv) Simulate() {
 	//end of sim
 	//- write to json file (could just dump the entire program state)
 }
+
+*/

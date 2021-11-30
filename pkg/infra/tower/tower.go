@@ -1,26 +1,44 @@
 package Tower
 
 import (
-	. "github.com/SOMAS2021/SOMAS2021/pkg/agents/default"
+	"log"
+	"sync"
+
+	"github.com/divan/goabm/abm"
 )
 
 type Tower struct {
 	FoodOnPlatform  float64
 	FloorOfPlatform uint64
-	Agents          []BaseAgent
+	mx              sync.RWMutex
+	agents          []abm.Agent
+	AgentCount      int
 }
 
-// func (t Tower) TakeFood(a Agent, amt uint64) {
-// 	if foodPlatform_floor == a.floor {
-// 		if amt > tower.PlatformFood {
-// 			a.hunger += PlatformFood
-// 			t.PlatformFood = 0
-// 			fmt.Println("Tried to take more food than exists, were given all the food")
-// 		} else {
-// 			a.hunger += amt
-// 			t.PlatformFood -= amt
-// 		}
-// 	} else {
-// 		fmt.Println("Platform not on your floor, no food for you")
-// 	}
-// }
+func New(foodOnPlatform float64, floorOfPlatform uint64, agentCount int) *Tower {
+	t := &Tower{
+		FoodOnPlatform:  foodOnPlatform,
+		FloorOfPlatform: floorOfPlatform,
+		AgentCount:      agentCount,
+	}
+
+	t.initAgents()
+
+	return t
+}
+
+func (t *Tower) initAgents() {
+	t.agents = make([]abm.Agent, t.AgentCount)
+}
+
+func (t *Tower) Tick() {
+	t.mx.RLock()
+	defer t.mx.RUnlock()
+	log.Printf("A log from the tower!")
+}
+
+func (t *Tower) SetAgent(index int, agent abm.Agent) {
+	t.mx.Lock()
+	t.agents[index] = agent
+	t.mx.Unlock()
+}

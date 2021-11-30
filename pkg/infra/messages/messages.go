@@ -7,6 +7,6 @@ type Message interface {
 }
 
 type AckMessage struct {
-	msg Message
-	ack bool
+	// msg Message
+	// ack bool
 }
