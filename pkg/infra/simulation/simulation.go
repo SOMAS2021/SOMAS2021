@@ -59,13 +59,7 @@ func (sE *SimEnv) Simulate() {
 // Number of messages that can be sent during a turn (time between the movement of the platform) or time taken for given message types to be sent
 // Time taken for agents to respond to messages
 
-func replace(sE *simEnv) {
-	//implementation
-}
 
-func reshuffle(agents *[]BaseAgent, agentsPerFloor uint64) {
-
-}
 
 func communication(agents *[]BaseAgent, messages *[]Message, commFloor int) {
 

@@ -31,10 +31,22 @@ func (t *Tower) initAgents() {
 	t.agents = make([]abm.Agent, t.AgentCount)
 }
 
+func replace(t *Tower) {
+	//implementation
+}
+
+func reshuffle(agents *[]BaseAgent, agentsPerFloor uint64) {
+
+}
+
 func (t *Tower) Tick() {
 	t.mx.RLock()
 	defer t.mx.RUnlock()
 	log.Printf("A log from the tower!")
+	// add all the tower functions here
+	// replace(&t)
+	// agree upon the reshuffle frequency
+	// reshuffle(&tower.Agents, agentsPerFloor)
 }
 
 func (t *Tower) SetAgent(index int, agent abm.Agent) {
