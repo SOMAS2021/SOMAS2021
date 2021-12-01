@@ -8,6 +8,10 @@ import (
 	"github.com/divan/goabm/abm"
 )
 
+type Agent interface {
+	Run()
+}
+
 type BaseAgent struct {
 	hp    int
 	floor int
