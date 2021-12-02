@@ -2,6 +2,7 @@ package Tower
 
 import (
 	"log"
+	"math/rand"
 	"sync"
 
 	"github.com/divan/goabm/abm"
@@ -35,8 +36,25 @@ func replace(t *Tower) {
 	//implementation
 }
 
-func reshuffle(agents *[]BaseAgent, agentsPerFloor uint64) {
+func reshuffle(agents *[]abm.Agent, agentsPerFloor int) {
+	totalAgents := len(*agents)
+	numOfFloors := totalAgents / int(agentsPerFloor)
+	remainingVacanies := make([]int, numOfFloors, numOfFloors)
+	for i := 0; i < numOfFloors; i++ {
+		remainingVacanies[i] = agentsPerFloor
+	}
 
+	for i := 0; i < totalAgents; i++ {
+		currFloor := rand.Int(numOfFloors) // random number in the range 0 - numOfFloors
+		for remainingVacanies[currFloor] == 0 {
+			currFloor := rand.Int(numOfFloors)
+		}
+		//TODO: assign agent to currFloor
+		agents[i].floor
+		remainingVacanies[currFloor]--
+	}
+	// go through list of agents one by one and access the struct
+	// access what floor they are on
 }
 
 func (t *Tower) Tick() {
