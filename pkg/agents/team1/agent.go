@@ -13,7 +13,7 @@ type CustomAgent1 struct {
 }
 
 func New(baseAgent *baseagent.BaseAgent) (baseagent.Agent, error) {
-	return CustomAgent1{
+	return &CustomAgent1{
 		BA:       baseAgent,
 		myString: "test",
 	}, nil

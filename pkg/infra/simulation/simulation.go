@@ -29,6 +29,8 @@ func New(foodOnPlat float64, agentCount []int, agentHP int, iterations int) *Sim
 	return s
 }
 
+type AgentFunc func(base *baseagent.BaseAgent) (baseagent.Agent, error)
+
 func (sE *SimEnv) Simulate() {
 	a := abm.New()
 
@@ -36,7 +38,7 @@ func (sE *SimEnv) Simulate() {
 	tower := tower.New(sE.FoodOnPlatform, 1, totalAgents)
 	a.SetWorld(tower)
 
-	abs := []func(baseAgent *baseagent.BaseAgent) (baseagent.Agent, error){agent.New, agent2.New}
+	abs := []AgentFunc{agent.New, agent2.New}
 
 	agentIndex := 0
 	for i := 0; i < len(sE.AgentCount); i++ {

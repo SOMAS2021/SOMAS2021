@@ -12,7 +12,7 @@ type CustomAgent2 struct {
 	myNumber int
 }
 
-func New(baseAgent *baseagent.BaseAgent) (*CustomAgent2, error) {
+func New(baseAgent *baseagent.BaseAgent) (baseagent.Agent, error) {
 	return &CustomAgent2{
 		BA:       baseAgent,
 		myNumber: 0,
