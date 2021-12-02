@@ -3,7 +3,7 @@ package Tower
 import (
 	"log"
 	"sync"
-
+	messages "github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
 	"github.com/divan/goabm/abm"
 )
 
@@ -41,4 +41,16 @@ func (t *Tower) SetAgent(index int, agent abm.Agent) {
 	t.mx.Lock()
 	t.agents[index] = agent
 	t.mx.Unlock()
+}
+
+func (tower *Tower) sendMessage(direction uint64, sender abm.Agent, msg messages.Message){
+    if abs(direction) >= 1 {break}
+    senderIndex = tower.agents.find(sender)
+    reciever = tower.agents[senderIndex + direction]
+    
+	go func(reciever baseAgent) {
+		reciever.inbox <- msg
+	}(reciever)
+    
+
 }

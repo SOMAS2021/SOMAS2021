@@ -3,7 +3,7 @@ package baseagent
 import (
 	"errors"
 	"log"
-
+	messages "github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
 	tower "github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
 	"github.com/divan/goabm/abm"
 )
@@ -12,6 +12,7 @@ type BaseAgent struct {
 	hp    int
 	floor int
 	tower *tower.Tower
+	inbox chan messages.Message
 }
 
 func New(abm *abm.ABM, floor, hp int) (*BaseAgent, error) {
@@ -40,4 +41,9 @@ func (a *BaseAgent) GetHP() int {
 
 func (a *BaseAgent) GetFloor() int {
 	return a.floor
+}
+
+func (a *BaseAgent) recieveMessage() msg messages.Message{
+    msg := <- a.inbox
+    return msg
 }
