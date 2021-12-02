@@ -3,7 +3,7 @@ package simulation
 import (
 	"log"
 
-	baseagent "github.com/SOMAS2021/SOMAS2021/pkg/agents/default"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
 	agent1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
 	agent2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
 	tower "github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
@@ -29,7 +29,7 @@ func New(foodOnPlat float64, agentCount []int, agentHP int, iterations int) *Sim
 	return s
 }
 
-type AgentNewFunc func(base *baseagent.BaseAgent) (baseagent.Agent, error)
+type AgentNewFunc func(base *agents.Base) (agents.Agent, error)
 
 func (sE *SimEnv) Simulate() {
 	a := abm.New()
@@ -45,7 +45,7 @@ func (sE *SimEnv) Simulate() {
 	for i := 0; i < len(sE.AgentCount); i++ {
 		for j := 0; j < sE.AgentCount[i]; j++ {
 
-			bagent, err := baseagent.NewBaseAgent(a, agentIndex, sE.AgentHP)
+			bagent, err := agents.NewBaseAgent(a, agentIndex, sE.AgentHP)
 			if err != nil {
 				log.Fatal(err)
 			}

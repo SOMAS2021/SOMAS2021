@@ -1,4 +1,4 @@
-package baseagent
+package agents
 
 import (
 	"errors"
@@ -13,14 +13,14 @@ type Agent interface {
 	Run()
 }
 
-type BaseAgent struct {
+type Base struct {
 	hp    int
 	floor int
 	id    string
 	tower *tower.Tower
 }
 
-func NewBaseAgent(abm *abm.ABM, floor, hp int) (*BaseAgent, error) {
+func NewBaseAgent(abm *abm.ABM, floor, hp int) (*Base, error) {
 	world := abm.World()
 	if world == nil {
 		return nil, errors.New("Agent needs a World defined to operate")
@@ -29,7 +29,7 @@ func NewBaseAgent(abm *abm.ABM, floor, hp int) (*BaseAgent, error) {
 	if !ok {
 		return nil, errors.New("Agent needs a Tower world to operate")
 	}
-	return &BaseAgent{
+	return &Base{
 		floor: floor,
 		hp:    hp,
 		tower: tower,
@@ -37,18 +37,18 @@ func NewBaseAgent(abm *abm.ABM, floor, hp int) (*BaseAgent, error) {
 	}, nil
 }
 
-func (a *BaseAgent) Run() {
+func (a *Base) Run() {
 	log.Printf("An agent cycle executed from base agent %d", a.floor)
 }
 
-func (a *BaseAgent) GetHP() int {
+func (a *Base) HP() int {
 	return a.hp
 }
 
-func (a *BaseAgent) GetFloor() int {
+func (a *Base) Floor() int {
 	return a.floor
 }
 
-func (a *BaseAgent) GetID() string {
+func (a *Base) ID() string {
 	return a.id
 }
