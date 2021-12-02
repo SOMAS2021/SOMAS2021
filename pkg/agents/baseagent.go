@@ -3,8 +3,13 @@ package agents
 import (
 	"errors"
 	"log"
+<<<<<<< HEAD:pkg/agents/baseagent.go
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
+=======
+	messages "github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
+	tower "github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
+>>>>>>> 4bbf3a2e425fa4818564f481cfc3d4cd85548358:pkg/agents/default/baseagent.go
 	"github.com/divan/goabm/abm"
 	"github.com/google/uuid"
 )
@@ -18,6 +23,7 @@ type Base struct {
 	floor int
 	id    string
 	tower *tower.Tower
+	inbox chan messages.Message
 }
 
 func NewBaseAgent(abm *abm.ABM, floor, hp int) (*Base, error) {
@@ -49,6 +55,12 @@ func (a *Base) Floor() int {
 	return a.floor
 }
 
+<<<<<<< HEAD:pkg/agents/baseagent.go
 func (a *Base) ID() string {
 	return a.id
+=======
+func (a *BaseAgent) recieveMessage() msg messages.Message{
+    msg := <- a.inbox
+    return msg
+>>>>>>> 4bbf3a2e425fa4818564f481cfc3d4cd85548358:pkg/agents/default/baseagent.go
 }

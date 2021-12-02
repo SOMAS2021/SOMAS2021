@@ -2,11 +2,18 @@ package messages
 
 //Define message types to enable basic protocols, voting systems ...etc
 type Message interface {
-	// senderID
-	// content
+	GetSenderID()
+}
+
+type baseMessage struct {
+	senderID uint64
 }
 
 type AckMessage struct {
-	// msg Message
+	// msg baseMessage
 	// ack bool
+}
+
+func (baseMsg *baseMessage) GetSenderID() uint64 {
+    return baseMsg.senderID
 }
