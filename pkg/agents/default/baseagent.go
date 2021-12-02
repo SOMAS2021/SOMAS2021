@@ -6,6 +6,7 @@ import (
 
 	tower "github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
 	"github.com/divan/goabm/abm"
+	"github.com/google/uuid"
 )
 
 type Agent interface {
@@ -15,10 +16,11 @@ type Agent interface {
 type BaseAgent struct {
 	hp    int
 	floor int
+	id    string
 	tower *tower.Tower
 }
 
-func New(abm *abm.ABM, floor, hp int) (*BaseAgent, error) {
+func NewBaseAgent(abm *abm.ABM, floor, hp int) (*BaseAgent, error) {
 	world := abm.World()
 	if world == nil {
 		return nil, errors.New("Agent needs a World defined to operate")
@@ -31,6 +33,7 @@ func New(abm *abm.ABM, floor, hp int) (*BaseAgent, error) {
 		floor: floor,
 		hp:    hp,
 		tower: tower,
+		id:    uuid.New().String(),
 	}, nil
 }
 
@@ -44,4 +47,8 @@ func (a *BaseAgent) GetHP() int {
 
 func (a *BaseAgent) GetFloor() int {
 	return a.floor
+}
+
+func (a *BaseAgent) GetID() string {
+	return a.id
 }

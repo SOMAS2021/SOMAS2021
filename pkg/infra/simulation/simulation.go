@@ -4,8 +4,8 @@ import (
 	"log"
 
 	baseagent "github.com/SOMAS2021/SOMAS2021/pkg/agents/default"
-	agent "github.com/SOMAS2021/SOMAS2021/pkg/agents/team1"
-	agent2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team2"
+	agent1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
+	agent2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
 	tower "github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
 	"github.com/divan/goabm/abm"
 )
@@ -29,7 +29,7 @@ func New(foodOnPlat float64, agentCount []int, agentHP int, iterations int) *Sim
 	return s
 }
 
-type AgentFunc func(base *baseagent.BaseAgent) (baseagent.Agent, error)
+type AgentNewFunc func(base *baseagent.BaseAgent) (baseagent.Agent, error)
 
 func (sE *SimEnv) Simulate() {
 	a := abm.New()
@@ -38,39 +38,26 @@ func (sE *SimEnv) Simulate() {
 	tower := tower.New(sE.FoodOnPlatform, 1, totalAgents)
 	a.SetWorld(tower)
 
-	abs := []AgentFunc{agent.New, agent2.New}
+	// TODO: clean this looping, make a nice abs map
+	abs := []AgentNewFunc{agent1.New, agent2.New}
 
 	agentIndex := 0
 	for i := 0; i < len(sE.AgentCount); i++ {
 		for j := 0; j < sE.AgentCount[i]; j++ {
 
-			bagent, err := baseagent.New(a, agentIndex, sE.AgentHP)
+			bagent, err := baseagent.NewBaseAgent(a, agentIndex, sE.AgentHP)
 			if err != nil {
 				log.Fatal(err)
 			}
-
-			if i == 0 {
-				// generates a custom agent on the current base agent
-				custagent, err := agent.New(bagent)
-				if err != nil {
-					log.Fatal(err)
-				}
-				// adds custom agent to the world & controller
-				a.AddAgent(custagent)
-				tower.SetAgent(agentIndex, custagent)
-				agentIndex++
-			} else if i == 1 {
-				// generates a custom agent on the current base agent
-				custagent, err := agent2.New(bagent)
-				if err != nil {
-					log.Fatal(err)
-				}
-				// adds custom agent to the world & controller
-				a.AddAgent(custagent)
-				tower.SetAgent(agentIndex, custagent)
-				agentIndex++
+			// generates a custom agent on the current base agent
+			custagent, err := abs[i%len(abs)](bagent)
+			if err != nil {
+				log.Fatal(err)
 			}
-
+			// adds custom agent to the world & controller
+			a.AddAgent(custagent)
+			tower.SetAgent(agentIndex, custagent)
+			agentIndex++
 		}
 	}
 
@@ -86,94 +73,6 @@ func sum(inputList []int) int {
 	}
 	return totalAgents
 }
-
-// better sol attempt:
-
-// abs := []func(baseAgent *baseagent.BaseAgent) (interface{}, error){agent.New, agent2.New}
-// // abs2 := []interface{}{agent2.Pointer}
-
-// // test two diff agents passing in
-// bagent, err := baseagent.New(a, 0, sE.AgentHP)
-// if err != nil {
-// 	log.Fatal(err)
-// }
-
-// custagent, err := abs[1](bagent)
-// if err != nil {
-// 	log.Fatal(err)
-// }
-// // adds custom agent to the world & controller
-// if wrapper, ok := custagent.(agent2.Pointer); ok {
-// 	CA := wrapper.CA
-// 	a.AddAgent(CA)
-// 	tower.SetAgent(0, CA)
-// }
-// // a.AddAgent(custagent.(*agent2.CustomAgent))
-// // tower.SetAgent(0, custagent.(*agent2.CustomAgent))
-
-// // bagent2, err := baseagent.New(a, 1, sE.AgentHP)
-// // if err != nil {
-// // 	log.Fatal(err)
-// // }
-
-// // custagent2, err := abs[0](bagent2)
-// // if err != nil {
-// // 	log.Fatal(err)
-// // }
-// // // adds custom agent to the world & controller
-// // a.AddAgent(custagent2.(*agent.CustomAgent))
-// // tower.SetAgent(1, custagent2.(*agent.CustomAgent))
-
-// test two diff agents passing in
-// bagent, err := baseagent.New(a, 0, sE.AgentHP)
-// if err != nil {
-// 	log.Fatal(err)
-// }
-
-// custagent, err := agent.New(bagent)
-// if err != nil {
-// 	log.Fatal(err)
-// }
-// // adds custom agent to the world & controller
-// a.AddAgent(custagent)
-// tower.SetAgent(0, custagent)
-
-// bagent2, err := baseagent.New(a, 1, sE.AgentHP)
-// if err != nil {
-// 	log.Fatal(err)
-// }
-
-// custagent2, err := agent2.New(bagent2)
-// if err != nil {
-// 	log.Fatal(err)
-// }
-// // adds custom agent to the world & controller
-// a.AddAgent(custagent2)
-// tower.SetAgent(1, custagent2)
-
-// other method of agent alloc
-
-// if i == 0 {
-// 	// generates a custom agent on the current base agent
-// 	custagent, err := agent.New(bagent)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	// adds custom agent to the world & controller
-// 	a.AddAgent(custagent)
-// 	tower.SetAgent(agentIndex, custagent)
-// 	agentIndex++
-// } else if i == 1 {
-// 	// generates a custom agent on the current base agent
-// 	custagent, err := agent.New(bagent)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	// adds custom agent to the world & controller
-// 	a.AddAgent(custagent)
-// 	tower.SetAgent(agentIndex, custagent)
-// 	agentIndex++
-// }
 
 // Draft for WIP
 
