@@ -4,9 +4,9 @@ import (
 	"log"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
-	agent1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
-	agent2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
-	tower "github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
 	"github.com/divan/goabm/abm"
 )
 
