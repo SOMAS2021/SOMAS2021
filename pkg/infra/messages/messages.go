@@ -15,5 +15,5 @@ type AckMessage struct {
 }
 
 func (baseMsg *baseMessage) GetSenderID() uint64 {
-    return baseMessage.senderID
+    return baseMsg.senderID
 }
