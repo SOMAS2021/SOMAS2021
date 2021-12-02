@@ -5,6 +5,8 @@ github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/divan/goabm v0.0.0-20190225193149-39b1c19c3a2d h1:+upJ1HzTtg6F84csLZU7RzPJooeImWmIAszer8U6BVA=
 github.com/divan/goabm v0.0.0-20190225193149-39b1c19c3a2d/go.mod h1:BzCGqlKDNwiwrw8CFs/KmQ3dcpzz85R4XHYu8S8tmfY=
 github.com/gizak/termui v2.2.0+incompatible/go.mod h1:PkJoWUt/zacQKysNfQtcw1RW+eK2SxkieVBtl+4ovLA=
+github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
+github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/gorilla/websocket v1.4.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
 github.com/jtolds/gls v4.2.1+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVYBRgL+9YlvaHOwJU=

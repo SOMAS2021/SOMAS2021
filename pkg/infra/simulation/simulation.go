@@ -3,19 +3,21 @@ package simulation
 import (
 	"log"
 
-	baseagent "github.com/SOMAS2021/SOMAS2021/pkg/agents/default"
-	tower "github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
 	"github.com/divan/goabm/abm"
 )
 
 type SimEnv struct {
 	FoodOnPlatform float64
-	AgentCount     int
+	AgentCount     []int
 	AgentHP        int
 	Iterations     int
 }
 
-func New(foodOnPlat float64, agentCount int, agentHP int, iterations int) *SimEnv {
+func New(foodOnPlat float64, agentCount []int, agentHP int, iterations int) *SimEnv {
 
 	s := &SimEnv{
 		FoodOnPlatform: foodOnPlat,
@@ -27,26 +29,49 @@ func New(foodOnPlat float64, agentCount int, agentHP int, iterations int) *SimEn
 	return s
 }
 
-func (sE *SimEnv) Simulate() {
+type AgentNewFunc func(base *agents.Base) (agents.Agent, error)
 
+func (sE *SimEnv) Simulate() {
 	a := abm.New()
-	tower := tower.New(sE.FoodOnPlatform, 1, sE.AgentCount)
+
+	totalAgents := sum(sE.AgentCount)
+	tower := tower.New(sE.FoodOnPlatform, 1, totalAgents)
 	a.SetWorld(tower)
 
-	for i := 0; i < sE.AgentCount; i++ {
+	// TODO: clean this looping, make a nice abs map
+	abs := []AgentNewFunc{agent1.New, agent2.New}
 
-		agent, err := baseagent.New(a, i, sE.AgentHP)
-		if err != nil {
-			log.Fatal(err)
+	agentIndex := 0
+	for i := 0; i < len(sE.AgentCount); i++ {
+		for j := 0; j < sE.AgentCount[i]; j++ {
+
+			bagent, err := agents.NewBaseAgent(a, agentIndex, sE.AgentHP)
+			if err != nil {
+				log.Fatal(err)
+			}
+			// generates a custom agent on the current base agent
+			custagent, err := abs[i%len(abs)](bagent)
+			if err != nil {
+				log.Fatal(err)
+			}
+			// adds custom agent to the world & controller
+			a.AddAgent(custagent)
+			tower.SetAgent(agentIndex, custagent)
+			agentIndex++
 		}
-		a.AddAgent(agent)
-		tower.SetAgent(i, agent)
-
 	}
 
 	a.LimitIterations(sE.Iterations)
 	a.StartSimulation()
 
+}
+
+func sum(inputList []int) int {
+	totalAgents := 0
+	for _, value := range inputList {
+		totalAgents += value
+	}
+	return totalAgents
 }
 
 // Draft for WIP

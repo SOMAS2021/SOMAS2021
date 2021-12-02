@@ -1,20 +1,26 @@
-package baseagent
+package agents
 
 import (
 	"errors"
 	"log"
 
-	tower "github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
 	"github.com/divan/goabm/abm"
+	"github.com/google/uuid"
 )
 
-type BaseAgent struct {
+type Agent interface {
+	Run()
+}
+
+type Base struct {
 	hp    int
 	floor int
+	id    string
 	tower *tower.Tower
 }
 
-func New(abm *abm.ABM, floor, hp int) (*BaseAgent, error) {
+func NewBaseAgent(abm *abm.ABM, floor, hp int) (*Base, error) {
 	world := abm.World()
 	if world == nil {
 		return nil, errors.New("Agent needs a World defined to operate")
@@ -23,21 +29,26 @@ func New(abm *abm.ABM, floor, hp int) (*BaseAgent, error) {
 	if !ok {
 		return nil, errors.New("Agent needs a Tower world to operate")
 	}
-	return &BaseAgent{
+	return &Base{
 		floor: floor,
 		hp:    hp,
 		tower: tower,
+		id:    uuid.New().String(),
 	}, nil
 }
 
-func (a *BaseAgent) Run() {
+func (a *Base) Run() {
 	log.Printf("An agent cycle executed from base agent %d", a.floor)
 }
 
-func (a *BaseAgent) GetHP() int {
+func (a *Base) HP() int {
 	return a.hp
 }
 
-func (a *BaseAgent) GetFloor() int {
+func (a *Base) Floor() int {
 	return a.floor
+}
+
+func (a *Base) ID() string {
+	return a.id
 }
