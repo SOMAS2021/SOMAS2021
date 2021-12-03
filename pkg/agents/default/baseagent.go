@@ -41,3 +41,7 @@ func (a *BaseAgent) GetHP() int {
 func (a *BaseAgent) GetFloor() int {
 	return a.floor
 }
+
+func (a *BaseAgent) SetFloor(floor int) {
+	a.floor = floor
+}
