@@ -52,3 +52,7 @@ func (a *Base) Floor() int {
 func (a *Base) ID() string {
 	return a.id
 }
+
+func (a *Base) SetFloor(floor int) {
+	a.floor = floor
+}
