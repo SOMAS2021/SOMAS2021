@@ -1,8 +1,8 @@
 package team6
 
 import (
+	"fmt"
 	"log"
-	"math"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
@@ -10,12 +10,12 @@ import (
 
 type behaviour float64
 
-const (
-	altruist behaviour = iota
-	collectivist
-	selfish
-	narcissist
-)
+// const (
+// 	altruist behaviour = iota
+// 	collectivist
+// 	selfish
+// 	narcissist
+// )
 
 type team6Config struct {
 	baseBehaviour behaviour
@@ -61,20 +61,18 @@ func New(baseAgent *agents.Base) (agents.Agent, error) {
 
 func (a *CustomAgent6) Run() {
 	log.Printf("Custom agent team 6 has floor: %d", a.Floor())
-	log.Printf("Team 6 has behaviour: %f", a.currBehaviour)
+	log.Printf("Team 6 has behaviour: " + a.currBehaviour.String())
 	log.Printf("Team 6 has maxFloorGuess: %d", a.maxFloorGuess)
 	a.updateBehaviour()
-	log.Printf("Team 6 has behaviour: %f", a.currBehaviour)
+	log.Printf("Team 6 has behaviour: " + a.currBehaviour.String())
 	log.Printf("Team 6 has maxFloorGuess: %d", a.maxFloorGuess)
 
 }
 
-func (a *CustomAgent6) getBehaviourRange() (behaviourMax, behaviourMin behaviour) {
-
-	aConf := a.config
-
-	bMax := behaviour(math.Min(3, float64(aConf.baseBehaviour)+aConf.maxBehaviourSwing))
-	bMin := behaviour(math.Max(0, float64(aConf.baseBehaviour)-aConf.maxBehaviourSwing))
-
-	return bMax, bMin
+func (b behaviour) String() string {
+	strings := [...]string{"Altruist", "Collectivist", "Selfish", "Narcissist"}
+	if b >= 0 && int(b) < len(strings) {
+		return strings[int(b)]
+	}
+	return fmt.Sprintf("UNKNOWN EmotionalState '%v'", int(b))
 }
