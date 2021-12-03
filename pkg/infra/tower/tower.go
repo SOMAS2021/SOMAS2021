@@ -45,9 +45,9 @@ func (t *Tower) checkAgentsHP() {
 	totalAgents := len(t.agents)
 	for i := 0; i < totalAgents; i++ {
 		// check HP:
-		if t.agents[i].HP() <= 0 {
-			t.killAgent(i)
-		}
+		// if t.agents[i].HP() <= 0 {
+		// t.killAgent(i)
+		// }
 
 	}
 }
@@ -60,13 +60,13 @@ func (t *Tower) replace(agentsPerFloor int) {
 	numOfAgentsInFloor := make([]int, numOfFloors, numOfFloors)
 
 	for i := 0; i < totalAgents; i++ {
-		numOfAgentsInFloor[t.agents[i].floor]++ //to be solved by importing packages
+		// numOfAgentsInFloor[t.agents[i].floor]++ //to be solved by importing packages
 	}
 
 	for floor := 0; floor < numOfFloors; floor++ {
 		for numOfAgentsInFloor[floor] < agentsPerFloor {
 			//add agent in that floor
-			agent, err := baseagent.New(a, floor, 100)
+			// agent, err := baseagent.New(a, floor, 100)
 		}
 	}
 
@@ -86,21 +86,26 @@ func (t *Tower) reshuffle(agentsPerFloor int) {
 	for i := 0; i < totalAgents; i++ {
 		newFloor := rand.Intn(numOfFloors) // random number in the range 0 - numOfFloors
 		for remainingVacanies[newFloor] != 0 {
-			newFloor := rand.Intn(numOfFloors)
+			// newFloor := rand.Intn(numOfFloors)
 		}
 
 		//TODO: assign agent to currFloor
-		t.agents[i].SetFloor(newFloor)
+		// t.agents[i].SetFloor(newFloor)
 		remainingVacanies[newFloor]--
 	}
 	// go through list of agents one by one and access the struct
 	// access what floor they are on
 }
 
+var tickCounter = 0
+
 func (t *Tower) Tick() {
 	t.mx.RLock()
 	defer t.mx.RUnlock()
 	log.Printf("A log from the tower!")
+	tickCounter += 1
+	reshufflePeriod := 10
+
 	// add all the tower functions here
 	// replace(&t)
 	// agree upon the reshuffle frequency
