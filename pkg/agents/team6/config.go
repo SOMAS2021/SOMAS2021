@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
 )
@@ -40,6 +41,7 @@ type CustomAgent6 struct {
 type behaviourParameterWeights []float64
 
 func chooseInitialBehaviour() behaviour {
+	rand.Seed(time.Now().UnixNano())
 	return behaviour(rand.Intn(4))
 }
 
@@ -50,8 +52,8 @@ func New(baseAgent *agents.Base) (agents.Agent, error) {
 		config: team6Config{
 			baseBehaviour:     initialBehaviour,
 			stubbornness:      0.5,
-			maxBehaviourSwing: 1,
-			paramWeights:      behaviourParameterWeights{2.0, 10.0},
+			maxBehaviourSwing: 2,
+			paramWeights:      behaviourParameterWeights{2.0, 1.0}, //ensure sum of weights = max behaviour enum
 			lambda:            3.0,
 		},
 		currBehaviour: initialBehaviour,
@@ -74,5 +76,5 @@ func (b behaviour) String() string {
 	if b >= 0 && int(b) < len(strings) {
 		return strings[int(b)]
 	}
-	return fmt.Sprintf("UNKNOWN EmotionalState '%v'", int(b))
+	return fmt.Sprintf("UNKNOWN Behaviour '%v'", int(b))
 }
