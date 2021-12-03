@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"sync"
 
-	baseagent "github.com/SOMAS2021/SOMAS2021/pkg/agents/default"
 	"github.com/divan/goabm/abm"
 )
 
@@ -13,7 +12,7 @@ type Tower struct {
 	FoodOnPlatform  float64
 	FloorOfPlatform uint64
 	mx              sync.RWMutex
-	agents          []baseagent.BaseAgent // abm.Agent
+	agents          []abm.Agent
 	AgentCount      int
 	// uuid
 	// missing agents []abm.Agent
@@ -37,7 +36,7 @@ func (t *Tower) initAgents() {
 	t.agents = make([]abm.Agent, t.AgentCount)
 }
 
-func (t *Tower) killAgent( /*agent uuid or index in list(?)*/ ) {
+func (t *Tower) killAgent(index int) {
 	// this removes the agent from the list of agents in the tower
 
 }
@@ -46,8 +45,8 @@ func (t *Tower) checkAgentsHP() {
 	totalAgents := len(t.agents)
 	for i := 0; i < totalAgents; i++ {
 		// check HP:
-		if t.agents[i].GetHP() <= 0 {
-			t.killAgent()
+		if t.agents[i].HP() <= 0 {
+			t.killAgent(i)
 		}
 
 	}
@@ -91,7 +90,7 @@ func (t *Tower) reshuffle(agentsPerFloor int) {
 		}
 
 		//TODO: assign agent to currFloor
-		(*agents)[i].(baseagent.SetFloor)(newFloor)
+		t.agents[i].SetFloor(newFloor)
 		remainingVacanies[newFloor]--
 	}
 	// go through list of agents one by one and access the struct

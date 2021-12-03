@@ -9,9 +9,11 @@ import (
 type CustomAgent2 struct {
 	*agents.Base
 	myNumber int
+	// new params
 }
 
 func New(baseAgent *agents.Base) (agents.Agent, error) {
+	//create other parameters
 	return &CustomAgent2{
 		Base:     baseAgent,
 		myNumber: 0,
@@ -20,4 +22,9 @@ func New(baseAgent *agents.Base) (agents.Agent, error) {
 
 func (a *CustomAgent2) Run() {
 	log.Printf("Custom agent team 2 has floor: %d", a.Floor())
+}
+
+func (a *CustomAgent2) HP() int {
+	// test
+	return a.Base.HP()
 }
