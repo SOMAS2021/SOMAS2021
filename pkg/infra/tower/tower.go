@@ -1,5 +1,12 @@
 package tower
 
+/*
+abm lib - controller -> world.tick & agent.run (for all agents)
+
+world (tower) -> Tick() [death, reshuffle etc] & each agent info (hp and floor) & (abm.agent info - custom agents)
+
+*/
+
 import (
 	"log"
 	"math/rand"
@@ -8,23 +15,48 @@ import (
 	"github.com/divan/goabm/abm"
 )
 
+type BaseAgentCore struct {
+	hp    int
+	floor int
+	cust  abm.Agent
+}
+
+func (tower *Tower) GetHP(id string) int {
+	return tower.agents[id].hp
+}
+
+func (tower *Tower) GetFloor(id string) int {
+	return tower.agents[id].floor
+}
+
+func (tower *Tower) setFloor(id string, newFloor int) {
+	temp := BaseAgentCore{
+		hp:    tower.agents[id].hp,
+		floor: newFloor,
+		cust:  tower.agents[id].cust,
+	}
+	tower.agents[id] = temp
+}
+
 type Tower struct {
 	FoodOnPlatform  float64
 	FloorOfPlatform uint64
 	mx              sync.RWMutex
-	agents          []abm.Agent
 	AgentCount      int
-	// uuid
-	// missing agents []abm.Agent
+	agents          map[string]BaseAgentCore
+	AgentsPerFloor  int
+	ticksPerDay     int
+	missingAgents   map[int]int // key: floor, value: missing agents from that floor
 }
 
-func New(foodOnPlatform float64, floorOfPlatform uint64, agentCount int) *Tower {
-	// generate uuid randomly
+func New(foodOnPlatform float64, floorOfPlatform uint64, agentCount int, agentsPerFloor int, ticksPerDay int) *Tower {
 	t := &Tower{
 		FoodOnPlatform:  foodOnPlatform,
 		FloorOfPlatform: floorOfPlatform,
 		AgentCount:      agentCount,
-		// uuid: randuuid
+		AgentsPerFloor:  agentsPerFloor,
+		ticksPerDay:     ticksPerDay,
+		missingAgents:   make(map[int]int),
 	}
 
 	t.initAgents()
@@ -33,41 +65,31 @@ func New(foodOnPlatform float64, floorOfPlatform uint64, agentCount int) *Tower 
 }
 
 func (t *Tower) initAgents() {
-	t.agents = make([]abm.Agent, t.AgentCount)
+	t.agents = make(map[string]BaseAgentCore, t.AgentCount)
 }
 
-func (t *Tower) killAgent(index int) {
+func (t *Tower) killAgent(id string) {
 	// this removes the agent from the list of agents in the tower
+	deadAgentFloor := t.agents[id].floor
+	t.missingAgents[deadAgentFloor]++ // can just do this instead of checking if this is found (if not found it'll automatically initialise it to 0)
+	delete(t.agents, id)              // delete the agent from the map of all agents
 
 }
 
-func (t *Tower) checkAgentsHP() {
-	totalAgents := len(t.agents)
-	for i := 0; i < totalAgents; i++ {
-		// check HP:
-		// if t.agents[i].HP() <= 0 {
-		// t.killAgent(i)
-		// }
+func (t *Tower) death() {
 
+	for id := range t.agents {
+		if t.GetHP(id) <= 0 {
+			t.killAgent(id)
+		}
 	}
 }
 
 func (t *Tower) replace(agentsPerFloor int) {
-	//implementation
 
-	totalAgents := len(t.agents)
-	numOfFloors := totalAgents / int(agentsPerFloor)
-	numOfAgentsInFloor := make([]int, numOfFloors, numOfFloors)
-
-	for i := 0; i < totalAgents; i++ {
-		// numOfAgentsInFloor[t.agents[i].floor]++ //to be solved by importing packages
-	}
-
-	for floor := 0; floor < numOfFloors; floor++ {
-		for numOfAgentsInFloor[floor] < agentsPerFloor {
-			//add agent in that floor
-			// agent, err := baseagent.New(a, floor, 100)
-		}
+	for floor := range t.missingAgents {
+		// TODO: add agents to the floor
+		delete(t.missingAgents, floor)
 	}
 
 	// doesn't kill people, that is a separate function
@@ -76,44 +98,68 @@ func (t *Tower) replace(agentsPerFloor int) {
 }
 
 func (t *Tower) reshuffle(agentsPerFloor int) {
-	totalAgents := len(t.agents)
-	numOfFloors := totalAgents / int(agentsPerFloor)
-	remainingVacanies := make([]int, numOfFloors, numOfFloors)
+
+	numOfFloors := t.AgentCount / int(agentsPerFloor)
+	remainingVacanies := make([]int, numOfFloors)
+
+	// adding a max to each floor
 	for i := 0; i < numOfFloors; i++ {
+
 		remainingVacanies[i] = agentsPerFloor
 	}
 
-	for i := 0; i < totalAgents; i++ {
+	// allocating agents to floors randomly
+	// iterate through the uuid strings of each agent
+	for id := range t.agents {
+
 		newFloor := rand.Intn(numOfFloors) // random number in the range 0 - numOfFloors
 		for remainingVacanies[newFloor] != 0 {
-			// newFloor := rand.Intn(numOfFloors)
+			newFloor = rand.Intn(numOfFloors)
 		}
-
-		//TODO: assign agent to currFloor
-		// t.agents[i].SetFloor(newFloor)
+		t.setFloor(id, newFloor) // only do this to agentsLocal cause agentsABM don;t know what floor they're on
 		remainingVacanies[newFloor]--
 	}
-	// go through list of agents one by one and access the struct
-	// access what floor they are on
 }
 
-var tickCounter = 0
+var tickCounter = 1
 
 func (t *Tower) Tick() {
 	t.mx.RLock()
 	defer t.mx.RUnlock()
 	log.Printf("A log from the tower!")
-	tickCounter += 1
-	reshufflePeriod := 10
 
+	reshufflePeriod := 10
+	replacePeriod := 1 // replace every tick
+
+	if tickCounter%reshufflePeriod == 0 {
+		t.reshuffle(t.AgentsPerFloor)
+	}
+	if tickCounter%replacePeriod == 0 {
+		t.replace(t.AgentsPerFloor)
+	}
+	if tickCounter%t.ticksPerDay == 0 { // end of day
+		t.death()
+	}
+	log.Printf("%+v\n", t.agents)
+	for id := range t.agents {
+		if t.agents[id].floor == 1 {
+			t.killAgent(id)
+		}
+	}
+
+	tickCounter += 1
 	// add all the tower functions here
 	// replace(&t)
 	// agree upon the reshuffle frequency
 	// reshuffle(&tower.Agents, agentsPerFloor)
 }
 
-func (t *Tower) SetAgent(index int, agent abm.Agent) {
+func (t *Tower) SetAgent(agentHP, agentFloor int, id string, customAgent abm.Agent) {
 	t.mx.Lock()
-	t.agents[index] = agent
+	t.agents[id] = BaseAgentCore{ // creating a new instance of agent in hash map
+		hp:    agentHP,
+		floor: agentFloor,
+		cust:  customAgent,
+	}
 	t.mx.Unlock()
 }

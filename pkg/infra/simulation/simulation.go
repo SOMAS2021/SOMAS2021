@@ -8,6 +8,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
 	"github.com/divan/goabm/abm"
+	"github.com/google/uuid"
 )
 
 type SimEnv struct {
@@ -35,7 +36,7 @@ func (sE *SimEnv) Simulate() {
 	a := abm.New()
 
 	totalAgents := sum(sE.AgentCount)
-	tower := tower.New(sE.FoodOnPlatform, 1, totalAgents)
+	tower := tower.New(sE.FoodOnPlatform, 1, totalAgents, 1, 20)
 	a.SetWorld(tower)
 
 	// TODO: clean this looping, make a nice abs map
@@ -44,8 +45,9 @@ func (sE *SimEnv) Simulate() {
 	agentIndex := 0
 	for i := 0; i < len(sE.AgentCount); i++ {
 		for j := 0; j < sE.AgentCount[i]; j++ {
-
-			bagent, err := agents.NewBaseAgent(a, agentIndex, sE.AgentHP)
+			// generates the UUID
+			uuid := uuid.New().String()
+			bagent, err := agents.NewBaseAgent(a, uuid)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -54,9 +56,10 @@ func (sE *SimEnv) Simulate() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			// adds custom agent to the world & controller
+			// adds custom agent to the world & cof checking ontroller
 			a.AddAgent(custagent)
-			tower.SetAgent(agentIndex, custagent)
+			// we pass in the agentIndex as the floor but right now it just consecutively declares agents per floor
+			tower.SetAgent(sE.AgentHP, agentIndex, uuid, custagent) // TODO: edit this call
 			agentIndex++
 		}
 	}
