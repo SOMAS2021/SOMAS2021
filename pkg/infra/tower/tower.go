@@ -29,6 +29,14 @@ func (tower *Tower) GetFloor(id string) int {
 	return tower.agents[id].floor
 }
 
+func (tower *Tower) Exists(id string) bool {
+	if _, found := tower.agents[id]; found {
+		return true
+	} else {
+		return false
+	}
+}
+
 func (tower *Tower) setFloor(id string, newFloor int) {
 	temp := BaseAgentCore{
 		hp:    tower.agents[id].hp,
@@ -70,6 +78,7 @@ func (t *Tower) initAgents() {
 
 func (t *Tower) killAgent(id string) {
 	// this removes the agent from the list of agents in the tower
+	log.Printf("Killing agent %s", id)
 	deadAgentFloor := t.agents[id].floor
 	t.missingAgents[deadAgentFloor]++ // can just do this instead of checking if this is found (if not found it'll automatically initialise it to 0)
 	delete(t.agents, id)              // delete the agent from the map of all agents
@@ -140,7 +149,7 @@ func (t *Tower) Tick() {
 	if tickCounter%t.ticksPerDay == 0 { // end of day
 		t.death()
 	}
-	log.Printf("%+v\n", t.agents)
+	// log.Printf("%+v\n", t.agents)
 	for id := range t.agents {
 		if t.agents[id].floor == 1 {
 			t.killAgent(id)

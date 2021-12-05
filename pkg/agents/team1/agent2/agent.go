@@ -21,7 +21,11 @@ func New(baseAgent *agents.Base) (agents.Agent, error) {
 }
 
 func (a *CustomAgent2) Run() {
-	log.Printf("Custom agent team 2 has floor: %d", a.Floor())
+	if a.Base.Exists() {
+		log.Printf("Custom agent %s in team 2 has floor: %d", a.ID(), a.Floor())
+	} else {
+		log.Printf("Agent %s No longer exists", a.ID())
+	}
 }
 
 func (a *CustomAgent2) HP() int {
