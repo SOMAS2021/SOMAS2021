@@ -59,7 +59,7 @@ func (sE *SimEnv) Simulate() {
 			// adds custom agent to the world & cof checking ontroller
 			a.AddAgent(custagent)
 			// we pass in the agentIndex as the floor but right now it just consecutively declares agents per floor
-			tower.SetAgent(sE.AgentHP, agentIndex, uuid, custagent) // TODO: edit this call
+			tower.SetAgent(sE.AgentHP, agentIndex+1, uuid, custagent) // TODO: edit this call
 			agentIndex++
 		}
 	}

@@ -10,6 +10,7 @@ world (tower) -> Tick() [death, reshuffle etc] & each agent info (hp and floor) 
 import (
 	"log"
 	"math/rand"
+	"strconv"
 	"sync"
 
 	"github.com/divan/goabm/abm"
@@ -41,6 +42,15 @@ func (tower *Tower) setFloor(id string, newFloor int) {
 	temp := BaseAgentCore{
 		hp:    tower.agents[id].hp,
 		floor: newFloor,
+		cust:  tower.agents[id].cust,
+	}
+	tower.agents[id] = temp
+}
+
+func (tower *Tower) setHP(id string, newHP int) {
+	temp := BaseAgentCore{
+		hp:    newHP,
+		floor: tower.agents[id].floor,
 		cust:  tower.agents[id].cust,
 	}
 	tower.agents[id] = temp
@@ -86,7 +96,7 @@ func (t *Tower) killAgent(id string) {
 }
 
 func (t *Tower) death() {
-
+	log.Printf("Killing Agents...")
 	for id := range t.agents {
 		if t.GetHP(id) <= 0 {
 			t.killAgent(id)
@@ -95,7 +105,7 @@ func (t *Tower) death() {
 }
 
 func (t *Tower) replace(agentsPerFloor int) {
-
+	log.Printf("Replacing...")
 	for floor := range t.missingAgents {
 		// TODO: add agents to the floor
 		delete(t.missingAgents, floor)
@@ -110,7 +120,7 @@ func (t *Tower) reshuffle(agentsPerFloor int) {
 
 	numOfFloors := t.AgentCount / int(agentsPerFloor)
 	remainingVacanies := make([]int, numOfFloors)
-
+	log.Printf("Reshuffling...")
 	// adding a max to each floor
 	for i := 0; i < numOfFloors; i++ {
 
@@ -121,12 +131,18 @@ func (t *Tower) reshuffle(agentsPerFloor int) {
 	// iterate through the uuid strings of each agent
 	for id := range t.agents {
 
-		newFloor := rand.Intn(numOfFloors) // random number in the range 0 - numOfFloors
-		for remainingVacanies[newFloor] != 0 {
+		newFloor := rand.Intn(numOfFloors) // random number in the range 1 - numOfFloors
+		for remainingVacanies[newFloor] == 0 {
 			newFloor = rand.Intn(numOfFloors)
 		}
-		t.setFloor(id, newFloor) // only do this to agentsLocal cause agentsABM don;t know what floor they're on
+		t.setFloor(id, newFloor+1) // only do this to agentsLocal cause agentsABM don;t know what floor they're on
 		remainingVacanies[newFloor]--
+	}
+}
+
+func (t *Tower) hpDecay() {
+	for id := range t.agents {
+		t.setHP(id, t.agents[id].hp-3)
 	}
 }
 
@@ -135,32 +151,23 @@ var tickCounter = 1
 func (t *Tower) Tick() {
 	t.mx.RLock()
 	defer t.mx.RUnlock()
-	log.Printf("A log from the tower!")
+	log.Printf("A log from the tower! Tick no: " + strconv.Itoa(tickCounter))
 
-	reshufflePeriod := 10
+	reshufflePeriod := 5
 	replacePeriod := 1 // replace every tick
 
 	if tickCounter%reshufflePeriod == 0 {
 		t.reshuffle(t.AgentsPerFloor)
 	}
+
 	if tickCounter%replacePeriod == 0 {
 		t.replace(t.AgentsPerFloor)
 	}
-	if tickCounter%t.ticksPerDay == 0 { // end of day
-		t.death()
-	}
-	// log.Printf("%+v\n", t.agents)
-	for id := range t.agents {
-		if t.agents[id].floor == 1 {
-			t.killAgent(id)
-		}
-	}
+	//Need to agree on ticks per day so that hpDecay is updated once per day
+	t.hpDecay()
+	t.death()
 
 	tickCounter += 1
-	// add all the tower functions here
-	// replace(&t)
-	// agree upon the reshuffle frequency
-	// reshuffle(&tower.Agents, agentsPerFloor)
 }
 
 func (t *Tower) SetAgent(agentHP, agentFloor int, id string, customAgent abm.Agent) {
