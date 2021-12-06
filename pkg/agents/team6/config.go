@@ -12,10 +12,10 @@ import (
 type behaviour float64
 
 // const (
-// 	altruist behaviour = iota
-// 	collectivist
-// 	selfish
-// 	narcissist
+//  altruist behaviour = iota
+//  collectivist
+//  selfish
+//  narcissist
 // )
 
 type team6Config struct {
@@ -28,6 +28,8 @@ type team6Config struct {
 	paramWeights behaviourParameterWeights
 	//floor scaling discount factor
 	lambda float64
+	//maximum behaviour score an agent can reach
+	maxBehaviourThreshold behaviour
 }
 
 type CustomAgent6 struct {
@@ -38,11 +40,13 @@ type CustomAgent6 struct {
 	currBehaviour behaviour
 }
 
+var maxBehaviourThreshold behaviour = 10.0
+
 type behaviourParameterWeights []float64
 
 func chooseInitialBehaviour() behaviour {
 	rand.Seed(time.Now().UnixNano())
-	return behaviour(rand.Intn(4))
+	return behaviour(rand.Float64()) * maxBehaviourThreshold
 }
 
 func New(baseAgent *agents.Base) (agents.Agent, error) {
@@ -50,11 +54,12 @@ func New(baseAgent *agents.Base) (agents.Agent, error) {
 	return &CustomAgent6{
 		Base: baseAgent,
 		config: team6Config{
-			baseBehaviour:     initialBehaviour,
-			stubbornness:      0.5,
-			maxBehaviourSwing: 2,
-			paramWeights:      behaviourParameterWeights{2.0, 1.0}, //ensure sum of weights = max behaviour enum
-			lambda:            3.0,
+			baseBehaviour:         initialBehaviour,
+			stubbornness:          0.5,
+			maxBehaviourSwing:     2,
+			paramWeights:          behaviourParameterWeights{0.7, 0.3}, //ensure sum of weights = max behaviour enum
+			lambda:                3.0,
+			maxBehaviourThreshold: maxBehaviourThreshold,
 		},
 		currBehaviour: initialBehaviour,
 		maxFloorGuess: baseAgent.Floor() + 2,
@@ -69,12 +74,32 @@ func (a *CustomAgent6) Run() {
 	log.Printf("Team 6 has behaviour: " + a.currBehaviour.String())
 	log.Printf("Team 6 has maxFloorGuess: %d", a.maxFloorGuess)
 
+	var b behaviour = 2
+
+	log.Printf("debug behaviour: " + b.String())
+
+}
+
+type thresholdBehaviourPair struct {
+	threshold behaviour
+	bType     string
 }
 
 func (b behaviour) String() string {
-	strings := [...]string{"Altruist", "Collectivist", "Selfish", "Narcissist"}
-	if b >= 0 && int(b) < len(strings) {
-		return strings[int(b)]
+	//strings := [...]string{"Altruist", "Collectivist", "Selfish", "Narcissist"}
+
+	behaviourMap := [...]thresholdBehaviourPair{{2, "Altruist"}, {7, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
+
+	if b >= 0 {
+
+		for _, v := range behaviourMap {
+			if b <= v.threshold {
+				return v.bType
+			}
+		}
 	}
+	// if b >= 0 && int(b) < len(strings) {
+	//  return strings[int(b)]
+	// }
 	return fmt.Sprintf("UNKNOWN Behaviour '%v'", int(b))
 }

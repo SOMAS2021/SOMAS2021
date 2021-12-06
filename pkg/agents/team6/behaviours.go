@@ -30,8 +30,8 @@ func (a *CustomAgent6) updateBehaviour() {
 		behaviourPrediction += behaviourParams[i] * weights[i]
 	}
 
-	updateDir := behaviour(behaviourPrediction) - a.currBehaviour //find direction we need to move in to reach new behaviour prediction
-	updateMag := updateDir * behaviour(1-aConf.stubbornness)      //scale movement by stubbornness (minStubborn, maxStubborn) -> (fullMovement, 0)
+	updateDir := behaviour(behaviourPrediction)*aConf.maxBehaviourThreshold - a.currBehaviour //find direction we need to move in to reach new behaviour prediction
+	updateMag := updateDir * behaviour(1-aConf.stubbornness)                                  //scale movement by stubbornness (minStubborn, maxStubborn) -> (fullMovement, 0)
 	newBehaviour := a.currBehaviour + updateMag
 
 	if newBehaviour > behaviourMax { //limit behaviour to max swing
@@ -48,7 +48,9 @@ func (a *CustomAgent6) getBehaviourRange() (behaviourMax, behaviourMin behaviour
 
 	aConf := a.config
 
-	bMax := behaviour(math.Min(3, float64(aConf.baseBehaviour)+aConf.maxBehaviourSwing))
+	maxT := a.config.maxBehaviourThreshold
+
+	bMax := behaviour(math.Min(float64(maxT), float64(aConf.baseBehaviour)+aConf.maxBehaviourSwing))
 	bMin := behaviour(math.Max(0, float64(aConf.baseBehaviour)-aConf.maxBehaviourSwing))
 
 	return bMax, bMin
