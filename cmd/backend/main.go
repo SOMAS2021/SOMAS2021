@@ -6,7 +6,12 @@ import (
 
 func main() {
 	// can have frontend parameters come go straight into simEnv
+	foodOnPlatform := 100.0
 	numOfAgents := []int{2, 3}
-	simEnv := sim.New(100, numOfAgents, 100, 50)
+	agentHP := 100
+	iterations := 50
+	reshufflePeriod := 20
+
+	simEnv := sim.New(foodOnPlatform, numOfAgents, agentHP, iterations, reshufflePeriod)
 	simEnv.Simulate()
 }
