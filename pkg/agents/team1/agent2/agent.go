@@ -21,19 +21,18 @@ func New(baseAgent *agents.Base) (agents.Agent, error) {
 }
 
 func (a *CustomAgent2) Run() {
-	log.Printf("Custom agent %s in team 2 has floor: %d", a.ID(), a.Floor())
-	// if a.Base.Exists() {
-	// 	log.Printf("Custom agent %s in team 2 has floor: %d", a.ID(), a.Floor())
-	// } else {
-	// 	log.Printf("Agent %s No longer exists", a.ID())
-	// }
+	log.Printf("Custom agent %s in team 2 is on floor %d has hp: %d", a.ID(), a.Floor(), a.HP())
+	a.takeFood(15)
 }
 
 func (a *CustomAgent2) HP() int {
-	// test
 	return a.Base.HP()
 }
 
 func (a *CustomAgent2) IsDead() bool {
 	return a.Base.IsDead()
+}
+
+func (a *CustomAgent2) takeFood(foodToTake float64) float64 {
+	return a.Base.TakeFood(foodToTake)
 }

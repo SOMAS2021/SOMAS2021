@@ -15,6 +15,7 @@ type Tower struct {
 	ticksPerDay     int
 	missingAgents   map[int][]int // key: floor, value: types of missing agents
 	reshufflePeriod int
+	tickCounter     int
 }
 
 func New(foodOnPlatform float64, floorOfPlatform uint64, agentCount, agentsPerFloor, ticksPerDay, reshufflePeriod int) *Tower {
@@ -26,26 +27,30 @@ func New(foodOnPlatform float64, floorOfPlatform uint64, agentCount, agentsPerFl
 		ticksPerDay:     ticksPerDay,
 		missingAgents:   make(map[int][]int),
 		reshufflePeriod: reshufflePeriod,
+		tickCounter:     1,
 	}
 	t.initAgents()
 	return t
 }
 
-var tickCounter = 1
-
 func (t *Tower) Tick() {
 	t.mx.RLock()
 	defer t.mx.RUnlock()
-	log.Printf("A log from the tower! Tick no: %d", tickCounter)
+	log.Printf("A log from the tower! Tick no: %d", t.tickCounter)
+	log.Printf("The food left on the platform = %f", t.FoodOnPlatform)
+	platformMovePeriod := 10
 
-	if (tickCounter)%(t.reshufflePeriod) == 0 {
+	if (t.tickCounter)%(t.reshufflePeriod) == 0 {
 		t.reshuffle(t.AgentsPerFloor)
 	}
-
+	if (t.tickCounter)%(platformMovePeriod) == 0 {
+		t.FloorOfPlatform++
+	}
+	//TODO: Move platform every n ticks
 	//TODO: Need to agree on ticks per day so that hpDecay is updated once per day
 	t.hpDecay() // deacreases HP and kills if < 0
 
-	tickCounter += 1
+	t.tickCounter++
 }
 
 func (t *Tower) GetMissingAgents() map[int][]int {

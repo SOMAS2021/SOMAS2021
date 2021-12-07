@@ -53,3 +53,7 @@ func (a *Base) ID() string {
 func (a *Base) IsDead() bool {
 	return a.tower.Exists(a.ID())
 }
+
+func (a *Base) TakeFood(amountOfFood float64) float64 {
+	return a.tower.FoodRequest(a.id, amountOfFood)
+}

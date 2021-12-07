@@ -2,6 +2,7 @@ package tower
 
 import (
 	"log"
+	"math"
 	"math/rand"
 )
 
@@ -51,5 +52,19 @@ func (t *Tower) hpDecay() {
 			t.setHP(id, newHP)
 		}
 	}
+}
 
+func (t *Tower) updateHP(id string, foodTaken float64) {
+	newHP := math.Min(100, float64(t.agents[id].hp)+foodTaken)
+	t.setHP(id, int(newHP))
+}
+
+func (t *Tower) FoodRequest(id string, foodRequested float64) float64 {
+	if t.agents[id].floor == int(t.FloorOfPlatform) {
+		foodTaken := math.Min(t.FoodOnPlatform, foodRequested)
+		t.updateHP(id, foodTaken)
+		t.FoodOnPlatform -= foodTaken
+		return foodTaken
+	}
+	return 0.0
 }

@@ -120,6 +120,11 @@ func (a *ABM) SimulationIterate(i int) {
 	sort.Ints(agentsToRemove)
 	for index := len(agentsToRemove) - 1; index > -1; index-- {
 		a.RemoveAgent(index)
+		if index != 0 {
+			agentsToRemove = agentsToRemove[:index]
+		} else {
+			agentsToRemove = []int{}
+		}
 	}
 	if a.reportFunc != nil {
 		a.reportFunc(a)

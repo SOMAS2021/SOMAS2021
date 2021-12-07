@@ -88,5 +88,5 @@ func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *tower.Tower, i, floor int) {
 	}
 
 	a.AddAgent(custagent)
-	tower.SetAgent(i, sE.AgentHP, floor, uuid) // TODO: edit this call
+	tower.SetAgent(i, sE.AgentHP-3*floor, floor, uuid) // TODO: edit this call
 }
