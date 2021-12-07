@@ -38,37 +38,30 @@ func (sE *SimEnv) Simulate() {
 	a := abm.New()
 
 	totalAgents := sum(sE.AgentCount)
-	tower := tower.New(sE.FoodOnPlatform, 1, totalAgents, 1, 20, sE.reshufflePeriod)
-	a.SetWorld(tower)
+	t := tower.New(sE.FoodOnPlatform, 1, totalAgents, 1, 20, sE.reshufflePeriod)
+	a.SetWorld(t)
 
-	// TODO: clean this looping, make a nice abs map
-	abs := []AgentNewFunc{agent1.New, agent2.New}
-
-	agentIndex := 0
+	agentIndex := 1
 	for i := 0; i < len(sE.AgentCount); i++ {
 		for j := 0; j < sE.AgentCount[i]; j++ {
-			// generates the UUID
-			uuid := uuid.New().String()
-			bagent, err := agents.NewBaseAgent(a, uuid)
-			if err != nil {
-				log.Fatal(err)
-			}
-			// generates a custom agent on the current base agent
-			custagent, err := abs[i%len(abs)](bagent)
-			if err != nil {
-				log.Fatal(err)
-			}
-			// adds custom agent to the world & cof checking ontroller
-			a.AddAgent(custagent)
-			// we pass in the agentIndex as the floor but right now it just consecutively declares agents per floor
-			tower.SetAgent(sE.AgentHP, agentIndex+1, uuid) // TODO: edit this call
+			sE.createNewAgent(a, t, i, agentIndex)
 			agentIndex++
 		}
 	}
-
 	a.LimitIterations(sE.Iterations)
-	a.StartSimulation()
+	sE.simulationLoop(a, t)
+}
 
+func (sE *SimEnv) simulationLoop(a *abm.ABM, t *tower.Tower) {
+	for i := 1; i <= sE.Iterations; i++ {
+		missingAgentsMap := t.GetMissingAgents()
+		for floor := range missingAgentsMap {
+			for _, agentType := range missingAgentsMap[floor] {
+				sE.createNewAgent(a, t, agentType, floor)
+			}
+		}
+		a.SimulationIterate(i)
+	}
 }
 
 func sum(inputList []int) int {
@@ -77,4 +70,23 @@ func sum(inputList []int) int {
 		totalAgents += value
 	}
 	return totalAgents
+}
+
+func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *tower.Tower, i, floor int) {
+	// TODO: clean this looping, make a nice abs map
+	abs := []AgentNewFunc{agent1.New, agent2.New}
+
+	uuid := uuid.New().String()
+	bagent, err := agents.NewBaseAgent(a, uuid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	custagent, err := abs[i](bagent)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	a.AddAgent(custagent)
+	tower.SetAgent(i, sE.AgentHP, floor, uuid) // TODO: edit this call
 }

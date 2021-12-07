@@ -88,38 +88,41 @@ func (a *ABM) Iteration() int {
 	return a.i
 }
 
-func (a *ABM) StartSimulation() {
+// func (a *ABM) StartSimulation() {
+// 	for i := 0; i < a.Limit(); i++ {
+// 		a.SimulationIterate(i)
+// 	}
+// }
 
-	for i := 0; i < a.Limit(); i++ {
-		agentsToRemove := []int{}
-		a.i = i
-		//TODO: here replace agents
-		if a.World() != nil {
-			a.World().Tick()
-		}
+func (a *ABM) SimulationIterate(i int) {
 
-		var wg sync.WaitGroup
-		for j := 0; j < a.AgentsCount(); j++ {
-			wg.Add(1)
-			go func(wg *sync.WaitGroup, i, j int) {
-				if a.agents[j].IsDead() == false {
-					log.Printf("Removing agent from ABM")
-					agentsToRemove = append(agentsToRemove, j) // remove it after other wise will mess up due to concur?
-				} else {
-					a.agents[j].Run()
-				}
-				wg.Done()
-			}(&wg, i, j)
-		}
+	agentsToRemove := []int{}
+	a.i = i
+	if a.World() != nil {
+		a.World().Tick()
+	}
 
-		wg.Wait()
-		sort.Ints(agentsToRemove)
-		for index := len(agentsToRemove) - 1; index > -1; index-- {
-			a.RemoveAgent(index)
-		}
-		if a.reportFunc != nil {
-			a.reportFunc(a)
-		}
+	var wg sync.WaitGroup
+	for j := 0; j < a.AgentsCount(); j++ {
+		wg.Add(1)
+		go func(wg *sync.WaitGroup, i, j int) {
+			if a.agents[j].IsDead() == false {
+				log.Printf("Removing agent from ABM")
+				agentsToRemove = append(agentsToRemove, j)
+			} else {
+				a.agents[j].Run()
+			}
+			wg.Done()
+		}(&wg, i, j)
+	}
+
+	wg.Wait()
+	sort.Ints(agentsToRemove)
+	for index := len(agentsToRemove) - 1; index > -1; index-- {
+		a.RemoveAgent(index)
+	}
+	if a.reportFunc != nil {
+		a.reportFunc(a)
 	}
 }
 

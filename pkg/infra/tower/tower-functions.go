@@ -12,17 +12,9 @@ func (t *Tower) initAgents() {
 func (t *Tower) killAgent(id string) { // this removes the agent from the list of agents in the tower
 	log.Printf("Killing agent %s", id)
 	deadAgentFloor := t.agents[id].floor
-	t.missingAgents[deadAgentFloor]++
+	agentType := t.agents[id].agentType
+	t.missingAgents[deadAgentFloor] = append(t.missingAgents[deadAgentFloor], agentType)
 	delete(t.agents, id)
-}
-
-func (t *Tower) replace(agentsPerFloor int) {
-	log.Printf("Replacing dead agents...")
-
-	for floor := range t.missingAgents {
-		// TODO: add agents to the floor
-		delete(t.missingAgents, floor)
-	}
 }
 
 func (t *Tower) reshuffle(agentsPerFloor int) {
@@ -39,7 +31,7 @@ func (t *Tower) reshuffle(agentsPerFloor int) {
 	for id := range t.agents {
 		newFloor := rand.Intn(numOfFloors)
 
-		for remainingVacanies[newFloor] == 0 && newFloor != t.agents[id].floor {
+		for remainingVacanies[newFloor] == 0 {
 			newFloor = rand.Intn(numOfFloors)
 		}
 
