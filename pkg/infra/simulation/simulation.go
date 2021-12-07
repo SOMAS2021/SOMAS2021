@@ -7,7 +7,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
-	"github.com/divan/goabm/abm"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 	"github.com/google/uuid"
 )
 

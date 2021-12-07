@@ -63,5 +63,6 @@ func (t *Tower) hpDecay() {
 	for id := range t.agents {
 		t.setHP(id, t.agents[id].hp-3)
 	}
+	// TOOD: if hp < 0: remove from tower
 
 }

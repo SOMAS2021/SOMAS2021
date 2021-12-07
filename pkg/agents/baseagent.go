@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
-	"github.com/divan/goabm/abm"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
 type Agent interface {
