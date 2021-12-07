@@ -88,12 +88,6 @@ func (a *ABM) Iteration() int {
 	return a.i
 }
 
-// func (a *ABM) StartSimulation() {
-// 	for i := 0; i < a.Limit(); i++ {
-// 		a.SimulationIterate(i)
-// 	}
-// }
-
 func (a *ABM) SimulationIterate(i int) {
 
 	agentsToRemove := []int{}

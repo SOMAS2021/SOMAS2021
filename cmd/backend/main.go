@@ -9,9 +9,13 @@ func main() {
 	foodOnPlatform := 100.0
 	numOfAgents := []int{2, 3}
 	agentHP := 100
-	iterations := 50
-	reshufflePeriod := 20
+	days := 100.0
+	reshufflePeriod := 3.0 // in days
 
-	simEnv := sim.New(foodOnPlatform, numOfAgents, agentHP, iterations, reshufflePeriod)
+	iterationsPerDay := 24.0 * 60.0
+	iterations := int(days * iterationsPerDay)
+	iterationsBetweenReshuffles := int(reshufflePeriod * iterationsPerDay)
+
+	simEnv := sim.New(foodOnPlatform, numOfAgents, agentHP, iterations, iterationsBetweenReshuffles)
 	simEnv.Simulate()
 }

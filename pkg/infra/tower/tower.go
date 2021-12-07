@@ -6,24 +6,27 @@ import (
 )
 
 type Tower struct {
-	FoodOnPlatform  float64
-	FloorOfPlatform uint64
+	currPlatFood    float64
+	maxPlatFood     float64
+	currPlatFloor   uint64
 	mx              sync.RWMutex
-	AgentCount      int
+	agentCount      int
 	agents          map[string]BaseAgentCore
-	AgentsPerFloor  int
+	agentsPerFloor  int
 	ticksPerDay     int
 	missingAgents   map[int][]int // key: floor, value: types of missing agents
 	reshufflePeriod int
 	tickCounter     int
 }
 
-func New(foodOnPlatform float64, floorOfPlatform uint64, agentCount, agentsPerFloor, ticksPerDay, reshufflePeriod int) *Tower {
+func New(currPlatFood float64, currPlatFloor uint64, agentCount,
+	agentsPerFloor, ticksPerDay, reshufflePeriod int) *Tower {
 	t := &Tower{
-		FoodOnPlatform:  foodOnPlatform,
-		FloorOfPlatform: floorOfPlatform,
-		AgentCount:      agentCount,
-		AgentsPerFloor:  agentsPerFloor,
+		currPlatFood:    currPlatFood,
+		maxPlatFood:     currPlatFood,
+		currPlatFloor:   currPlatFloor,
+		agentCount:      agentCount,
+		agentsPerFloor:  agentsPerFloor,
 		ticksPerDay:     ticksPerDay,
 		missingAgents:   make(map[int][]int),
 		reshufflePeriod: reshufflePeriod,
@@ -36,19 +39,26 @@ func New(foodOnPlatform float64, floorOfPlatform uint64, agentCount, agentsPerFl
 func (t *Tower) Tick() {
 	t.mx.RLock()
 	defer t.mx.RUnlock()
+
+	//logs
 	log.Printf("A log from the tower! Tick no: %d", t.tickCounter)
-	log.Printf("The food left on the platform = %f", t.FoodOnPlatform)
-	platformMovePeriod := 10
+	log.Printf("The food left on the platform = %f", t.currPlatFood)
+
+	//useful parameters
+	day := 24 * 60
+	numOfFloors := t.agentCount / int(t.agentsPerFloor)
+	platformMovePeriod := day / numOfFloors // can add min/max
 
 	if (t.tickCounter)%(t.reshufflePeriod) == 0 {
-		t.reshuffle(t.AgentsPerFloor)
+		t.reshuffle(numOfFloors)
 	}
 	if (t.tickCounter)%(platformMovePeriod) == 0 {
-		t.FloorOfPlatform++
+		t.currPlatFloor++
 	}
-	//TODO: Move platform every n ticks
-	//TODO: Need to agree on ticks per day so that hpDecay is updated once per day
-	t.hpDecay() // deacreases HP and kills if < 0
+	if (t.tickCounter)%(day) == 0 {
+		t.hpDecay() // deacreases HP and kills if < 0
+		t.ResetTower()
+	}
 
 	t.tickCounter++
 }
@@ -56,6 +66,5 @@ func (t *Tower) Tick() {
 func (t *Tower) GetMissingAgents() map[int][]int {
 	deadAgents := t.missingAgents
 	t.missingAgents = make(map[int][]int)
-	log.Printf("%v", deadAgents)
 	return deadAgents
 }
