@@ -16,17 +16,9 @@ func (t *Tower) killAgent(id string) { // this removes the agent from the list o
 	delete(t.agents, id)
 }
 
-func (t *Tower) death() {
-	log.Printf("Checking Agents HP...")
-	for id := range t.agents {
-		if t.GetHP(id) <= 0 {
-			t.killAgent(id)
-		}
-	}
-}
-
 func (t *Tower) replace(agentsPerFloor int) {
 	log.Printf("Replacing dead agents...")
+
 	for floor := range t.missingAgents {
 		// TODO: add agents to the floor
 		delete(t.missingAgents, floor)
@@ -34,7 +26,6 @@ func (t *Tower) replace(agentsPerFloor int) {
 }
 
 func (t *Tower) reshuffle(agentsPerFloor int) {
-
 	numOfFloors := t.AgentCount / int(agentsPerFloor)
 	remainingVacanies := make([]int, numOfFloors)
 	log.Printf("Reshuffling alive agents...")
@@ -58,11 +49,15 @@ func (t *Tower) reshuffle(agentsPerFloor int) {
 }
 
 func (t *Tower) hpDecay() {
-	// TODO: can add this as a parameter
-	// TODO: change the function type (exp?parab?)
+	// TODO: can add a parameter
 	for id := range t.agents {
-		t.setHP(id, t.agents[id].hp-3)
+		newHP := t.agents[id].hp - 3 // TODO: change the function type (exp?parab?)
+
+		if newHP < 0 {
+			t.killAgent(id)
+		} else {
+			t.setHP(id, newHP)
+		}
 	}
-	// TOOD: if hp < 0: remove from tower
 
 }

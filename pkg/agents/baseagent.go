@@ -10,6 +10,7 @@ import (
 
 type Agent interface {
 	Run()
+	IsDead() bool
 }
 
 type Base struct {
@@ -49,6 +50,6 @@ func (a *Base) ID() string {
 	return a.id
 }
 
-func (a *Base) Exists() bool {
+func (a *Base) IsDead() bool {
 	return a.tower.Exists(a.ID())
 }

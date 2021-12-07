@@ -38,18 +38,18 @@ func (t *Tower) Tick() {
 	defer t.mx.RUnlock()
 	log.Printf("A log from the tower! Tick no: %d", tickCounter)
 
-	replacePeriod := 1 // replace every tick
+	// replacePeriod := 1 // replace every tick
 
-	if (tickCounter)%(t.reshufflePeriod) == 0 {
-		t.reshuffle(t.AgentsPerFloor)
-	}
+	// if (tickCounter)%(t.reshufflePeriod) == 0 {
+	// 	t.reshuffle(t.AgentsPerFloor)
+	// }
 
-	if (tickCounter)%(replacePeriod) == 0 {
-		t.replace(t.AgentsPerFloor)
-	}
+	// if (tickCounter)%(replacePeriod) == 0 {
+	// 	t.replace(t.AgentsPerFloor)
+	// }
+
 	//TODO: Need to agree on ticks per day so that hpDecay is updated once per day
-	t.hpDecay()
-	t.death()
+	t.hpDecay() // deacreases HP and kills if < 0
 
 	tickCounter += 1
 }

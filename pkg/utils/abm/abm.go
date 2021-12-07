@@ -1,6 +1,8 @@
 package abm
 
 import (
+	"log"
+	"sort"
 	"sync"
 )
 
@@ -43,13 +45,22 @@ func (a *ABM) AddAgent(agent Agent) {
 	a.mx.Unlock()
 }
 
-/*
-TODO:
-func (a *ABM) RemoveAgent(agent Agent) {
+// TODO: corner cases?
+func (a *ABM) RemoveAgent(index int) {
 	a.mx.Lock()
-
+	if index == 0 {
+		if len(a.agents) == 1 {
+			a.agents = []Agent{}
+		} else {
+			a.agents = a.agents[1:]
+		}
+	} else if index == len(a.agents)-1 {
+		a.agents = a.agents[:len(a.agents)-1]
+	} else {
+		a.agents = append(a.agents[:index], a.agents[index+1:]...)
+	}
 	a.mx.Unlock()
-*/
+}
 
 func (a *ABM) AddAgents(spawnFunc func(*ABM) Agent, n int) {
 	for i := 0; i < n; i++ {
@@ -78,7 +89,9 @@ func (a *ABM) Iteration() int {
 }
 
 func (a *ABM) StartSimulation() {
+
 	for i := 0; i < a.Limit(); i++ {
+		agentsToRemove := []int{}
 		a.i = i
 		//TODO: here replace agents
 		if a.World() != nil {
@@ -89,14 +102,21 @@ func (a *ABM) StartSimulation() {
 		for j := 0; j < a.AgentsCount(); j++ {
 			wg.Add(1)
 			go func(wg *sync.WaitGroup, i, j int) {
-				// TODO: check if dead (IsDead() - them remove from a.agents)
-				// else:
-				a.agents[j].Run()
+				if a.agents[j].IsDead() == false {
+					log.Printf("Removing agent from ABM")
+					agentsToRemove = append(agentsToRemove, j) // remove it after other wise will mess up due to concur?
+				} else {
+					a.agents[j].Run()
+				}
 				wg.Done()
 			}(&wg, i, j)
 		}
-		wg.Wait()
 
+		wg.Wait()
+		sort.Ints(agentsToRemove)
+		for index := len(agentsToRemove) - 1; index > -1; index-- {
+			a.RemoveAgent(index)
+		}
 		if a.reportFunc != nil {
 			a.reportFunc(a)
 		}
