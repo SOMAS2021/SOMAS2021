@@ -23,3 +23,7 @@ func (a *CustomAgent2) Run() {
 	log.Printf("Custom agent in team 2 is on floor %d has hp: %d", a.Floor(), a.HP())
 	a.TakeFood(15)
 }
+
+func (a *CustomAgent2) AddToInbox(msg messages.Message) {
+	a.Base.AddToInbox(msg)
+}
