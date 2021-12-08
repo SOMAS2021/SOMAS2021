@@ -34,3 +34,7 @@ func (a *CustomAgent1) IsDead() bool {
 func (a *CustomAgent1) takeFood(foodToTake float64) float64 {
 	return a.Base.TakeFood(foodToTake)
 }
+
+func (a *CustomAgent1) AddToInbox(msg messages.Message) {
+	a.Base.AddToInbox(msg)
+}
