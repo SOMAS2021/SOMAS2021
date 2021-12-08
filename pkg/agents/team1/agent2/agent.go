@@ -21,6 +21,8 @@ func New(baseAgent *agents.Base) (agents.Agent, error) {
 func (a *CustomAgent2) Run() {
 	// log.Printf("Custom agent in team 2 is on floor %d has hp: %d", a.Floor(), a.HP())
 	// a.takeFood(15)
+	// a.HP()
+	// a.IsDead()
 }
 
 func (a *CustomAgent2) HP() int {

@@ -7,9 +7,9 @@ import (
 func main() {
 	// can have frontend parameters come go straight into simEnv
 	foodOnPlatform := 100.0
-	numOfAgents := []int{2, 3}
+	numOfAgents := []int{5, 5}
 	agentHP := 100
-	days := 100.0
+	days := 10.0
 	reshufflePeriod := 3.0 // in days
 
 	iterationsPerDay := 24.0 * 60.0

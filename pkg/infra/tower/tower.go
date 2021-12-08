@@ -50,13 +50,17 @@ func (t *Tower) Tick() {
 	platformMovePeriod := day / numOfFloors // can add min/max
 
 	if (t.tickCounter)%(t.reshufflePeriod) == 0 {
+		t.mx.RUnlock()
 		t.reshuffle(numOfFloors)
+		t.mx.RLock()
 	}
 	if (t.tickCounter)%(platformMovePeriod) == 0 {
 		t.currPlatFloor++
 	}
 	if (t.tickCounter)%(day) == 0 {
+		t.mx.RUnlock()
 		t.hpDecay() // deacreases HP and kills if < 0
+		t.mx.RLock()
 		t.ResetTower()
 	}
 

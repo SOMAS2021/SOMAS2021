@@ -7,15 +7,20 @@ type BaseAgentCore struct {
 }
 
 func (tower *Tower) GetHP(id string) int {
+	tower.mx.RLock()
+	defer tower.mx.RUnlock()
 	return tower.agents[id].hp
 }
 
 func (tower *Tower) GetFloor(id string) int {
+	tower.mx.RLock()
+	defer tower.mx.RUnlock()
 	return tower.agents[id].floor
 }
 
 func (tower *Tower) Exists(id string) bool {
-
+	tower.mx.RLock()
+	defer tower.mx.RUnlock()
 	if _, found := tower.agents[id]; found {
 		return true
 	} else {
@@ -23,10 +28,7 @@ func (tower *Tower) Exists(id string) bool {
 	}
 }
 
-func (tower *Tower) setFloor(id string, newFloor int) {
-	// TODO: fix concurrency issues
-	hp := tower.agents[id].hp
-	aType := tower.agents[id].agentType
+func (tower *Tower) setFloor(id string, hp, newFloor, aType int) {
 	tower.mx.Lock()
 	tower.agents[id] = BaseAgentCore{
 		hp:        hp,
@@ -36,15 +38,12 @@ func (tower *Tower) setFloor(id string, newFloor int) {
 	tower.mx.Unlock()
 }
 
-func (tower *Tower) setHP(id string, newHP int) {
-	// TODO: fix concurrency issues
-	floor := tower.agents[id].floor
-	aType := tower.agents[id].agentType
+func (tower *Tower) setHP(id string, newHP, floor, aType int) {
 	tower.mx.Lock()
 	tower.agents[id] = BaseAgentCore{
 		hp:        newHP,
-		floor:     floor,
-		agentType: aType,
+		floor:     1,
+		agentType: 1,
 	}
 	tower.mx.Unlock()
 }
