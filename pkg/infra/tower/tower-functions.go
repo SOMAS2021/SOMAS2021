@@ -4,6 +4,10 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"github.com/SOMAS2021/SOMAS2021/utils/abm"
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
+
+
 )
 
 func (t *Tower) initAgents() {
@@ -99,17 +103,35 @@ func (tower *Tower) SendMessage(direction int, sender abm.Agent , msg messages.M
 	tower.mx.RLock()
 	defer tower.mx.RUnlock()
 	var senderFloor int
-	for _, agent := range tower.agents {
+	for id, agent := range tower.agents {
 		//find sender BaseAgentCore
-		if (agent.cust.ID() == sender.ID()){
+		if (id == sender.ID()){
 			senderFloor = agent.floor
 		}
 	}
 	for _, agent := range tower.agents {
 		//find reciever and pass them msg
 		if (agent.floor == senderFloor + direction){
-			reciever := agent.cust
-			reciever.AddToInbox(msg)
+			agent.AddToInbox(msg)
 		}
 	}
+}
+
+func (tower *Tower) ReceiveMessage(reciever abm.Agent) messages.Message {
+	tower.mx.RLock()
+	defer tower.mx.RUnlock()
+	
+	for id, agent := range tower.agents {
+		//find sender BaseAgentCore
+		if (id == reciever.ID()){
+			select {
+			case msg := <-agent.inbox:
+				return msg
+			default:
+				return nil
+			}
+		}
+	}
+
+	
 }

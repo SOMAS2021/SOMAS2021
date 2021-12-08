@@ -9,16 +9,10 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
 )
 
-type Agent interface {
-	Run()
-	IsDead() bool
-	AddToInbox(msg messages.Message)
-}
 
 type Base struct {
 	id    string
 	tower *tower.Tower
-	inbox chan messages.Message
 }
 
 func NewBaseAgent(abm *abm.ABM, uuid string) (*Base, error) {
@@ -68,13 +62,8 @@ func (sender *Base) SendMessage(direction int, msg messages.Message) {
 	}
 }
 
-func (a *Base) ReceiveMessage() messages.Message {
-	select {
-	case msg := <-a.inbox:
-		return msg
-	default:
-		return nil
-	}
+func (reciever *Base) ReceiveMessage() messages.Message {
+	return reciever.ReceiveMessage(reciever) 
 }
 
 func (a *Base) AddToInbox(msg messages.Message) {

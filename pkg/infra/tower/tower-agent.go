@@ -4,6 +4,7 @@ type BaseAgentCore struct {
 	hp        int
 	floor     int
 	agentType int
+	inbox chan messages.Message
 }
 
 func (tower *Tower) HP(id string) int {

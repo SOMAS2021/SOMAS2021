@@ -32,7 +32,7 @@ func New(foodOnPlat float64, agentCount []int, agentHP, iterations, reshufflePer
 	return s
 }
 
-type AgentNewFunc func(base *agents.Base) (agents.Agent, error)
+type AgentNewFunc func(base *agents.Base) (abm.Agent, error)
 
 func (sE *SimEnv) Simulate() {
 	a := abm.New()
