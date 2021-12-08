@@ -1,4 +1,4 @@
-package tower
+package infra
 
 import (
 	"log"

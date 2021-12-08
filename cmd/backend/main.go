@@ -1,7 +1,7 @@
 package main
 
 import (
-	sim "github.com/SOMAS2021/SOMAS2021/pkg/infra/simulation"
+	simulation "github.com/SOMAS2021/SOMAS2021/pkg/simulation"
 )
 
 func main() {
@@ -16,6 +16,6 @@ func main() {
 	iterations := int(days * iterationsPerDay)
 	iterationsBetweenReshuffles := int(reshufflePeriod * iterationsPerDay)
 
-	simEnv := sim.New(foodOnPlatform, numOfAgents, agentHP, iterations, iterationsBetweenReshuffles)
+	simEnv := simulation.NewSimEnv(foodOnPlatform, numOfAgents, agentHP, iterations, iterationsBetweenReshuffles)
 	simEnv.Simulate()
 }

@@ -1,4 +1,4 @@
-package tower
+package infra
 
 type BaseAgentCore struct {
 	hp        int

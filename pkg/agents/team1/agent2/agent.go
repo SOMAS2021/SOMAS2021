@@ -1,16 +1,16 @@
 package agent2
 
 import (
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
+	infra "github.com/SOMAS2021/SOMAS2021/pkg/infra"
 )
 
 type CustomAgent2 struct {
-	*agents.Base
+	*infra.Base
 	myNumber int
 	// new params
 }
 
-func New(baseAgent *agents.Base) (agents.Agent, error) {
+func New(baseAgent *infra.Base) (infra.Agent, error) {
 	//create other parameters
 	return &CustomAgent2{
 		Base:     baseAgent,

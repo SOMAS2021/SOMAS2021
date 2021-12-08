@@ -1,10 +1,9 @@
-package agents
+package infra
 
 import (
 	"errors"
 	"log"
 
-	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
@@ -15,7 +14,7 @@ type Agent interface {
 
 type Base struct {
 	id    string
-	tower *tower.Tower
+	tower *Tower
 }
 
 func NewBaseAgent(abm *abm.ABM, uuid string) (*Base, error) {
@@ -23,7 +22,7 @@ func NewBaseAgent(abm *abm.ABM, uuid string) (*Base, error) {
 	if world == nil {
 		return nil, errors.New("Agent needs a World defined to operate")
 	}
-	tower, ok := world.(*tower.Tower)
+	tower, ok := world.(*Tower)
 	if !ok {
 		return nil, errors.New("Agent needs a Tower world to operate")
 	}

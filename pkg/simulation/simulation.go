@@ -3,10 +3,9 @@ package simulation
 import (
 	"log"
 
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
-	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 	"github.com/google/uuid"
 )
@@ -19,7 +18,7 @@ type SimEnv struct {
 	reshufflePeriod int
 }
 
-func New(foodOnPlat float64, agentCount []int, agentHP, iterations, reshufflePeriod int) *SimEnv {
+func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, iterations, reshufflePeriod int) *SimEnv {
 
 	s := &SimEnv{
 		FoodOnPlatform:  foodOnPlat,
@@ -32,13 +31,13 @@ func New(foodOnPlat float64, agentCount []int, agentHP, iterations, reshufflePer
 	return s
 }
 
-type AgentNewFunc func(base *agents.Base) (agents.Agent, error)
+type AgentNewFunc func(base *infra.Base) (infra.Agent, error)
 
 func (sE *SimEnv) Simulate() {
 	a := abm.New()
 
 	totalAgents := sum(sE.AgentCount)
-	t := tower.New(sE.FoodOnPlatform, 1, totalAgents, 1, 20, sE.reshufflePeriod)
+	t := infra.NewTower(sE.FoodOnPlatform, 1, totalAgents, 1, 20, sE.reshufflePeriod)
 	a.SetWorld(t)
 
 	agentIndex := 1
@@ -52,7 +51,7 @@ func (sE *SimEnv) Simulate() {
 	sE.simulationLoop(a, t)
 }
 
-func (sE *SimEnv) simulationLoop(a *abm.ABM, t *tower.Tower) {
+func (sE *SimEnv) simulationLoop(a *abm.ABM, t *infra.Tower) {
 
 	for i := 1; i <= sE.Iterations; i++ {
 		missingAgentsMap := t.GetMissingAgents()
@@ -74,12 +73,12 @@ func sum(inputList []int) int {
 	return totalAgents
 }
 
-func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *tower.Tower, i, floor int) {
+func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *infra.Tower, i, floor int) {
 	// TODO: clean this looping, make a nice abs map
 	abs := []AgentNewFunc{agent1.New, agent2.New}
 
 	uuid := uuid.New().String()
-	bagent, err := agents.NewBaseAgent(a, uuid)
+	bagent, err := infra.NewBaseAgent(a, uuid)
 	if err != nil {
 		log.Fatal(err)
 	}

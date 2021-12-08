@@ -1,4 +1,4 @@
-package tower
+package infra
 
 import (
 	"log"
@@ -19,7 +19,7 @@ type Tower struct {
 	tickCounter     int
 }
 
-func New(currPlatFood float64, currPlatFloor uint64, agentCount,
+func NewTower(currPlatFood float64, currPlatFloor uint64, agentCount,
 	agentsPerFloor, ticksPerDay, reshufflePeriod int) *Tower {
 	t := &Tower{
 		currPlatFood:    currPlatFood,
