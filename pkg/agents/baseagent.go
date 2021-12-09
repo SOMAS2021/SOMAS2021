@@ -39,7 +39,7 @@ func (a *Base) Run() {
 }
 
 func (a *Base) HP() int {
-	return a.tower.GetHP(a.id)
+	return a.tower.HP(a.id)
 }
 
 func (a *Base) Floor() int {
