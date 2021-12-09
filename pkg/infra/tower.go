@@ -2,16 +2,14 @@ package infra
 
 import (
 	"log"
-	"sync"
 )
 
 type Tower struct {
 	currPlatFood    float64
 	maxPlatFood     float64
 	currPlatFloor   uint64
-	mx              sync.RWMutex
 	agentCount      int
-	agents          map[string]BaseAgentCore
+	agents          []Base
 	agentsPerFloor  int
 	ticksPerDay     int
 	missingAgents   map[int][]int // key: floor, value: types of missing agents
@@ -37,9 +35,6 @@ func NewTower(currPlatFood float64, currPlatFloor uint64, agentCount,
 }
 
 func (t *Tower) Tick() {
-	t.mx.RLock()
-	defer t.mx.RUnlock()
-
 	//logs
 	log.Printf("A log from the tower! Tick no: %d", t.tickCounter)
 	log.Printf("The food left on the platform = %f", t.currPlatFood)
@@ -50,17 +45,13 @@ func (t *Tower) Tick() {
 	platformMovePeriod := day / numOfFloors // can add min/max
 
 	if (t.tickCounter)%(t.reshufflePeriod) == 0 {
-		t.mx.RUnlock()
 		t.reshuffle(numOfFloors)
-		t.mx.RLock()
 	}
 	if (t.tickCounter)%(platformMovePeriod) == 0 {
 		t.currPlatFloor++
 	}
 	if (t.tickCounter)%(day) == 0 {
-		t.mx.RUnlock()
 		t.hpDecay() // deacreases HP and kills if < 0
-		t.mx.RLock()
 		t.ResetTower()
 	}
 
@@ -71,4 +62,15 @@ func (t *Tower) GetMissingAgents() map[int][]int {
 	deadAgents := t.missingAgents
 	t.missingAgents = make(map[int][]int)
 	return deadAgents
+}
+
+func (t *Tower) SetAgent(aType, agentHP, agentFloor int, id string) {
+	newAgent := Base{
+		id:        id,
+		hp:        agentHP,
+		floor:     agentFloor,
+		agentType: aType,
+		tower:     t,
+	}
+	t.agents = append(t.agents, newAgent)
 }

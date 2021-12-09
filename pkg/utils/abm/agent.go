@@ -6,7 +6,8 @@ import (
 
 type Agent interface {
 	Run()
-	IsDead() bool
+	Die()
+	IsAlive() bool
 	// TODO: IsDead() add this to check agent is alive
 }
 

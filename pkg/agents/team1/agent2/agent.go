@@ -22,15 +22,18 @@ func (a *CustomAgent2) Run() {
 	// log.Printf("Custom agent in team 2 is on floor %d has hp: %d", a.Floor(), a.HP())
 	// a.takeFood(15)
 	// a.HP()
-	// a.IsDead()
 }
 
 func (a *CustomAgent2) HP() int {
 	return a.Base.HP()
 }
 
-func (a *CustomAgent2) IsDead() bool {
-	return a.Base.IsDead()
+func (a *CustomAgent2) Die() {
+	a.Base.Die()
+}
+
+func (a *CustomAgent2) IsAlive() bool {
+	return a.Base.IsAlive()
 }
 
 func (a *CustomAgent2) takeFood(foodToTake float64) float64 {
