@@ -2,10 +2,10 @@ package agent1
 
 import (
 	"log"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
-
 )
 
 type CustomAgent1 struct {
@@ -25,45 +25,29 @@ func (a *CustomAgent1) Run() {
 	// a.takeFood(10)
 	// a.HP()
 	// a.IsDead()
-	
+
 	receivedMsg := a.Base.ReceiveMessage()
 	if receivedMsg != nil {
-		log.Printf("%d, %d I got a msg from: %s", a.Floor(),a.myNumber, receivedMsg.MessageType())
+		log.Printf("%d, %d I got a msg from: %s", a.Floor(), a.myNumber, receivedMsg.MessageType())
 	} else {
-		log.Printf("%d, %d, I got nothing", a.Floor(),a.myNumber)
+		log.Printf("%d, %d, I got nothing", a.Floor(), a.myNumber)
 	}
-	
+
 	//log.Printf("%s, %d", a.ID(), a.Floor())
 
-	if (a.myNumber) % 2 == 0 {
-		
+	if (a.myNumber)%2 == 0 {
+
 		msg := *messages.NewAckMessage(int(a.Floor()), true)
-		
+
 		a.Base.SendMessage(1, msg)
-			
-		log.Printf("%d,%d, I sent a msg: %s", a.Floor(),a.myNumber, msg.MessageType())
+
+		log.Printf("%d,%d, I sent a msg: %s", a.Floor(), a.myNumber, msg.MessageType())
 	} else {
-		
+
 		msg := *messages.NewBaseMessage(int(a.Floor()))
-		
+
 		a.Base.SendMessage(1, msg)
 	}
-	
-	a.takeFood(1)
-}
 
-func (a *CustomAgent1) HP() int {
-	return a.Base.HP()
-}
-
-func (a *CustomAgent1) IsDead() bool {
-	return a.Base.IsDead()
-}
-
-func (a *CustomAgent1) takeFood(foodToTake float64) float64 {
-	return a.Base.TakeFood(foodToTake)
-}
-
-func (a *CustomAgent1) ID() string {
-	return a.Base.ID()
+	a.TakeFood(1)
 }

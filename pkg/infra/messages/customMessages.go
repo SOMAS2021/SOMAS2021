@@ -1,6 +1,5 @@
 package messages
 
-
 // type IntMessage struct {
 // 	*baseMessage
 // 	i int
@@ -10,9 +9,9 @@ package messages
 // 	YesNo bool
 // }
 
-// // voting system messages 
+// // voting system messages
 // // chaining messages
-// //idea of this protocol is: 
+// //idea of this protocol is:
 // type FloorTargetChainMessage struct {
 // 	*baseMessage
 // 	TargetFloor uint64
