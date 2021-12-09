@@ -1,4 +1,4 @@
-package agent1_2
+package agent4_2
 
 import (
 	"log"
@@ -21,6 +21,6 @@ func New(baseAgent *agents.Base) (abm.Agent, error) {
 }
 
 func (a *CustomAgent2) Run() {
-	log.Printf("Custom agent 2 in team 1 is on floor %d has hp: %d", a.Floor(), a.HP())
+	log.Printf("Custom agent 2 in team 4 is on floor %d has hp: %d", a.Floor(), a.HP())
 	a.TakeFood(15)
 }

@@ -22,5 +22,8 @@ build: dep ## Build the binary file
 clean: ## Remove previous build
 	@rm -rf ./bin
  
+run: ## run simulation
+	@go run cmd/backend/main.go
+
 help: ## Display this help screen
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

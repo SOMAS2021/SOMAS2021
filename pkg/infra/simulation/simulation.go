@@ -4,66 +4,78 @@ import (
 	"log"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
+	agent1_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
+	agent1_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
+	agent2_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team2/agent1"
+	agent2_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team2/agent2"
+	agent3_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team3/agent1"
+	agent3_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team3/agent2"
+	agent4_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team4/agent1"
+	agent4_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team4/agent2"
+	agent5_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team5/agent1"
+	agent5_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team5/agent2"
+	agent6_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team6/agent1"
+	agent6_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team6/agent2"
+	agent7_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team7/agent1"
+	agent7_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team7/agent2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
-	"github.com/divan/goabm/abm"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
+	"github.com/google/uuid"
 )
 
 type SimEnv struct {
-	FoodOnPlatform float64
-	AgentCount     []int
-	AgentHP        int
-	Iterations     int
+	FoodOnPlatform  float64
+	AgentCount      []int
+	AgentHP         int
+	Iterations      int
+	reshufflePeriod int
 }
 
-func New(foodOnPlat float64, agentCount []int, agentHP int, iterations int) *SimEnv {
+func New(foodOnPlat float64, agentCount []int, agentHP, iterations, reshufflePeriod int) *SimEnv {
 
 	s := &SimEnv{
-		FoodOnPlatform: foodOnPlat,
-		AgentCount:     agentCount,
-		AgentHP:        agentHP,
-		Iterations:     iterations,
+		FoodOnPlatform:  foodOnPlat,
+		AgentCount:      agentCount,
+		AgentHP:         agentHP,
+		Iterations:      iterations,
+		reshufflePeriod: reshufflePeriod,
 	}
 	// can do other inits here
 	return s
 }
 
-type AgentNewFunc func(base *agents.Base) (agents.Agent, error)
+type AgentNewFunc func(base *agents.Base) (abm.Agent, error)
 
 func (sE *SimEnv) Simulate() {
 	a := abm.New()
 
 	totalAgents := sum(sE.AgentCount)
-	tower := tower.New(sE.FoodOnPlatform, 1, totalAgents)
-	a.SetWorld(tower)
+	t := tower.New(sE.FoodOnPlatform, 1, totalAgents, 1, 20, sE.reshufflePeriod)
+	a.SetWorld(t)
 
-	// TODO: clean this looping, make a nice abs map
-	abs := []AgentNewFunc{agent1.New, agent2.New}
-
-	agentIndex := 0
+	agentIndex := 1
 	for i := 0; i < len(sE.AgentCount); i++ {
 		for j := 0; j < sE.AgentCount[i]; j++ {
-
-			bagent, err := agents.NewBaseAgent(a, agentIndex, sE.AgentHP)
-			if err != nil {
-				log.Fatal(err)
-			}
-			// generates a custom agent on the current base agent
-			custagent, err := abs[i%len(abs)](bagent)
-			if err != nil {
-				log.Fatal(err)
-			}
-			// adds custom agent to the world & controller
-			a.AddAgent(custagent)
-			tower.SetAgent(agentIndex, custagent)
+			sE.createNewAgent(a, t, i, agentIndex)
 			agentIndex++
 		}
 	}
-
 	a.LimitIterations(sE.Iterations)
-	a.StartSimulation()
+	sE.simulationLoop(a, t)
+}
 
+func (sE *SimEnv) simulationLoop(a *abm.ABM, t *tower.Tower) {
+	// TODO: abstract with an extra function
+	for i := 1; i <= sE.Iterations; i++ {
+		missingAgentsMap := t.UpdateMissingAgents()
+		for floor := range missingAgentsMap {
+			for _, agentType := range missingAgentsMap[floor] {
+				sE.createNewAgent(a, t, agentType, floor)
+			}
+		}
+
+		a.SimulationIterate(i)
+	}
 }
 
 func sum(inputList []int) int {
@@ -74,149 +86,23 @@ func sum(inputList []int) int {
 	return totalAgents
 }
 
-// Draft for WIP
+func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *tower.Tower, agentType, floor int) {
+	// TODO: clean this looping, make a nice abs map
+	abs := []AgentNewFunc{agent1_1.New, agent1_2.New, agent2_1.New, agent2_2.New, agent3_1.New,
+		agent3_2.New, agent4_1.New, agent4_2.New, agent5_1.New, agent5_2.New, agent6_1.New,
+		agent6_2.New, agent7_1.New, agent7_2.New}
 
-/*
-
-//more parameters to be considered
-// What rules do the agents collectively agree on before they enter the tower.
-// Do agents that replace dead agents know about these pre agreed rules?
-// Number of messages that can be sent during a turn (time between the movement of the platform) or time taken for given message types to be sent
-// Time taken for agents to respond to messages
-
-func replace(sE *simEnv) {
-	//implementation
-}
-
-func reshuffle(agents *[]BaseAgent, agentsPerFloor uint64) {
-
-}
-
-func communication(agents *[]BaseAgent, messages *[]Message, commFloor int) {
-
-	// allocate curr Messages
-
-	// collect messages from agents
-
-	// put new messages in inboxes
-
-}
-
-func eating(currAgent *BaseAgent, foodLeft *float64, maxHealthPoints int) {
-
-	// first eating - ask agent to return food taken
-
-	// second - updated health of curr Agent
-
-}
-
-func death(agents *[]BaseAgent) {
-
-}
-
-// by making stuff lower case, they dont get access to it in other files, oh baby yeah lets do this
-func (sE *simEnv) Simulate() {
-	//come up with rules
-
-	// Initialisation Phase - set intial parameters of sim
-	// time parameters
-	var simLength int
-	var currentDay int = 0 // will not change throughout simulations
-	var ticksPerDay int
-	var commFloors int // +/- floors that can be communicated with
-	var daysUntilReshuffle int
-	var daysPerReshuffle int
-
-	ticksPerDay = 500
-	daysPerReshuffle = 10
-	daysUntilReshuffle = daysPerReshuffle
-
-	// platform parameters
-	var foodLeft float64
-	var ticksSpentByPlatformOnFloor int = 1
-
-	//agent params
-	var foodToSatisfice float64 // don't loose HP, dont gain HP
-	var foodToSatisfy float64   // gain HP?
-	var maxHealthPoints int = 100
-	// var minHealthPoints int = 0
-	var numberOfAgents uint64
-	var totalFood float64
-
-	foodRange := foodToSatisfy - foodToSatisfice
-	totalFood = foodToSatisfice + rand.Float64()*foodRange
-
-	//-- instantiate agents here !! TALK ABOUT THIS WITH THE GROUP
-
-	//-- HP decay function
-
-	//tower params (- could be set in tower and called.)
-	var numFloors uint64
-	var agentsPerFloor uint64
-	var currFloor int
-
-	numFloors = numberOfAgents / agentsPerFloor
-
-	var environment = simEnv{agentsPerFloor, foodLeft, ticksSpentByPlatformOnFloor}
-
-	var agentListTemp []BaseAgent = []BaseAgent{{HP: 12, Floor: 2}}
-
-	var tower = Tower{FoodOnPlatform: foodLeft, FloorOfPlatform: 0, Agents: agentListTemp}
-
-	for currentDay < simLength {
-		// ticks for loop TODO: import time package
-		// time.tick()
-		var tickTmp int = 0
-		currFloor = 0
-		foodLeft = totalFood
-		currentDay++
-
-		//message instantiation
-		var messages []Message
-
-		for tickTmp < ticksPerDay {
-
-			//wake up (do we need to define agents sleeping?)
-
-			// communicate phase
-			communication(&tower.Agents, &messages, commFloors)
-			// every tick/increment - communication function passes through the outbox
-			// of every agent and checks whether there is a message 'waiting' to be sent
-			// (this wait would be a very short period of time == one tick)
-			// if ther a message to be sent - it is allocated to the right agent to be
-			// received on the next tick/increment
-
-			if currFloor != int(numFloors) {
-				// platform move phase
-				eating(&tower.Agents[int(currFloor)], &foodLeft, maxHealthPoints)
-				//do we need to reset platform or just pass the top floor in the eating function
-				currFloor++
-			}
-
-		}
-		death(&tower.Agents)
-		// when do we replace agents, as soon as they die or on the reshuffle?
-		replace(&simEnv)
-		daysUntilReshuffle--
-		if daysUntilReshuffle == 0 {
-			reshuffle(&tower.Agents, agentsPerFloor)
-			daysUntilReshuffle = daysPerReshuffle
-		}
-		// print data requested by the frontend team
+	uuid := uuid.New().String()
+	bagent, err := agents.NewBaseAgent(a, uuid)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	//day loop - number of days is defined as a parameter
-	//wake up
-	//loop until platform gets to bottom
-	//communicate phase - assign number of ticks to this phase (run is executed every tick, (within a tick agents can do as much as they want)
-	//move platform phase
-	//reset platform
-	//kill agents (check hunger, kill if hunger too high)
-	//replace - parameter (when they die, when they shuffle)
-	//random shuffle on Nth day - parameter
+	custagent, err := abs[agentType](bagent)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	//end of sim
-	//- write to json file (could just dump the entire program state)
+	a.AddAgent(custagent)
+	tower.SetAgent(uuid, 100, floor, agentType) // TODO: edit this call
 }
-
-*/

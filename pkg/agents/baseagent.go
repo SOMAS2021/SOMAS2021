@@ -4,23 +4,17 @@ import (
 	"errors"
 	"log"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
-	"github.com/divan/goabm/abm"
-	"github.com/google/uuid"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
-type Agent interface {
-	Run()
-}
-
 type Base struct {
-	hp    int
-	floor int
 	id    string
 	tower *tower.Tower
 }
 
-func NewBaseAgent(abm *abm.ABM, floor, hp int) (*Base, error) {
+func NewBaseAgent(abm *abm.ABM, uuid string) (*Base, error) {
 	world := abm.World()
 	if world == nil {
 		return nil, errors.New("Agent needs a World defined to operate")
@@ -30,25 +24,43 @@ func NewBaseAgent(abm *abm.ABM, floor, hp int) (*Base, error) {
 		return nil, errors.New("Agent needs a Tower world to operate")
 	}
 	return &Base{
-		floor: floor,
-		hp:    hp,
 		tower: tower,
-		id:    uuid.New().String(),
+		id:    uuid,
 	}, nil
 }
 
 func (a *Base) Run() {
-	log.Printf("An agent cycle executed from base agent %d", a.floor)
+	floor := a.tower.Floor(a.id)
+	log.Printf("An agent cycle executed from base agent %d", floor)
 }
 
 func (a *Base) HP() int {
-	return a.hp
+	return a.tower.HP(a.id)
 }
 
 func (a *Base) Floor() int {
-	return a.floor
+	return a.tower.Floor(a.id)
 }
 
 func (a *Base) ID() string {
 	return a.id
+}
+
+// TODO: this is being used by state manager and can be overriden by custom agent
+func (a *Base) IsDead() bool {
+	return !a.tower.Exists(a.ID())
+}
+
+func (a *Base) TakeFood(amountOfFood float64) float64 {
+	return a.tower.FoodRequest(a.id, amountOfFood)
+}
+
+func (sender *Base) SendMessage(direction int, msg messages.Message) {
+	if (direction == -1) || (direction == 1) {
+		sender.tower.SendMessage(direction, sender, msg)
+	}
+}
+
+func (reciever *Base) ReceiveMessage() messages.Message {
+	return reciever.tower.ReceiveMessage(reciever)
 }
