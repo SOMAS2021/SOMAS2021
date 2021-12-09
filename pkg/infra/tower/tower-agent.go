@@ -53,7 +53,7 @@ func (t *Tower) SetAgent(id string, agentHp int, agentFloor int, agentType int) 
 	t.agents[id] = BaseAgentCore{
 		hp:        agentHp,
 		floor:     agentFloor,
-		agentType: aType,
+		agentType: agentType,
 		inbox: list.New(),
 	}
 }
