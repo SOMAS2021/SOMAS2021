@@ -40,8 +40,8 @@ func (tower *Tower) setHP(id string, newHP, floor, agentType int) {
 	defer tower.mx.Unlock()
 	tower.agents[id] = BaseAgentCore{
 		hp:        newHP,
-		floor:     1,
-		agentType: 1,
+		floor:     floor,
+		agentType: agentType,
 	}
 }
 
