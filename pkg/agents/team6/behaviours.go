@@ -48,7 +48,7 @@ func (a *CustomAgent6) getBehaviourRange() (behaviourMax, behaviourMin behaviour
 
 	aConf := a.config
 
-	maxT := a.config.maxBehaviourThreshold
+	maxT := aConf.maxBehaviourThreshold
 
 	bMax := behaviour(math.Min(float64(maxT), float64(aConf.baseBehaviour)+aConf.maxBehaviourSwing))
 	bMin := behaviour(math.Max(0, float64(aConf.baseBehaviour)-aConf.maxBehaviourSwing))

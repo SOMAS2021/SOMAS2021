@@ -40,9 +40,14 @@ type CustomAgent6 struct {
 	currBehaviour behaviour
 }
 
-var maxBehaviourThreshold behaviour = 10.0
+type thresholdBehaviourPair struct {
+	threshold behaviour
+	bType     string
+}
 
 type behaviourParameterWeights []float64
+
+var maxBehaviourThreshold behaviour = 10.0
 
 func chooseInitialBehaviour() behaviour {
 	rand.Seed(time.Now().UnixNano())
@@ -74,19 +79,9 @@ func (a *CustomAgent6) Run() {
 	log.Printf("Team 6 has behaviour: " + a.currBehaviour.String())
 	log.Printf("Team 6 has maxFloorGuess: %d", a.maxFloorGuess)
 
-	var b behaviour = 2
-
-	log.Printf("debug behaviour: " + b.String())
-
-}
-
-type thresholdBehaviourPair struct {
-	threshold behaviour
-	bType     string
 }
 
 func (b behaviour) String() string {
-	//strings := [...]string{"Altruist", "Collectivist", "Selfish", "Narcissist"}
 
 	behaviourMap := [...]thresholdBehaviourPair{{2, "Altruist"}, {7, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
 
@@ -98,8 +93,6 @@ func (b behaviour) String() string {
 			}
 		}
 	}
-	// if b >= 0 && int(b) < len(strings) {
-	//  return strings[int(b)]
-	// }
+
 	return fmt.Sprintf("UNKNOWN Behaviour '%v'", int(b))
 }
