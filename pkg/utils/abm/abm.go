@@ -48,6 +48,7 @@ func (a *ABM) AddAgent(agent Agent) {
 // TODO: corner cases?
 func (a *ABM) RemoveAgent(index int) {
 	a.mx.Lock()
+	defer a.mx.Unlock()
 	if index == 0 {
 		if len(a.agents) == 1 {
 			a.agents = []Agent{}
@@ -59,7 +60,6 @@ func (a *ABM) RemoveAgent(index int) {
 	} else {
 		a.agents = append(a.agents[:index], a.agents[index+1:]...)
 	}
-	a.mx.Unlock()
 }
 
 func (a *ABM) AddAgents(spawnFunc func(*ABM) Agent, n int) {
