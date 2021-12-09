@@ -53,5 +53,4 @@ func (t *Tower) SetAgent(aType, agentHP, agentFloor int, id string) {
 		floor:     agentFloor,
 		agentType: aType,
 	}
-	t.mx.Unlock()
 }

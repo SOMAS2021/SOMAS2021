@@ -23,11 +23,11 @@ func (t *Tower) killAgent(id string) { // this removes the agent from the list o
 }
 
 func (t *Tower) reshuffle(numOfFloors int) {
-	remainingVacanies := make([]int, numOfFloors)
+	remainingVacancies := make([]int, numOfFloors)
 	log.Printf("Reshuffling alive agents...")
 
 	for i := 0; i < numOfFloors; i++ { // adding a max to each floor
-		remainingVacanies[i] = t.agentsPerFloor
+		remainingVacancies[i] = t.agentsPerFloor
 	}
 
 	// allocating agents to floors randomly
@@ -35,7 +35,7 @@ func (t *Tower) reshuffle(numOfFloors int) {
 	for id := range t.agents {
 		newFloor := rand.Intn(numOfFloors)
 
-		for remainingVacanies[newFloor] == 0 {
+		for remainingVacancies[newFloor] == 0 {
 			newFloor = rand.Intn(numOfFloors)
 		}
 		t.mx.RLock()
@@ -45,7 +45,7 @@ func (t *Tower) reshuffle(numOfFloors int) {
 		// currHP++
 		// aType++
 		t.setFloor(id, currHP, newFloor+1, aType)
-		remainingVacanies[newFloor]--
+		remainingVacancies[newFloor]--
 	}
 }
 
@@ -79,7 +79,7 @@ func (t *Tower) updateHP(id string, foodTaken float64) {
 func (t *Tower) FoodRequest(id string, foodRequested float64) float64 {
 	t.mx.RLock()
 	defer t.mx.RUnlock()
-	if t.agents[id].floor == int(t.currPlatFloor) {
+	if t.agents[id].floor == t.currPlatFloor {
 		foodTaken := math.Min(t.currPlatFood, foodRequested)
 		t.mx.RUnlock()
 		t.updateHP(id, foodTaken)
