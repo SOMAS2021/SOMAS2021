@@ -43,7 +43,7 @@ func (a *Base) HP() int {
 }
 
 func (a *Base) Floor() int {
-	return a.tower.GetFloor(a.id)
+	return a.tower.Floor(a.id)
 }
 
 func (a *Base) ID() string {
