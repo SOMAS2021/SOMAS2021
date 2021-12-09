@@ -6,13 +6,13 @@ type BaseAgentCore struct {
 	agentType int
 }
 
-func (tower *Tower) GetHP(id string) int {
+func (tower *Tower) HP(id string) int {
 	tower.mx.RLock()
 	defer tower.mx.RUnlock()
 	return tower.agents[id].hp
 }
 
-func (tower *Tower) GetFloor(id string) int {
+func (tower *Tower) Floor(id string) int {
 	tower.mx.RLock()
 	defer tower.mx.RUnlock()
 	return tower.agents[id].floor
@@ -21,11 +21,8 @@ func (tower *Tower) GetFloor(id string) int {
 func (tower *Tower) Exists(id string) bool {
 	tower.mx.RLock()
 	defer tower.mx.RUnlock()
-	if _, found := tower.agents[id]; found {
-		return true
-	} else {
-		return false
-	}
+	_, found := tower.agents[id]
+	return found
 }
 
 func (tower *Tower) setFloor(id string, hp, newFloor, aType int) {
