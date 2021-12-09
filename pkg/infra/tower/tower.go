@@ -52,8 +52,8 @@ func (t *Tower) Tick() {
 	// Shuffle the agents
 	if t.tickCounter%t.reshufflePeriod == 0 {
 		t.mx.RUnlock()
-		defer t.mx.RLock()
 		t.reshuffle(numOfFloors)
+		t.mx.RLock()
 	}
 	// Move the platform
 	if (t.tickCounter)%(platformMovePeriod) == 0 {
