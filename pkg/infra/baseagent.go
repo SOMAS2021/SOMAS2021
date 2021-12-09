@@ -12,7 +12,6 @@ import (
 )
 
 type Base struct {
-	isAlive   bool
 	id        string
 	hp        int
 	floor     int
@@ -32,7 +31,6 @@ func NewBaseAgent(a *abm.ABM, aType int, agentHP int, agentFloor int, id string)
 		return nil, errors.New("agent needs a tower world to operate")
 	}
 	return &Base{
-		isAlive:   true,
 		id:        id,
 		hp:        agentHP,
 		floor:     agentFloor,
@@ -59,12 +57,9 @@ func (a *Base) ID() string {
 	return a.id
 }
 
-func (a *Base) die() {
-	a.isAlive = false
-}
-
 func (a *Base) IsAlive() bool {
-	return a.isAlive
+	_, found := a.tower.agents[a.id]
+	return found
 }
 
 func (a *Base) setFloor(newFloor int) {

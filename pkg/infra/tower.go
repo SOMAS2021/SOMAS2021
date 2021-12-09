@@ -12,7 +12,7 @@ type Tower struct {
 	maxPlatFood     float64
 	currPlatFloor   uint64
 	agentCount      int
-	agents          []*Base
+	agents          map[string]*Base
 	agentsPerFloor  int
 	ticksPerDay     int
 	missingAgents   map[int][]int // key: floor, value: types of missing agents
@@ -27,7 +27,7 @@ func NewTower(currPlatFood float64, currPlatFloor uint64, agentCount,
 		maxPlatFood:     currPlatFood,
 		currPlatFloor:   currPlatFloor,
 		agentCount:      agentCount,
-		agents:          make([]*Base, 0),
+		agents:          make(map[string]*Base),
 		agentsPerFloor:  agentsPerFloor,
 		ticksPerDay:     ticksPerDay,
 		missingAgents:   make(map[int][]int),
@@ -68,7 +68,7 @@ func (t *Tower) GetMissingAgents() map[int][]int {
 }
 
 func (t *Tower) AddAgent(bagent *Base) {
-	t.agents = append(t.agents, bagent)
+	t.agents[bagent.id] = bagent
 }
 
 func (t *Tower) reshuffle(numOfFloors int) {
@@ -92,36 +92,16 @@ func (t *Tower) reshuffle(numOfFloors int) {
 
 func (t *Tower) hpDecay() {
 	// TODO: can add a parameter
-	var killed []int
-	for i, agent := range t.agents {
+	for _, agent := range t.agents {
 		newHP := agent.HP() - 20
 		if newHP < 0 {
-			agent.die()
-			killed = append(killed, i)
 			log.Printf("Killing agent %s", agent.ID())
 			t.missingAgents[agent.Floor()] = append(t.missingAgents[agent.Floor()], agent.agentType)
+			delete(t.agents, agent.id) // maybe lock mutex?
 		} else {
 			agent.setHP(newHP)
 		}
 	}
-	if len(killed) > 0 {
-		tmp := make([]*Base, 0)
-		for i, agent := range t.agents {
-			if !contains(killed, i) {
-				tmp = append(tmp, agent)
-			}
-		}
-		t.agents = tmp
-	}
-}
-
-func contains(s []int, e int) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }
 
 func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message) {
