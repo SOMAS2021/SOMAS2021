@@ -30,7 +30,6 @@ func (a *CustomAgent1) Run() {
 	// a.HP()
 	// a.IsDead()
 	
-	
 	receivedMsg := a.Base.ReceiveMessage()
 	if receivedMsg != nil {
 		log.Printf("%d, %d I got a msg from: %d", a.Floor(),a.myNumber, receivedMsg.MessageType())
@@ -42,24 +41,19 @@ func (a *CustomAgent1) Run() {
 
 	if (a.myNumber) % 2 == 0 {
 		
-		msg := *messages.NewAckMessage(uint(a.Floor()), true)
+		msg := *messages.NewAckMessage(int(a.Floor()), true)
 		
 		a.Base.SendMessage(1, msg)
 			
 		log.Printf("%d,%d, I sent a msg: %d", a.Floor(),a.myNumber, msg.MessageType())
 	} else {
 		
-		msg := *messages.NewBaseMessage(uint(a.Floor()))
+		msg := *messages.NewBaseMessage(int(a.Floor()))
 		
 		a.Base.SendMessage(1, msg)
 	}
 	
-	
-	
-	// //make message
 	a.Base.TakeFood(1)
-	
-	a.myNumber++
 }
 
 func (a *CustomAgent1) HP() int {

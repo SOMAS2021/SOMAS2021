@@ -6,11 +6,11 @@ type Message interface {
 }
 
 type baseMessage struct {
-	SenderFloor  uint
+	SenderFloor  int
 	responseType Message
 }
 
-func NewBaseMessage(SenderFloor uint) *baseMessage {
+func NewBaseMessage(SenderFloor int) *baseMessage {
 	msg := &baseMessage{
 		SenderFloor: SenderFloor,
 	}

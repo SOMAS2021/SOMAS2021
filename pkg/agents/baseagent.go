@@ -57,11 +57,9 @@ func (a *Base) TakeFood(amountOfFood float64) float64 {
 }
 
 func (sender *Base) SendMessage(direction int, msg messages.Message) {
-	log.Printf("1142")
 	if (direction == -1) || (direction == 1) {
 		sender.tower.SendMessage(direction, sender, msg)
 	}
-	log.Printf("765")
 	
 }
 
