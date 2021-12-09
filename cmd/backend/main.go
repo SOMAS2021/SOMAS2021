@@ -6,15 +6,15 @@ import (
 
 func main() {
 	// can have frontend parameters come go straight into simEnv
-	foodOnPlatform := 100.0
+	foodOnPlatform := 100
 	numOfAgents := []int{5, 5}
 	agentHP := 100
-	days := 10.0
-	reshufflePeriod := 3.0 // in days
+	days := 10
+	daysPerReshuffle := 3
 
-	iterationsPerDay := 24.0 * 60.0
-	iterations := int(days * iterationsPerDay)
-	iterationsBetweenReshuffles := int(reshufflePeriod * iterationsPerDay)
+	iterationsPerDay := 24 * 60
+	iterations := days * iterationsPerDay
+	reshufflePeriod := daysPerReshuffle * iterationsPerDay
 
 	simEnv := sim.New(foodOnPlatform, numOfAgents, agentHP, iterations, iterationsBetweenReshuffles)
 	simEnv.Simulate()
