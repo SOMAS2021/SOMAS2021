@@ -52,7 +52,6 @@ func (sE *SimEnv) Simulate() {
 }
 
 func (sE *SimEnv) simulationLoop(a *abm.ABM, t *infra.Tower) {
-
 	for i := 1; i <= sE.Iterations; i++ {
 		missingAgentsMap := t.GetMissingAgents()
 		for floor := range missingAgentsMap {

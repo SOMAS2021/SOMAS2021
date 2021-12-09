@@ -21,7 +21,7 @@ type Base struct {
 	mx        sync.RWMutex
 }
 
-func NewBaseAgent(a *abm.ABM, aType int, agentHP int, agentFloor int, id string) (*Base, error) {
+func NewBaseAgent(a *abm.ABM, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {
 	world := a.World()
 	if world == nil {
 		return nil, errors.New("agent needs a world defined to operate")
@@ -34,7 +34,7 @@ func NewBaseAgent(a *abm.ABM, aType int, agentHP int, agentFloor int, id string)
 		id:        id,
 		hp:        agentHP,
 		floor:     agentFloor,
-		agentType: aType,
+		agentType: agentType,
 		tower:     tower,
 		inbox:     list.New(),
 	}, nil
@@ -75,14 +75,13 @@ func (a *Base) updateHP(foodTaken float64) {
 }
 
 func (a *Base) TakeFood(amountOfFood float64) float64 {
-	if uint64(a.floor) == a.tower.currPlatFloor {
+	if a.floor == a.tower.currPlatFloor {
 		foodTaken := math.Min(a.tower.currPlatFood, amountOfFood)
 		a.updateHP(foodTaken)
 		a.tower.currPlatFood -= foodTaken
 		return foodTaken
 	}
 	return 0.0
-	// return a.tower.FoodRequest(a.id, amountOfFood)
 }
 
 func (a *Base) ReceiveMessage() messages.Message {

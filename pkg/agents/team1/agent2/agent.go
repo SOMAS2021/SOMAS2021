@@ -3,8 +3,8 @@ package agent2
 import (
 	"log"
 
-	infra "github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	abm "github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
 type CustomAgent2 struct {

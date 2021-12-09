@@ -1,7 +1,7 @@
 package main
 
 import (
-	simulation "github.com/SOMAS2021/SOMAS2021/pkg/simulation"
+	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
 )
 
 func main() {
@@ -9,13 +9,13 @@ func main() {
 	foodOnPlatform := 100.0
 	numOfAgents := []int{5, 5}
 	agentHP := 100
-	days := 10.0
-	reshufflePeriod := 3.0 // in days
+	days := 10
+	daysPerReshuffle := 3
 
-	iterationsPerDay := 24.0 * 60.0
-	iterations := int(days * iterationsPerDay)
-	iterationsBetweenReshuffles := int(reshufflePeriod * iterationsPerDay)
+	iterationsPerDay := 24 * 60
+	iterations := days * iterationsPerDay
+	reshufflePeriod := daysPerReshuffle * iterationsPerDay
 
-	simEnv := simulation.NewSimEnv(foodOnPlatform, numOfAgents, agentHP, iterations, iterationsBetweenReshuffles)
+	simEnv := simulation.NewSimEnv(foodOnPlatform, numOfAgents, agentHP, iterations, reshufflePeriod)
 	simEnv.Simulate()
 }

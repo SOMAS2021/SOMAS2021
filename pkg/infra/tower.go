@@ -10,7 +10,7 @@ import (
 type Tower struct {
 	currPlatFood    float64
 	maxPlatFood     float64
-	currPlatFloor   uint64
+	currPlatFloor   int
 	agentCount      int
 	agents          map[string]*Base
 	agentsPerFloor  int
@@ -20,7 +20,7 @@ type Tower struct {
 	tickCounter     int
 }
 
-func NewTower(currPlatFood float64, currPlatFloor uint64, agentCount,
+func NewTower(currPlatFood float64, currPlatFloor, agentCount,
 	agentsPerFloor, ticksPerDay, reshufflePeriod int) *Tower {
 	t := &Tower{
 		currPlatFood:    currPlatFood,
@@ -44,24 +44,27 @@ func (t *Tower) Tick() {
 
 	//useful parameters
 	day := 24 * 60
-	numOfFloors := t.agentCount / int(t.agentsPerFloor)
+	numOfFloors := t.agentCount / t.agentsPerFloor
 	platformMovePeriod := day / numOfFloors // can add min/max
 
-	if (t.tickCounter)%(t.reshufflePeriod) == 0 {
+        // Shuffle the agents
+	if t.tickCounter % t.reshufflePeriod == 0 {
 		t.reshuffle(numOfFloors)
 	}
-	if (t.tickCounter)%(platformMovePeriod) == 0 {
+        // Move the platform
+	if t.tickCounter % platformMovePeriod == 0 {
 		t.currPlatFloor++
 	}
-	if (t.tickCounter)%(day) == 0 {
-		t.hpDecay() // deacreases HP and kills if < 0
+        // Decrease agent HP and reset tower at end of day
+	if t.tickCounter % day == 0 {
+		t.hpDecay() // decreases HP and kills if < 0
 		t.ResetTower()
 	}
 
 	t.tickCounter++
 }
 
-func (t *Tower) GetMissingAgents() map[int][]int {
+func (t *Tower) UpdateMissingAgents() map[int][]int {
 	deadAgents := t.missingAgents
 	t.missingAgents = make(map[int][]int)
 	return deadAgents
@@ -107,7 +110,7 @@ func (t *Tower) hpDecay() {
 func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message) {
 	log.Printf("tower sending message")
 	for _, agent := range t.agents {
-		if agent.floor == senderFloor+direction {
+		if agent.floor == senderFloor + direction {
 			agent.mx.Lock()
 			agent.inbox.PushBack(msg)
 			agent.mx.Unlock()

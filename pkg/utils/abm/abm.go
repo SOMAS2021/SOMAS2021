@@ -10,7 +10,7 @@ type ABM struct {
 	mx     sync.RWMutex
 	agents []Agent
 
-	i     int // current iteration
+	currIteration     int
 	limit int
 
 	world      World
@@ -41,8 +41,8 @@ func (a *ABM) SetReportFunc(fn func(*ABM)) {
 
 func (a *ABM) AddAgent(agent Agent) {
 	a.mx.Lock()
+	defer a.mx.Unlock()
 	a.agents = append(a.agents, agent)
-	a.mx.Unlock()
 }
 
 // TODO: corner cases?
@@ -71,8 +71,8 @@ func (a *ABM) AddAgents(spawnFunc func(*ABM) Agent, n int) {
 
 func (a *ABM) LimitIterations(n int) {
 	a.mx.Lock()
+	defer a.mx.Unlock()
 	a.limit = n
-	a.mx.Unlock()
 }
 
 func (a *ABM) Limit() int {
@@ -85,13 +85,12 @@ func (a *ABM) Limit() int {
 func (a *ABM) Iteration() int {
 	a.mx.RLock()
 	defer a.mx.RUnlock()
-	return a.i
+	return a.currIteration
 }
 
 func (a *ABM) SimulationIterate(i int) {
-
 	agentsToRemove := []int{}
-	a.i = i
+	a.currIteration = i
 	if a.World() != nil {
 		a.World().Tick()
 	}
