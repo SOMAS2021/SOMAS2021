@@ -96,6 +96,7 @@ func (a *ABM) SimulationIterate(i int) {
 		a.World().Tick()
 	}
 
+	// TODO: test this more for edge cases e.g. an agent is dead but somehow not removed from map
 	var wg sync.WaitGroup
 	for j := 0; j < a.AgentsCount(); j++ {
 		wg.Add(1)

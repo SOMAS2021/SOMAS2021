@@ -50,6 +50,7 @@ func (a *Base) ID() string {
 	return a.id
 }
 
+// TODO: this is being used by state manager and can be overriden by custom agent
 func (a *Base) IsDead() bool {
 	return a.tower.Exists(a.ID())
 }
