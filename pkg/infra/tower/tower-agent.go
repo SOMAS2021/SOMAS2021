@@ -27,12 +27,12 @@ func (tower *Tower) Exists(id string) bool {
 
 func (tower *Tower) setFloor(id string, hp, newFloor, aType int) {
 	tower.mx.Lock()
+	defer tower.mx.Unlock()
 	tower.agents[id] = BaseAgentCore{
 		hp:        hp,
 		floor:     newFloor,
 		agentType: aType,
 	}
-	tower.mx.Unlock()
 }
 
 func (tower *Tower) setHP(id string, newHP, floor, aType int) {
