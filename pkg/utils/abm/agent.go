@@ -7,7 +7,7 @@ import (
 type Agent interface {
 	Run()
 	IsDead() bool
-	// TODO: IsDead() add this to check agent is alive
+	ID() string
 }
 
 func CopyAgent(src Agent) Agent {

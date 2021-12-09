@@ -76,15 +76,15 @@ func (a *ABM) LimitIterations(n int) {
 }
 
 func (a *ABM) Limit() int {
-	a.mx.RLock()
-	defer a.mx.RUnlock()
+	a.mx.Lock()
+	defer a.mx.Unlock()
 	return a.limit
 }
 
 // Iteration returns current iteration (age, generation).
 func (a *ABM) Iteration() int {
-	a.mx.RLock()
-	defer a.mx.RUnlock()
+	a.mx.Lock()
+	defer a.mx.Unlock()
 	return a.currIteration
 }
 
@@ -96,11 +96,10 @@ func (a *ABM) SimulationIterate(i int) {
 		a.World().Tick()
 	}
 
-	// TODO: test this more for edge cases e.g. an agent is dead but somehow not removed from map
 	var wg sync.WaitGroup
 	for j := 0; j < a.AgentsCount(); j++ {
 		wg.Add(1)
-		go func(wg *sync.WaitGroup, i, j int) {
+		go func(wg *sync.WaitGroup, j int) {
 			if a.agents[j].IsDead() {
 				log.Printf("Removing agent from ABM")
 				agentsToRemove = append(agentsToRemove, j)
@@ -108,7 +107,7 @@ func (a *ABM) SimulationIterate(i int) {
 				a.agents[j].Run()
 			}
 			wg.Done()
-		}(&wg, i, j)
+		}(&wg, j)
 	}
 
 	wg.Wait()
@@ -127,14 +126,14 @@ func (a *ABM) SimulationIterate(i int) {
 }
 
 func (a *ABM) AgentsCount() int {
-	a.mx.RLock()
-	defer a.mx.RUnlock()
+	a.mx.Lock()
+	defer a.mx.Unlock()
 	return len(a.agents)
 }
 
 func (a *ABM) Agents() []Agent {
-	a.mx.RLock()
-	defer a.mx.RUnlock()
+	a.mx.Lock()
+	defer a.mx.Unlock()
 	return a.agents
 }
 

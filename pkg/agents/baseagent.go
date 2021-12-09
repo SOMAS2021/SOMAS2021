@@ -4,14 +4,10 @@ import (
 	"errors"
 	"log"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
-
-type Agent interface {
-	Run()
-	IsDead() bool
-}
 
 type Base struct {
 	id    string
@@ -57,4 +53,14 @@ func (a *Base) IsDead() bool {
 
 func (a *Base) TakeFood(amountOfFood float64) float64 {
 	return a.tower.FoodRequest(a.id, amountOfFood)
+}
+
+func (sender *Base) SendMessage(direction int, msg messages.Message) {
+	if (direction == -1) || (direction == 1) {
+		sender.tower.SendMessage(direction, sender, msg)
+	}
+}
+
+func (reciever *Base) ReceiveMessage() messages.Message {
+	return reciever.tower.ReceiveMessage(reciever)
 }

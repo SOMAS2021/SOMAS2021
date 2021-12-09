@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
 type CustomAgent2 struct {
@@ -11,7 +12,7 @@ type CustomAgent2 struct {
 	myString string
 }
 
-func New(baseAgent *agents.Base) (agents.Agent, error) {
+func New(baseAgent *agents.Base) (abm.Agent, error) {
 	//create other parameters
 	return &CustomAgent2{
 		Base:     baseAgent,
