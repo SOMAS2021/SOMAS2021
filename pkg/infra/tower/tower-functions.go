@@ -41,7 +41,6 @@ func (t *Tower) reshuffle(numOfFloors int) {
 		for remainingVacancies[newFloor] == 0 {
 			newFloor = rand.Intn(numOfFloors)
 		}
-
 		t.setFloor(id, newFloor+1)
 		remainingVacancies[newFloor]--
 	}
@@ -53,7 +52,6 @@ func (t *Tower) hpDecay() {
 	for id := range t.agents {
 		t.mx.Lock()
 		newHP := t.agents[id].hp - 20 // TODO: change the function type (exp?parab?)
-
 		t.mx.Unlock()
 		if newHP < 0 {
 			t.killAgent(id)
