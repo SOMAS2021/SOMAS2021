@@ -1,4 +1,4 @@
-package agent5_2
+package agent7_2
 
 import (
 	"log"
@@ -20,6 +20,6 @@ func New(baseAgent *agents.Base) (agents.Agent, error) {
 }
 
 func (a *CustomAgent2) Run() {
-	log.Printf("Custom agent 2 in team 5 is on floor %d has hp: %d", a.Floor(), a.HP())
+	log.Printf("Custom agent 2 in team 7 is on floor %d has hp: %d", a.Floor(), a.HP())
 	a.TakeFood(15)
 }
