@@ -99,15 +99,15 @@ func (a *ABM) SimulationIterate(i int) {
 	var wg sync.WaitGroup
 	for j := 0; j < a.AgentsCount(); j++ {
 		wg.Add(1)
-		go func(wg *sync.WaitGroup, i, j int) {
-			if a.agents[j].IsDead() == true {
+		go func(wg *sync.WaitGroup, j int) {
+			if a.agents[j].IsDead() {
 				log.Printf("Removing agent from ABM")
 				agentsToRemove = append(agentsToRemove, j)
 			} else {
 				a.agents[j].Run()
 			}
 			wg.Done()
-		}(&wg, i, j)
+		}(&wg, j)
 	}
 
 	wg.Wait()

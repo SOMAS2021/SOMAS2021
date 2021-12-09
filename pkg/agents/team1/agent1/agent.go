@@ -28,7 +28,7 @@ func (a *CustomAgent1) Run() {
 	
 	receivedMsg := a.Base.ReceiveMessage()
 	if receivedMsg != nil {
-		log.Printf("%d, %d I got a msg from: %d", a.Floor(),a.myNumber, receivedMsg.MessageType())
+		log.Printf("%d, %d I got a msg from: %s", a.Floor(),a.myNumber, receivedMsg.MessageType())
 	} else {
 		log.Printf("%d, %d, I got nothing", a.Floor(),a.myNumber)
 	}
@@ -41,7 +41,7 @@ func (a *CustomAgent1) Run() {
 		
 		a.Base.SendMessage(1, msg)
 			
-		log.Printf("%d,%d, I sent a msg: %d", a.Floor(),a.myNumber, msg.MessageType())
+		log.Printf("%d,%d, I sent a msg: %s", a.Floor(),a.myNumber, msg.MessageType())
 	} else {
 		
 		msg := *messages.NewBaseMessage(int(a.Floor()))
@@ -49,7 +49,7 @@ func (a *CustomAgent1) Run() {
 		a.Base.SendMessage(1, msg)
 	}
 	
-	a.Base.TakeFood(1)
+	a.takeFood(1)
 }
 
 func (a *CustomAgent1) HP() int {
