@@ -5,6 +5,22 @@ on:
       - v*
 
 jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest 
+    needs: [lint, test]
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.17
+
+      - name: Check out code
+        uses: actions/checkout@v1
+
+      - name: Build
+        run: make build
+
   release:
     name: Release on GitHub
     runs-on: ubuntu-latest
