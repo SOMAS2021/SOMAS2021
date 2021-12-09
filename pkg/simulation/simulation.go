@@ -31,7 +31,7 @@ func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, iterations, reshuf
 	return s
 }
 
-type AgentNewFunc func(base *infra.Base) (infra.Agent, error)
+type AgentNewFunc func(base *infra.Base) (abm.Agent, error)
 
 func (sE *SimEnv) Simulate() {
 	a := abm.New()
@@ -75,10 +75,11 @@ func sum(inputList []int) int {
 
 func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *infra.Tower, i, floor int) {
 	// TODO: clean this looping, make a nice abs map
+	log.Printf("Creating new agent")
 	abs := []AgentNewFunc{agent1.New, agent2.New}
 
 	uuid := uuid.New().String()
-	bagent, err := infra.NewBaseAgent(a, uuid)
+	bagent, err := infra.NewBaseAgent(a, i, sE.AgentHP-3*floor, floor, uuid, tower)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -89,5 +90,5 @@ func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *infra.Tower, i, floor int) {
 	}
 
 	a.AddAgent(custagent)
-	tower.SetAgent(i, sE.AgentHP-3*floor, floor, uuid) // TODO: edit this call
+	tower.AddAgent(bagent) // TODO: edit this call
 }

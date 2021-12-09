@@ -2,6 +2,7 @@ package agent2
 
 import (
 	infra "github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	abm "github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
 type CustomAgent2 struct {
@@ -10,7 +11,7 @@ type CustomAgent2 struct {
 	// new params
 }
 
-func New(baseAgent *infra.Base) (infra.Agent, error) {
+func New(baseAgent *infra.Base) (abm.Agent, error) {
 	//create other parameters
 	return &CustomAgent2{
 		Base:     baseAgent,
@@ -34,8 +35,4 @@ func (a *CustomAgent2) Die() {
 
 func (a *CustomAgent2) IsAlive() bool {
 	return a.Base.IsAlive()
-}
-
-func (a *CustomAgent2) takeFood(foodToTake float64) float64 {
-	return a.Base.TakeFood(foodToTake)
 }

@@ -8,11 +8,11 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
-type Agent interface {
-	Run()
-	Die()
-	IsAlive() bool
-}
+// type Agent interface {
+// 	Run()
+// 	Die()
+// 	IsAlive() bool
+// }
 
 type Base struct {
 	isAlive   bool
@@ -23,18 +23,22 @@ type Base struct {
 	tower     *Tower
 }
 
-func NewBaseAgent(abm *abm.ABM, uuid string) (*Base, error) {
-	world := abm.World()
+func NewBaseAgent(a *abm.ABM, aType int, agentHP int, agentFloor int, id string, tower *Tower) (*Base, error) {
+	world := a.World()
 	if world == nil {
-		return nil, errors.New("Agent needs a World defined to operate")
+		return nil, errors.New("agent needs a world defined to operate")
 	}
 	tower, ok := world.(*Tower)
 	if !ok {
-		return nil, errors.New("Agent needs a Tower world to operate")
+		return nil, errors.New("agent needs a tower world to operate")
 	}
 	return &Base{
-		tower: tower,
-		id:    uuid,
+		isAlive:   true,
+		id:        id,
+		hp:        agentHP,
+		floor:     agentFloor,
+		agentType: aType,
+		tower:     tower,
 	}, nil
 }
 

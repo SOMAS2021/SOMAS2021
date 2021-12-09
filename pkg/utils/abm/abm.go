@@ -95,7 +95,6 @@ func (a *ABM) SimulationIterate(i int) {
 	if a.World() != nil {
 		a.World().Tick()
 	}
-
 	var wg sync.WaitGroup
 	for j := 0; j < a.AgentsCount(); j++ {
 		wg.Add(1)

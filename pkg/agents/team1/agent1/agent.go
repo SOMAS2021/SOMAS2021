@@ -1,7 +1,10 @@
 package agent1
 
 import (
+	"log"
+
 	infra "github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	abm "github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
 type CustomAgent1 struct {
@@ -9,7 +12,7 @@ type CustomAgent1 struct {
 	myNumber int
 }
 
-func New(baseAgent *infra.Base) (infra.Agent, error) {
+func New(baseAgent *infra.Base) (abm.Agent, error) {
 	return &CustomAgent1{
 		Base:     baseAgent,
 		myNumber: 0,
@@ -17,9 +20,9 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 }
 
 func (a *CustomAgent1) Run() {
-	// log.Printf("Custom agent in team 1 is on floor %d has hp: %d", a.Floor(), a.HP())
-	// a.takeFood(10)
-	// a.HP()
+	log.Printf("Custom agent in team 1 is on floor %d has hp: %d", a.Floor(), a.HP())
+	a.takeFood(10)
+	a.HP()
 }
 
 func (a *CustomAgent1) HP() int {
