@@ -4,6 +4,7 @@ import (
 	"log"
 
 	infra "github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	abm "github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
@@ -21,6 +22,23 @@ func New(baseAgent *infra.Base) (abm.Agent, error) {
 
 func (a *CustomAgent1) Run() {
 	log.Printf("Custom agent in team 1 is on floor %d has hp: %d", a.Floor(), a.HP())
+
+	receivedMsg := a.Base.ReceiveMessage()
+	if receivedMsg != nil {
+		log.Printf("%d, %d I got a msg from: %s", a.Floor(), a.myNumber, receivedMsg.MessageType())
+	} else {
+		log.Printf("%d, %d, I got nothing", a.Floor(), a.myNumber)
+	}
+
+	if (a.myNumber)%2 == 0 {
+		msg := *messages.NewAckMessage(int(a.Floor()), true)
+		a.SendMessage(1, msg)
+		log.Printf("%d,%d, I sent a msg: %s", a.Floor(), a.myNumber, msg.MessageType())
+	} else {
+		msg := *messages.NewBaseMessage(int(a.Floor()))
+		a.SendMessage(1, msg)
+	}
+
 	a.takeFood(10)
 	a.HP()
 }

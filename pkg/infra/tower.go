@@ -3,6 +3,8 @@ package infra
 import (
 	"log"
 	"math/rand"
+
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 )
 
 type Tower struct {
@@ -120,6 +122,17 @@ func contains(s []int, e int) bool {
 		}
 	}
 	return false
+}
+
+func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message) {
+	log.Printf("tower sending message")
+	for _, agent := range t.agents {
+		if agent.floor == senderFloor+direction {
+			agent.mx.Lock()
+			agent.inbox.PushBack(msg)
+			agent.mx.Unlock()
+		}
+	}
 }
 
 func (t *Tower) ResetTower() {
