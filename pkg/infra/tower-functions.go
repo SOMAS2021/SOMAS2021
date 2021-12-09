@@ -6,31 +6,25 @@ import (
 )
 
 func (t *Tower) initAgents() {
-	t.agents = make([]Base, t.agentCount)
+	t.agents = make([]Base, 0)
 }
 
 func (t *Tower) reshuffle(numOfFloors int) {
 	remainingVacanies := make([]int, numOfFloors)
 	log.Printf("Reshuffling alive agents...")
-
 	for i := 0; i < numOfFloors; i++ { // adding a max to each floor
 		remainingVacanies[i] = t.agentsPerFloor
 	}
-
 	// allocating agents to floors randomly
 	// iterate through the uuid strings of each agent
 	for _, agent := range t.agents {
-		log.Printf("FUCK YOU")
 		newFloor := rand.Intn(numOfFloors)
-
 		for remainingVacanies[newFloor] == 0 {
-			log.Printf("%d", remainingVacanies[newFloor])
 			newFloor = rand.Intn(numOfFloors)
 		}
 		agent.setFloor(newFloor + 1)
 		remainingVacanies[newFloor]--
 	}
-	log.Printf("ABCDEFU")
 }
 
 func (t *Tower) hpDecay() {
