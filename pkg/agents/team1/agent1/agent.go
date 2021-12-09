@@ -39,14 +39,14 @@ func (a *CustomAgent1) Run() {
 
 		msg := *messages.NewAckMessage(int(a.Floor()), true)
 
-		a.Base.SendMessage(1, msg)
+		a.SendMessage(1, msg)
 
 		log.Printf("%d,%d, I sent a msg: %s", a.Floor(), a.myNumber, msg.MessageType())
 	} else {
 
 		msg := *messages.NewBaseMessage(int(a.Floor()))
 
-		a.Base.SendMessage(1, msg)
+		a.SendMessage(1, msg)
 	}
 
 	a.TakeFood(1)
