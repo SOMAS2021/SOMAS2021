@@ -8,7 +8,7 @@ import (
 type Tower struct {
 	currPlatFood    float64
 	maxPlatFood     float64
-	currPlatFloor   uint64
+	currPlatFloor   int
 	mx              sync.RWMutex
 	agentCount      int
 	agents          map[string]BaseAgentCore
@@ -19,7 +19,7 @@ type Tower struct {
 	tickCounter     int
 }
 
-func New(currPlatFood float64, currPlatFloor uint64, agentCount,
+func New(currPlatFood float64, currPlatFloor int, agentCount,
 	agentsPerFloor, ticksPerDay, reshufflePeriod int) *Tower {
 	t := &Tower{
 		currPlatFood:    currPlatFood,
@@ -49,17 +49,17 @@ func (t *Tower) Tick() {
 	numOfFloors := t.agentCount / t.agentsPerFloor
 	platformMovePeriod := day / numOfFloors // can add min/max
 
-        // Shuffle the agents
-	if t.tickCounter % t.reshufflePeriod == 0 {
+	// Shuffle the agents
+	if t.tickCounter%t.reshufflePeriod == 0 {
 		t.mx.RUnlock()
 		defer t.mx.RLock()
 		t.reshuffle(numOfFloors)
 	}
-        // Move the platform
+	// Move the platform
 	if (t.tickCounter)%(platformMovePeriod) == 0 {
 		t.currPlatFloor++
 	}
-        // Decrease agent HP and reset tower at end of day
+	// Decrease agent HP and reset tower at end of day
 	if (t.tickCounter)%(day) == 0 {
 		t.mx.RUnlock()
 		t.hpDecay() // decreases HP and kills if < 0
