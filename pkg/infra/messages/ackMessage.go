@@ -5,7 +5,7 @@ type AckMessage struct {
 	Ack bool
 }
 
-func NewAckMessage(SenderFloor uint, ack bool) *AckMessage {
+func NewAckMessage(SenderFloor int, ack bool) *AckMessage {
 	msg := &AckMessage{
 		baseMessage: NewBaseMessage(SenderFloor),
 		Ack:         ack,
