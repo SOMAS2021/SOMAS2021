@@ -76,15 +76,15 @@ func (a *ABM) LimitIterations(n int) {
 }
 
 func (a *ABM) Limit() int {
-	a.mx.RLock()
-	defer a.mx.RUnlock()
+	a.mx.Lock()
+	defer a.mx.Unlock()
 	return a.limit
 }
 
 // Iteration returns current iteration (age, generation).
 func (a *ABM) Iteration() int {
-	a.mx.RLock()
-	defer a.mx.RUnlock()
+	a.mx.Lock()
+	defer a.mx.Unlock()
 	return a.currIteration
 }
 
@@ -126,14 +126,14 @@ func (a *ABM) SimulationIterate(i int) {
 }
 
 func (a *ABM) AgentsCount() int {
-	a.mx.RLock()
-	defer a.mx.RUnlock()
+	a.mx.Lock()
+	defer a.mx.Unlock()
 	return len(a.agents)
 }
 
 func (a *ABM) Agents() []Agent {
-	a.mx.RLock()
-	defer a.mx.RUnlock()
+	a.mx.Lock()
+	defer a.mx.Unlock()
 	return a.agents
 }
 

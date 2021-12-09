@@ -4,12 +4,10 @@ import (
 	"reflect"
 )
 
-
 type Agent interface {
 	Run()
 	IsDead() bool
-	ID() string 
-		
+	ID() string
 }
 
 func CopyAgent(src Agent) Agent {

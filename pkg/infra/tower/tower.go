@@ -37,8 +37,8 @@ func New(currPlatFood float64, currPlatFloor int, agentCount,
 }
 
 func (t *Tower) Tick() {
-	t.mx.RLock()
-	defer t.mx.RUnlock()
+	t.mx.Lock()
+	defer t.mx.Unlock()
 
 	//logs
 	log.Printf("A log from the tower! Tick no: %d", t.tickCounter)
@@ -51,9 +51,9 @@ func (t *Tower) Tick() {
 
 	// Shuffle the agents
 	if t.tickCounter%t.reshufflePeriod == 0 {
-		t.mx.RUnlock()
+		t.mx.Unlock()
 		t.reshuffle(numOfFloors)
-		t.mx.RLock()
+		t.mx.Lock()
 	}
 	// Move the platform
 	if (t.tickCounter)%(platformMovePeriod) == 0 {
@@ -61,9 +61,9 @@ func (t *Tower) Tick() {
 	}
 	// Decrease agent HP and reset tower at end of day
 	if (t.tickCounter)%(day) == 0 {
-		t.mx.RUnlock()
+		t.mx.Unlock()
 		t.hpDecay() // decreases HP and kills if < 0
-		t.mx.RLock()
+		t.mx.Lock()
 		t.ResetTower()
 	}
 

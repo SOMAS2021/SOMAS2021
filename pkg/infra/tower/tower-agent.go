@@ -1,6 +1,6 @@
 package tower
 
-import(
+import (
 	// "github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
 	"container/list"
 )
@@ -9,24 +9,24 @@ type BaseAgentCore struct {
 	hp        int
 	floor     int
 	agentType int
-	inbox 	  *list.List //chan messages.Message
+	inbox     *list.List //chan messages.Message
 }
 
 func (tower *Tower) HP(id string) int {
-	tower.mx.RLock()
-	defer tower.mx.RUnlock()
+	tower.mx.Lock()
+	defer tower.mx.Unlock()
 	return tower.agents[id].hp
 }
 
 func (tower *Tower) Floor(id string) int {
-	tower.mx.RLock()
-	defer tower.mx.RUnlock()
+	tower.mx.Lock()
+	defer tower.mx.Unlock()
 	return tower.agents[id].floor
 }
 
 func (tower *Tower) Exists(id string) bool {
-	tower.mx.RLock()
-	defer tower.mx.RUnlock()
+	tower.mx.Lock()
+	defer tower.mx.Unlock()
 	_, found := tower.agents[id]
 	return found
 }
@@ -54,6 +54,6 @@ func (t *Tower) SetAgent(id string, agentHp int, agentFloor int, agentType int) 
 		hp:        agentHp,
 		floor:     agentFloor,
 		agentType: agentType,
-		inbox: list.New(),
+		inbox:     list.New(),
 	}
 }

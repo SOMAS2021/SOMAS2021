@@ -4,11 +4,10 @@ import (
 	"errors"
 	"log"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
-	"github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
 )
-
 
 type Base struct {
 	id    string
@@ -60,10 +59,8 @@ func (sender *Base) SendMessage(direction int, msg messages.Message) {
 	if (direction == -1) || (direction == 1) {
 		sender.tower.SendMessage(direction, sender, msg)
 	}
-	
 }
 
 func (reciever *Base) ReceiveMessage() messages.Message {
-	return reciever.tower.ReceiveMessage(reciever) 
+	return reciever.tower.ReceiveMessage(reciever)
 }
-

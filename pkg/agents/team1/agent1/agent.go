@@ -36,16 +36,11 @@ func (a *CustomAgent1) Run() {
 	//log.Printf("%s, %d", a.ID(), a.Floor())
 
 	if (a.myNumber)%2 == 0 {
-
 		msg := *messages.NewAckMessage(int(a.Floor()), true)
-
 		a.SendMessage(1, msg)
-
 		log.Printf("%d,%d, I sent a msg: %s", a.Floor(), a.myNumber, msg.MessageType())
 	} else {
-
 		msg := *messages.NewBaseMessage(int(a.Floor()))
-
 		a.SendMessage(1, msg)
 	}
 
