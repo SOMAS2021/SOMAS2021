@@ -16,7 +16,7 @@ func NewBaseMessage(SenderFloor uint) *baseMessage {
 	}
 	return msg
 }
-func (msg *baseMessage) MessageType() string {
+func (msg baseMessage) MessageType() string {
 	return "baseMessage"
 }
 

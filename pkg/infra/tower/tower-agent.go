@@ -1,14 +1,15 @@
 package tower
 
 import(
-	"github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
+	// "github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
+	"container/list"
 )
 
 type BaseAgentCore struct {
 	hp        int
 	floor     int
 	agentType int
-	inbox chan messages.Message
+	inbox 	  *list.List //chan messages.Message
 }
 
 func (tower *Tower) GetHP(id string) int {
@@ -33,23 +34,19 @@ func (tower *Tower) Exists(id string) bool {
 	}
 }
 
-func (tower *Tower) setFloor(id string, hp, newFloor, aType int) {
+func (tower *Tower) setFloor(id string, newFloor int) {
 	tower.mx.Lock()
-	tower.agents[id] = BaseAgentCore{
-		hp:        hp,
-		floor:     newFloor,
-		agentType: aType,
-	}
+	agent := tower.agents[id]
+	agent.floor = newFloor
+	tower.agents[id] = agent
 	tower.mx.Unlock()
 }
 
-func (tower *Tower) setHP(id string, newHP, floor, aType int) {
+func (tower *Tower) setHP(id string, newHP int) {
 	tower.mx.Lock()
-	tower.agents[id] = BaseAgentCore{
-		hp:        newHP,
-		floor:     1,
-		agentType: 1,
-	}
+	agent := tower.agents[id]
+	agent.hp = newHP
+	tower.agents[id] = agent
 	tower.mx.Unlock()
 }
 
@@ -59,6 +56,7 @@ func (t *Tower) SetAgent(aType, agentHP, agentFloor int, id string) {
 		hp:        agentHP,
 		floor:     agentFloor,
 		agentType: aType,
+		inbox: list.New(),
 	}
 	t.mx.Unlock()
 }
