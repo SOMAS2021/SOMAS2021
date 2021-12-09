@@ -1,7 +1,7 @@
 package agent2
 
 import (
-	"log"
+	//"log"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 

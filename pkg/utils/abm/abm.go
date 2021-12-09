@@ -96,22 +96,21 @@ func (a *ABM) SimulationIterate(i int) {
 		a.World().Tick()
 	}
 
-	// TODO: test this more for edge cases e.g. an agent is dead but somehow not removed from map
-	var wg sync.WaitGroup
+	//var wg sync.WaitGroup
 	for j := 0; j < a.AgentsCount(); j++ {
-		wg.Add(1)
-		go func(wg *sync.WaitGroup, i, j int) {
-			if a.agents[j].IsDead() {
+		// wg.Add(1)
+		// go func(wg *sync.WaitGroup, i, j int) {
+			if a.agents[j].IsDead() == false {
 				log.Printf("Removing agent from ABM")
 				agentsToRemove = append(agentsToRemove, j)
 			} else {
 				a.agents[j].Run()
 			}
-			wg.Done()
-		}(&wg, i, j)
+		// 	wg.Done()
+		// }(&wg, i, j)
 	}
 
-	wg.Wait()
+	//wg.Wait()
 	sort.Ints(agentsToRemove)
 	for index := len(agentsToRemove) - 1; index > -1; index-- {
 		a.RemoveAgent(index)

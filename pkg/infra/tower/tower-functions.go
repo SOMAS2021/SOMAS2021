@@ -42,14 +42,9 @@ func (t *Tower) reshuffle(numOfFloors int) {
 		for remainingVacancies[newFloor] == 0 {
 			newFloor = rand.Intn(numOfFloors)
 		}
-		t.mx.RLock()
-		currHP := t.agents[id].hp
-		agentType := t.agents[id].agentType
-		t.mx.RUnlock()
-		// currHP++
-		// agentType++
-		t.setFloor(id, currHP, newFloor+1, agentType)
-		remainingVacancies[newFloor]--
+		
+		t.setFloor(id, newFloor+1)
+		remainingVacanies[newFloor]--
 	}
 }
 
@@ -59,13 +54,12 @@ func (t *Tower) hpDecay() {
 	for id := range t.agents {
 		t.mx.RLock()
 		newHP := t.agents[id].hp - 20 // TODO: change the function type (exp?parab?)
-		floor := t.agents[id].floor
-		agentType := t.agents[id].agentType
+		
 		t.mx.RUnlock()
 		if newHP < 0 {
 			t.killAgent(id)
 		} else {
-			t.setHP(id, newHP, floor, agentType)
+			t.setHP(id, newHP)
 		}
 	}
 
@@ -74,10 +68,8 @@ func (t *Tower) hpDecay() {
 func (t *Tower) updateHP(id string, foodTaken float64) {
 	t.mx.RLock()
 	newHP := math.Min(100, float64(t.agents[id].hp)+foodTaken)
-	floor := t.agents[id].floor
-	agentType := t.agents[id].agentType
 	t.mx.RUnlock()
-	t.setHP(id, int(newHP), floor, agentType)
+	t.setHP(id, int(newHP))
 }
 
 func (t *Tower) FoodRequest(id string, foodRequested float64) float64 {
@@ -102,20 +94,29 @@ func (t *Tower) ResetTower() {
 func (tower *Tower) SendMessage(direction int, sender abm.Agent , msg messages.Message){
 	tower.mx.RLock()
 	defer tower.mx.RUnlock()
+	
+
 	var senderFloor int
 	for id, agent := range tower.agents {
 		//find sender BaseAgentCore
-		if (id == sender.ID()){
+		if (id == (sender).ID()){
 			senderFloor = agent.floor
 		}
 	}
+	//TotalFLoors := len(tower.agents)
+	
 	for _, agent := range tower.agents {
+
 		//find reciever and pass them msg
-		if (agent.floor == senderFloor + direction){
-			go func() { agent.inbox <- msg }()
+		if (agent.floor == senderFloor + direction){	
+			
+			
+			agent.inbox.PushBack(msg) //<- msg
 			
 		}
+		
 	}
+	
 }
 
 func (tower *Tower) ReceiveMessage(reciever abm.Agent) messages.Message {
@@ -124,12 +125,12 @@ func (tower *Tower) ReceiveMessage(reciever abm.Agent) messages.Message {
 	
 	for id, agent := range tower.agents {
 		//find sender BaseAgentCore
-		if (id == reciever.ID()){
-			select {
-			case msg := <-agent.inbox:
+		if (id == (reciever).ID()){
+			if(agent.inbox.Len() > 0){
+				front := agent.inbox.Front()
+				msg := (front.Value.(messages.Message))//<-agent.inbox:
+				((agent.inbox)).Remove(front)
 				return msg
-			default:
-				return nil
 			}
 		} 
 	}	

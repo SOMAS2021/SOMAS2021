@@ -7,6 +7,7 @@ import (
 =======
 >>>>>>> addedlog
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 
 )
@@ -28,24 +29,37 @@ func (a *CustomAgent1) Run() {
 	// a.takeFood(10)
 	// a.HP()
 	// a.IsDead()
-
 	
-	if a.Base.Exists() {
-		log.Printf("Custom agent %s in team 1 has floor: %d", a.ID(), a.Floor())
-		msg := *messages.NewAckMessage(uint(a.Floor()), 3, true)
-		log.Printf("Custom agent team 1 has floor: %d", a.Floor())
-		if a.Floor() < 9 {a.Base.SendMessage(1, msg)}
-		// //make message
-		receivedMsg := a.ReceiveMessage()
-		if receivedMsg != nil {
-			log.Printf("Custom agent team 1 has floor: %d, I got a msg from: %d", a.Floor(), receivedMsg.MessageType())
-		}
-		a.TakeFood(1)
-		
+	
+	receivedMsg := a.Base.ReceiveMessage()
+	if receivedMsg != nil {
+		log.Printf("%d, %d I got a msg from: %d", a.Floor(),a.myNumber, receivedMsg.MessageType())
 	} else {
-		log.Printf("Agent %s No longer exists", a.ID())
+		log.Printf("%d, %d, I got nothing", a.Floor(),a.myNumber)
 	}
 	
+	//log.Printf("%s, %d", a.ID(), a.Floor())
+
+	if (a.myNumber) % 2 == 0 {
+		
+		msg := *messages.NewAckMessage(uint(a.Floor()), true)
+		
+		a.Base.SendMessage(1, msg)
+			
+		log.Printf("%d,%d, I sent a msg: %d", a.Floor(),a.myNumber, msg.MessageType())
+	} else {
+		
+		msg := *messages.NewBaseMessage(uint(a.Floor()))
+		
+		a.Base.SendMessage(1, msg)
+	}
+	
+	
+	
+	// //make message
+	a.Base.TakeFood(1)
+	
+	a.myNumber++
 }
 
 func (a *CustomAgent1) HP() int {

@@ -13,6 +13,6 @@ func NewAckMessage(SenderFloor uint, ack bool) *AckMessage {
 	return msg
 }
 
-func (msg *AckMessage) MessageType() string {
+func (msg AckMessage) MessageType() string {
 	return "AckMessage"
 }
