@@ -25,24 +25,20 @@ func (tower *Tower) Exists(id string) bool {
 	return found
 }
 
-func (tower *Tower) setFloor(id string, hp, newFloor, agentType int) {
+func (tower *Tower) setFloor(id string, newFloor int) {
 	tower.mx.Lock()
-	defer tower.mx.Unlock()
-	tower.agents[id] = BaseAgentCore{
-		hp:        hp,
-		floor:     newFloor,
-		agentType: agentType,
-	}
+	agent := tower.agents[id]
+	agent.floor = newFloor
+	tower.agents[id] = agent
+	tower.mx.Unlock()
 }
 
-func (tower *Tower) setHP(id string, newHP, floor, agentType int) {
+func (tower *Tower) setHP(id string, newHP int) {
 	tower.mx.Lock()
-	defer tower.mx.Unlock()
-	tower.agents[id] = BaseAgentCore{
-		hp:        newHP,
-		floor:     floor,
-		agentType: agentType,
-	}
+	agent := tower.agents[id]
+	agent.hp = newHP
+	tower.agents[id] = agent
+	tower.mx.Unlock()
 }
 
 func (t *Tower) SetAgent(id string, agentHp int, agentFloor int, agentType int) {
