@@ -37,16 +37,17 @@ func (tower *Tower) setFloor(id string, hp, newFloor, aType int) {
 
 func (tower *Tower) setHP(id string, newHP, floor, aType int) {
 	tower.mx.Lock()
+	defer tower.mx.Unlock()
 	tower.agents[id] = BaseAgentCore{
 		hp:        newHP,
 		floor:     1,
 		agentType: 1,
 	}
-	tower.mx.Unlock()
 }
 
 func (t *Tower) SetAgent(aType, agentHP, agentFloor int, id string) {
 	t.mx.Lock()
+	defer t.mx.Unlock()
 	t.agents[id] = BaseAgentCore{
 		hp:        agentHP,
 		floor:     agentFloor,

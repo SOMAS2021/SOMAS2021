@@ -46,7 +46,7 @@ func (t *Tower) Tick() {
 
 	//useful parameters
 	day := 24 * 60
-	numOfFloors := t.agentCount / int(t.agentsPerFloor)
+	numOfFloors := t.agentCount / t.agentsPerFloor
 	platformMovePeriod := day / numOfFloors // can add min/max
 
 	if (t.tickCounter)%(t.reshufflePeriod) == 0 {
