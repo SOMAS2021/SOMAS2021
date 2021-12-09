@@ -11,7 +11,7 @@ type Tower struct {
 	currPlatFloor   int
 	mx              sync.RWMutex
 	agentCount      int
-	agents          map[string]BaseAgentCore
+	agents          map[string]BaseAgentCore // TODO: change this to a map of pointers to structs
 	agentsPerFloor  int
 	ticksPerDay     int
 	missingAgents   map[int][]int // key: floor, value: types of missing agents
@@ -70,7 +70,7 @@ func (t *Tower) Tick() {
 	t.tickCounter++
 }
 
-func (t *Tower) GetMissingAgents() map[int][]int {
+func (t *Tower) UpdateMissingAgents() map[int][]int {
 	deadAgents := t.missingAgents
 	t.missingAgents = make(map[int][]int)
 	return deadAgents

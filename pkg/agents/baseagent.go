@@ -52,7 +52,7 @@ func (a *Base) ID() string {
 
 // TODO: this is being used by state manager and can be overriden by custom agent
 func (a *Base) IsDead() bool {
-	return a.tower.Exists(a.ID())
+	return !a.tower.Exists(a.ID())
 }
 
 func (a *Base) TakeFood(amountOfFood float64) float64 {

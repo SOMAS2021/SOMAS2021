@@ -40,11 +40,11 @@ func (t *Tower) reshuffle(numOfFloors int) {
 		}
 		t.mx.RLock()
 		currHP := t.agents[id].hp
-		aType := t.agents[id].agentType
+		agentType := t.agents[id].agentType
 		t.mx.RUnlock()
 		// currHP++
-		// aType++
-		t.setFloor(id, currHP, newFloor+1, aType)
+		// agentType++
+		t.setFloor(id, currHP, newFloor+1, agentType)
 		remainingVacancies[newFloor]--
 	}
 }
@@ -56,12 +56,12 @@ func (t *Tower) hpDecay() {
 		t.mx.RLock()
 		newHP := t.agents[id].hp - 20 // TODO: change the function type (exp?parab?)
 		floor := t.agents[id].floor
-		aType := t.agents[id].agentType
+		agentType := t.agents[id].agentType
 		t.mx.RUnlock()
 		if newHP < 0 {
 			t.killAgent(id)
 		} else {
-			t.setHP(id, newHP, floor, aType)
+			t.setHP(id, newHP, floor, agentType)
 		}
 	}
 
@@ -71,9 +71,9 @@ func (t *Tower) updateHP(id string, foodTaken float64) {
 	t.mx.RLock()
 	newHP := math.Min(100, float64(t.agents[id].hp)+foodTaken)
 	floor := t.agents[id].floor
-	aType := t.agents[id].agentType
+	agentType := t.agents[id].agentType
 	t.mx.RUnlock()
-	t.setHP(id, int(newHP), floor, aType)
+	t.setHP(id, int(newHP), floor, agentType)
 }
 
 func (t *Tower) FoodRequest(id string, foodRequested float64) float64 {

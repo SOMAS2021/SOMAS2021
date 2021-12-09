@@ -53,9 +53,9 @@ func (sE *SimEnv) Simulate() {
 }
 
 func (sE *SimEnv) simulationLoop(a *abm.ABM, t *tower.Tower) {
-
+	// TODO: abstract with an extra function
 	for i := 1; i <= sE.Iterations; i++ {
-		missingAgentsMap := t.GetMissingAgents()
+		missingAgentsMap := t.UpdateMissingAgents()
 		for floor := range missingAgentsMap {
 			for _, agentType := range missingAgentsMap[floor] {
 				sE.createNewAgent(a, t, agentType, floor)
@@ -74,7 +74,7 @@ func sum(inputList []int) int {
 	return totalAgents
 }
 
-func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *tower.Tower, i, floor int) {
+func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *tower.Tower, agentType, floor int) {
 	// TODO: clean this looping, make a nice abs map
 	abs := []AgentNewFunc{agent1.New, agent2.New}
 
@@ -84,11 +84,11 @@ func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *tower.Tower, i, floor int) {
 		log.Fatal(err)
 	}
 
-	custagent, err := abs[i](bagent)
+	custagent, err := abs[agentType](bagent)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	a.AddAgent(custagent)
-	tower.SetAgent(i, sE.AgentHP-3*floor, floor, uuid) // TODO: edit this call
+	tower.SetAgent(uuid, 100, floor, agentType) // TODO: edit this call
 }
