@@ -1,6 +1,8 @@
 package agent1
 
 import (
+	"log"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
 )
 
@@ -17,10 +19,10 @@ func New(baseAgent *agents.Base) (agents.Agent, error) {
 }
 
 func (a *CustomAgent1) Run() {
-	// log.Printf("Custom agent in team 1 is on floor %d has hp: %d", a.Floor(), a.HP())
-	// a.takeFood(10)
-	// a.HP()
-	// a.IsDead()
+	log.Printf("Custom agent in team 1 is on floor %d has hp: %d", a.Floor(), a.HP())
+	a.takeFood(10)
+	a.HP()
+	a.IsDead()
 }
 
 func (a *CustomAgent1) HP() int {
