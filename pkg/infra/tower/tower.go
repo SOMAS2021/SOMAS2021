@@ -54,12 +54,14 @@ func (t *Tower) Tick() {
 		t.reshuffle(numOfFloors)
 		t.mx.RLock()
 	}
+        // Move the platform
 	if (t.tickCounter)%(platformMovePeriod) == 0 {
 		t.currPlatFloor++
 	}
+        // Decrease agent HP and reset tower at end of day
 	if (t.tickCounter)%(day) == 0 {
 		t.mx.RUnlock()
-		t.hpDecay() // deacreases HP and kills if < 0
+		t.hpDecay() // decreases HP and kills if < 0
 		t.mx.RLock()
 		t.ResetTower()
 	}
