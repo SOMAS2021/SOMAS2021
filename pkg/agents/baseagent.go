@@ -34,7 +34,7 @@ func NewBaseAgent(abm *abm.ABM, uuid string) (*Base, error) {
 }
 
 func (a *Base) Run() {
-	floor := a.tower.GetFloor(a.id)
+	floor := a.tower.Floor(a.id)
 	log.Printf("An agent cycle executed from base agent %d", floor)
 }
 
