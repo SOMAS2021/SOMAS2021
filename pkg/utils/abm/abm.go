@@ -10,8 +10,8 @@ type ABM struct {
 	mx     sync.RWMutex
 	agents []Agent
 
-	currIteration     int
-	limit int
+	currIteration int
+	limit         int
 
 	world      World
 	reportFunc func(*ABM)

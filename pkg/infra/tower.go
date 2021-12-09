@@ -47,16 +47,16 @@ func (t *Tower) Tick() {
 	numOfFloors := t.agentCount / t.agentsPerFloor
 	platformMovePeriod := day / numOfFloors // can add min/max
 
-        // Shuffle the agents
-	if t.tickCounter % t.reshufflePeriod == 0 {
+	// Shuffle the agents
+	if t.tickCounter%t.reshufflePeriod == 0 {
 		t.reshuffle(numOfFloors)
 	}
-        // Move the platform
-	if t.tickCounter % platformMovePeriod == 0 {
+	// Move the platform
+	if t.tickCounter%platformMovePeriod == 0 {
 		t.currPlatFloor++
 	}
-        // Decrease agent HP and reset tower at end of day
-	if t.tickCounter % day == 0 {
+	// Decrease agent HP and reset tower at end of day
+	if t.tickCounter%day == 0 {
 		t.hpDecay() // decreases HP and kills if < 0
 		t.ResetTower()
 	}
@@ -110,7 +110,7 @@ func (t *Tower) hpDecay() {
 func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message) {
 	log.Printf("tower sending message")
 	for _, agent := range t.agents {
-		if agent.floor == senderFloor + direction {
+		if agent.floor == senderFloor+direction {
 			agent.mx.Lock()
 			agent.inbox.PushBack(msg)
 			agent.mx.Unlock()
