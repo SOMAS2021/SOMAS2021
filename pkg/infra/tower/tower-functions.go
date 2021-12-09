@@ -44,7 +44,7 @@ func (t *Tower) reshuffle(numOfFloors int) {
 		}
 		
 		t.setFloor(id, newFloor+1)
-		remainingVacanies[newFloor]--
+		remainingVacancies[newFloor]--
 	}
 }
 
