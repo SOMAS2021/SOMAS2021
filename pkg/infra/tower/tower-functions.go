@@ -111,7 +111,7 @@ func (tower *Tower) SendMessage(direction int, sender abm.Agent , msg messages.M
 		if (agent.floor == senderFloor + direction){	
 			
 			
-			agent.inbox.PushBack(msg) //<- msg
+			agent.inbox.PushBack(msg) //<- msg //for some reason channels were causing hanging
 			
 		}
 		
