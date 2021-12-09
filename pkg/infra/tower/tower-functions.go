@@ -94,7 +94,6 @@ func (t *Tower) ResetTower() {
 func (tower *Tower) SendMessage(direction int, sender abm.Agent , msg messages.Message){
 	tower.mx.RLock()
 	defer tower.mx.RUnlock()
-	
 
 	var senderFloor int
 	for id, agent := range tower.agents {
@@ -102,21 +101,13 @@ func (tower *Tower) SendMessage(direction int, sender abm.Agent , msg messages.M
 		if (id == (sender).ID()){
 			senderFloor = agent.floor
 		}
-	}
-	//TotalFLoors := len(tower.agents)
-	
+	}	
 	for _, agent := range tower.agents {
-
 		//find reciever and pass them msg
 		if (agent.floor == senderFloor + direction){	
-			
-			
 			agent.inbox.PushBack(msg) //<- msg //for some reason channels were causing hanging
-			
 		}
-		
 	}
-	
 }
 
 func (tower *Tower) ReceiveMessage(reciever abm.Agent) messages.Message {
