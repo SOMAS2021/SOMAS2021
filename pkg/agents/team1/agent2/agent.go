@@ -30,7 +30,3 @@ func (a *CustomAgent2) ID() string {
 	return a.Base.ID()
 }
 
-
-func (a *CustomAgent2) ID() string {
-	return a.Base.ID()
-}
