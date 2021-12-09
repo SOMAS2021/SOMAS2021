@@ -62,9 +62,6 @@ func (sender *Base) SendMessage(direction int, msg messages.Message) {
 }
 
 func (reciever *Base) ReceiveMessage() messages.Message {
-	return reciever.ReceiveMessage(reciever) 
+	return reciever.tower.ReceiveMessage(reciever) 
 }
 
-func (a *Base) AddToInbox(msg messages.Message) {
-	go func() { a.inbox <- msg }()
-}

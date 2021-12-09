@@ -8,7 +8,6 @@ import (
 type Agent interface {
 	Run()
 	IsDead() bool
-	AddToInbox(msg messages.Message)
 	ID() string 
 		
 }
