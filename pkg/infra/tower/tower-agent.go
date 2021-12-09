@@ -1,5 +1,9 @@
 package tower
 
+import(
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
+)
+
 type BaseAgentCore struct {
 	hp        int
 	floor     int

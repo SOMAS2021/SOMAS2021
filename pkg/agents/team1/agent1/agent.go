@@ -37,9 +37,6 @@ func (a *CustomAgent1) takeFood(foodToTake float64) float64 {
 	return a.Base.TakeFood(foodToTake)
 }
 
-func (a *CustomAgent1) AddToInbox(msg messages.Message) {
-	a.Base.AddToInbox(msg)
-}
 func (a *CustomAgent1) ID() string {
-	return a.ID()
+	return a.Base.ID()
 }
