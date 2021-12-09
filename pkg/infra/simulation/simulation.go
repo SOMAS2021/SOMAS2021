@@ -4,8 +4,18 @@ import (
 	"log"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
+	agent1_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
+	agent1_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
+	agent2_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team2/agent1"
+	agent2_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team2/agent2"
+	agent3_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team3/agent1"
+	agent3_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team3/agent2"
+	agent4_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team4/agent1"
+	agent4_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team4/agent2"
+	agent5_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team5/agent1"
+	agent5_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team5/agent2"
+	agent6_1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team6/agent1"
+	agent6_2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team6/agent2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra/tower"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 	"github.com/google/uuid"
@@ -76,7 +86,8 @@ func sum(inputList []int) int {
 
 func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *tower.Tower, agentType, floor int) {
 	// TODO: clean this looping, make a nice abs map
-	abs := []AgentNewFunc{agent1.New, agent2.New}
+	abs := []AgentNewFunc{agent1_1.New, agent1_2.New, agent2_1.New, agent2_2.New, agent3_1.New,
+		agent3_2.New, agent4_1.New, agent4_2.New, agent5_1.New, agent5_2.New, agent6_1.New, agent6_2.New}
 
 	uuid := uuid.New().String()
 	bagent, err := agents.NewBaseAgent(a, uuid)
