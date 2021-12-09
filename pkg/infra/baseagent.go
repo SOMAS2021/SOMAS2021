@@ -11,12 +11,6 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
-// type Agent interface {
-// 	Run()
-// 	Die()
-// 	IsAlive() bool
-// }
-
 type Base struct {
 	isAlive   bool
 	id        string
@@ -28,7 +22,7 @@ type Base struct {
 	mx        sync.RWMutex
 }
 
-func NewBaseAgent(a *abm.ABM, aType int, agentHP int, agentFloor int, id string, tower *Tower) (*Base, error) {
+func NewBaseAgent(a *abm.ABM, aType int, agentHP int, agentFloor int, id string) (*Base, error) {
 	world := a.World()
 	if world == nil {
 		return nil, errors.New("agent needs a world defined to operate")
@@ -65,7 +59,7 @@ func (a *Base) ID() string {
 	return a.id
 }
 
-func (a *Base) Die() {
+func (a *Base) die() {
 	a.isAlive = false
 }
 

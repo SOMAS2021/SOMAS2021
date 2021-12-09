@@ -79,7 +79,7 @@ func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *infra.Tower, i, floor int) {
 	abs := []AgentNewFunc{agent1.New, agent2.New}
 
 	uuid := uuid.New().String()
-	bagent, err := infra.NewBaseAgent(a, i, sE.AgentHP-3*floor, floor, uuid, tower)
+	bagent, err := infra.NewBaseAgent(a, i, sE.AgentHP-3*floor, floor, uuid)
 	if err != nil {
 		log.Fatal(err)
 	}

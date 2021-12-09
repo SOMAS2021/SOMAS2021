@@ -39,22 +39,5 @@ func (a *CustomAgent1) Run() {
 		a.SendMessage(1, msg)
 	}
 
-	a.takeFood(10)
-	a.HP()
-}
-
-func (a *CustomAgent1) HP() int {
-	return a.Base.HP()
-}
-
-func (a *CustomAgent1) Die() {
-	a.Base.Die()
-}
-
-func (a *CustomAgent1) IsAlive() bool {
-	return a.Base.IsAlive()
-}
-
-func (a *CustomAgent1) takeFood(foodToTake float64) float64 {
-	return a.Base.TakeFood(foodToTake)
+	a.TakeFood(10)
 }

@@ -1,6 +1,8 @@
 package agent2
 
 import (
+	"log"
+
 	infra "github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	abm "github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
@@ -20,19 +22,6 @@ func New(baseAgent *infra.Base) (abm.Agent, error) {
 }
 
 func (a *CustomAgent2) Run() {
-	// log.Printf("Custom agent in team 2 is on floor %d has hp: %d", a.Floor(), a.HP())
-	// a.takeFood(15)
-	// a.HP()
-}
-
-func (a *CustomAgent2) HP() int {
-	return a.Base.HP()
-}
-
-func (a *CustomAgent2) Die() {
-	a.Base.Die()
-}
-
-func (a *CustomAgent2) IsAlive() bool {
-	return a.Base.IsAlive()
+	log.Printf("Custom agent in team 2 is on floor %d has hp: %d", a.Floor(), a.HP())
+	a.TakeFood(15)
 }

@@ -72,21 +72,21 @@ func (t *Tower) AddAgent(bagent *Base) {
 }
 
 func (t *Tower) reshuffle(numOfFloors int) {
-	remainingVacanies := make([]int, numOfFloors)
+	remainingVacancies := make([]int, numOfFloors)
 	log.Printf("Reshuffling alive agents...")
 	log.Printf("Number of agents: %d", len(t.agents))
 	for i := 0; i < numOfFloors; i++ { // adding a max to each floor
-		remainingVacanies[i] = t.agentsPerFloor
+		remainingVacancies[i] = t.agentsPerFloor
 	}
 	// allocating agents to floors randomly
 	// iterate through the uuid strings of each agent
 	for _, agent := range t.agents {
 		newFloor := rand.Intn(numOfFloors)
-		for remainingVacanies[newFloor] == 0 {
+		for remainingVacancies[newFloor] == 0 {
 			newFloor = rand.Intn(numOfFloors)
 		}
 		agent.setFloor(newFloor + 1)
-		remainingVacanies[newFloor]--
+		remainingVacancies[newFloor]--
 	}
 }
 
@@ -96,7 +96,7 @@ func (t *Tower) hpDecay() {
 	for i, agent := range t.agents {
 		newHP := agent.HP() - 20
 		if newHP < 0 {
-			agent.Die()
+			agent.die()
 			killed = append(killed, i)
 			log.Printf("Killing agent %s", agent.ID())
 			t.missingAgents[agent.Floor()] = append(t.missingAgents[agent.Floor()], agent.agentType)
