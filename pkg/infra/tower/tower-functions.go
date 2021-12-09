@@ -4,7 +4,7 @@ import (
 	"log"
 	"math"
 	"math/rand"
-	"github.com/SOMAS2021/SOMAS2021/utils/abm"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra/messages"
 
 
@@ -112,7 +112,8 @@ func (tower *Tower) SendMessage(direction int, sender abm.Agent , msg messages.M
 	for _, agent := range tower.agents {
 		//find reciever and pass them msg
 		if (agent.floor == senderFloor + direction){
-			agent.AddToInbox(msg)
+			go func() { agent.inbox <- msg }()
+			
 		}
 	}
 }
@@ -130,8 +131,7 @@ func (tower *Tower) ReceiveMessage(reciever abm.Agent) messages.Message {
 			default:
 				return nil
 			}
-		}
-	}
-
-	
+		} 
+	}	
+	return nil
 }

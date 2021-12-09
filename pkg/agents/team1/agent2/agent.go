@@ -26,9 +26,7 @@ func (a *CustomAgent2) Run() {
 	a.TakeFood(15)
 }
 
-func (a *CustomAgent2) AddToInbox(msg messages.Message) {
-	a.Base.AddToInbox(msg)
-}
+
 func (a *CustomAgent2) ID() string {
-	return a.ID()
+	return a.Base.ID()
 }
