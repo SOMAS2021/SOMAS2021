@@ -96,6 +96,7 @@ func (t *Tower) hpDecay() {
 		if newHP < 0 {
 			agent.Die()
 			killed = append(killed, i)
+			log.Printf("Killing agent %s", agent.ID())
 			t.missingAgents[agent.Floor()] = append(t.missingAgents[agent.Floor()], agent.agentType)
 		} else {
 			agent.setHP(newHP)
