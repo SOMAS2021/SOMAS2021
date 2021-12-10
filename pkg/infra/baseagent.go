@@ -3,13 +3,15 @@ package infra
 import (
 	"container/list"
 	"errors"
-	"log"
 	"math"
 	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
+	log "github.com/sirupsen/logrus"
 )
+
+type Fields = log.Fields
 
 type Base struct {
 	id        string
@@ -19,6 +21,7 @@ type Base struct {
 	inbox     *list.List
 	tower     *Tower
 	mx        sync.RWMutex
+	logger    log.Entry
 }
 
 func NewBaseAgent(a *abm.ABM, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {
@@ -30,6 +33,7 @@ func NewBaseAgent(a *abm.ABM, agentType int, agentHP int, agentFloor int, id str
 	if !ok {
 		return nil, errors.New("agent needs a tower world to operate")
 	}
+	logger := log.WithFields(log.Fields{"agent_id": id, "agent_type": agentType, "reporter": "agent"})
 	return &Base{
 		id:        id,
 		hp:        agentHP,
@@ -37,12 +41,19 @@ func NewBaseAgent(a *abm.ABM, agentType int, agentHP int, agentFloor int, id str
 		agentType: agentType,
 		tower:     tower,
 		inbox:     list.New(),
+		logger:    *logger,
 	}, nil
 }
 
+func (a *Base) Log(message string, fields ...Fields) {
+	if len(fields) == 0 {
+		fields = append(fields, Fields{})
+	}
+	a.logger.WithFields(fields[0]).Info(message)
+}
+
 func (a *Base) Run() {
-	floor := a.floor
-	log.Printf("An agent cycle executed from base agent %d", floor)
+	a.Log("An agent cycle executed from base agent", Fields{"floor": a.floor, "hp": a.hp})
 }
 
 func (a *Base) HP() int {
@@ -85,7 +96,6 @@ func (a *Base) TakeFood(amountOfFood float64) float64 {
 }
 
 func (a *Base) ReceiveMessage() messages.Message {
-	log.Printf("Tower receive message")
 	a.mx.Lock()
 	defer a.mx.Unlock()
 	if a.inbox.Len() > 0 {
@@ -97,7 +107,6 @@ func (a *Base) ReceiveMessage() messages.Message {
 }
 
 func (a *Base) SendMessage(direction int, msg messages.Message) {
-	log.Printf("agent sending message")
 	if (direction == -1) || (direction == 1) {
 		a.tower.SendMessage(direction, a.floor, msg)
 	}

@@ -1,7 +1,6 @@
 package abm
 
 import (
-	"log"
 	"sort"
 	"sync"
 )
@@ -99,7 +98,6 @@ func (a *ABM) SimulationIterate(i int) {
 		wg.Add(1)
 		go func(wg *sync.WaitGroup, i, j int) {
 			if !a.agents[j].IsAlive() {
-				log.Printf("Removing agent from ABM")
 				agentsToRemove = append(agentsToRemove, j)
 			} else {
 				a.agents[j].Run()
