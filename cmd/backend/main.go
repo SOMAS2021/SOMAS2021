@@ -12,6 +12,7 @@ import (
 
 func main() {
 	// logger setup
+	// TODO: clean up logger initialisation and closing code
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
 		if err != nil {
