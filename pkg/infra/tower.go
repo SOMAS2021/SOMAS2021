@@ -122,3 +122,8 @@ func (t *Tower) ResetTower() {
 	t.currPlatFood = t.maxPlatFood
 	t.currPlatFloor = 1
 }
+
+func (t *Tower) GetCurrPlatFood() (float64, int) {
+
+	return t.currPlatFood, t.currPlatFloor
+}
