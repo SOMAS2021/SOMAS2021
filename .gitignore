@@ -19,4 +19,5 @@ bin/
 **/.DS_Store
 
 # Logs
+logs/
 **.log
