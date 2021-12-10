@@ -1,8 +1,6 @@
 package agent1
 
 import (
-	"log"
-
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
@@ -21,25 +19,24 @@ func New(baseAgent *infra.Base) (abm.Agent, error) {
 }
 
 func (a *CustomAgent1) Run() {
-	log.Printf("Custom agent %v in team 5 is on floor %d has hp: %d", a.ID(), a.Floor(), a.HP())
-
-	// log.Printf("Custom agent in team 5 is on floor %d has hp: %d", a.Floor(), a.HP())
+	a.Log("Reporting agent state", infra.Fields{"health": a.HP(), "floor": a.Floor()})
 
 	receivedMsg := a.Base.ReceiveMessage()
 	if receivedMsg != nil {
-		log.Printf("%d, %d I got a msg from: %s", a.Floor(), a.myNumber, receivedMsg.MessageType())
+		a.Log("I sent a message", infra.Fields{"message": receivedMsg.MessageType()})
 	} else {
-		log.Printf("%d, %d, I got nothing", a.Floor(), a.myNumber)
+		a.Log("I got nothing")
 	}
 
 	if (a.myNumber)%2 == 0 {
 		msg := *messages.NewAckMessage(int(a.Floor()), true)
 		a.SendMessage(1, msg)
-		log.Printf("%d,%d, I sent a msg: %s", a.Floor(), a.myNumber, msg.MessageType())
+		a.Log("I sent a message", infra.Fields{"message": msg.MessageType()})
 	} else {
 		msg := *messages.NewBaseMessage(int(a.Floor()))
 		a.SendMessage(1, msg)
 	}
+	a.Log("My agent is doing something", infra.Fields{"thing": "asdfasdf", "another_thing": "pepehands"})
 
 	a.TakeFood(10)
 }
