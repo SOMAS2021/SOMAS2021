@@ -17,5 +17,3 @@
 # Backend build
 bin/
 **/.DS_Store
-
-dist/
