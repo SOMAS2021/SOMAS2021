@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
@@ -22,7 +23,7 @@ func main() {
 	}
 
 	// archive logs by default
-	logfileName := "logs/" + time.Now().Format(time.RFC3339) + ".log"
+	logfileName := filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05")+".log")
 
 	// open latest archive
 	f, err := os.OpenFile(logfileName, os.O_CREATE|os.O_RDWR, 0666)
