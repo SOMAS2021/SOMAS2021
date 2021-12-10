@@ -2,10 +2,8 @@ name: Release
 
 on:
   push:
-    branches-ignore:
-      - '!main'
-    tags:
-      - '*'
+    branches:
+      - main
 
 permissions:
   contents: write
