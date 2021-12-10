@@ -11,10 +11,10 @@ import (
 func main() {
 	// logger setup
 	f, err := os.OpenFile("test.log", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
-	defer f.Close()
 	if err != nil {
 		fmt.Printf("error opening file: %v", err)
 	}
+	defer f.Close()
 	logrus.SetOutput(f)
 	// can have frontend parameters come go straight into simEnv
 	foodOnPlatform := 100.0

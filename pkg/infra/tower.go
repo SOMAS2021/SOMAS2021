@@ -105,7 +105,7 @@ func (t *Tower) hpDecay() {
 	for _, agent := range t.agents {
 		newHP := agent.HP() - 20
 		if newHP < 0 {
-			log.Info("Killing agent %s", agent.ID())
+			t.Log("Killing agent", Fields{"agent": agent.ID()})
 			t.missingAgents[agent.Floor()] = append(t.missingAgents[agent.Floor()], agent.agentType)
 			delete(t.agents, agent.id) // maybe lock mutex?
 		} else {
