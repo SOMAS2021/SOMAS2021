@@ -54,7 +54,7 @@ func (a *Base) CurrPlatFood() float64 {
 	if platformFloor == a.floor { // only show the food on the platform if the platform is on the same floor as the agent
 		return foodOnPlatform // if agent and platform on same floor, return the amount of food on the platform
 	}
-	return 0.0 // otherwise return nothing because you should not be able to see food on the platform if its not on your floor.
+	return -1.0 // otherwise return -1 to indicate the platform is not on the floor. Agents cannot see the food on the platform if it is not on their floor
 }
 
 func (a *Base) Floor() int {
