@@ -59,7 +59,7 @@ func main() {
 
 	log.SetOutput(f)
 	log.SetFormatter(&log.JSONFormatter{})
-  
+
 	// can have frontend parameters come go straight into simEnv
 	foodOnPlatform := 100.0
 	numOfAgents := []int{2, 2, 2, 2}
