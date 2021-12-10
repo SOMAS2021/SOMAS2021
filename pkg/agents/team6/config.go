@@ -6,7 +6,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents"
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
 type behaviour float64
@@ -33,7 +34,7 @@ type team6Config struct {
 }
 
 type CustomAgent6 struct {
-	*agents.Base
+	*infra.Base
 	config team6Config
 	//keep track of the lowest floor we've been to
 	maxFloorGuess int
@@ -54,7 +55,7 @@ func chooseInitialBehaviour() behaviour {
 	return behaviour(rand.Float64()) * maxBehaviourThreshold
 }
 
-func New(baseAgent *agents.Base) (agents.Agent, error) {
+func New(baseAgent *infra.Base) (abm.Agent, error) {
 	initialBehaviour := chooseInitialBehaviour()
 	return &CustomAgent6{
 		Base: baseAgent,
