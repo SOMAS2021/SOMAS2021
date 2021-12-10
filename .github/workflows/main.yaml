@@ -1,6 +1,5 @@
 name: Build and Test
 
-# This workflow will run on main branch and on any pull requests targeting main
 on:
   push:
     branches:
