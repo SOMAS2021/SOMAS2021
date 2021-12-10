@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -15,7 +15,8 @@ func main() {
 		fmt.Printf("error opening file: %v", err)
 	}
 	defer f.Close()
-	logrus.SetOutput(f)
+	log.SetOutput(f)
+	log.SetFormatter(&log.JSONFormatter{})
 	// can have frontend parameters come go straight into simEnv
 	foodOnPlatform := 100.0
 	numOfAgents := []int{5, 5}
