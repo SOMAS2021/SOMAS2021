@@ -20,25 +20,32 @@ func main() {
 		}
 	}
 
+	// archive logs by default
 	logfileName := "logs/" + time.Now().Format(time.RFC3339) + ".log"
 
+	// open latest archive
 	f, err := os.OpenFile(logfileName, os.O_CREATE|os.O_RDWR, 0666)
 	if err != nil {
 		fmt.Println("error opening file: ", err)
 		return
 	}
+
+	// copy latest archive to simulation.log
 	defer func() {
+		// open simulation.log
 		simLog, err := os.OpenFile("simulation.log", os.O_CREATE|os.O_RDWR, 0666)
 		if err != nil {
 			fmt.Println("error creating simulation log: ", err)
 			return
 		}
+		// close simulation.log
 		defer simLog.Close()
 		f, err = os.Open(logfileName)
 		if err != nil {
 			fmt.Println("error opening file: ", err)
 			return
 		}
+		// close latest archive
 		defer f.Close()
 		_, err = io.Copy(simLog, f)
 		if err != nil {
