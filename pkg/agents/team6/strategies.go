@@ -6,7 +6,7 @@ type thresholdData struct {
 	maxIntake       float64
 }
 
-func (a *CustomAgent6) FoodIntake() float64 {
+func (a *CustomAgent6) foodIntake() float64 {
 	thresholds := thresholdData{satisficeThresh: 20.0, satisfyThresh: 60.0, maxIntake: 80.0}
 
 	switch a.currBehaviour.String() {

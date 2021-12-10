@@ -2,6 +2,7 @@ package team6
 
 import (
 	"math"
+	// "math/rand"
 )
 
 func (a *CustomAgent6) updateBehaviour() {
@@ -11,7 +12,7 @@ func (a *CustomAgent6) updateBehaviour() {
 
 	hpScore := 1 - float64(a.HP())/100.0 //map (minHP,maxHP) -> (1,0)
 	floor := a.Floor() + 1
-	// floor = 600 //use for debug
+	// floor := rand.Intn(600) //* 600 //use for debug
 
 	if floor > a.maxFloorGuess {
 		a.maxFloorGuess = floor + 1

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
@@ -61,8 +62,8 @@ func New(baseAgent *infra.Base) (abm.Agent, error) {
 		Base: baseAgent,
 		config: team6Config{
 			baseBehaviour:         initialBehaviour,
-			stubbornness:          0.5,
-			maxBehaviourSwing:     2,
+			stubbornness:          0.0,
+			maxBehaviourSwing:     8,
 			paramWeights:          behaviourParameterWeights{0.7, 0.3}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
@@ -70,16 +71,6 @@ func New(baseAgent *infra.Base) (abm.Agent, error) {
 		currBehaviour: initialBehaviour,
 		maxFloorGuess: baseAgent.Floor() + 2,
 	}, nil
-}
-
-func (a *CustomAgent6) Run() {
-	log.Printf("Custom agent team 6 has floor: %d", a.Floor())
-	log.Printf("Team 6 has behaviour: " + a.currBehaviour.String())
-	log.Printf("Team 6 has maxFloorGuess: %d", a.maxFloorGuess)
-	a.updateBehaviour()
-	log.Printf("Team 6 has behaviour: " + a.currBehaviour.String())
-	log.Printf("Team 6 has maxFloorGuess: %d", a.maxFloorGuess)
-
 }
 
 func (b behaviour) String() string {
@@ -96,4 +87,27 @@ func (b behaviour) String() string {
 	}
 
 	return fmt.Sprintf("UNKNOWN Behaviour '%v'", int(b))
+}
+
+func (a *CustomAgent6) Run() {
+	log.Printf("Custom agent %s", a.ID())
+	log.Printf("Custom agent team 6 has floor: %d", a.Floor())
+	log.Printf("Custom agent team 6 has HP: %d", a.HP())
+	// log.Printf("Team 6 has behaviour: " + a.currBehaviour.String())
+	// log.Printf("Team 6 has maxFloorGuess: %d", a.maxFloorGuess)
+	a.updateBehaviour()
+	log.Printf("Team 6 has behaviour: " + a.currBehaviour.String())
+	fmt.Println(float64(a.currBehaviour))
+	// log.Printf('\n')
+	// log.Printf("Team 6 has maxFloorGuess: %d", a.maxFloorGuess)
+
+	foodAmount := a.foodIntake()
+	a.TakeFood(foodAmount)
+	log.Printf("Team 6 took: %f", foodAmount)
+
+	msg := *messages.NewTeam6Message(int(a.Floor()), true)
+	a.SendMessage(1, msg)
+	log.Printf("%d, I sent a msg: %s", a.Floor(), msg.MessageType())
+	log.Printf(" ")
+
 }
