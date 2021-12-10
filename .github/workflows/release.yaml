@@ -23,6 +23,6 @@ jobs:
         uses: docker://goreleaser/goreleaser:latest
         with:
           args: release
+        main: cmd/backend/main.go
         env:
-          main: cmd/backend/main.go
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
