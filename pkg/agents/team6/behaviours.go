@@ -8,9 +8,8 @@ func (a *CustomAgent6) updateBehaviour() {
 	aConf := a.config
 	behaviourMax, behaviourMin := a.getBehaviourRange()
 
-	hpScore := 1 - float64(a.HP())/100.0 //map (minHP,maxHP) -> (1,0)
+	hpScore := 1 - float64(a.HP())/100.0
 	floor := a.Floor() + 1
-	// floor := rand.Intn(600) //* 600 //use for debug
 
 	if floor > a.maxFloorGuess {
 		a.maxFloorGuess = floor + 1
@@ -45,8 +44,7 @@ func (a *CustomAgent6) updateBehaviour() {
 
 }
 
-func (a *CustomAgent6) getBehaviourRange() (behaviourMax, behaviourMin behaviour) {
-
+func (a *CustomAgent6) behaviourRange() (behaviourMax, behaviourMin behaviour) {
 	aConf := a.config
 
 	maxT := aConf.maxBehaviourThreshold

@@ -74,11 +74,9 @@ func New(baseAgent *infra.Base) (abm.Agent, error) {
 }
 
 func (b behaviour) String() string {
-
 	behaviourMap := [...]thresholdBehaviourPair{{2, "Altruist"}, {7, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
 
 	if b >= 0 {
-
 		for _, v := range behaviourMap {
 			if b <= v.threshold {
 				return v.bType
@@ -105,7 +103,7 @@ func (a *CustomAgent6) Run() {
 	a.TakeFood(foodAmount)
 	log.Printf("Team 6 took: %f", foodAmount)
 
-	msg := *messages.NewTeam6Message(int(a.Floor()), true)
+	msg := *messages.NewTeam6Message(a.Floor(), true)
 	a.SendMessage(1, msg)
 	log.Printf("%d, I sent a msg: %s", a.Floor(), msg.MessageType())
 	log.Printf(" ")
