@@ -48,6 +48,7 @@ func NewTower(currPlatFood float64, currPlatFloor, agentCount,
 
 func (t *Tower) Tick() {
 	//logs
+	t.Log("Reporting current platform floor", Fields{"floor": t.currPlatFloor})
 	t.Log("Reporting food left on platform", Fields{"food_left": t.currPlatFood})
 
 	//useful parameters
@@ -104,6 +105,7 @@ func (t *Tower) hpDecay() {
 	// TODO: can add a parameter
 	for _, agent := range t.agents {
 		newHP := agent.HP() - 20
+		agent.UpdateHasEaten(false)
 		if newHP < 0 {
 			t.Log("Killing agent", Fields{"agent": agent.ID()})
 			t.missingAgents[agent.Floor()] = append(t.missingAgents[agent.Floor()], agent.agentType)
