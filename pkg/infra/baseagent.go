@@ -91,7 +91,7 @@ func (a *Base) HasEaten() bool {
 	return a.hasEaten
 }
 
-func (a *Base) UpdateHasEaten(newStatus bool) {
+func (a *Base) setHasEaten(newStatus bool) {
 	a.hasEaten = newStatus
 }
 
@@ -100,7 +100,7 @@ func (a *Base) TakeFood(amountOfFood float64) float64 {
 		foodTaken := math.Min(a.tower.currPlatFood, amountOfFood)
 		a.updateHP(foodTaken)
 		a.tower.currPlatFood -= foodTaken
-		a.UpdateHasEaten(true)
+		a.setHasEaten(true)
 		a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
 		return foodTaken
 	}
