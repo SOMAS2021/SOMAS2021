@@ -22,6 +22,7 @@ type Base struct {
 	tower     *Tower
 	mx        sync.RWMutex
 	logger    log.Entry
+	hasEaten  bool
 }
 
 func NewBaseAgent(a *abm.ABM, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {
@@ -42,6 +43,7 @@ func NewBaseAgent(a *abm.ABM, agentType int, agentHP int, agentFloor int, id str
 		tower:     tower,
 		inbox:     list.New(),
 		logger:    *logger,
+		hasEaten:  false,
 	}, nil
 }
 
@@ -85,11 +87,21 @@ func (a *Base) updateHP(foodTaken float64) {
 	a.hp = int(math.Min(100, float64(a.hp)+foodTaken))
 }
 
+func (a *Base) HasEaten() bool {
+	return a.hasEaten
+}
+
+func (a *Base) setHasEaten(newStatus bool) {
+	a.hasEaten = newStatus
+}
+
 func (a *Base) TakeFood(amountOfFood float64) float64 {
-	if a.floor == a.tower.currPlatFloor {
+	if a.floor == a.tower.currPlatFloor && !a.hasEaten {
 		foodTaken := math.Min(a.tower.currPlatFood, amountOfFood)
 		a.updateHP(foodTaken)
 		a.tower.currPlatFood -= foodTaken
+		a.setHasEaten(true)
+		a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
 		return foodTaken
 	}
 	return 0.0
