@@ -97,7 +97,7 @@ func (a *CustomAgent6) Run() {
 	a.TakeFood(foodAmount)
 	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodAmount})
 
-	msg := *messages.NewTeam6Message(a.Floor(), true)
+	msg := *messages.NewBaseMessage(a.Floor())
 	a.SendMessage(1, msg)
 	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
 
