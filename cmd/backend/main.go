@@ -63,7 +63,7 @@ func main() {
 	foodOnPlatform := 100.0
 	numOfAgents := []int{0, 0, 2}
 	agentHP := 100
-	days := 3
+	days := 10
 	daysPerReshuffle := 3
 
 	iterationsPerDay := 24 * 60
