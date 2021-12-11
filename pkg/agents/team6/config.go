@@ -2,7 +2,6 @@ package team6
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"time"
 
@@ -88,24 +87,18 @@ func (b behaviour) String() string {
 }
 
 func (a *CustomAgent6) Run() {
-	log.Printf("Custom agent %s", a.ID())
-	log.Printf("Custom agent team 6 has floor: %d", a.Floor())
-	log.Printf("Custom agent team 6 has HP: %d", a.HP())
-	// log.Printf("Team 6 has behaviour: " + a.currBehaviour.String())
-	// log.Printf("Team 6 has maxFloorGuess: %d", a.maxFloorGuess)
+	a.Log("Custom agent 6 before update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
+
 	a.updateBehaviour()
-	log.Printf("Team 6 has behaviour: " + a.currBehaviour.String())
-	fmt.Println(float64(a.currBehaviour))
-	// log.Printf('\n')
-	// log.Printf("Team 6 has maxFloorGuess: %d", a.maxFloorGuess)
+
+	a.Log("Custom agent 6 after update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
 
 	foodAmount := a.foodIntake()
 	a.TakeFood(foodAmount)
-	log.Printf("Team 6 took: %f", foodAmount)
+	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodAmount})
 
 	msg := *messages.NewTeam6Message(a.Floor(), true)
 	a.SendMessage(1, msg)
-	log.Printf("%d, I sent a msg: %s", a.Floor(), msg.MessageType())
-	log.Printf(" ")
+	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
 
 }
