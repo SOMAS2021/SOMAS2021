@@ -48,8 +48,7 @@ func NewTower(currPlatFood float64, currPlatFloor, agentCount,
 
 func (t *Tower) Tick() {
 	//logs
-	t.Log("Reporting current platform floor", Fields{"floor": t.currPlatFloor})
-	t.Log("Reporting food left on platform", Fields{"food_left": t.currPlatFood})
+	t.Log("Reporting platform status", Fields{"food_left": t.currPlatFood, "floor": t.currPlatFloor})
 
 	//useful parameters
 	day := 24 * 60
