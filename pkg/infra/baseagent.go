@@ -51,7 +51,7 @@ func (a *Base) HP() int {
 
 func (a *Base) CurrPlatFood() float64 {
 	foodOnPlatform, platformFloor := a.tower.GetCurrPlatFood()
-	if platformFloor == a.floor { // only show the food on the platform if the platform is on the same floor as the agent
+       if platformFloor == a.floor || platformFloor == a.floor + 1  {// only show the food on the platform if the platform is on the same floor as the agent or directly below
 		return foodOnPlatform // if agent and platform on same floor, return the amount of food on the platform
 	}
 	return -1.0 // otherwise return -1 to indicate the platform is not on the floor. Agents cannot see the food on the platform if it is not on their floor
