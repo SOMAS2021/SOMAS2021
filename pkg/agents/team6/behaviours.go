@@ -2,7 +2,6 @@ package team6
 
 import (
 	"math"
-	// "math/rand"
 )
 
 func (a *CustomAgent6) updateBehaviour() {
