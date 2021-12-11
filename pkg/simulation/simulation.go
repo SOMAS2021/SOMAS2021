@@ -1,14 +1,16 @@
 package simulation
 
 import (
-	"log"
-
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 )
+
+type Fields = log.Fields
 
 type SimEnv struct {
 	FoodOnPlatform  float64
@@ -16,6 +18,14 @@ type SimEnv struct {
 	AgentHP         int
 	Iterations      int
 	reshufflePeriod int
+	logger          log.Entry
+}
+
+func (s *SimEnv) Log(message string, fields ...Fields) {
+	if len(fields) == 0 {
+		fields = append(fields, Fields{})
+	}
+	s.logger.WithFields(fields[0]).Info(message)
 }
 
 func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, iterations, reshufflePeriod int) *SimEnv {
@@ -26,6 +36,7 @@ func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, iterations, reshuf
 		AgentHP:         agentHP,
 		Iterations:      iterations,
 		reshufflePeriod: reshufflePeriod,
+		logger:          *log.WithFields(log.Fields{"reporter": "simulation"}),
 	}
 	// can do other inits here
 	return s
@@ -34,6 +45,7 @@ func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, iterations, reshuf
 type AgentNewFunc func(base *infra.Base) (abm.Agent, error)
 
 func (sE *SimEnv) Simulate() {
+	sE.Log("Simulation Initializing")
 	a := abm.New()
 
 	totalAgents := sum(sE.AgentCount)
@@ -48,7 +60,9 @@ func (sE *SimEnv) Simulate() {
 		}
 	}
 	a.LimitIterations(sE.Iterations)
+	sE.Log("Simulation Started")
 	sE.simulationLoop(a, t)
+	sE.Log("Simulation Ended")
 }
 
 func (sE *SimEnv) simulationLoop(a *abm.ABM, t *infra.Tower) {
@@ -74,8 +88,8 @@ func sum(inputList []int) int {
 
 func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *infra.Tower, i, floor int) {
 	// TODO: clean this looping, make a nice abs map
-	log.Printf("Creating new agent")
-	abs := []AgentNewFunc{agent1.New, agent2.New}
+	sE.Log("Creating new agent")
+	abs := []AgentNewFunc{agent1.New, agent2.New, team6.New}
 
 	uuid := uuid.New().String()
 	bagent, err := infra.NewBaseAgent(a, i, sE.AgentHP, floor, uuid)

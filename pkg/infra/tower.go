@@ -1,10 +1,10 @@
 package infra
 
 import (
-	"log"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	log "github.com/sirupsen/logrus"
 )
 
 type Tower struct {
@@ -18,6 +18,14 @@ type Tower struct {
 	missingAgents   map[int][]int // key: floor, value: types of missing agents
 	reshufflePeriod int
 	tickCounter     int
+	logger          log.Entry
+}
+
+func (t *Tower) Log(message string, fields ...Fields) {
+	if len(fields) == 0 {
+		fields = append(fields, Fields{})
+	}
+	t.logger.WithFields(fields[0]).Info(message)
 }
 
 func NewTower(currPlatFood float64, currPlatFloor, agentCount,
@@ -33,14 +41,14 @@ func NewTower(currPlatFood float64, currPlatFloor, agentCount,
 		missingAgents:   make(map[int][]int),
 		reshufflePeriod: reshufflePeriod,
 		tickCounter:     1,
+		logger:          *log.WithFields(log.Fields{"reporter": "tower"}),
 	}
 	return t
 }
 
 func (t *Tower) Tick() {
 	//logs
-	log.Printf("A log from the tower! Tick no: %d", t.tickCounter)
-	log.Printf("The food left on the platform = %f", t.currPlatFood)
+	t.Log("Reporting platform status", Fields{"food_left": t.currPlatFood, "floor": t.currPlatFloor})
 
 	//useful parameters
 	day := 24 * 60
@@ -76,8 +84,7 @@ func (t *Tower) AddAgent(bagent *Base) {
 
 func (t *Tower) reshuffle(numOfFloors int) {
 	remainingVacancies := make([]int, numOfFloors)
-	log.Printf("Reshuffling alive agents...")
-	log.Printf("Number of agents: %d", len(t.agents))
+	t.Log("Reshuffling alive agents...", Fields{"agents_count": len(t.agents)})
 	for i := 0; i < numOfFloors; i++ { // adding a max to each floor
 		remainingVacancies[i] = t.agentsPerFloor
 	}
@@ -97,8 +104,9 @@ func (t *Tower) hpDecay() {
 	// TODO: can add a parameter
 	for _, agent := range t.agents {
 		newHP := agent.HP() - 20
+		agent.setHasEaten(false)
 		if newHP < 0 {
-			log.Printf("Killing agent %s", agent.ID())
+			t.Log("Killing agent", Fields{"agent": agent.ID()})
 			t.missingAgents[agent.Floor()] = append(t.missingAgents[agent.Floor()], agent.agentType)
 			delete(t.agents, agent.id) // maybe lock mutex?
 		} else {
@@ -108,7 +116,6 @@ func (t *Tower) hpDecay() {
 }
 
 func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message) {
-	log.Printf("tower sending message")
 	for _, agent := range t.agents {
 		if agent.floor == senderFloor+direction {
 			agent.mx.Lock()

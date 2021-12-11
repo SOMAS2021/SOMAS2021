@@ -3,13 +3,15 @@ package infra
 import (
 	"container/list"
 	"errors"
-	"log"
 	"math"
 	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
+	log "github.com/sirupsen/logrus"
 )
+
+type Fields = log.Fields
 
 type Base struct {
 	id        string
@@ -19,6 +21,8 @@ type Base struct {
 	inbox     *list.List
 	tower     *Tower
 	mx        sync.RWMutex
+	logger    log.Entry
+	hasEaten  bool
 }
 
 func NewBaseAgent(a *abm.ABM, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {
@@ -30,6 +34,7 @@ func NewBaseAgent(a *abm.ABM, agentType int, agentHP int, agentFloor int, id str
 	if !ok {
 		return nil, errors.New("agent needs a tower world to operate")
 	}
+	logger := log.WithFields(log.Fields{"agent_id": id, "agent_type": agentType, "reporter": "agent"})
 	return &Base{
 		id:        id,
 		hp:        agentHP,
@@ -37,12 +42,20 @@ func NewBaseAgent(a *abm.ABM, agentType int, agentHP int, agentFloor int, id str
 		agentType: agentType,
 		tower:     tower,
 		inbox:     list.New(),
+		logger:    *logger,
+		hasEaten:  false,
 	}, nil
 }
 
+func (a *Base) Log(message string, fields ...Fields) {
+	if len(fields) == 0 {
+		fields = append(fields, Fields{})
+	}
+	a.logger.WithFields(fields[0]).Info(message)
+}
+
 func (a *Base) Run() {
-	floor := a.floor
-	log.Printf("An agent cycle executed from base agent %d", floor)
+	a.Log("An agent cycle executed from base agent", Fields{"floor": a.floor, "hp": a.hp})
 }
 
 func (a *Base) HP() int {
@@ -85,18 +98,27 @@ func (a *Base) updateHP(foodTaken float64) {
 	a.hp = int(math.Min(100, float64(a.hp)+foodTaken))
 }
 
+func (a *Base) HasEaten() bool {
+	return a.hasEaten
+}
+
+func (a *Base) setHasEaten(newStatus bool) {
+	a.hasEaten = newStatus
+}
+
 func (a *Base) TakeFood(amountOfFood float64) float64 {
-	if a.floor == a.tower.currPlatFloor {
+	if a.floor == a.tower.currPlatFloor && !a.hasEaten {
 		foodTaken := math.Min(a.tower.currPlatFood, amountOfFood)
 		a.updateHP(foodTaken)
 		a.tower.currPlatFood -= foodTaken
+		a.setHasEaten(true)
+		a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
 		return foodTaken
 	}
 	return 0.0
 }
 
 func (a *Base) ReceiveMessage() messages.Message {
-	log.Printf("Tower receive message")
 	a.mx.Lock()
 	defer a.mx.Unlock()
 	if a.inbox.Len() > 0 {
@@ -108,7 +130,6 @@ func (a *Base) ReceiveMessage() messages.Message {
 }
 
 func (a *Base) SendMessage(direction int, msg messages.Message) {
-	log.Printf("agent sending message")
 	if (direction == -1) || (direction == 1) {
 		a.tower.SendMessage(direction, a.floor, msg)
 	}

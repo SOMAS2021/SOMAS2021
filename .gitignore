@@ -17,3 +17,7 @@
 # Backend build
 bin/
 **/.DS_Store
+
+# Logs
+logs/
+**.log
