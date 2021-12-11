@@ -6,7 +6,7 @@ import (
 
 func (a *CustomAgent6) updateBehaviour() {
 	aConf := a.config
-	behaviourMax, behaviourMin := a.getBehaviourRange()
+	behaviourMax, behaviourMin := a.behaviourRange()
 
 	hpScore := 1 - float64(a.HP())/100.0
 	floor := a.Floor() + 1
@@ -28,7 +28,7 @@ func (a *CustomAgent6) updateBehaviour() {
 		behaviourPrediction += behaviourParams[i] * weights[i]
 	}
 
-        // Find new direction required to reach new behaviour prediction
+	// Find new direction required to reach new behaviour prediction
 	updateDir := behaviour(behaviourPrediction)*aConf.maxBehaviourThreshold - a.currBehaviour
 	// Scale movement by stubbornness (minStubborn, maxStubborn) -> (fullMovement, 0)
 	updateMag := updateDir * behaviour(1-aConf.stubbornness)
