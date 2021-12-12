@@ -4,21 +4,20 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	. "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/Day"
 	log "github.com/sirupsen/logrus"
 )
 
 type Tower struct {
-	currPlatFood    float64
-	maxPlatFood     float64
-	currPlatFloor   int
-	agentCount      int
-	agents          map[string]*Base
-	agentsPerFloor  int
-	ticksPerDay     int
-	missingAgents   map[int][]int // key: floor, value: types of missing agents
-	reshufflePeriod int
-	tickCounter     int
-	logger          log.Entry
+	currPlatFood   float64
+	maxPlatFood    float64
+	currPlatFloor  int
+	agentCount     int
+	agents         map[string]*Base
+	agentsPerFloor int
+	missingAgents  map[int][]int // key: floor, value: types of missing agents
+	logger         log.Entry
+	dayInfo        *DayInformation
 }
 
 func (t *Tower) Log(message string, fields ...Fields) {
@@ -28,48 +27,44 @@ func (t *Tower) Log(message string, fields ...Fields) {
 	t.logger.WithFields(fields[0]).Info(message)
 }
 
-func NewTower(currPlatFood float64, currPlatFloor, agentCount,
-	agentsPerFloor, ticksPerDay, reshufflePeriod int) *Tower {
+func NewTower(maxPlatFood float64, agentCount,
+	agentsPerFloor int, dayInfo *DayInformation) *Tower {
 	t := &Tower{
-		currPlatFood:    currPlatFood,
-		maxPlatFood:     currPlatFood,
-		currPlatFloor:   currPlatFloor,
-		agentCount:      agentCount,
-		agents:          make(map[string]*Base),
-		agentsPerFloor:  agentsPerFloor,
-		ticksPerDay:     ticksPerDay,
-		missingAgents:   make(map[int][]int),
-		reshufflePeriod: reshufflePeriod,
-		tickCounter:     1,
-		logger:          *log.WithFields(log.Fields{"reporter": "tower"}),
+		currPlatFood:   maxPlatFood,
+		maxPlatFood:    maxPlatFood,
+		currPlatFloor:  1,
+		agentCount:     agentCount,
+		agents:         make(map[string]*Base),
+		agentsPerFloor: agentsPerFloor,
+		missingAgents:  make(map[int][]int),
+		logger:         *log.WithFields(log.Fields{"reporter": "tower"}),
+		dayInfo:        dayInfo,
 	}
 	return t
 }
 
 func (t *Tower) Tick() {
 	//logs
+	t.Log("", Fields{"Curr Tower Tick": t.dayInfo.CurrTick})
 	t.Log("Reporting platform status", Fields{"food_left": t.currPlatFood, "floor": t.currPlatFloor})
 
 	//useful parameters
-	day := 24 * 60
 	numOfFloors := t.agentCount / t.agentsPerFloor
-	platformMovePeriod := day / numOfFloors // can add min/max
+	platformMovePeriod := t.dayInfo.IterationsPerDay / numOfFloors // can add min/max
 
 	// Shuffle the agents
-	if t.tickCounter%t.reshufflePeriod == 0 {
+	if t.dayInfo.CurrTick%t.dayInfo.IterationsPerReshuffle == 0 {
 		t.reshuffle(numOfFloors)
 	}
 	// Move the platform
-	if t.tickCounter%platformMovePeriod == 0 {
+	if t.dayInfo.CurrTick%platformMovePeriod == 0 {
 		t.currPlatFloor++
 	}
 	// Decrease agent HP and reset tower at end of day
-	if t.tickCounter%day == 0 {
+	if t.dayInfo.CurrTick%t.dayInfo.IterationsPerDay == 0 {
 		t.hpDecay() // decreases HP and kills if < 0
 		t.ResetTower()
 	}
-
-	t.tickCounter++
 }
 
 func (t *Tower) UpdateMissingAgents() map[int][]int {

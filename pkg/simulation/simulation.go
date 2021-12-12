@@ -6,6 +6,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
+	. "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/Day"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -13,12 +14,12 @@ import (
 type Fields = log.Fields
 
 type SimEnv struct {
-	FoodOnPlatform  float64
-	AgentCount      []int
-	AgentHP         int
-	Iterations      int
-	reshufflePeriod int
-	logger          log.Entry
+	FoodOnPlatform float64
+	AgentCount     []int
+	AgentHP        int
+	AgentsPerFloor int
+	logger         log.Entry
+	dayInfo        *DayInformation
 }
 
 func (s *SimEnv) Log(message string, fields ...Fields) {
@@ -28,15 +29,14 @@ func (s *SimEnv) Log(message string, fields ...Fields) {
 	s.logger.WithFields(fields[0]).Info(message)
 }
 
-func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, iterations, reshufflePeriod int) *SimEnv {
-
+func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int, dayInfo *DayInformation) *SimEnv {
 	s := &SimEnv{
-		FoodOnPlatform:  foodOnPlat,
-		AgentCount:      agentCount,
-		AgentHP:         agentHP,
-		Iterations:      iterations,
-		reshufflePeriod: reshufflePeriod,
-		logger:          *log.WithFields(log.Fields{"reporter": "simulation"}),
+		FoodOnPlatform: foodOnPlat,
+		AgentCount:     agentCount,
+		AgentHP:        agentHP,
+		dayInfo:        dayInfo,
+		AgentsPerFloor: agentsPerFloor,
+		logger:         *log.WithFields(log.Fields{"reporter": "simulation"}),
 	}
 	// can do other inits here
 	return s
@@ -49,7 +49,7 @@ func (sE *SimEnv) Simulate() {
 	a := abm.New()
 
 	totalAgents := sum(sE.AgentCount)
-	t := infra.NewTower(sE.FoodOnPlatform, 1, totalAgents, 1, 20, sE.reshufflePeriod)
+	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, 1, sE.dayInfo)
 	a.SetWorld(t)
 
 	agentIndex := 1
@@ -59,22 +59,22 @@ func (sE *SimEnv) Simulate() {
 			agentIndex++
 		}
 	}
-	a.LimitIterations(sE.Iterations)
+	a.LimitIterations(sE.dayInfo.TotalIterations)
 	sE.Log("Simulation Started")
 	sE.simulationLoop(a, t)
 	sE.Log("Simulation Ended")
 }
 
 func (sE *SimEnv) simulationLoop(a *abm.ABM, t *infra.Tower) {
-	for i := 1; i <= sE.Iterations; i++ {
+	for sE.dayInfo.CurrTick <= sE.dayInfo.TotalIterations {
 		missingAgentsMap := t.UpdateMissingAgents()
 		for floor := range missingAgentsMap {
 			for _, agentType := range missingAgentsMap[floor] {
 				sE.createNewAgent(a, t, agentType, floor)
 			}
 		}
-
-		a.SimulationIterate(i)
+		sE.dayInfo.CurrTick++
+		a.SimulationIterate(sE.dayInfo.CurrTick)
 	}
 }
 
