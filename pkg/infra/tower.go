@@ -98,11 +98,11 @@ func (t *Tower) reshuffle(numOfFloors int) {
 func (t *Tower) hpDecay() {
 	// TODO: can add a parameter
 	for _, agent := range t.agents {
-		newHP := agent.HP() - 20
+		newHP := agent.hp - 20
 		agent.setHasEaten(false)
 		if newHP < 0 {
-			t.Log("Killing agent", Fields{"agent": agent.ID()})
-			t.missingAgents[agent.Floor()] = append(t.missingAgents[agent.Floor()], agent.agentType)
+			t.Log("Killing agent", Fields{"agent": agent.id})
+			t.missingAgents[agent.floor] = append(t.missingAgents[agent.floor], agent.agentType)
 			delete(t.agents, agent.id) // maybe lock mutex?
 		} else {
 			agent.setHP(newHP)

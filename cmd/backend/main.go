@@ -24,7 +24,7 @@ func main() {
 	}
 
 	// archive logs by default
-	logfileName := filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05")+".log")
+	logfileName := filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05")+".json")
 
 	// open latest archive
 	f, err := os.OpenFile(logfileName, os.O_CREATE|os.O_RDWR, 0666)
@@ -36,7 +36,7 @@ func main() {
 	// copy latest archive to simulation.log
 	defer func() {
 		// open simulation.log
-		simLog, err := os.OpenFile("simulation.log", os.O_CREATE|os.O_RDWR, 0666)
+		simLog, err := os.OpenFile("simulation.json", os.O_CREATE|os.O_RDWR, 0666)
 		if err != nil {
 			fmt.Println("error creating simulation log: ", err)
 			return

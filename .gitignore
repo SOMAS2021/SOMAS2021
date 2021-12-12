@@ -21,3 +21,4 @@ bin/
 # Logs
 logs/
 **.log
+simulation.json
