@@ -1,11 +1,11 @@
 package day
 
 type DayInfo struct {
-	IterationsPerDay       int
+	TicksPerDay       int
 	SimulationDays         int
 	DaysPerReshuffle       int
-	IterationsPerReshuffle int
-	TotalIterations        int
+	TicksPerReshuffle int
+	TotalTicks        int
 	CurrTick               int
 }
 
