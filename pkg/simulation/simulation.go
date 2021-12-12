@@ -6,7 +6,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
-	. "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/Day"
+	. "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -19,7 +19,7 @@ type SimEnv struct {
 	AgentHP        int
 	AgentsPerFloor int
 	logger         log.Entry
-	dayInfo        *DayInformation
+	dayInfo        *DayInfo
 }
 
 func (s *SimEnv) Log(message string, fields ...Fields) {
@@ -29,7 +29,7 @@ func (s *SimEnv) Log(message string, fields ...Fields) {
 	s.logger.WithFields(fields[0]).Info(message)
 }
 
-func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int, dayInfo *DayInformation) *SimEnv {
+func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int, dayInfo *DayInfo) *SimEnv {
 	s := &SimEnv{
 		FoodOnPlatform: foodOnPlat,
 		AgentCount:     agentCount,
@@ -59,14 +59,14 @@ func (sE *SimEnv) Simulate() {
 			agentIndex++
 		}
 	}
-	a.LimitIterations(sE.dayInfo.TotalIterations)
+	a.LimitIterations(sE.dayInfo.TotalTicks)
 	sE.Log("Simulation Started")
 	sE.simulationLoop(a, t)
 	sE.Log("Simulation Ended")
 }
 
 func (sE *SimEnv) simulationLoop(a *abm.ABM, t *infra.Tower) {
-	for sE.dayInfo.CurrTick <= sE.dayInfo.TotalIterations {
+	for sE.dayInfo.CurrTick <= sE.dayInfo.TotalTicks {
 		missingAgentsMap := t.UpdateMissingAgents()
 		for floor := range missingAgentsMap {
 			for _, agentType := range missingAgentsMap[floor] {
@@ -75,6 +75,7 @@ func (sE *SimEnv) simulationLoop(a *abm.ABM, t *infra.Tower) {
 		}
 		sE.dayInfo.CurrTick++
 		a.SimulationIterate(sE.dayInfo.CurrTick)
+		sE.dayInfo.CurrTick++
 	}
 }
 

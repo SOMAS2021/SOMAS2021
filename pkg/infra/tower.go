@@ -4,7 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	. "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/Day"
+	. "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,7 +17,7 @@ type Tower struct {
 	agentsPerFloor int
 	missingAgents  map[int][]int // key: floor, value: types of missing agents
 	logger         log.Entry
-	dayInfo        *DayInformation
+	dayInfo        *DayInfo
 }
 
 func (t *Tower) Log(message string, fields ...Fields) {
@@ -28,7 +28,7 @@ func (t *Tower) Log(message string, fields ...Fields) {
 }
 
 func NewTower(maxPlatFood float64, agentCount,
-	agentsPerFloor int, dayInfo *DayInformation) *Tower {
+	agentsPerFloor int, dayInfo *DayInfo) *Tower {
 	t := &Tower{
 		currPlatFood:   maxPlatFood,
 		maxPlatFood:    maxPlatFood,
@@ -50,10 +50,10 @@ func (t *Tower) Tick() {
 
 	//useful parameters
 	numOfFloors := t.agentCount / t.agentsPerFloor
-	platformMovePeriod := t.dayInfo.IterationsPerDay / numOfFloors // can add min/max
+	platformMovePeriod := t.dayInfo.TicksPerDay / numOfFloors // can add min/max
 
 	// Shuffle the agents
-	if t.dayInfo.CurrTick%t.dayInfo.IterationsPerReshuffle == 0 {
+	if t.dayInfo.CurrTick%t.dayInfo.TicksPerReshuffle == 0 {
 		t.reshuffle(numOfFloors)
 	}
 	// Move the platform
@@ -61,7 +61,7 @@ func (t *Tower) Tick() {
 		t.currPlatFloor++
 	}
 	// Decrease agent HP and reset tower at end of day
-	if t.dayInfo.CurrTick%t.dayInfo.IterationsPerDay == 0 {
+	if t.dayInfo.CurrTick%t.dayInfo.TicksPerDay == 0 {
 		t.hpDecay() // decreases HP and kills if < 0
 		t.ResetTower()
 	}
