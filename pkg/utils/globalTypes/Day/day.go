@@ -1,6 +1,6 @@
 package day_type
 
-type DayInformation struct {
+type DayInfo struct {
 	IterationsPerDay       int
 	SimulationDays         int
 	DaysPerReshuffle       int
