@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
-	. "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -63,7 +63,7 @@ func main() {
 	ticksPerDay := 24 * 60
 	simDays := 3
 	reshuffleDays := 1
-	dayInfo := NewDayInfo(ticksPerDay, simDays, reshuffleDays)
+	dayInfo := day.NewDayInfo(ticksPerDay, simDays, reshuffleDays)
 
 	// can have frontend parameters come go straight into simEnv
 	foodOnPlatform := 100.0

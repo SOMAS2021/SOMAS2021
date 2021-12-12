@@ -6,7 +6,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
-	. "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -19,7 +19,7 @@ type SimEnv struct {
 	AgentHP        int
 	AgentsPerFloor int
 	logger         log.Entry
-	dayInfo        *DayInfo
+	dayInfo        *day.DayInfo
 }
 
 func (s *SimEnv) Log(message string, fields ...Fields) {
@@ -29,7 +29,7 @@ func (s *SimEnv) Log(message string, fields ...Fields) {
 	s.logger.WithFields(fields[0]).Info(message)
 }
 
-func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int, dayInfo *DayInfo) *SimEnv {
+func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo) *SimEnv {
 	s := &SimEnv{
 		FoodOnPlatform: foodOnPlat,
 		AgentCount:     agentCount,
@@ -73,7 +73,6 @@ func (sE *SimEnv) simulationLoop(a *abm.ABM, t *infra.Tower) {
 				sE.createNewAgent(a, t, agentType, floor)
 			}
 		}
-		sE.dayInfo.CurrTick++
 		a.SimulationIterate(sE.dayInfo.CurrTick)
 		sE.dayInfo.CurrTick++
 	}

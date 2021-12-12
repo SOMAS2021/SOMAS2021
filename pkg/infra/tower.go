@@ -4,7 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	. "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,7 +17,7 @@ type Tower struct {
 	agentsPerFloor int
 	missingAgents  map[int][]int // key: floor, value: types of missing agents
 	logger         log.Entry
-	dayInfo        *DayInfo
+	dayInfo        *day.DayInfo
 }
 
 func (t *Tower) Log(message string, fields ...Fields) {
@@ -28,7 +28,7 @@ func (t *Tower) Log(message string, fields ...Fields) {
 }
 
 func NewTower(maxPlatFood float64, agentCount,
-	agentsPerFloor int, dayInfo *DayInfo) *Tower {
+	agentsPerFloor int, dayInfo *day.DayInfo) *Tower {
 	t := &Tower{
 		currPlatFood:   maxPlatFood,
 		maxPlatFood:    maxPlatFood,
