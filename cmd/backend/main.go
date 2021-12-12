@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
-	day "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/dayType"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	log "github.com/sirupsen/logrus"
 )
 
