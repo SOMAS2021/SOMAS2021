@@ -69,11 +69,6 @@ func main() {
 	agentHP := 100
 	agentsPerFloor := 1 //more than one not currently supported
 
-	dayInfo.SimulationDays = 10
-	dayInfo.IterationsPerDay = 24 * 60
-	dayInfo.DaysPerReshuffle = 3
-	dayInfo.IterationsPerReshuffle = dayInfo.IterationsPerDay * dayInfo.DaysPerReshuffle
-	dayInfo.TotalIterations = dayInfo.IterationsPerDay * dayInfo.SimulationDays
 
 	// agentParameters - struct
 
