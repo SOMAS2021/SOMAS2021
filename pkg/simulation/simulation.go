@@ -6,7 +6,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
+	day "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
