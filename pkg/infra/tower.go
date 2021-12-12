@@ -4,7 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
+	day "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/dayType"
 	log "github.com/sirupsen/logrus"
 )
 
