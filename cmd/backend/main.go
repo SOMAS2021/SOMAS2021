@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -59,17 +60,19 @@ func main() {
 	log.SetOutput(f)
 	log.SetFormatter(&log.JSONFormatter{})
 
+	ticksPerDay := 24 * 60
+	simDays := 3
+	reshuffleDays := 1
+	dayInfo := day.NewDayInfo(ticksPerDay, simDays, reshuffleDays)
+
 	// can have frontend parameters come go straight into simEnv
 	foodOnPlatform := 100.0
 	numOfAgents := []int{2, 2, 2}
 	agentHP := 100
-	days := 10
-	daysPerReshuffle := 3
+	agentsPerFloor := 1 //more than one not currently supported
 
-	iterationsPerDay := 24 * 60
-	iterations := days * iterationsPerDay
-	reshufflePeriod := daysPerReshuffle * iterationsPerDay
+	// TODO: agentParameters - struct
 
-	simEnv := simulation.NewSimEnv(foodOnPlatform, numOfAgents, agentHP, iterations, reshufflePeriod)
+	simEnv := simulation.NewSimEnv(foodOnPlatform, numOfAgents, agentHP, agentsPerFloor, dayInfo)
 	simEnv.Simulate()
 }
