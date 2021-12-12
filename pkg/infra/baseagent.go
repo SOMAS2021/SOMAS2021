@@ -62,6 +62,17 @@ func (a *Base) HP() int {
 	return a.hp
 }
 
+// only show the food on the platform if the platform is on the
+// same floor as the agent or directly below
+func (a *Base) CurrPlatFood() float64 {
+	foodOnPlatform := a.tower.currPlatFood
+	platformFloor := a.tower.currPlatFloor
+	if platformFloor == a.floor || platformFloor == a.floor+1 {
+		return foodOnPlatform
+	}
+	return -1.0
+}
+
 func (a *Base) Floor() int {
 	return a.floor
 }
