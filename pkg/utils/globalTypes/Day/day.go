@@ -9,13 +9,13 @@ type DayInfo struct {
 	CurrTick               int
 }
 
-func DayInformationNew() *DayInformation {
+func NewDayInfo(IterationsPerDay, SimulationDays, DaysPerReshuffle int) *DayInfo {
 	return &DayInformation{
-		IterationsPerDay:       0,
-		SimulationDays:         0,
-		DaysPerReshuffle:       0,
-		IterationsPerReshuffle: 0,
-		TotalIterations:        0,
+		IterationsPerDay:       IterationsPerDay,
+		SimulationDays:         SimulationDays,
+		DaysPerReshuffle:       DaysPerReshuffle,
+		IterationsPerReshuffle: IterationsPerDay * DaysPerReshuffle,
+		TotalIterations:        IterationsPerDay * SimulationDays,
 		CurrTick:               0,
 	}
 }
