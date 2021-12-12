@@ -1,4 +1,4 @@
-package day_type
+package day
 
 type DayInfo struct {
 	IterationsPerDay       int
