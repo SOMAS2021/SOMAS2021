@@ -66,7 +66,7 @@ func main() {
 	agentHP := 100
 	agentsPerFloor := 1 //more than one not currently supported
 	numberOfFloors := simulation.Sum(numOfAgents) / agentsPerFloor
-	ticksPerFloor := 1
+	ticksPerFloor := 10
 
 	ticksPerDay := numberOfFloors * ticksPerFloor
 	simDays := 3
