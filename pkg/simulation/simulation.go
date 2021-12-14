@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
@@ -49,7 +48,6 @@ type AgentNewFunc func(base *infra.Base) (agent.Agent, error)
 
 func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Initializing")
-	a := abm.New()
 
 	totalAgents := sum(sE.AgentCount)
 	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, 1, sE.dayInfo)
@@ -63,7 +61,7 @@ func (sE *SimEnv) Simulate() {
 		}
 	}
 	sE.Log("Simulation Started")
-	sE.simulationLoop(a, t)
+	sE.simulationLoop(t)
 	sE.Log("Simulation Ended")
 }
 
