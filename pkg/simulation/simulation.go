@@ -6,6 +6,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
@@ -42,7 +43,7 @@ func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int
 	return s
 }
 
-type AgentNewFunc func(base *infra.Base) (abm.Agent, error)
+type AgentNewFunc func(base *infra.Base) (agent.Agent, error)
 
 func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Initializing")
@@ -59,7 +60,6 @@ func (sE *SimEnv) Simulate() {
 			agentIndex++
 		}
 	}
-	a.LimitIterations(sE.dayInfo.TotalTicks)
 	sE.Log("Simulation Started")
 	sE.simulationLoop(a, t)
 	sE.Log("Simulation Ended")

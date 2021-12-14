@@ -3,34 +3,31 @@ package abm
 import (
 	"sort"
 	"sync"
+
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 )
 
 type ABM struct {
-	mx     sync.RWMutex
-	agents []Agent
-
-	currIteration int
-	limit         int
-
-	world      World
+	mx         sync.RWMutex
+	agents     []agent.Agent
+	world      world.World
 	reportFunc func(*ABM)
 }
 
 // New creates new ABM simulation engine with default
 // parameters.
 func New() *ABM {
-	return &ABM{
-		limit: 1000,
-	}
+	return &ABM{}
 }
 
-func (a *ABM) SetWorld(w World) {
+func (a *ABM) SetWorld(w world.World) {
 	if a.world == nil {
 		a.world = w
 	}
 }
 
-func (a *ABM) World() World {
+func (a *ABM) World() world.World {
 	return a.world
 }
 
@@ -38,7 +35,7 @@ func (a *ABM) SetReportFunc(fn func(*ABM)) {
 	a.reportFunc = fn
 }
 
-func (a *ABM) AddAgent(agent Agent) {
+func (a *ABM) AddAgent(agent agent.Agent) {
 	a.mx.Lock()
 	defer a.mx.Unlock()
 	a.agents = append(a.agents, agent)
@@ -50,7 +47,7 @@ func (a *ABM) RemoveAgent(index int) {
 	defer a.mx.Unlock()
 	if index == 0 {
 		if len(a.agents) == 1 {
-			a.agents = []Agent{}
+			a.agents = []agent.Agent{}
 		} else {
 			a.agents = a.agents[1:]
 		}
@@ -61,35 +58,8 @@ func (a *ABM) RemoveAgent(index int) {
 	}
 }
 
-func (a *ABM) AddAgents(spawnFunc func(*ABM) Agent, n int) {
-	for i := 0; i < n; i++ {
-		agent := spawnFunc(a)
-		a.AddAgent(agent)
-	}
-}
-
-func (a *ABM) LimitIterations(n int) {
-	a.mx.Lock()
-	defer a.mx.Unlock()
-	a.limit = n
-}
-
-func (a *ABM) Limit() int {
-	a.mx.RLock()
-	defer a.mx.RUnlock()
-	return a.limit
-}
-
-// Iteration returns current iteration (age, generation).
-func (a *ABM) Iteration() int {
-	a.mx.RLock()
-	defer a.mx.RUnlock()
-	return a.currIteration
-}
-
 func (a *ABM) SimulationIterate(i int) {
 	agentsToRemove := []int{}
-	a.currIteration = i
 	if a.World() != nil {
 		a.World().Tick()
 	}
@@ -125,20 +95,4 @@ func (a *ABM) AgentsCount() int {
 	a.mx.RLock()
 	defer a.mx.RUnlock()
 	return len(a.agents)
-}
-
-func (a *ABM) Agents() []Agent {
-	a.mx.RLock()
-	defer a.mx.RUnlock()
-	return a.agents
-}
-
-func (a *ABM) Count(condition func(agent Agent) bool) int {
-	var count int
-	for _, agent := range a.Agents() {
-		if condition(agent) {
-			count++
-		}
-	}
-	return count
 }
