@@ -29,7 +29,7 @@ func (t *Tower) Log(message string, fields ...Fields) {
 
 func NewTower(maxPlatFood float64, agentCount,
 	agentsPerFloor int, dayInfo *day.DayInfo) *Tower {
-	t := &Tower{
+	return &Tower{
 		currPlatFood:   maxPlatFood,
 		maxPlatFood:    maxPlatFood,
 		currPlatFloor:  1,
@@ -40,7 +40,6 @@ func NewTower(maxPlatFood float64, agentCount,
 		logger:         *log.WithFields(log.Fields{"reporter": "tower"}),
 		dayInfo:        dayInfo,
 	}
-	return t
 }
 
 func (t *Tower) Tick() {
@@ -123,4 +122,8 @@ func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message
 func (t *Tower) ResetTower() {
 	t.currPlatFood = t.maxPlatFood
 	t.currPlatFloor = 1
+}
+
+func (t *Tower) TotalAgents() int {
+	return len(t.agents)
 }

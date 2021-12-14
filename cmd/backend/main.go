@@ -60,7 +60,7 @@ func main() {
 	log.SetOutput(f)
 	log.SetFormatter(&log.JSONFormatter{})
 
-	ticksPerDay := 24 * 60
+	ticksPerDay := 10
 	simDays := 3
 	reshuffleDays := 1
 	dayInfo := day.NewDayInfo(ticksPerDay, simDays, reshuffleDays)
