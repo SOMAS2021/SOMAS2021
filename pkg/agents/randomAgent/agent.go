@@ -1,4 +1,4 @@
-package agentRandom
+package randomAgent
 
 import (
 	"math/rand"
