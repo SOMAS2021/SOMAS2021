@@ -1,6 +1,7 @@
 package day
 
 type DayInfo struct {
+	TicksPerFloor     int
 	TicksPerDay       int
 	SimulationDays    int
 	DaysPerReshuffle  int
@@ -9,8 +10,9 @@ type DayInfo struct {
 	CurrTick          int
 }
 
-func NewDayInfo(TicksPerDay, SimulationDays, DaysPerReshuffle int) *DayInfo {
+func NewDayInfo(TicksPerFloor, TicksPerDay, SimulationDays, DaysPerReshuffle int) *DayInfo {
 	return &DayInfo{
+		TicksPerFloor:     TicksPerFloor,
 		TicksPerDay:       TicksPerDay,
 		SimulationDays:    SimulationDays,
 		DaysPerReshuffle:  DaysPerReshuffle,

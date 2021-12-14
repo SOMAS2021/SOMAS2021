@@ -48,7 +48,7 @@ func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Initializing")
 	a := abm.New()
 
-	totalAgents := sum(sE.AgentCount)
+	totalAgents := Sum(sE.AgentCount)
 	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, 1, sE.dayInfo)
 	a.SetWorld(t)
 
@@ -78,7 +78,8 @@ func (sE *SimEnv) simulationLoop(a *abm.ABM, t *infra.Tower) {
 	}
 }
 
-func sum(inputList []int) int {
+// TODO: move this to a general functions file.
+func Sum(inputList []int) int {
 	totalAgents := 0
 	for _, value := range inputList {
 		totalAgents += value
