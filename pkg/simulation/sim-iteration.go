@@ -21,9 +21,8 @@ func (sE *SimEnv) World() world.World {
 func (sE *SimEnv) simulationLoop(t *infra.Tower) {
 	for sE.dayInfo.CurrTick <= sE.dayInfo.TotalTicks {
 		sE.replaceAgents(t)
-		// a.SimulationIterate(sE.dayInfo.CurrTick)
 		sE.TowerTick()
-		sE.AgentsRun(sE.dayInfo.CurrTick)
+		sE.AgentsRun()
 		if sE.reportFunc != nil {
 			sE.reportFunc(sE)
 		}
@@ -41,20 +40,18 @@ func (sE *SimEnv) TowerTick() {
 	}
 }
 
-func (sE *SimEnv) AgentsRun(i int) {
+func (sE *SimEnv) AgentsRun() {
 	var wg sync.WaitGroup
-	// first need to request tower agents.
-	for uuid, agentPointer := range sE.custAgents {
-		agentDeref := *agentPointer
+	for uuid, custAgent := range sE.custAgents {
 		wg.Add(1)
-		go func(wg *sync.WaitGroup, i int, agentDeref agent.Agent, uuid string) {
-			if agentDeref.IsAlive() {
-				agentDeref.Run()
+		go func(wg *sync.WaitGroup, custAgent agent.Agent, uuid string) {
+			if custAgent.IsAlive() {
+				custAgent.Run()
 			} else {
 				delete(sE.custAgents, uuid)
 			}
 			wg.Done()
-		}(&wg, i, agentDeref, uuid)
+		}(&wg, custAgent, uuid)
 	}
 	wg.Wait()
 }

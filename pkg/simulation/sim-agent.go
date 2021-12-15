@@ -25,7 +25,7 @@ func (sE *SimEnv) createNewAgent(tower *infra.Tower, i, floor int) {
 		log.Fatal(err)
 	}
 
-	sE.custAgents[uuid] = &custagent
+	sE.custAgents[uuid] = custagent
 	tower.AddAgent(bagent)
 }
 

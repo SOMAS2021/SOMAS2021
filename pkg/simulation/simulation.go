@@ -12,6 +12,8 @@ import (
 
 type Fields = log.Fields
 
+type AgentNewFunc func(base *infra.Base) (agent.Agent, error)
+
 type SimEnv struct {
 	mx             sync.RWMutex
 	FoodOnPlatform float64
@@ -22,14 +24,7 @@ type SimEnv struct {
 	dayInfo        *day.DayInfo
 	reportFunc     func(*SimEnv)
 	world          world.World
-	custAgents     map[string]*agent.Agent
-}
-
-func (s *SimEnv) Log(message string, fields ...Fields) {
-	if len(fields) == 0 {
-		fields = append(fields, Fields{})
-	}
-	s.logger.WithFields(fields[0]).Info(message)
+	custAgents     map[string]agent.Agent
 }
 
 func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo) *SimEnv {
@@ -40,17 +35,15 @@ func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int
 		dayInfo:        dayInfo,
 		AgentsPerFloor: agentsPerFloor,
 		logger:         *log.WithFields(log.Fields{"reporter": "simulation"}),
-		custAgents:     make(map[string]*agent.Agent),
+		custAgents:     make(map[string]agent.Agent),
 	}
 }
-
-type AgentNewFunc func(base *infra.Base) (agent.Agent, error)
 
 func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Initializing")
 
 	totalAgents := sum(sE.AgentCount)
-	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, 1, sE.dayInfo)
+	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, sE.AgentsPerFloor, sE.dayInfo)
 	sE.SetWorld(t)
 
 	agentIndex := 1
@@ -65,10 +58,18 @@ func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Ended")
 }
 
+// TODO: move to a general list of functions
 func sum(inputList []int) int {
 	totalAgents := 0
 	for _, value := range inputList {
 		totalAgents += value
 	}
 	return totalAgents
+}
+
+func (s *SimEnv) Log(message string, fields ...Fields) {
+	if len(fields) == 0 {
+		fields = append(fields, Fields{})
+	}
+	s.logger.WithFields(fields[0]).Info(message)
 }
