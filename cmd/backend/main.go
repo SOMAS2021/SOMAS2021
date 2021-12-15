@@ -61,13 +61,13 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 
 	ticksPerDay := 24 * 60
-	simDays := 3
-	reshuffleDays := 1
+	simDays := 10
+	reshuffleDays := 3
 	dayInfo := day.NewDayInfo(ticksPerDay, simDays, reshuffleDays)
 
 	// can have frontend parameters come go straight into simEnv
 	foodOnPlatform := 100.0
-	numOfAgents := []int{2, 2, 2}
+	numOfAgents := []int{2, 2, 2, 2}
 	agentHP := 100
 	agentsPerFloor := 1 //more than one not currently supported
 
