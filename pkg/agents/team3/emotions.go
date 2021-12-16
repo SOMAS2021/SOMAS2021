@@ -71,9 +71,16 @@ func changeNewDay(a *CustomAgent3) {
 	}
 }
 
+// Function is called when the floor changes, changes the mood when we change floors
 func changeNewFloor(a *CustomAgent3) {
 	var currentFloor = a.Floor()
-	//var oldFloor = a.knowledge.floors[len(a.knowledge.floors) - 1]
+	var oldFloor = a.knowledge.floors[len(a.knowledge.floors)-1]
+
+	if currentFloor < oldFloor {
+		changeInMood(5, 15, -1, a)
+	} else {
+		changeInMood(10, 20, 1, a)
+	}
 
 	a.knowledge.floors = append(a.knowledge.floors, currentFloor)
 }
