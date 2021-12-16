@@ -60,3 +60,13 @@ func changeInMorality(pointsMin, pointsMax, direction int, a *CustomAgent3) {
 		}
 	}
 }
+
+func changeNewDay(a *CustomAgent3) {
+	if int64(a.HP()) < 50 {
+		changeInMorality(10, 15, -1, a)
+		changeInMood(10, 15, -1, a)
+	} else {
+		changeInMorality(10, 15, 1, a)
+		changeInMood(10, 15, 1, a)
+	}
+}

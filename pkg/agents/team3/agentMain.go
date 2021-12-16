@@ -2,6 +2,7 @@ package team3
 
 import (
 	"math/rand"
+	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -25,9 +26,11 @@ type CustomAgent3 struct {
 }
 
 func New(baseAgent *infra.Base) (abm.Agent, error) {
+	rand.Seed(time.Now().UnixNano())
 	return &CustomAgent3{
 		Base: baseAgent,
 		vars: team3Variables{
+			//random seed
 			stubbornness: rand.Intn(75),
 			morale:       rand.Intn(100),
 			mood:         rand.Intn(100),
