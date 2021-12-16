@@ -54,7 +54,5 @@ func (sE *SimEnv) replaceAgents(t *infra.Tower) {
 }
 
 func (sE *SimEnv) AgentsCount(t *infra.Tower) int {
-	sE.mx.RLock()
-	defer sE.mx.RUnlock()
 	return t.TotalAgents()
 }

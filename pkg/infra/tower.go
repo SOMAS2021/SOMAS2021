@@ -2,6 +2,7 @@ package infra
 
 import (
 	"math/rand"
+	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
@@ -18,6 +19,7 @@ type Tower struct {
 	missingAgents  map[int][]int // key: floor, value: types of missing agents
 	logger         log.Entry
 	dayInfo        *day.DayInfo
+	mx             sync.RWMutex
 }
 
 func (t *Tower) Log(message string, fields ...Fields) {
@@ -124,5 +126,7 @@ func (t *Tower) ResetTower() {
 }
 
 func (t *Tower) TotalAgents() int {
+	t.mx.RLock()
+	defer t.mx.RUnlock()
 	return len(t.agents)
 }
