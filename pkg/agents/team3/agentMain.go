@@ -13,9 +13,9 @@ import (
 type team3Variables struct {
 	//Stubbornnes defines the likelyhood of reading a message
 	stubbornness int
-	//The willigness to help others/ how much you care
-	morale int
-	//A more volatile parameter that affects the decision making
+	//Morality defines the willigness to help others/ how much you care
+	morality int
+	//Mood affects the decision making and how you take things
 	mood int
 }
 
@@ -38,7 +38,7 @@ func New(baseAgent *infra.Base) (abm.Agent, error) {
 		vars: team3Variables{
 			//random seed
 			stubbornness: rand.Intn(75),
-			morale:       rand.Intn(100),
+			morality:     rand.Intn(100),
 			mood:         rand.Intn(100),
 		},
 	}, nil
@@ -46,13 +46,14 @@ func New(baseAgent *infra.Base) (abm.Agent, error) {
 
 func (a *CustomAgent3) Run() {
 
-	//receive Message
-
-	//emotion changes
-
 	if a.knowledge.floors[0] != a.Floor() || len(a.knowledge.floors) == 0 {
 		changeNewFloor(a)
 	}
+
+	//IF HP changes (but we have to remember previous HP)
+	// changeNewDay(a)
+
+	//receive Message
 
 	//eat
 

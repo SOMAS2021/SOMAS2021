@@ -44,23 +44,24 @@ func changeInMorality(pointsMin, pointsMax, direction int, a *CustomAgent3) {
 	rand.Seed(time.Now().UnixNano()) //creates seed to rand
 	var temp = (rand.Intn(pointsMax-pointsMin) + pointsMin)
 	if direction < 0 {
-		temp = a.vars.morale - temp
+		temp = a.vars.morality - temp
 		if temp < 0 {
-			a.vars.morale = 0
+			a.vars.morality = 0
 		} else {
-			a.vars.morale = temp
+			a.vars.morality = temp
 		}
 	}
 	if direction > 0 {
-		temp = a.vars.morale + temp
+		temp = a.vars.morality + temp
 		if temp > 100 {
-			a.vars.morale = 100
+			a.vars.morality = 100
 		} else {
-			a.vars.morale = temp
+			a.vars.morality = temp
 		}
 	}
 }
 
+// Function is called when the day starts, changes the mood and morale when we change floors
 func changeNewDay(a *CustomAgent3) {
 	if int64(a.HP()) < 50 {
 		changeInMorality(10, 15, -1, a)
