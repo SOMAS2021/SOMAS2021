@@ -2,7 +2,11 @@ package simulation
 
 import (
 	"sync"
-
+  
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/randomAgent"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
@@ -60,6 +64,7 @@ func (sE *SimEnv) Simulate() {
 
 // TODO: move to a general list of functions
 func sum(inputList []int) int {
+
 	totalAgents := 0
 	for _, value := range inputList {
 		totalAgents += value

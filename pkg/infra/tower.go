@@ -49,14 +49,13 @@ func (t *Tower) Tick() {
 
 	//useful parameters
 	numOfFloors := t.agentCount / t.agentsPerFloor
-	platformMovePeriod := t.dayInfo.TicksPerDay / numOfFloors // can add min/max
 
 	// Shuffle the agents
 	if t.dayInfo.CurrTick%t.dayInfo.TicksPerReshuffle == 0 {
 		t.reshuffle(numOfFloors)
 	}
 	// Move the platform
-	if t.dayInfo.CurrTick%platformMovePeriod == 0 {
+	if t.dayInfo.CurrTick%t.dayInfo.TicksPerFloor == 0 {
 		t.currPlatFloor++
 	}
 	// Decrease agent HP and reset tower at end of day
