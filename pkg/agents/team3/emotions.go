@@ -17,6 +17,13 @@ func read() bool {
 	return false
 }
 
+// Function gets as input the mini and max change we want in
 func changeInMood(pointsMin, pointsMax, direction int) {
-
+	rand.Seed(time.Now().UnixNano()) //creates seed to rand
+	if direction < 0 {
+		a.vars.mood = (rand.Intn(pointsMax-pointsMin) + pointsMin) * -1
+	}
+	if direction > 0 {
+		mood = (rand.Intn(pointsMax-pointsMin) + pointsMin) * 1
+	}
 }
