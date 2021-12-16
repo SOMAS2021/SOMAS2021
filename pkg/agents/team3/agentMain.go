@@ -56,6 +56,7 @@ func (a *CustomAgent3) Run() {
 	//receive Message
 
 	//eat
+	a.TakeFood(float64(takeFoodCalculation(a)))
 
 	//send Message
 
