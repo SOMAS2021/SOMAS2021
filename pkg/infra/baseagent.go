@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,8 +25,7 @@ type Base struct {
 	hasEaten  bool
 }
 
-func NewBaseAgent(a *abm.ABM, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {
-	world := a.World()
+func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {
 	if world == nil {
 		return nil, errors.New("agent needs a world defined to operate")
 	}

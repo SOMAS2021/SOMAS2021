@@ -4,7 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 )
 
 type CustomAgentRandom struct {
@@ -12,7 +12,7 @@ type CustomAgentRandom struct {
 	// new params
 }
 
-func New(baseAgent *infra.Base) (abm.Agent, error) {
+func New(baseAgent *infra.Base) (agent.Agent, error) {
 	//create other parameters
 	return &CustomAgentRandom{
 		Base: baseAgent,

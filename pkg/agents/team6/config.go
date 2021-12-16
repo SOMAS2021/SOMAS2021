@@ -7,7 +7,7 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 )
 
 type behaviour float64
@@ -55,7 +55,7 @@ func chooseInitialBehaviour() behaviour {
 	return behaviour(rand.Float64()) * maxBehaviourThreshold
 }
 
-func New(baseAgent *infra.Base) (abm.Agent, error) {
+func New(baseAgent *infra.Base) (agent.Agent, error) {
 	initialBehaviour := chooseInitialBehaviour()
 	return &CustomAgent6{
 		Base: baseAgent,
