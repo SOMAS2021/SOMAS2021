@@ -39,7 +39,6 @@ func (sE *SimEnv) createNewAgent(tower *infra.Tower, i, floor int) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// TODO: mutex here?
 	sE.custAgents[uuid] = custagent
 	tower.AddAgent(bagent)
 }
