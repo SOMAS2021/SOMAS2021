@@ -70,3 +70,10 @@ func changeNewDay(a *CustomAgent3) {
 		changeInMood(10, 15, 1, a)
 	}
 }
+
+func changeNewFloor(a *CustomAgent3) {
+	var currentFloor = a.Floor()
+	//var oldFloor = a.knowledge.floors[len(a.knowledge.floors) - 1]
+
+	a.knowledge.floors = append(a.knowledge.floors, currentFloor)
+}
