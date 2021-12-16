@@ -21,7 +21,7 @@ type team3Variables struct {
 
 type team3Knowledge struct {
 	//We know the floors we have been in
-	intSlice []int
+	floors []int
 }
 
 type CustomAgent3 struct {
@@ -49,6 +49,10 @@ func (a *CustomAgent3) Run() {
 	//receive Message
 
 	//emotion changes
+
+	if a.knowledge.floors[0] != a.Floor() || len(a.knowledge.floors) == 0 {
+		changeNewFloor(a)
+	}
 
 	//eat
 
