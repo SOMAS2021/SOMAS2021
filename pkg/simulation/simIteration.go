@@ -23,15 +23,8 @@ func (sE *SimEnv) simulationLoop(t *infra.Tower) {
 		sE.replaceAgents(t)
 		sE.TowerTick()
 		sE.AgentsRun()
-		if sE.reportFunc != nil {
-			sE.reportFunc(sE)
-		}
 		sE.dayInfo.CurrTick++
 	}
-}
-
-func (sE *SimEnv) SetReportFunc(fn func(*SimEnv)) {
-	sE.reportFunc = fn
 }
 
 func (sE *SimEnv) TowerTick() {
@@ -48,7 +41,9 @@ func (sE *SimEnv) AgentsRun() {
 			if custAgent.IsAlive() {
 				custAgent.Run()
 			} else {
+				sE.mx.Lock()
 				delete(sE.custAgents, uuid)
+				sE.mx.Unlock()
 			}
 			wg.Done()
 		}(&wg, custAgent, uuid)

@@ -2,11 +2,7 @@ package simulation
 
 import (
 	"sync"
-  
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/randomAgent"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
@@ -16,8 +12,6 @@ import (
 
 type Fields = log.Fields
 
-type AgentNewFunc func(base *infra.Base) (agent.Agent, error)
-
 type SimEnv struct {
 	mx             sync.RWMutex
 	FoodOnPlatform float64
@@ -26,7 +20,6 @@ type SimEnv struct {
 	AgentsPerFloor int
 	logger         log.Entry
 	dayInfo        *day.DayInfo
-	reportFunc     func(*SimEnv)
 	world          world.World
 	custAgents     map[string]agent.Agent
 }
@@ -46,25 +39,19 @@ func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int
 func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Initializing")
 
-	totalAgents := sum(sE.AgentCount)
+	totalAgents := Sum(sE.AgentCount)
 	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, sE.AgentsPerFloor, sE.dayInfo)
 	sE.SetWorld(t)
 
-	agentIndex := 1
-	for i := 0; i < len(sE.AgentCount); i++ {
-		for j := 0; j < sE.AgentCount[i]; j++ {
-			sE.createNewAgent(t, i, agentIndex)
-			agentIndex++
-		}
-	}
+	sE.generateInitialAgents(t)
+
 	sE.Log("Simulation Started")
 	sE.simulationLoop(t)
 	sE.Log("Simulation Ended")
 }
 
 // TODO: move to a general list of functions
-func sum(inputList []int) int {
-
+func Sum(inputList []int) int {
 	totalAgents := 0
 	for _, value := range inputList {
 		totalAgents += value
