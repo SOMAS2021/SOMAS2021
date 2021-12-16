@@ -2,13 +2,10 @@ package team3
 
 import (
 	"math/rand"
-<<<<<<< Updated upstream
 	"time"
 
-=======
-	"fmt"
->>>>>>> Stashed changes
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+
 	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
@@ -24,12 +21,12 @@ type team3Variables struct {
 
 type team3Knowledge struct {
 	//We know the floors we have been in
-	floors []int{}
+	intSlice []int
 }
 
 type CustomAgent3 struct {
 	*infra.Base
-	vars team3Variables
+	vars      team3Variables
 	knowledge team3Knowledge
 	//and an array of tuples for friendships
 }
@@ -49,9 +46,9 @@ func New(baseAgent *infra.Base) (abm.Agent, error) {
 
 func (a *CustomAgent3) Run() {
 
-	//receive Message 
+	//receive Message
 
-	//emotion changes 
+	//emotion changes
 
 	//eat
 
