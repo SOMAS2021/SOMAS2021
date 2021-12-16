@@ -4,6 +4,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/randomAgent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
+	team5 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team5/agent1"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
@@ -91,7 +92,7 @@ func Sum(inputList []int) int {
 func (sE *SimEnv) createNewAgent(a *abm.ABM, tower *infra.Tower, i, floor int) {
 	// TODO: clean this looping, make a nice abs map
 	sE.Log("Creating new agent")
-	abs := []AgentNewFunc{agent1.New, agent2.New, team6.New, randomAgent.New}
+	abs := []AgentNewFunc{agent1.New, agent2.New, team6.New, randomAgent.New, team5.New}
 
 	uuid := uuid.New().String()
 	bagent, err := infra.NewBaseAgent(a, i, sE.AgentHP, floor, uuid)
