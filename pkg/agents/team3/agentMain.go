@@ -5,9 +5,8 @@ import (
 	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
 )
 
 type team3Variables struct {
@@ -33,7 +32,7 @@ type CustomAgent3 struct {
 	//and an array of tuples for friendships
 }
 
-func New(baseAgent *infra.Base) (abm.Agent, error) {
+func New(baseAgent *infra.Base) (agent.Agent, error) {
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
 	return &CustomAgent3{
