@@ -29,8 +29,8 @@ func (t *Tower) Log(message string, fields ...Fields) {
 	t.logger.WithFields(fields[0]).Info(message)
 }
 
-func (t *Tower) TowerStateLog(timeOfDay string) {
-	t.Log("Reporting platform status"+timeOfDay, Fields{"food_left": t.currPlatFood, "floor": t.currPlatFloor})
+func (t *Tower) TowerStateLog(timeOfTick string) {
+	t.Log("Reporting platform status"+timeOfTick, Fields{"food_left": t.currPlatFood, "floor": t.currPlatFloor})
 }
 
 func NewTower(maxPlatFood float64, agentCount,
@@ -50,9 +50,7 @@ func NewTower(maxPlatFood float64, agentCount,
 
 func (t *Tower) Tick() {
 	//logs
-	t.mx.RLock()
-	t.TowerStateLog(" end of day")
-	t.mx.RUnlock()
+	t.TowerStateLog(" end of tick")
 	//useful parameters
 	numOfFloors := t.agentCount / t.agentsPerFloor
 
@@ -68,6 +66,7 @@ func (t *Tower) Tick() {
 	if t.dayInfo.CurrTick%t.dayInfo.TicksPerDay == 0 {
 		t.hpDecay() // decreases HP and kills if < 0
 		t.ResetTower()
+		t.Log("-----------------E-N-D----O-F----D-A-Y-----------------", Fields{})
 	}
 }
 
@@ -127,7 +126,7 @@ func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message
 func (t *Tower) ResetTower() {
 	t.currPlatFood = t.maxPlatFood
 	t.currPlatFloor = 1
-	t.Log("Tower Reset", Fields{"currFood": t.currPlatFood, "maxFood": t.maxPlatFood, "currFloor": t.currPlatFloor})
+	t.Log("Tower Reset", Fields{})
 }
 
 func (t *Tower) TotalAgents() int {
