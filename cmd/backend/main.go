@@ -65,6 +65,7 @@ func main() {
 	foodOnPlatform := 100.0
 	numOfAgents := []int{2, 0, 0, 0, 0} //agent1, agent2, team3, team6, randomAgent
 	agentHP := 25
+	//numberCriticalDays := 0
 	agentsPerFloor := 1 //more than one not currently supported
 	numberOfFloors := simulation.Sum(numOfAgents) / agentsPerFloor
 	ticksPerFloor := 1
@@ -78,16 +79,13 @@ func main() {
 	strongLevel := 55
 	healthyLevel := 25
 	weakLevel := 5 // larger than maxCriticalDay
-	criticalLevel := 0
-	foodReqStrong := int(0.63 * (100 - float64(strongLevel))) // first order system time constant, TODO: define it like this directly in the struct
-	foodReqHealthy := int(0.63 * float64(strongLevel-healthyLevel))
-	foodReqWeak := int(0.63 * float64(healthyLevel-weakLevel))
 	maxDayCritical := 3
-	foodReqHToS := int(0.95 * (100 - float64(strongLevel))) // 3 time constant, TODO: change directly in struct
-	foodReqWToH := int(0.95 * float64(strongLevel-healthyLevel))
-	foodReqCToW := int(0.95 * float64(healthyLevel-weakLevel))
+	foodReqStrong := 20.0
+	foodReqHealthy := 15.0
+	foodReqWeak := 10.0
+	foodReqCToW := 2.0
 
-	healthInfo := health.NewHealthInfo(strongLevel, healthyLevel, weakLevel, criticalLevel, foodReqStrong, foodReqHealthy, foodReqWeak, maxDayCritical, foodReqHToS, foodReqWToH, foodReqCToW)
+	healthInfo := health.NewHealthInfo(strongLevel, healthyLevel, weakLevel, foodReqStrong, foodReqHealthy, foodReqWeak, foodReqCToW, maxDayCritical)
 
 	// TODO: agentParameters - struct
 

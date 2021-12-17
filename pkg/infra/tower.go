@@ -101,38 +101,46 @@ func (t *Tower) reshuffle(numOfFloors int) {
 }
 
 func (t *Tower) hpDecay() {
-	// TODO: can add a parameter
 	for _, agent := range t.agents {
 		var newHP int
 		switch {
+		// Strong Level
 		case agent.hp >= t.healthInfo.StrongLevel:
-			if agent.hp >= t.healthInfo.StrongLevel+t.healthInfo.FoodReqStrong {
+			if agent.hp >= t.healthInfo.StrongLevel+int(0.63*t.healthInfo.WidthStrong) {
 				newHP = t.healthInfo.StrongLevel
 			} else {
 				newHP = t.healthInfo.HealthyLevel
 			}
+
+		// Healthy Level
 		case agent.hp >= t.healthInfo.HealthyLevel:
 			switch {
-			case agent.hp >= t.healthInfo.HealthyLevel+t.healthInfo.FoodReqHToS:
+			case agent.hp >= t.healthInfo.HealthyLevel+int(0.95*t.healthInfo.WidthHealthy):
 				newHP = t.healthInfo.StrongLevel
-			case agent.hp >= t.healthInfo.HealthyLevel+t.healthInfo.FoodReqHealthy:
+			case agent.hp >= t.healthInfo.HealthyLevel+int(0.63*t.healthInfo.WidthHealthy):
 				newHP = t.healthInfo.HealthyLevel
 			default:
 				newHP = t.healthInfo.WeakLevel
 			}
+
+		// Weak Level
 		case agent.hp >= t.healthInfo.WeakLevel:
-			if agent.hp >= t.healthInfo.WeakLevel+t.healthInfo.FoodReqWToH {
+			switch {
+			case agent.hp >= t.healthInfo.WeakLevel+int(0.95*t.healthInfo.WidthWeak):
 				newHP = t.healthInfo.HealthyLevel
-			} else if agent.hp >= t.healthInfo.WeakLevel+t.healthInfo.FoodReqWeak {
+			case agent.hp >= t.healthInfo.WeakLevel+int(0.63*t.healthInfo.WidthWeak):
 				newHP = t.healthInfo.WeakLevel
-			} else {
-				newHP = t.healthInfo.CriticalLevel + t.healthInfo.MaxDayCritical
+			default:
+				newHP = 1
 			}
-		case agent.hp >= t.healthInfo.CriticalLevel: // change to default?
-			if agent.hp >= agent.hp+t.healthInfo.FoodReqWeak {
+
+		// Critical
+		default:
+			if agent.hp >= t.healthInfo.WeakLevel-1 {
 				newHP = t.healthInfo.WeakLevel
 			} else {
-				newHP = agent.hp - 1
+				newHP = 1
+
 			}
 
 		}
