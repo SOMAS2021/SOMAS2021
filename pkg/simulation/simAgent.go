@@ -49,7 +49,6 @@ func (sE *SimEnv) replaceAgents(t *infra.Tower) {
 			sE.createNewAgent(t, agentType, floor)
 		}
 	}
-
 }
 
 func (sE *SimEnv) AgentsCount(t *infra.Tower) int {
