@@ -65,7 +65,7 @@ func (t *Tower) Tick() {
 	if t.dayInfo.CurrTick%t.dayInfo.TicksPerDay == 0 {
 		t.hpDecay() // decreases HP and kills if < 0
 		t.ResetTower()
-		t.Log("-----------------E-N-D----O-F----D-A-Y-----------------", Fields{})
+		t.Log("-----------------END----OF----DAY-----------------", Fields{})
 	}
 }
 
