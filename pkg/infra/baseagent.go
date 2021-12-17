@@ -93,8 +93,17 @@ func (a *Base) setHP(newHP int) {
 	a.hp = newHP
 }
 
-func (a *Base) updateHP(foodTaken float64) {
-	a.hp = int(math.Min(100, float64(a.hp)+foodTaken))
+func (a *Base) updateHP(foodTaken float64) { //linear with threshold for now
+	switch {
+	case a.hp >= a.tower.healthInfo.StrongLevel:
+		a.hp = int(math.Min(100, float64(a.hp)+foodTaken))
+	case a.hp >= a.tower.healthInfo.HealthyLevel:
+		a.hp = int(math.Min(float64(a.tower.healthInfo.StrongLevel), float64(a.hp)+foodTaken))
+	case a.hp >= a.tower.healthInfo.WeakLevel:
+		a.hp = int(math.Min(float64(a.tower.healthInfo.HealthyLevel), float64(a.hp)+foodTaken))
+	case a.hp >= a.tower.healthInfo.CriticalLevel: // change to default?
+		a.hp = int(math.Min(float64(a.tower.healthInfo.WeakLevel), float64(a.hp)+foodTaken))
+	}
 }
 
 func (a *Base) HasEaten() bool {
