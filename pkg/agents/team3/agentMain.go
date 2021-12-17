@@ -33,7 +33,7 @@ type CustomAgent3 struct {
 }
 
 func New(baseAgent *infra.Base) (agent.Agent, error) {
-        // TODO: Remove this line. See Issue #60.
+	// TODO: Remove this line. See Issue #60.
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
 	return &CustomAgent3{
@@ -51,16 +51,16 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 }
 
 func (a *CustomAgent3) Run() {
+	//Update agent variables at the beggining of day (when HP has been reduced)
 	if a.HP() < a.knowledge.lastHP {
 		changeNewDay(a)
 	}
 
+	//Update agent variables at the beggining of reshuffle. (when floor has changed)
 	if len(a.knowledge.floors) == 0 || a.knowledge.floors[len(a.knowledge.floors)-1] != a.Floor() {
 		changeNewFloor(a)
 	}
 	a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "Mood": a.vars.mood, "Morality": a.vars.morality})
-	//IF HP changes (but we have to remember previous HP)
-	// changeNewDay(a)
 
 	//receive Message
 

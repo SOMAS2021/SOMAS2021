@@ -16,14 +16,14 @@ import (
 //}
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
-func changeInMood(pointsMin, pointsMax, direction int, a *CustomAgent3) {
-        // TODO: Remove this line. See Issue #60.
+func changeInMood(a *CustomAgent3, pointsMin, pointsMax, direction int) {
+	// TODO: Remove this line. See Issue #60.
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
 	points := r1.Intn(pointsMax-pointsMin) + pointsMin
 	if direction <= 0 {
 		a.vars.mood = a.vars.mood - points
-		if temp < 0 {
+		if a.vars.mood < 0 {
 			a.vars.mood = 0
 		}
 	}
@@ -36,8 +36,8 @@ func changeInMood(pointsMin, pointsMax, direction int, a *CustomAgent3) {
 }
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
-func changeInMorality(pointsMin, pointsMax, direction int, a *CustomAgent3) {
-        // TODO: Remove this line. See Issue #60.
+func changeInMorality(a *CustomAgent3, pointsMin, pointsMax, direction int) {
+	// TODO: Remove this line. See Issue #60.
 	s1 := rand.NewSource(time.Now().UnixNano()) //creates seed to rand
 	r1 := rand.New(s1)
 	points := r1.Intn(pointsMax-pointsMin) + pointsMin
@@ -58,12 +58,12 @@ func changeInMorality(pointsMin, pointsMax, direction int, a *CustomAgent3) {
 // Updates mood and morality when the floor is changed. Called at the start of each day.
 func changeNewDay(a *CustomAgent3) {
 	a.knowledge.lastHP = a.HP()
-	if int64(a.HP()) < 50 {
-		changeInMorality(10, 15, -1, a)
-		changeInMood(10, 15, -1, a)
+	if a.HP() < 50 {
+		changeInMorality(a, 10, 15, -1)
+		changeInMood(a, 10, 15, -1)
 	} else {
-		changeInMorality(10, 15, 1, a)
-		changeInMood(10, 15, 1, a)
+		changeInMorality(a, 10, 15, 1)
+		changeInMood(a, 10, 15, 1)
 	}
 }
 
@@ -74,9 +74,9 @@ func changeNewFloor(a *CustomAgent3) {
 		oldFloor := a.knowledge.floors[len(a.knowledge.floors)-1]
 
 		if currentFloor < oldFloor {
-			changeInMood(5, 15, -1, a)
+			changeInMood(a, 5, 15, -1)
 		} else {
-			changeInMood(10, 20, 1, a)
+			changeInMood(a, 10, 20, 1)
 		}
 
 	}
