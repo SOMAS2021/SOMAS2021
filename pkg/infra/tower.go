@@ -103,9 +103,37 @@ func (t *Tower) reshuffle(numOfFloors int) {
 func (t *Tower) hpDecay() {
 	// TODO: can add a parameter
 	for _, agent := range t.agents {
-		newHP := agent.hp - 20
+		var newHP int
+		switch {
+		case agent.hp >= t.healthInfo.StrongLevel:
+			if agent.hp >= t.healthInfo.StrongLevel+t.healthInfo.FoodReqStrong {
+				newHP = t.healthInfo.StrongLevel
+			} else {
+				newHP = t.healthInfo.HealthyLevel
+			}
+		case agent.hp >= t.healthInfo.HealthyLevel:
+			if agent.hp >= t.healthInfo.HealthyLevel+t.healthInfo.FoodReqHealthy {
+				newHP = t.healthInfo.HealthyLevel
+			} else {
+				newHP = t.healthInfo.WeakLevel
+			}
+		case agent.hp >= t.healthInfo.WeakLevel:
+			if agent.hp >= t.healthInfo.WeakLevel+t.healthInfo.FoodReqWeak {
+				newHP = t.healthInfo.WeakLevel
+			} else {
+				newHP = t.healthInfo.CriticalLevel + t.healthInfo.MaxDayCritical
+			}
+		case agent.hp >= t.healthInfo.CriticalLevel: // change to default?
+			if agent.hp >= agent.hp+t.healthInfo.FoodReqWeak {
+				newHP = t.healthInfo.WeakLevel
+			} else {
+				newHP = agent.hp - 1
+			}
+
+		}
+
 		agent.setHasEaten(false)
-		if newHP < 0 {
+		if newHP <= 0 {
 			t.Log("Killing agent", Fields{"agent": agent.id})
 			t.missingAgents[agent.floor] = append(t.missingAgents[agent.floor], agent.agentType)
 			delete(t.agents, agent.id) // maybe lock mutex?

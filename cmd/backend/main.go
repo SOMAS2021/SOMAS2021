@@ -67,17 +67,18 @@ func main() {
 	agentHP := 100
 	agentsPerFloor := 1 //more than one not currently supported
 	numberOfFloors := simulation.Sum(numOfAgents) / agentsPerFloor
-	ticksPerFloor := 10
+	ticksPerFloor := 1
 
 	ticksPerDay := numberOfFloors * ticksPerFloor
-	simDays := 3
+	simDays := 9
 	reshuffleDays := 1
 	dayInfo := day.NewDayInfo(ticksPerFloor, ticksPerDay, simDays, reshuffleDays)
 
 	// define heath parameters
 	strongLevel := 55
 	healthyLevel := 25
-	weakLevel := 5
+	weakLevel := 5 // larger than maxCriticalDay
+	criticalLevel := 0
 	foodReqStrong := 20
 	foodReqHealthy := 15
 	foodReqWeak := 10
@@ -86,7 +87,7 @@ func main() {
 	foodReqWToH := 10
 	foodReqCToW := 5
 
-	healthInfo := health.NewHealthInfo(strongLevel, healthyLevel, weakLevel, foodReqStrong, foodReqHealthy, foodReqWeak, maxDayCritical, foodReqHToS, foodReqWToH, foodReqCToW)
+	healthInfo := health.NewHealthInfo(strongLevel, healthyLevel, weakLevel, criticalLevel, foodReqStrong, foodReqHealthy, foodReqWeak, maxDayCritical, foodReqHToS, foodReqWToH, foodReqCToW)
 
 	// TODO: agentParameters - struct
 
