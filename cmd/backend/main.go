@@ -9,6 +9,7 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -73,8 +74,22 @@ func main() {
 	reshuffleDays := 1
 	dayInfo := day.NewDayInfo(ticksPerFloor, ticksPerDay, simDays, reshuffleDays)
 
+	// define heath parameters
+	strongLevel := 55
+	healthyLevel := 25
+	weakLevel := 5
+	foodReqStrong := 20
+	foodReqHealthy := 15
+	foodReqWeak := 10
+	maxDayCritical := 3
+	foodReqHToS := 15
+	foodReqWToH := 10
+	foodReqCToW := 5
+
+	healthInfo := health.NewHealthInfo(strongLevel, healthyLevel, weakLevel, foodReqStrong, foodReqHealthy, foodReqWeak, maxDayCritical, foodReqHToS, foodReqWToH, foodReqCToW)
+
 	// TODO: agentParameters - struct
 
-	simEnv := simulation.NewSimEnv(foodOnPlatform, numOfAgents, agentHP, agentsPerFloor, dayInfo)
+	simEnv := simulation.NewSimEnv(foodOnPlatform, numOfAgents, agentHP, agentsPerFloor, dayInfo, healthInfo)
 	simEnv.Simulate()
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -19,6 +20,7 @@ type Tower struct {
 	missingAgents  map[int][]int // key: floor, value: types of missing agents
 	logger         log.Entry
 	dayInfo        *day.DayInfo
+	healthInfo     *health.HealthInfo
 	mx             sync.RWMutex
 }
 
@@ -34,7 +36,7 @@ func (t *Tower) TowerStateLog(timeOfTick string) {
 }
 
 func NewTower(maxPlatFood float64, agentCount,
-	agentsPerFloor int, dayInfo *day.DayInfo) *Tower {
+	agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *Tower {
 	return &Tower{
 		currPlatFood:   maxPlatFood,
 		maxPlatFood:    maxPlatFood,
@@ -45,6 +47,7 @@ func NewTower(maxPlatFood float64, agentCount,
 		missingAgents:  make(map[int][]int),
 		logger:         *log.WithFields(log.Fields{"reporter": "tower"}),
 		dayInfo:        dayInfo,
+		healthInfo:     healthInfo,
 	}
 }
 
