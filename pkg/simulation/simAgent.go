@@ -22,14 +22,13 @@ func (sE *SimEnv) generateInitialAgents(t *infra.Tower) {
 			agentIndex++
 		}
 	}
-
+	sE.Log("", Fields{"Number of new agents created: ": agentIndex - 1})
 }
 
 func (sE *SimEnv) createNewAgent(tower *infra.Tower, i, floor int) {
 	// TODO: clean this looping, make a nice abs map
 	sE.Log("Creating new agent")
 	abs := []AgentNewFunc{agent1.New, agent2.New, team3.New, team6.New, randomAgent.New}
-
 	uuid := uuid.New().String()
 	bagent, err := infra.NewBaseAgent(sE.world, i, sE.AgentHP, floor, uuid)
 	if err != nil {
