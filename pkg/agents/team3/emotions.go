@@ -19,10 +19,11 @@ func read(a *CustomAgent3) bool {
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
 func changeInMood(pointsMin, pointsMax, direction int, a *CustomAgent3) {
-	rand.Seed(time.Now().UnixNano()) //creates seed to rand
-	var temp = (rand.Intn(pointsMax-pointsMin) + pointsMin)
-	if direction < 0 {
-		temp = a.vars.mood - temp
+	s1 := rand.NewSource(time.Now().UnixNano()) //creates seed to rand
+	r1 := rand.New(s1)
+	points := (r1.Intn(pointsMax-pointsMin) + pointsMin)
+	if direction <= 0 {
+		temp := a.vars.mood - points
 		if temp < 0 {
 			a.vars.mood = 0
 		} else {
@@ -30,7 +31,7 @@ func changeInMood(pointsMin, pointsMax, direction int, a *CustomAgent3) {
 		}
 	}
 	if direction > 0 {
-		temp = a.vars.mood + temp
+		temp := a.vars.mood + points
 		if temp > 100 {
 			a.vars.mood = 100
 		} else {
@@ -41,10 +42,11 @@ func changeInMood(pointsMin, pointsMax, direction int, a *CustomAgent3) {
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
 func changeInMorality(pointsMin, pointsMax, direction int, a *CustomAgent3) {
-	rand.Seed(time.Now().UnixNano()) //creates seed to rand
-	var temp = (rand.Intn(pointsMax-pointsMin) + pointsMin)
+	s1 := rand.NewSource(time.Now().UnixNano()) //creates seed to rand
+	r1 := rand.New(s1)
+	points := (r1.Intn(pointsMax-pointsMin) + pointsMin)
 	if direction < 0 {
-		temp = a.vars.morality - temp
+		temp := a.vars.morality - points
 		if temp < 0 {
 			a.vars.morality = 0
 		} else {
@@ -52,7 +54,7 @@ func changeInMorality(pointsMin, pointsMax, direction int, a *CustomAgent3) {
 		}
 	}
 	if direction > 0 {
-		temp = a.vars.morality + temp
+		temp := a.vars.morality + points
 		if temp > 100 {
 			a.vars.morality = 100
 		} else {

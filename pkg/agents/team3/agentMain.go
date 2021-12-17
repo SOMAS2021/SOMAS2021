@@ -22,6 +22,7 @@ type team3Variables struct {
 type team3Knowledge struct {
 	//We know the floors we have been in
 	floors []int
+	//We know the last HP
 	lastHP int
 }
 
@@ -53,14 +54,14 @@ func New(baseAgent *infra.Base) (abm.Agent, error) {
 func (a *CustomAgent3) Run() {
 
 	tempHP := a.HP()
-	if tempHP < a.HP() {
+	if tempHP < a.knowledge.lastHP {
 		changeNewDay(a)
 	}
 
 	if len(a.knowledge.floors) == 0 || a.knowledge.floors[0] != a.Floor() {
 		changeNewFloor(a)
 	}
-	a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "Morality": a.vars.morality})
+	a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "Mood": a.vars.mood, "Morality": a.vars.morality})
 	//IF HP changes (but we have to remember previous HP)
 	// changeNewDay(a)
 
