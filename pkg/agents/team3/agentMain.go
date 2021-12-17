@@ -58,7 +58,7 @@ func (a *CustomAgent3) Run() {
 		changeNewDay(a)
 	}
 
-	if len(a.knowledge.floors) == 0 || a.knowledge.floors[0] != a.Floor() {
+	if len(a.knowledge.floors) == 0 || a.knowledge.floors[len(a.knowledge.floors)-1] != a.Floor() {
 		changeNewFloor(a)
 	}
 	a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "Mood": a.vars.mood, "Morality": a.vars.morality})
