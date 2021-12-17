@@ -10,9 +10,9 @@ import (
 )
 
 type team3Variables struct {
-	//Stubbornnes defines the likelyhood of reading a message
+	//Stubborness defines the likelihood of reading a message
 	stubbornness int
-	//Morality defines the willigness to help others/ how much you care
+	//Morality defines the willingness to help others/how much you care
 	morality int
 	//Mood affects the decision making and how you take things
 	mood int
@@ -33,12 +33,12 @@ type CustomAgent3 struct {
 }
 
 func New(baseAgent *infra.Base) (agent.Agent, error) {
+        // TODO: Remove this line. See Issue #60.
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
 	return &CustomAgent3{
 		Base: baseAgent,
 		vars: team3Variables{
-
 			stubbornness: r1.Intn(75),
 			morality:     r1.Intn(100),
 			mood:         r1.Intn(100),
@@ -51,10 +51,7 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 }
 
 func (a *CustomAgent3) Run() {
-
-	tempHP := a.HP()
-
-	if tempHP < a.knowledge.lastHP {
+	if a.HP() < a.knowledge.lastHP {
 		changeNewDay(a)
 	}
 

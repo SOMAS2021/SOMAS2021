@@ -17,51 +17,45 @@ import (
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
 func changeInMood(pointsMin, pointsMax, direction int, a *CustomAgent3) {
-	s1 := rand.NewSource(time.Now().UnixNano()) //creates seed to rand
+        // TODO: Remove this line. See Issue #60.
+	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
-	points := (r1.Intn(pointsMax-pointsMin) + pointsMin)
+	points := r1.Intn(pointsMax-pointsMin) + pointsMin
 	if direction <= 0 {
-		temp := a.vars.mood - points
+		a.vars.mood = a.vars.mood - points
 		if temp < 0 {
 			a.vars.mood = 0
-		} else {
-			a.vars.mood = temp
 		}
 	}
 	if direction > 0 {
-		temp := a.vars.mood + points
-		if temp > 100 {
+		a.vars.mood = a.vars.mood + points
+		if a.vars.mood > 100 {
 			a.vars.mood = 100
-		} else {
-			a.vars.mood = temp
 		}
 	}
 }
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
 func changeInMorality(pointsMin, pointsMax, direction int, a *CustomAgent3) {
+        // TODO: Remove this line. See Issue #60.
 	s1 := rand.NewSource(time.Now().UnixNano()) //creates seed to rand
 	r1 := rand.New(s1)
-	points := (r1.Intn(pointsMax-pointsMin) + pointsMin)
+	points := r1.Intn(pointsMax-pointsMin) + pointsMin
 	if direction < 0 {
-		temp := a.vars.morality - points
-		if temp < 0 {
+		a.vars.morality = a.vars.morality - points
+		if a.vars.morality < 0 {
 			a.vars.morality = 0
-		} else {
-			a.vars.morality = temp
 		}
 	}
 	if direction > 0 {
-		temp := a.vars.morality + points
-		if temp > 100 {
+		a.vars.morality = a.vars.morality + points
+		if a.vars.morality > 100 {
 			a.vars.morality = 100
-		} else {
-			a.vars.morality = temp
 		}
 	}
 }
 
-// Function is called when the day starts, changes the mood and morale when we change floors
+// Updates mood and morality when the floor is changed. Called at the start of each day.
 func changeNewDay(a *CustomAgent3) {
 	a.knowledge.lastHP = a.HP()
 	if int64(a.HP()) < 50 {
@@ -75,11 +69,9 @@ func changeNewDay(a *CustomAgent3) {
 
 // Function is called when the floor changes, changes the mood when we change floors
 func changeNewFloor(a *CustomAgent3) {
-	var currentFloor = a.Floor()
-	if len(a.knowledge.floors) == 0 {
-		a.knowledge.floors = append(a.knowledge.floors, currentFloor)
-	} else {
-		var oldFloor = a.knowledge.floors[len(a.knowledge.floors)-1]
+	currentFloor := a.Floor()
+	if len(a.knowledge.floors) != 0 {
+		oldFloor := a.knowledge.floors[len(a.knowledge.floors)-1]
 
 		if currentFloor < oldFloor {
 			changeInMood(5, 15, -1, a)
@@ -87,7 +79,6 @@ func changeNewFloor(a *CustomAgent3) {
 			changeInMood(10, 20, 1, a)
 		}
 
-		a.knowledge.floors = append(a.knowledge.floors, currentFloor)
 	}
-
+	a.knowledge.floors = append(a.knowledge.floors, currentFloor)
 }
