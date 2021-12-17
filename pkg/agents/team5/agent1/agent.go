@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/abm"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 )
 
 type CustomAgent5 struct {
@@ -14,7 +14,7 @@ type CustomAgent5 struct {
 	lastMeal     float64
 }
 
-func New(baseAgent *infra.Base) (abm.Agent, error) {
+func New(baseAgent *infra.Base) (agent.Agent, error) {
 	return &CustomAgent5{
 		Base:         baseAgent,
 		desperation:  3.0, //Scale of 1 to 4, with 1 being near max health, 4 being about to die and 2 & 3 in between
