@@ -51,12 +51,12 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 }
 
 func (a *CustomAgent3) Run() {
-	//Update agent variables at the beggining of day (when HP has been reduced)
+	//Update agent variables at the beginning of day (when HP has been reduced)
 	if a.HP() < a.knowledge.lastHP {
 		changeNewDay(a)
 	}
 
-	//Update agent variables at the beggining of reshuffle. (when floor has changed)
+	//Update agent variables at the beginning of reshuffle (when floor has changed)
 	if len(a.knowledge.floors) == 0 || a.knowledge.floors[len(a.knowledge.floors)-1] != a.Floor() {
 		changeNewFloor(a)
 	}

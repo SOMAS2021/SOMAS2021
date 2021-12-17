@@ -71,9 +71,7 @@ func changeNewDay(a *CustomAgent3) {
 func changeNewFloor(a *CustomAgent3) {
 	currentFloor := a.Floor()
 	if len(a.knowledge.floors) != 0 {
-		oldFloor := a.knowledge.floors[len(a.knowledge.floors)-1]
-
-		if currentFloor < oldFloor {
+		if currentFloor < a.knowledge.floors[len(a.knowledge.floors)-1] {
 			changeInMood(a, 5, 15, -1)
 		} else {
 			changeInMood(a, 10, 20, 1)
