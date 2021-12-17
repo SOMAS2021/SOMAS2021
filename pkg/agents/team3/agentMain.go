@@ -22,6 +22,7 @@ type team3Variables struct {
 type team3Knowledge struct {
 	//We know the floors we have been in
 	floors []int
+	lastHP int
 }
 
 type CustomAgent3 struct {
@@ -32,24 +33,34 @@ type CustomAgent3 struct {
 }
 
 func New(baseAgent *infra.Base) (abm.Agent, error) {
-	rand.Seed(time.Now().UnixNano())
+	s1 := rand.NewSource(time.Now().UnixNano())
+	r1 := rand.New(s1)
 	return &CustomAgent3{
 		Base: baseAgent,
 		vars: team3Variables{
-			//random seed
-			stubbornness: rand.Intn(75),
-			morality:     rand.Intn(100),
-			mood:         rand.Intn(100),
+
+			stubbornness: r1.Intn(75),
+			morality:     r1.Intn(100),
+			mood:         r1.Intn(100),
+		},
+		knowledge: team3Knowledge{
+			floors: []int{},
+			lastHP: 100,
 		},
 	}, nil
 }
 
 func (a *CustomAgent3) Run() {
 
-	if a.knowledge.floors[0] != a.Floor() || len(a.knowledge.floors) == 0 {
-		changeNewFloor(a)
+	tempHP := a.HP()
+	if tempHP < a.HP() {
+		changeNewDay(a)
 	}
 
+	if len(a.knowledge.floors) == 0 || a.knowledge.floors[0] != a.Floor() {
+		changeNewFloor(a)
+	}
+	a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "Morality": a.vars.morality})
 	//IF HP changes (but we have to remember previous HP)
 	// changeNewDay(a)
 

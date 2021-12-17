@@ -63,6 +63,7 @@ func changeInMorality(pointsMin, pointsMax, direction int, a *CustomAgent3) {
 
 // Function is called when the day starts, changes the mood and morale when we change floors
 func changeNewDay(a *CustomAgent3) {
+	a.knowledge.lastHP = a.HP()
 	if int64(a.HP()) < 50 {
 		changeInMorality(10, 15, -1, a)
 		changeInMood(10, 15, -1, a)
@@ -75,13 +76,18 @@ func changeNewDay(a *CustomAgent3) {
 // Function is called when the floor changes, changes the mood when we change floors
 func changeNewFloor(a *CustomAgent3) {
 	var currentFloor = a.Floor()
-	var oldFloor = a.knowledge.floors[len(a.knowledge.floors)-1]
-
-	if currentFloor < oldFloor {
-		changeInMood(5, 15, -1, a)
+	if len(a.knowledge.floors) == 0 {
+		a.knowledge.floors = append(a.knowledge.floors, currentFloor)
 	} else {
-		changeInMood(10, 20, 1, a)
+		var oldFloor = a.knowledge.floors[len(a.knowledge.floors)-1]
+
+		if currentFloor < oldFloor {
+			changeInMood(5, 15, -1, a)
+		} else {
+			changeInMood(10, 20, 1, a)
+		}
+
+		a.knowledge.floors = append(a.knowledge.floors, currentFloor)
 	}
 
-	a.knowledge.floors = append(a.knowledge.floors, currentFloor)
 }
