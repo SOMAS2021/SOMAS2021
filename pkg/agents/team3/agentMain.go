@@ -53,6 +53,7 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 func (a *CustomAgent3) Run() {
 
 	tempHP := a.HP()
+
 	if tempHP < a.knowledge.lastHP {
 		changeNewDay(a)
 	}
@@ -67,7 +68,7 @@ func (a *CustomAgent3) Run() {
 	//receive Message
 
 	//eat
-	a.TakeFood(float64(takeFoodCalculation(a)))
+	a.TakeFood(takeFoodCalculation(a))
 
 	//send Message
 

@@ -7,15 +7,13 @@ import (
 
 // Function decides if we read a message or we don't, depends on our level of stubbornness, return is bool
 // Stubborness of 20 means probability of 0.2 that we don't read message
-func read(a *CustomAgent3) bool {
-	rand.Seed(time.Now().UnixNano()) //creates seed to rand
-	var random = rand.Intn(100)
 
-	if random <= a.vars.stubbornness {
-		return true
-	}
-	return false
-}
+//func read(a *CustomAgent3) bool {
+//	rand.Seed(time.Now().UnixNano()) //creates seed to rand
+//	var random = rand.Intn(100)
+//
+//	return random <= a.vars.stubbornness
+//}
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
 func changeInMood(pointsMin, pointsMax, direction int, a *CustomAgent3) {
