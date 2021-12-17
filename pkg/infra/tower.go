@@ -112,13 +112,18 @@ func (t *Tower) hpDecay() {
 				newHP = t.healthInfo.HealthyLevel
 			}
 		case agent.hp >= t.healthInfo.HealthyLevel:
-			if agent.hp >= t.healthInfo.HealthyLevel+t.healthInfo.FoodReqHealthy {
+			switch {
+			case agent.hp >= t.healthInfo.HealthyLevel+t.healthInfo.FoodReqHToS:
+				newHP = t.healthInfo.StrongLevel
+			case agent.hp >= t.healthInfo.HealthyLevel+t.healthInfo.FoodReqHealthy:
 				newHP = t.healthInfo.HealthyLevel
-			} else {
+			default:
 				newHP = t.healthInfo.WeakLevel
 			}
 		case agent.hp >= t.healthInfo.WeakLevel:
-			if agent.hp >= t.healthInfo.WeakLevel+t.healthInfo.FoodReqWeak {
+			if agent.hp >= t.healthInfo.WeakLevel+t.healthInfo.FoodReqWToH {
+				newHP = t.healthInfo.HealthyLevel
+			} else if agent.hp >= t.healthInfo.WeakLevel+t.healthInfo.FoodReqWeak {
 				newHP = t.healthInfo.WeakLevel
 			} else {
 				newHP = t.healthInfo.CriticalLevel + t.healthInfo.MaxDayCritical

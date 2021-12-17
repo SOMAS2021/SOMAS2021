@@ -20,12 +20,12 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 func (a *CustomAgent1) Run() {
 	a.Log("Reporting agent state", infra.Fields{"health": a.HP(), "floor": a.Floor()})
 
-	receivedMsg := a.Base.ReceiveMessage()
-	if receivedMsg != nil {
-		a.Log("I sent a message", infra.Fields{"message": receivedMsg.MessageType()})
-	} else {
-		a.Log("I got nothing")
-	}
+	// receivedMsg := a.Base.ReceiveMessage()
+	// if receivedMsg != nil {
+	// 	a.Log("I sent a message", infra.Fields{"message": receivedMsg.MessageType()})
+	// } else {
+	// 	a.Log("I got nothing")
+	// }
 
 	// if (a.myNumber)%2 == 0 {
 	// 	msg := *messages.NewAckMessage(int(a.Floor()), true)
@@ -36,5 +36,5 @@ func (a *CustomAgent1) Run() {
 	// 	a.SendMessage(1, msg)
 	// }
 	// a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
-	a.TakeFood(50)
+	a.TakeFood(45)
 }

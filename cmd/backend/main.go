@@ -63,14 +63,14 @@ func main() {
 
 	// can have frontend parameters come go straight into simEnv
 	foodOnPlatform := 100.0
-	numOfAgents := []int{2, 2, 2, 2, 2}
-	agentHP := 100
+	numOfAgents := []int{2, 0, 0, 0, 0} //agent1, agent2, team3, team6, randomAgent
+	agentHP := 25
 	agentsPerFloor := 1 //more than one not currently supported
 	numberOfFloors := simulation.Sum(numOfAgents) / agentsPerFloor
 	ticksPerFloor := 1
 
 	ticksPerDay := numberOfFloors * ticksPerFloor
-	simDays := 9
+	simDays := 2
 	reshuffleDays := 1
 	dayInfo := day.NewDayInfo(ticksPerFloor, ticksPerDay, simDays, reshuffleDays)
 
@@ -79,13 +79,13 @@ func main() {
 	healthyLevel := 25
 	weakLevel := 5 // larger than maxCriticalDay
 	criticalLevel := 0
-	foodReqStrong := 20
-	foodReqHealthy := 15
-	foodReqWeak := 10
+	foodReqStrong := int(0.63 * (100 - float64(strongLevel))) // first order system time constant, TODO: define it like this directly in the struct
+	foodReqHealthy := int(0.63 * float64(strongLevel-healthyLevel))
+	foodReqWeak := int(0.63 * float64(healthyLevel-weakLevel))
 	maxDayCritical := 3
-	foodReqHToS := 15
-	foodReqWToH := 10
-	foodReqCToW := 5
+	foodReqHToS := int(0.95 * (100 - float64(strongLevel))) // 3 time constant, TODO: change directly in struct
+	foodReqWToH := int(0.95 * float64(strongLevel-healthyLevel))
+	foodReqCToW := int(0.95 * float64(healthyLevel-weakLevel))
 
 	healthInfo := health.NewHealthInfo(strongLevel, healthyLevel, weakLevel, criticalLevel, foodReqStrong, foodReqHealthy, foodReqWeak, maxDayCritical, foodReqHToS, foodReqWToH, foodReqCToW)
 
