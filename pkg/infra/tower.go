@@ -49,7 +49,6 @@ func NewTower(maxPlatFood float64, agentCount,
 }
 
 func (t *Tower) Tick() {
-	//logs
 	t.TowerStateLog(" end of tick")
 	//useful parameters
 	numOfFloors := t.agentCount / t.agentsPerFloor
