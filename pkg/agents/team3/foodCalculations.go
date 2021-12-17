@@ -12,5 +12,5 @@ morality range = 0-100
 
 func takeFoodCalculation(a *CustomAgent3) float64 {
 	//food taken is: 10 - morality/20 - mood/20
-	return 10.0 - math.Floor(float64(a.vars.morality/20.0)) - math.Floor(float64(a.vars.mood)/20.0)
+	return 10.0 - math.Floor((float64(a.vars.morality) / 20.0)) - math.Floor((float64(a.vars.mood))/20.0)
 }
