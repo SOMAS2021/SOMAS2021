@@ -108,8 +108,10 @@ func (t *Tower) hpDecay() {
 		case agent.hp >= t.healthInfo.StrongLevel:
 			if agent.hp >= t.healthInfo.StrongLevel+int(0.63*t.healthInfo.WidthStrong) {
 				newHP = t.healthInfo.StrongLevel
+				agent.numberInStateDays++
 			} else {
 				newHP = t.healthInfo.HealthyLevel
+				agent.numberInStateDays = 0
 			}
 
 		// Healthy Level
@@ -117,10 +119,13 @@ func (t *Tower) hpDecay() {
 			switch {
 			case agent.hp >= t.healthInfo.HealthyLevel+int(0.95*t.healthInfo.WidthHealthy):
 				newHP = t.healthInfo.StrongLevel
+				agent.numberInStateDays = 0
 			case agent.hp >= t.healthInfo.HealthyLevel+int(0.63*t.healthInfo.WidthHealthy):
 				newHP = t.healthInfo.HealthyLevel
+				agent.numberInStateDays++
 			default:
 				newHP = t.healthInfo.WeakLevel
+				agent.numberInStateDays = 0
 			}
 
 		// Weak Level
@@ -128,25 +133,30 @@ func (t *Tower) hpDecay() {
 			switch {
 			case agent.hp >= t.healthInfo.WeakLevel+int(0.95*t.healthInfo.WidthWeak):
 				newHP = t.healthInfo.HealthyLevel
+				agent.numberInStateDays = 0
 			case agent.hp >= t.healthInfo.WeakLevel+int(0.63*t.healthInfo.WidthWeak):
 				newHP = t.healthInfo.WeakLevel
+				agent.numberInStateDays++
 			default:
 				newHP = 1
+				agent.numberInStateDays = 0
 			}
 
 		// Critical
 		default:
 			if agent.hp >= t.healthInfo.WeakLevel-1 {
 				newHP = t.healthInfo.WeakLevel
+				agent.numberInStateDays = 0
 			} else {
 				newHP = 1
+				agent.numberInStateDays++
 
 			}
 
 		}
 
 		agent.setHasEaten(false)
-		if newHP <= 0 {
+		if newHP < t.healthInfo.WeakLevel && agent.numberInStateDays >= 3 {
 			t.Log("Killing agent", Fields{"agent": agent.id})
 			t.missingAgents[agent.floor] = append(t.missingAgents[agent.floor], agent.agentType)
 			delete(t.agents, agent.id) // maybe lock mutex?

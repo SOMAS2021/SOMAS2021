@@ -14,15 +14,16 @@ import (
 type Fields = log.Fields
 
 type Base struct {
-	id        string
-	hp        int
-	floor     int
-	agentType int
-	inbox     *list.List
-	tower     *Tower
-	mx        sync.RWMutex
-	logger    log.Entry
-	hasEaten  bool
+	id                string
+	hp                int
+	floor             int
+	agentType         int
+	inbox             *list.List
+	tower             *Tower
+	mx                sync.RWMutex
+	logger            log.Entry
+	hasEaten          bool
+	numberInStateDays int //initialized to 0 by default
 }
 
 func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {

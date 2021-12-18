@@ -71,7 +71,7 @@ func main() {
 	ticksPerFloor := 1
 
 	ticksPerDay := numberOfFloors * ticksPerFloor
-	simDays := 2
+	simDays := 8
 	reshuffleDays := 1
 	dayInfo := day.NewDayInfo(ticksPerFloor, ticksPerDay, simDays, reshuffleDays)
 
