@@ -98,17 +98,20 @@ func (a *Base) updateHP(foodTaken float64) { // first order system step answer. 
 	// Strong level
 	case a.hp >= a.tower.healthInfo.StrongLevel:
 		tau := a.tower.healthInfo.FoodReqStrong // tau is the "time constant" of the first order system
-		a.hp = a.tower.healthInfo.StrongLevel + int(a.tower.healthInfo.WidthStrong*(1-math.Pow(math.E, -foodTaken/tau)))
+		shift := -tau * math.Log(1-(float64(a.hp)-float64(a.tower.healthInfo.StrongLevel))/a.tower.healthInfo.WidthStrong)
+		a.hp = a.tower.healthInfo.StrongLevel + int(a.tower.healthInfo.WidthStrong*(1-math.Pow(math.E, -(foodTaken+shift)/tau)))
 
 	// Healthy level
 	case a.hp >= a.tower.healthInfo.HealthyLevel:
 		tau := a.tower.healthInfo.FoodReqHealthy
-		a.hp = a.tower.healthInfo.HealthyLevel + int(a.tower.healthInfo.WidthHealthy*(1-math.Pow(math.E, -foodTaken/tau)))
+		shift := -tau * math.Log(1-(float64(a.hp)-float64(a.tower.healthInfo.HealthyLevel))/a.tower.healthInfo.WidthHealthy)
+		a.hp = a.tower.healthInfo.HealthyLevel + int(a.tower.healthInfo.WidthHealthy*(1-math.Pow(math.E, -(foodTaken+shift)/tau)))
 
 	// Weak Level
 	case a.hp >= a.tower.healthInfo.WeakLevel:
 		tau := a.tower.healthInfo.FoodReqWeak
-		a.hp = a.tower.healthInfo.WeakLevel + int(a.tower.healthInfo.WidthWeak*(1-math.Pow(math.E, -foodTaken/tau)))
+		shift := -tau * math.Log(1-(float64(a.hp)-float64(a.tower.healthInfo.WeakLevel))/a.tower.healthInfo.WidthWeak)
+		a.hp = a.tower.healthInfo.WeakLevel + int(a.tower.healthInfo.WidthWeak*(1-math.Pow(math.E, -(foodTaken+shift)/tau)))
 
 	// Critical Level - TODO: discuss its implementation
 	case a.hp >= 0:
