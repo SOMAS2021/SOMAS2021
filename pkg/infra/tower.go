@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"math"
 	"math/rand"
 	"sync"
 
@@ -107,10 +108,10 @@ func (t *Tower) hpDecay() {
 		// Strong Level
 		case agent.hp >= t.healthInfo.StrongLevel:
 			if agent.hp >= t.healthInfo.StrongLevel+int(0.63*t.healthInfo.WidthStrong) {
-				newHP = t.healthInfo.StrongLevel
+				newHP = int(math.Max(float64(t.healthInfo.StrongLevel), float64(agent.hp)-0.63*t.healthInfo.WidthStrong))
 				agent.numberInStateDays++
 			} else {
-				newHP = t.healthInfo.HealthyLevel
+				newHP = int(math.Max(float64(t.healthInfo.HealthyLevel), float64(agent.hp)-0.63*t.healthInfo.WidthStrong))
 				agent.numberInStateDays = 0
 			}
 
@@ -121,10 +122,10 @@ func (t *Tower) hpDecay() {
 				newHP = t.healthInfo.StrongLevel
 				agent.numberInStateDays = 0
 			case agent.hp >= t.healthInfo.HealthyLevel+int(0.63*t.healthInfo.WidthHealthy):
-				newHP = t.healthInfo.HealthyLevel
+				newHP = int(math.Max(float64(t.healthInfo.HealthyLevel), float64(agent.hp)-0.63*t.healthInfo.WidthHealthy))
 				agent.numberInStateDays++
 			default:
-				newHP = t.healthInfo.WeakLevel
+				newHP = int(math.Max(float64(t.healthInfo.WeakLevel), float64(agent.hp)-0.63*t.healthInfo.WidthHealthy))
 				agent.numberInStateDays = 0
 			}
 
@@ -135,7 +136,7 @@ func (t *Tower) hpDecay() {
 				newHP = t.healthInfo.HealthyLevel
 				agent.numberInStateDays = 0
 			case agent.hp >= t.healthInfo.WeakLevel+int(0.63*t.healthInfo.WidthWeak):
-				newHP = t.healthInfo.WeakLevel
+				newHP = int(math.Max(float64(t.healthInfo.WeakLevel), float64(agent.hp)-0.63*t.healthInfo.WidthWeak))
 				agent.numberInStateDays++
 			default:
 				newHP = 1

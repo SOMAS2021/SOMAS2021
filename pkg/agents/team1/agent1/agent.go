@@ -36,5 +36,5 @@ func (a *CustomAgent1) Run() {
 	// 	a.SendMessage(1, msg)
 	// }
 	// a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
-	a.TakeFood(1)
+	a.TakeFood(16)
 }
