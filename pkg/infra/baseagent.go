@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	log "github.com/sirupsen/logrus"
 )
@@ -168,4 +169,8 @@ func (a *Base) SendMessage(direction int, msg messages.Message) {
 	if (direction == -1) || (direction == 1) {
 		a.tower.SendMessage(direction, a.floor, msg)
 	}
+}
+
+func (a *Base) HealthInfo() *health.HealthInfo {
+	return a.tower.healthInfo
 }
