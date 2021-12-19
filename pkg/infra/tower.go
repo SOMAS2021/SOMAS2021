@@ -109,10 +109,10 @@ func (t *Tower) hpDecay() {
 		case agent.hp >= t.healthInfo.StrongLevel:
 			if agent.hp >= t.healthInfo.StrongLevel+int(0.63*t.healthInfo.WidthStrong) {
 				newHP = int(math.Max(float64(t.healthInfo.StrongLevel), float64(agent.hp)-0.63*t.healthInfo.WidthStrong))
-				agent.numberInStateDays++
+				agent.daysInState++
 			} else {
 				newHP = int(math.Max(float64(t.healthInfo.HealthyLevel), float64(agent.hp)-0.63*t.healthInfo.WidthStrong))
-				agent.numberInStateDays = 0
+				agent.daysInState = 0
 			}
 
 		// Healthy Level
@@ -120,13 +120,13 @@ func (t *Tower) hpDecay() {
 			switch {
 			case agent.hp >= t.healthInfo.HealthyLevel+int(0.95*t.healthInfo.WidthHealthy):
 				newHP = t.healthInfo.StrongLevel
-				agent.numberInStateDays = 0
+				agent.daysInState = 0
 			case agent.hp >= t.healthInfo.HealthyLevel+int(0.63*t.healthInfo.WidthHealthy):
 				newHP = int(math.Max(float64(t.healthInfo.HealthyLevel), float64(agent.hp)-0.63*t.healthInfo.WidthHealthy))
-				agent.numberInStateDays++
+				agent.daysInState++
 			default:
 				newHP = int(math.Max(float64(t.healthInfo.WeakLevel), float64(agent.hp)-0.63*t.healthInfo.WidthHealthy))
-				agent.numberInStateDays = 0
+				agent.daysInState = 0
 			}
 
 		// Weak Level
@@ -134,30 +134,30 @@ func (t *Tower) hpDecay() {
 			switch {
 			case agent.hp >= t.healthInfo.WeakLevel+int(0.95*t.healthInfo.WidthWeak):
 				newHP = t.healthInfo.HealthyLevel
-				agent.numberInStateDays = 0
+				agent.daysInState = 0
 			case agent.hp >= t.healthInfo.WeakLevel+int(0.63*t.healthInfo.WidthWeak):
 				newHP = int(math.Max(float64(t.healthInfo.WeakLevel), float64(agent.hp)-0.63*t.healthInfo.WidthWeak))
-				agent.numberInStateDays++
+				agent.daysInState++
 			default:
 				newHP = 1
-				agent.numberInStateDays = 0
+				agent.daysInState = 0
 			}
 
 		// Critical
 		default:
 			if agent.hp >= t.healthInfo.WeakLevel-1 {
 				newHP = t.healthInfo.WeakLevel
-				agent.numberInStateDays = 0
+				agent.daysInState = 0
 			} else {
 				newHP = 1
-				agent.numberInStateDays++
+				agent.daysInState++
 
 			}
 
 		}
 
 		agent.setHasEaten(false)
-		if newHP < t.healthInfo.WeakLevel && agent.numberInStateDays >= 3 {
+		if newHP < t.healthInfo.WeakLevel && agent.daysInState >= t.healthInfo.MaxDayCritical {
 			t.Log("Killing agent", Fields{"agent": agent.id})
 			t.missingAgents[agent.floor] = append(t.missingAgents[agent.floor], agent.agentType)
 			delete(t.agents, agent.id) // maybe lock mutex?

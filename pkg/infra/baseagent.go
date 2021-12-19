@@ -14,15 +14,15 @@ import (
 type Fields = log.Fields
 
 type Base struct {
-	id                string
-	hp                int
-	floor             int
-	agentType         int
-	inbox             *list.List
-	tower             *Tower
-	mx                sync.RWMutex
-	logger            log.Entry
-	hasEaten          bool
+	id          string
+	hp          int
+	floor       int
+	agentType   int
+	inbox       *list.List
+	tower       *Tower
+	mx          sync.RWMutex
+	logger      log.Entry
+	hasEaten    bool
 	daysInState int
 }
 
