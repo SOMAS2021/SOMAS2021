@@ -99,22 +99,26 @@ func (a *Base) updateHP(foodTaken float64) { // first order system step answer. 
 	tau := 0.0
 	base := 0
 	width := 0.0
+	shift := 0.0
 
 	switch {
 	case a.hp >= a.tower.healthInfo.StrongLevel:
-		tau = a.tower.healthInfo.FoodReqStrong 
+		tau = a.tower.healthInfo.FoodReqStrong
 		base = a.tower.healthInfo.StrongLevel
 		width = a.tower.healthInfo.WidthStrong
+		shift = -tau * math.Log(1-(float64(a.hp)-float64(base))/width)
 
 	case a.hp >= a.tower.healthInfo.HealthyLevel:
 		tau = a.tower.healthInfo.FoodReqHealthy
 		base = a.tower.healthInfo.HealthyLevel
 		width = a.tower.healthInfo.WidthHealthy
+		shift = -tau * math.Log(1-(float64(a.hp)-float64(base))/width)
 
 	case a.hp >= a.tower.healthInfo.WeakLevel:
 		tau = a.tower.healthInfo.FoodReqWeak
 		base = a.tower.healthInfo.WeakLevel
 		width = a.tower.healthInfo.WidthWeak
+		shift = -tau * math.Log(1-(float64(a.hp)-float64(base))/width)
 
 	// Critical Level - TODO: discuss its implementation
 	case a.hp >= 0:
@@ -126,7 +130,7 @@ func (a *Base) updateHP(foodTaken float64) { // first order system step answer. 
 		return
 	}
 
-	a.hp = int(float64(base) + width - math.Pow(math.E, -foodTaken/tau) * float64(1 - a.hp + base))
+	a.hp = int(float64(base) + width*(1-math.Pow(math.E, -(foodTaken+shift)/tau)))
 }
 
 func (a *Base) HasEaten() bool {
