@@ -1,7 +1,8 @@
 package health
 
 type HealthInfo struct {
-	StrongLevel    int // defined as the lowest HP value for a given HP level
+	// Base HP for each health level
+	StrongLevel    int 
 	HealthyLevel   int
 	WeakLevel      int
 	WidthStrong    float64 // width of every level
