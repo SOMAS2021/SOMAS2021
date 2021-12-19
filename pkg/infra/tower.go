@@ -105,7 +105,6 @@ func (t *Tower) hpDecay() {
 	for _, agent := range t.agents {
 		newHP := 0
 		switch {
-		// Strong Level
 		case agent.hp >= t.healthInfo.StrongLevel:
 			if agent.hp >= t.healthInfo.StrongLevel+int(0.63*t.healthInfo.WidthStrong) {
 				newHP = int(math.Max(float64(t.healthInfo.StrongLevel), float64(agent.hp)-0.63*t.healthInfo.WidthStrong))
