@@ -10,7 +10,8 @@ type HealthInfo struct {
 	WidthHealthy   float64
 	WidthWeak      float64
 	WidthCritical  float64
-	FoodReqStrong  float64 // food requirement to stay at a given level
+	// Food intake required to stay at a given level
+	FoodReqStrong  float64 
 	FoodReqHealthy float64
 	FoodReqWeak    float64
 	FoodReqCToW    float64
