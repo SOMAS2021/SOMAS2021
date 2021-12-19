@@ -127,7 +127,6 @@ func (t *Tower) hpDecay() {
 				agent.daysInState = 0
 			}
 
-		// Weak Level
 		case agent.hp >= t.healthInfo.WeakLevel:
 			switch {
 			case agent.hp >= t.healthInfo.WeakLevel+int(0.95*t.healthInfo.WidthWeak):
