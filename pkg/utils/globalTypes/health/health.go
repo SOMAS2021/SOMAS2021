@@ -15,7 +15,8 @@ type HealthInfo struct {
 	FoodReqHealthy float64
 	FoodReqWeak    float64
 	FoodReqCToW    float64
-	MaxDayCritical int // maximum number of day at critical level
+	// Number of days an agent can stay critical before dying
+	MaxDayCritical int
 }
 
 func NewHealthInfo(StrongLevel, HealthyLevel, WeakLevel int, FoodReqStrong, FoodReqHealthy, FoodReqWeak, FoodReqCToW float64, MaxDayCritical int) *HealthInfo {
