@@ -103,7 +103,7 @@ func (t *Tower) reshuffle(numOfFloors int) {
 
 func (t *Tower) hpDecay() {
 	for _, agent := range t.agents {
-		var newHP int
+		newHP := 0
 		switch {
 		// Strong Level
 		case agent.hp >= t.healthInfo.StrongLevel:
