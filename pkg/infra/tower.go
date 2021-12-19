@@ -114,7 +114,6 @@ func (t *Tower) hpDecay() {
 				agent.daysInState = 0
 			}
 
-		// Healthy Level
 		case agent.hp >= t.healthInfo.HealthyLevel:
 			switch {
 			case agent.hp >= t.healthInfo.HealthyLevel+int(0.95*t.healthInfo.WidthHealthy):
