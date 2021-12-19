@@ -94,8 +94,8 @@ func (a *Base) setHP(newHP int) {
 	a.hp = newHP
 }
 
-func (a *Base) updateHP(foodTaken float64) { // first order system step answer. 63% of levelWidth obtained for tau food
-	// tau is the time constant of the first order system
+// Modeled as a first order system step answer (see documentation for more information)
+func (a *Base) updateHP(foodTaken float64) {
 	tau := 0.0
 	base := 0
 	width := 0.0
