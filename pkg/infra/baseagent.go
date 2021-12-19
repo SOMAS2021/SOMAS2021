@@ -95,24 +95,26 @@ func (a *Base) setHP(newHP int) {
 }
 
 func (a *Base) updateHP(foodTaken float64) { // first order system step answer. 63% of levelWidth obtained for tau food
+	// tau is the time constant of the first order system
+	tau := 0.0
+	base := 0
+	width := 0.0
+
 	switch {
-	// Strong level
 	case a.hp >= a.tower.healthInfo.StrongLevel:
-		tau := a.tower.healthInfo.FoodReqStrong // tau is the "time constant" of the first order system
-		shift := -tau * math.Log(1-(float64(a.hp)-float64(a.tower.healthInfo.StrongLevel))/a.tower.healthInfo.WidthStrong)
-		a.hp = a.tower.healthInfo.StrongLevel + int(a.tower.healthInfo.WidthStrong*(1-math.Pow(math.E, -(foodTaken+shift)/tau)))
+		tau = a.tower.healthInfo.FoodReqStrong 
+		base = a.tower.healthInfo.StrongLevel
+		width = a.tower.healthInfo.WidthStrong
 
-	// Healthy level
 	case a.hp >= a.tower.healthInfo.HealthyLevel:
-		tau := a.tower.healthInfo.FoodReqHealthy
-		shift := -tau * math.Log(1-(float64(a.hp)-float64(a.tower.healthInfo.HealthyLevel))/a.tower.healthInfo.WidthHealthy)
-		a.hp = a.tower.healthInfo.HealthyLevel + int(a.tower.healthInfo.WidthHealthy*(1-math.Pow(math.E, -(foodTaken+shift)/tau)))
+		tau = a.tower.healthInfo.FoodReqHealthy
+		base = a.tower.healthInfo.HealthyLevel
+		width = a.tower.healthInfo.WidthHealthy
 
-	// Weak Level
 	case a.hp >= a.tower.healthInfo.WeakLevel:
-		tau := a.tower.healthInfo.FoodReqWeak
-		shift := -tau * math.Log(1-(float64(a.hp)-float64(a.tower.healthInfo.WeakLevel))/a.tower.healthInfo.WidthWeak)
-		a.hp = a.tower.healthInfo.WeakLevel + int(a.tower.healthInfo.WidthWeak*(1-math.Pow(math.E, -(foodTaken+shift)/tau)))
+		tau = a.tower.healthInfo.FoodReqWeak
+		base = a.tower.healthInfo.WeakLevel
+		width = a.tower.healthInfo.WidthWeak
 
 	// Critical Level - TODO: discuss its implementation
 	case a.hp >= 0:
@@ -121,7 +123,10 @@ func (a *Base) updateHP(foodTaken float64) { // first order system step answer. 
 		} else {
 			a.hp = 1
 		}
+		return
 	}
+
+	a.hp = int(float64(base) + width - math.Pow(math.E, -foodTaken/tau) * float64(1 - a.hp + base))
 }
 
 func (a *Base) HasEaten() bool {
