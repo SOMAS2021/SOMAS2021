@@ -64,11 +64,10 @@ func main() {
 	// can have frontend parameters come go straight into simEnv
 	foodOnPlatform := 100.0
 	numOfAgents := []int{2, 2, 2, 2, 2} //agent1, agent2, team3, team6, randomAgent
-	agentHP := 55
-	//numberCriticalDays := 0
+	agentHP := 100
 	agentsPerFloor := 1 //more than one not currently supported
 	numberOfFloors := simulation.Sum(numOfAgents) / agentsPerFloor
-	ticksPerFloor := 1
+	ticksPerFloor := 10
 
 	ticksPerDay := numberOfFloors * ticksPerFloor
 	simDays := 8
