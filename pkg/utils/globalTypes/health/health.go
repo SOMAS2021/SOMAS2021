@@ -5,7 +5,8 @@ type HealthInfo struct {
 	StrongLevel    int 
 	HealthyLevel   int
 	WeakLevel      int
-	WidthStrong    float64 // width of every level
+	// Width of every health level
+	WidthStrong    float64 
 	WidthHealthy   float64
 	WidthWeak      float64
 	WidthCritical  float64
