@@ -106,34 +106,34 @@ func (t *Tower) hpDecay() {
 		newHP := 0
 		switch {
 		case agent.hp >= t.healthInfo.StrongLevel:
-			if agent.hp >= t.healthInfo.StrongLevel+int(0.63*t.healthInfo.WidthStrong) {
-				newHP = int(math.Max(float64(t.healthInfo.StrongLevel), float64(agent.hp)-0.63*t.healthInfo.WidthStrong))
+			if agent.hp >= t.healthInfo.StrongLevel+int(0.63*float64(t.healthInfo.WidthStrong)) {
+				newHP = int(math.Max(float64(t.healthInfo.StrongLevel), float64(agent.hp)-0.63*float64(t.healthInfo.WidthStrong)))
 				agent.daysInState++
 			} else {
-				newHP = int(math.Max(float64(t.healthInfo.HealthyLevel), float64(agent.hp)-0.63*t.healthInfo.WidthStrong))
+				newHP = int(math.Max(float64(t.healthInfo.HealthyLevel), float64(agent.hp)-0.63*float64(t.healthInfo.WidthStrong)))
 				agent.daysInState = 0
 			}
 
 		case agent.hp >= t.healthInfo.HealthyLevel:
 			switch {
-			case agent.hp >= t.healthInfo.HealthyLevel+int(0.95*t.healthInfo.WidthHealthy):
+			case agent.hp >= t.healthInfo.HealthyLevel+int(0.95*float64(t.healthInfo.WidthHealthy)):
 				newHP = t.healthInfo.StrongLevel
 				agent.daysInState = 0
-			case agent.hp >= t.healthInfo.HealthyLevel+int(0.63*t.healthInfo.WidthHealthy):
-				newHP = int(math.Max(float64(t.healthInfo.HealthyLevel), float64(agent.hp)-0.63*t.healthInfo.WidthHealthy))
+			case agent.hp >= t.healthInfo.HealthyLevel+int(0.63*float64(t.healthInfo.WidthHealthy)):
+				newHP = int(math.Max(float64(t.healthInfo.HealthyLevel), float64(agent.hp)-0.63*float64(t.healthInfo.WidthHealthy)))
 				agent.daysInState++
 			default:
-				newHP = int(math.Max(float64(t.healthInfo.WeakLevel), float64(agent.hp)-0.63*t.healthInfo.WidthHealthy))
+				newHP = int(math.Max(float64(t.healthInfo.WeakLevel), float64(agent.hp)-0.63*float64(t.healthInfo.WidthHealthy)))
 				agent.daysInState = 0
 			}
 
 		case agent.hp >= t.healthInfo.WeakLevel:
 			switch {
-			case agent.hp >= t.healthInfo.WeakLevel+int(0.95*t.healthInfo.WidthWeak):
+			case agent.hp >= t.healthInfo.WeakLevel+int(0.95*float64(t.healthInfo.WidthWeak)):
 				newHP = t.healthInfo.HealthyLevel
 				agent.daysInState = 0
-			case agent.hp >= t.healthInfo.WeakLevel+int(0.63*t.healthInfo.WidthWeak):
-				newHP = int(math.Max(float64(t.healthInfo.WeakLevel), float64(agent.hp)-0.63*t.healthInfo.WidthWeak))
+			case agent.hp >= t.healthInfo.WeakLevel+int(0.63*float64(t.healthInfo.WidthWeak)):
+				newHP = int(math.Max(float64(t.healthInfo.WeakLevel), float64(agent.hp)-0.63*float64(t.healthInfo.WidthWeak)))
 				agent.daysInState++
 			default:
 				newHP = 1
