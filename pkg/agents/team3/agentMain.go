@@ -4,6 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
@@ -89,6 +90,20 @@ func (a *CustomAgent3) Run() {
 	}
 
 	//receive Message
+	receivedMsg := a.Base.ReceiveMessage()
+	//msg := *messages.NewBaseMessage(int(a.Floor()))
+	//sender := receivedMsg.SenderFloor
+	if receivedMsg != nil {
+		a.Log("I got sent a message", infra.Fields{"message": receivedMsg.MessageType()})
+		if receivedMsg.MessageType() == "askFoodTakenMessage" {
+			a.Log("I've eaten", infra.Fields{"food": takeFoodCalculation(a)})
+			msg := *messages.NewfoodTakenMessage(int(a.Floor()), takeFoodCalculation(a))
+			a.SendMessage(-1, msg)
+			a.Log("I sent a msg", infra.Fields{"floor": a.Floor(), "message": msg.MessageType()})
+		}
+	} else {
+		a.Log("I got nothing", infra.Fields{"floor": a.Floor()})
+	}
 
 	//message(a)
 
@@ -103,5 +118,9 @@ func (a *CustomAgent3) Run() {
 		}
 	}
 	//send Message
+	//if msg != *messages.NewBaseMessage(int(a.Floor())) {
+	//	a.SendMessage(-1, msg)
+	//	a.Log("I sent a msg", infra.Fields{"floor": a.Floor(), "message": msg.MessageType()})
+	//}
 
 }
