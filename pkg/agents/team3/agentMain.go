@@ -56,8 +56,6 @@ func (a *CustomAgent3) Run() {
 	}
 	a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "morality": a.vars.morality})
 
-	//receive Message
-
 	//eat
 	_, err := a.TakeFood(takeFoodCalculation(a))
 	if err != nil {
@@ -69,5 +67,9 @@ func (a *CustomAgent3) Run() {
 		}
 	}
 	//send Message
+	//if msg != *messages.NewBaseMessage(int(a.Floor())) {
+	//	a.SendMessage(-1, msg)
+	//	a.Log("I sent a msg", infra.Fields{"floor": a.Floor(), "message": msg.MessageType()})
+	//}
 
 }
