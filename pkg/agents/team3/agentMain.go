@@ -24,12 +24,24 @@ type team3Knowledge struct {
 	friends []int
 	//We know if we like or not the people we have met
 	friendship []float64
+	//Stores who is in the floor bellow
+	floorBelow string
+	//Stores who is in the floor above
+	floorAbove string
+}
+
+type team3Decisions struct {
+	//Amount of food we decided to eat.
+	foodToEat int
+	//Amount of food we decided to leave in the platform.
+	foodToLeave int
 }
 
 type CustomAgent3 struct {
 	*infra.Base
 	vars      team3Variables
 	knowledge team3Knowledge
+	decisions team3Decisions
 	//and an array of tuples for friendships
 }
 
@@ -44,6 +56,10 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		knowledge: team3Knowledge{
 			floors: []int{},
 			lastHP: 100,
+		},
+		decisions: team3Decisions{
+			foodToEat:   -1,
+			foodToLeave: -1,
 		},
 	}, nil
 }
