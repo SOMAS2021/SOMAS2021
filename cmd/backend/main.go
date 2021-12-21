@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-	// seed initialisation
 	rand.Seed(time.Now().UnixNano())
 
 	// logger setup

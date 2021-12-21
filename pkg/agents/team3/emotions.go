@@ -37,7 +37,6 @@ func changeInMood(a *CustomAgent3, pointsMin, pointsMax, direction int) {
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
 func changeInMorality(a *CustomAgent3, pointsMin, pointsMax, direction int) {
-
 	points := rand.Intn(pointsMax-pointsMin) + pointsMin
 	if direction < 0 {
 		a.vars.morality = a.vars.morality - points
