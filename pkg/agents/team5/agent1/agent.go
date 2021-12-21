@@ -47,7 +47,7 @@ func (a *CustomAgent5) FoodAmount() float64 {
 	return math.Round(provisional * selfWeight)
 }
 
-func (a *CustomAgent5) ReceiveMessages() {
+func (a *CustomAgent5) GetMessages() {
 	receivedMsg := a.Base.ReceiveMessage()
 	for receivedMsg != nil {
 		//some message processing depending on the type of the message
