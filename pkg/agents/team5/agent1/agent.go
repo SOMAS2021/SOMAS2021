@@ -47,6 +47,19 @@ func (a *CustomAgent5) FoodAmount() float64 {
 	return math.Round(provisional * selfWeight)
 }
 
+func (a *CustomAgent5) ReceiveMessages() {
+	receivedMsg := a.Base.ReceiveMessage()
+	for receivedMsg != nil {
+		//some message processing depending on the type of the message
+
+		receivedMsg = a.Base.ReceiveMessage() // receive next message in the inbox
+	}
+}
+
+func (a *CustomAgent5) SendMessages() {
+	//function that will send all messages we need to the other agents
+}
+
 func (a *CustomAgent5) Run() {
 	a.Log("Reporting agent state of team 5 agent", infra.Fields{"health": a.HP(), "floor": a.Floor()})
 	a.UpdateDesperation()
