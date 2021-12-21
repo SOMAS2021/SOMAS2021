@@ -20,6 +20,10 @@ type team3Knowledge struct {
 	floors []int
 	//We know the last HP
 	lastHP int
+	//We know who we have meet
+	friends []int
+	//We know if we like or not the people we have met
+	friendship []float64
 }
 
 type CustomAgent3 struct {

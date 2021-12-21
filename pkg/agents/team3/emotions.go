@@ -15,6 +15,29 @@ import (
 //	return random <= a.vars.stubbornness
 //}
 
+//Function adds the new people we have not met to our friends
+func addFriends(friend1, friend2 int, a *CustomAgent3) {
+	var new1 = true
+	var new2 = true
+	for i := 0; i < len(a.knowledge.friends); i++ {
+		if a.knowledge.friends[i] == friend1 {
+			new1 = false
+		}
+		if a.knowledge.friends[i] == friend1 {
+			new2 = false
+		}
+	}
+
+	if new1 {
+		a.knowledge.friends = append(a.knowledge.friends, friend1)
+		a.knowledge.friendship = append(a.knowledge.friendship, 0.5)
+	}
+	if new2 {
+		a.knowledge.friends = append(a.knowledge.friends, friend2)
+		a.knowledge.friendship = append(a.knowledge.friendship, 0.5)
+	}
+}
+
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
 func changeInMood(a *CustomAgent3, pointsMin, pointsMax, direction int) {
 	// TODO: Remove this line. See Issue #60.
