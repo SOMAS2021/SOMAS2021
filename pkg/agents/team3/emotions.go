@@ -15,31 +15,26 @@ import (
 //	return random <= a.vars.stubbornness
 //}
 
-//Function adds the new people we have not met to our friends
-func addFriends(friend1, friend2 int, a *CustomAgent3) {
-	var new1 = true
-	var new2 = true
+//Function adds a new person to our freindship list if they are not there yet.
+func addFriend(a *CustomAgent3, friend string) {
+	newFriend := true
 	for i := 0; i < len(a.knowledge.friends); i++ {
-		if a.knowledge.friends[i] == friend1 {
-			new1 = false
+		if a.knowledge.friends[i] == friend {
+			newFriend = false
+			break
 		}
-		if a.knowledge.friends[i] == friend1 {
-			new2 = false
-		}
+
 	}
 
-	if new1 {
-		a.knowledge.friends = append(a.knowledge.friends, friend1)
+	if newFriend {
+		a.knowledge.friends = append(a.knowledge.friends, friend)
 		a.knowledge.friendship = append(a.knowledge.friendship, 0.5)
 	}
-	if new2 {
-		a.knowledge.friends = append(a.knowledge.friends, friend2)
-		a.knowledge.friendship = append(a.knowledge.friendship, 0.5)
-	}
+
 }
 
 // Function will return the friendship level for a specific agent, if we don't know them friendship is 0, and the position it is stored at
-func friendshipLevel(friend int, a *CustomAgent3) (float64, int) {
+func friendshipLevel(a *CustomAgent3, friend string) (float64, int) {
 	for i := 0; i < len(a.knowledge.friends); i++ {
 		if a.knowledge.friends[i] == friend {
 			return a.knowledge.friendship[i], i
@@ -49,18 +44,19 @@ func friendshipLevel(friend int, a *CustomAgent3) (float64, int) {
 }
 
 // Function changes value of friendship depending on factor change -1 to 1, negative reduces frienship, positive increases
-func friendshipChange(friend int, change float64, a *CustomAgent3) {
+func friendshipChange(a *CustomAgent3, friend string, change float64) {
 
-	var level, index = friendshipLevel(friend, a)
+	var level, index = friendshipLevel(a, friend)
 
 	if index >= 0 {
 		if change < 0 {
-			level = level + change*(level-0)
+			level = level - change*(level)
 		} else {
 			level = level + change*(1-level)
 		}
 		a.knowledge.friendship[index] = level
 	}
+
 }
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down

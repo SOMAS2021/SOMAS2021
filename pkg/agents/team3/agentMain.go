@@ -21,7 +21,7 @@ type team3Knowledge struct {
 	//We know the last HP
 	lastHP int
 	//We know who we have meet
-	friends []int
+	friends []string
 	//We know if we like or not the people we have met
 	friendship []float64
 	//Stores who is in the floor bellow
@@ -66,7 +66,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 
 func (a *CustomAgent3) Run() {
 	//Update agent variables at the beginning of day (when HP has been reduced)
-	if a.HP() < a.knowledge.lastHP {
+	if a.HP() < a.knowledge.lastHP { //thanks to the new HP, this will also not work (as somedays we might wake up with the same HP)
 		changeNewDay(a)
 	}
 
@@ -75,6 +75,13 @@ func (a *CustomAgent3) Run() {
 		changeNewFloor(a)
 	}
 	a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "morality": a.vars.morality})
+
+	//Update variables right after eating
+	if a.HP() > a.knowledge.lastHP { //this will not work with the new HP function
+		a.knowledge.lastHP = a.HP()
+		a.decisions.foodToEat = -1
+		a.decisions.foodToLeave = -1
+	}
 
 	//eat
 	_, err := a.TakeFood(takeFoodCalculation(a))
