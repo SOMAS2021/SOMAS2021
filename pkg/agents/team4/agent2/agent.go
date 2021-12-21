@@ -42,10 +42,13 @@ func (a *CustomAgent4) Run() {
 
 
 		default:
+
 		}
 
 
 	}
+
+	a.TakeFood(int(a.currPlatFood() * (1- a.globalTrust/100)))
 
 
 	// switch receivedMsg.MessageType() {
