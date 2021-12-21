@@ -12,6 +12,6 @@ func NewaskIntendedFoodAmtMessage(SenderFloor int) *askIntendedFoodAmtMessage {
 }
 
 func (msg askIntendedFoodAmtMessage) MessageType() string {
-	return "askIntendedFoodAtmMessage"
+	return "askIntendedFoodAmtMessage"
 	
 }
