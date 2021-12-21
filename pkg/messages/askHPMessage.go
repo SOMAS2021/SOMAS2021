@@ -2,7 +2,6 @@ package messages
 
 type askHPMessage struct{
 	*baseMessage
-	hp int
 }
 
 func NewaskHPMessage(SenderFloor int) *askHPMessage {
