@@ -67,6 +67,10 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			foodToEat:   -1,
 			foodToLeave: -1,
 		},
+		decisions: team3Decisions{
+			foodToEat:   -1,
+			foodToLeave: -1,
+		},
 	}, nil
 }
 
