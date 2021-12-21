@@ -1,19 +1,19 @@
 package messages
 
-type takeFoodMessage struct{
+type takeFoodAmtMessage struct{
 	*baseMessage
 	Food int
 }
 
-func NewtakeFoodMessage(SenderFloor int, food int) *takeFoodMessage {
-	msg := &takeFoodMessage{
+func NewtakeFoodAmtMessage(SenderFloor int, food int) *takeFoodAmtMessage {
+	msg := &takeFoodAmtMessage{
 		baseMessage: NewBaseMessage(SenderFloor),
 		Food: food ,
 	}
 	return msg
 }
 
-func (msg takeFoodMessage) MessageType() string {
-	return "takeFoodMessage"
+func (msg takeFoodAmtMessage) MessageType() string {
+	return "takeFoodAmtMessage"
 	
 }
