@@ -2,7 +2,6 @@ package team3
 
 import (
 	"math/rand"
-	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
@@ -33,15 +32,13 @@ type CustomAgent3 struct {
 }
 
 func New(baseAgent *infra.Base) (agent.Agent, error) {
-	// TODO: Remove this line. See Issue #60.
-	s1 := rand.NewSource(time.Now().UnixNano())
-	r1 := rand.New(s1)
+
 	return &CustomAgent3{
 		Base: baseAgent,
 		vars: team3Variables{
-			stubbornness: r1.Intn(75),
-			morality:     r1.Intn(100),
-			mood:         r1.Intn(100),
+			stubbornness: rand.Intn(75),
+			morality:     rand.Intn(100),
+			mood:         rand.Intn(100),
 		},
 		knowledge: team3Knowledge{
 			floors: []int{},

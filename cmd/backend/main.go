@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"time"
@@ -13,6 +14,8 @@ import (
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	// logger setup
 	// TODO: clean up logger initialisation and closing code
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {

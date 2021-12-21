@@ -3,7 +3,6 @@ package team6
 import (
 	"fmt"
 	"math/rand"
-	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -51,7 +50,6 @@ type behaviourParameterWeights []float64
 var maxBehaviourThreshold behaviour = 10.0
 
 func chooseInitialBehaviour() behaviour {
-	rand.Seed(time.Now().UnixNano())
 	return behaviour(rand.Float64()) * maxBehaviourThreshold
 }
 
