@@ -1,18 +1,17 @@
 package messages
 
-type askIntendedFoodAtmMessage struct{
+type askIntendedFoodAmtMessage struct{
 	*baseMessage
-	//foodToTake float64 // Planning to change this to int, see #21 
 }
 
-func NewaskIntendedFoodAtmMessage(SenderFloor int) *askIntendedFoodAtmMessage {
-	msg := &askIntendedFoodAtmMessage{
+func NewaskIntendedFoodAmtMessage(SenderFloor int) *askIntendedFoodAmtMessage {
+	msg := &askIntendedFoodAmtMessage{
 		baseMessage: NewBaseMessage(SenderFloor),
 	}
 	return msg
 }
 
-func (msg askIntendedFoodAtmMessage) MessageType() string {
+func (msg askIntendedFoodAmtMessage) MessageType() string {
 	return "askIntendedFoodAtmMessage"
 	
 }
