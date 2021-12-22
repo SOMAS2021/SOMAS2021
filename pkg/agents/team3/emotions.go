@@ -28,7 +28,7 @@ func addFriend(a *CustomAgent3, friend string) {
 
 	if newFriend {
 		a.knowledge.friends = append(a.knowledge.friends, friend)
-		a.knowledge.friendship = append(a.knowledge.friendship, 0.5)
+		a.knowledge.friendship = append(a.knowledge.friendship, 0.4+(float64(a.vars.morality)/100)*0.2)
 	}
 
 }
