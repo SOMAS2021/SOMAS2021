@@ -7,21 +7,27 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 )
 
+type Memory struct {
+	trust             float64 // scale of -5 to 5, with -5 being least trustworthy and 5 being most trustworthy, 0 is neutral
+	favour            float64 // e.g. generosity; scale of -5 to 5, with -5 being least favoured and 5 being most favoured, 0 is neutral
+	daysSinceLastSeen int     // days since last interaction
+}
+
 type CustomAgent5 struct {
 	*infra.Base
 	desperation  float64
 	selflishness float64
 	lastMeal     float64
-	memory       map[string]float64
+	memory       map[string]Memory
 }
 
 func New(baseAgent *infra.Base) (agent.Agent, error) {
 	return &CustomAgent5{
 		Base:         baseAgent,
-		desperation:  3.0,                  //Scale of 1 to 4, with 1 being near max health, 4 being about to die and 2 & 3 in between
-		selflishness: 2.0,                  // of 0 to 3, with 3 being completely selflish, 0 being completely selfless
-		lastMeal:     0,                    //Stores value of the last amount of food taken
-		memory:       map[string]float64{}, // Trust towards agents; key is agent id and value ranges from -5 to 5 with 5 being trustworthy and -5 untrustworthy
+		desperation:  3.0,                 //Scale of 1 to 4, with 1 being near max health, 4 being about to die and 2 & 3 in between
+		selflishness: 2.0,                 // of 0 to 3, with 3 being completely selflish, 0 being completely selfless
+		lastMeal:     0,                   //Stores value of the last amount of food taken
+		memory:       map[string]Memory{}, // Memory of other agents, key is agent id
 	}, nil
 }
 
