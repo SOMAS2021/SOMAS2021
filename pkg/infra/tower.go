@@ -120,7 +120,7 @@ func (t *Tower) hpDecay() {
 				newHP = t.healthInfo.StrongLevel
 				agent.daysInState = 0
 			case agent.hp >= t.healthInfo.HealthyLevel+int(0.63*float64(t.healthInfo.WidthHealthy)):
-				newHP = int(math.Max(float64(t.healthInfo.HealthyLevel), float64(agent.hp)-0.63*float64(t.healthInfo.WidthHealthy)))
+				newHP = int(float64(agent.hp)-0.63*float64(t.healthInfo.WidthHealthy))
 				agent.daysInState++
 			default:
 				newHP = int(math.Max(float64(t.healthInfo.WeakLevel), float64(agent.hp)-0.63*float64(t.healthInfo.WidthHealthy)))
