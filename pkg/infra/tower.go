@@ -107,7 +107,7 @@ func (t *Tower) hpDecay() {
 		switch {
 		case agent.hp >= t.healthInfo.StrongLevel:
 			if agent.hp >= t.healthInfo.StrongLevel+int(0.63*float64(t.healthInfo.WidthStrong)) {
-				newHP = int(math.Max(float64(t.healthInfo.StrongLevel), float64(agent.hp)-0.63*float64(t.healthInfo.WidthStrong)))
+				newHP = int(float64(agent.hp) - 0.63*float64(t.healthInfo.WidthStrong))
 				agent.daysInState++
 			} else {
 				newHP = int(math.Max(float64(t.healthInfo.HealthyLevel), float64(agent.hp)-0.63*float64(t.healthInfo.WidthStrong)))
@@ -120,7 +120,7 @@ func (t *Tower) hpDecay() {
 				newHP = t.healthInfo.StrongLevel
 				agent.daysInState = 0
 			case agent.hp >= t.healthInfo.HealthyLevel+int(0.63*float64(t.healthInfo.WidthHealthy)):
-				newHP = int(float64(agent.hp)-0.63*float64(t.healthInfo.WidthHealthy))
+				newHP = int(float64(agent.hp) - 0.63*float64(t.healthInfo.WidthHealthy))
 				agent.daysInState++
 			default:
 				newHP = int(math.Max(float64(t.healthInfo.WeakLevel), float64(agent.hp)-0.63*float64(t.healthInfo.WidthHealthy)))
@@ -133,7 +133,7 @@ func (t *Tower) hpDecay() {
 				newHP = t.healthInfo.HealthyLevel
 				agent.daysInState = 0
 			case agent.hp >= t.healthInfo.WeakLevel+int(0.63*float64(t.healthInfo.WidthWeak)):
-				newHP = int(math.Max(float64(t.healthInfo.WeakLevel), float64(agent.hp)-0.63*float64(t.healthInfo.WidthWeak)))
+				newHP = int(float64(agent.hp) - 0.63*float64(t.healthInfo.WidthWeak))
 				agent.daysInState++
 			default:
 				newHP = 1
