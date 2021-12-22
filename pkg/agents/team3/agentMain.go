@@ -54,8 +54,12 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			mood:         rand.Intn(100),
 		},
 		knowledge: team3Knowledge{
-			floors: []int{},
-			lastHP: 100,
+			floors:     []int{},
+			lastHP:     100,
+			friends:    []string{},
+			friendship: []float64{},
+			floorBelow: "",
+			floorAbove: "",
 		},
 		decisions: team3Decisions{
 			foodToEat:   -1,
