@@ -31,6 +31,14 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 	}, nil
 }
 
+func (a *CustomAgent5) NewMemory(id string) {
+	a.memory[id] = Memory{
+		trust:             0,
+		favour:            0,
+		daysSinceLastSeen: 0,
+	}
+}
+
 func (a *CustomAgent5) UpdateDesperation() {
 	switch {
 	case a.HP() <= 20:
