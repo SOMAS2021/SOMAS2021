@@ -12,16 +12,16 @@ type CustomAgent5 struct {
 	desperation  float64
 	selflishness float64
 	lastMeal     float64
-	memory       map[string]int
+	memory       map[string]float64
 }
 
 func New(baseAgent *infra.Base) (agent.Agent, error) {
 	return &CustomAgent5{
 		Base:         baseAgent,
-		desperation:  3.0, //Scale of 1 to 4, with 1 being near max health, 4 being about to die and 2 & 3 in between
-		selflishness: 2.0, // of 0 to 3, with 3 being completely selflish, 0 being completely selfless
-		lastMeal:     0,   //Stores value of the last amount of food taken
-		memory:       map[string]int{},
+		desperation:  3.0,                  //Scale of 1 to 4, with 1 being near max health, 4 being about to die and 2 & 3 in between
+		selflishness: 2.0,                  // of 0 to 3, with 3 being completely selflish, 0 being completely selfless
+		lastMeal:     0,                    //Stores value of the last amount of food taken
+		memory:       map[string]float64{}, // Trust towards agents; key is agent id and value ranges from -5 to 5 with 5 being trustworthy and -5 untrustworthy
 	}, nil
 }
 
