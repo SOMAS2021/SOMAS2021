@@ -38,12 +38,12 @@ func (a *CustomAgent5) UpdateDesperation() {
 
 func (a *CustomAgent5) UpdateSelfishness() {
 	//Some function that returns a new value of selfishness based on social network
-	//Will also be based on the desperation value
+	//Will also be based on the desperation value as we do not want to set this low and cause agent to die if hungry
 }
 
 func (a *CustomAgent5) FoodAmount() float64 {
 	provisional := 20.0 * a.desperation //This determines the base level of food based on desperation
-	selfWeight := a.selflishness / 3.0  //This scales the taken amound by selfishness of agent
+	selfWeight := a.selflishness / 3.0  //This scales the taken amount by selfishness of agent
 	return math.Round(provisional * selfWeight)
 }
 
