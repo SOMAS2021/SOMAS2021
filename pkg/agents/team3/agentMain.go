@@ -98,9 +98,5 @@ func (a *CustomAgent3) Run() {
 		}
 	}
 	//send Message
-	//if msg != *messages.NewBaseMessage(int(a.Floor())) {
-	//	a.SendMessage(-1, msg)
-	//	a.Log("I sent a msg", infra.Fields{"floor": a.Floor(), "message": msg.MessageType()})
-	//}
 
 }

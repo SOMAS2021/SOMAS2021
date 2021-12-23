@@ -17,3 +17,4 @@ func (msg leaveFoodMessage) MessageType() string {
 	return "leaveFoodMessage"
 	
 }
+
