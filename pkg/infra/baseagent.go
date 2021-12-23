@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	log "github.com/sirupsen/logrus"
 )
@@ -14,15 +15,16 @@ import (
 type Fields = log.Fields
 
 type Base struct {
-	id        string
-	hp        int
-	floor     int
-	agentType int
-	inbox     *list.List
-	tower     *Tower
-	mx        sync.RWMutex
-	logger    log.Entry
-	hasEaten  bool
+	id             string
+	hp             int
+	floor          int
+	agentType      int
+	inbox          *list.List
+	tower          *Tower
+	mx             sync.RWMutex
+	logger         log.Entry
+	hasEaten       bool
+	daysAtCritical int
 }
 
 func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {
@@ -93,8 +95,15 @@ func (a *Base) setHP(newHP int) {
 	a.hp = newHP
 }
 
+// Modeled as a first order system step answer (see documentation for more information)
 func (a *Base) updateHP(foodTaken float64) {
-	a.hp = int(math.Min(100, float64(a.hp)+foodTaken))
+	hpChange := a.tower.healthInfo.Width * (1 - math.Pow(math.E, -foodTaken/a.tower.healthInfo.Tau))
+	if a.hp >= a.tower.healthInfo.WeakLevel {
+		a.hp = a.hp + int(hpChange)
+	} else {
+		a.hp = int(math.Min(float64(a.tower.healthInfo.HPCritical+a.tower.healthInfo.HPReqCToW), float64(a.hp)+hpChange))
+	}
+
 }
 
 func (a *Base) HasEaten() bool {
@@ -110,7 +119,7 @@ func (a *Base) TakeFood(amountOfFood float64) float64 {
 		foodTaken := math.Min(a.tower.currPlatFood, amountOfFood)
 		a.updateHP(foodTaken)
 		a.tower.currPlatFood -= foodTaken
-		a.setHasEaten(true)
+		a.setHasEaten(foodTaken > 0)
 		a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
 		return foodTaken
 	}
@@ -132,4 +141,8 @@ func (a *Base) SendMessage(direction int, msg messages.Message) {
 	if (direction == -1) || (direction == 1) {
 		a.tower.SendMessage(direction, a.floor, msg)
 	}
+}
+
+func (a *Base) HealthInfo() *health.HealthInfo {
+	return a.tower.healthInfo
 }

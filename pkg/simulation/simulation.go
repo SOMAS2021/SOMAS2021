@@ -6,6 +6,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	log "github.com/sirupsen/logrus"
 )
@@ -20,16 +21,18 @@ type SimEnv struct {
 	AgentsPerFloor int
 	logger         log.Entry
 	dayInfo        *day.DayInfo
+	healthInfo     *health.HealthInfo
 	world          world.World
 	custAgents     map[string]agent.Agent
 }
 
-func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo) *SimEnv {
+func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *SimEnv {
 	return &SimEnv{
 		FoodOnPlatform: foodOnPlat,
 		AgentCount:     agentCount,
 		AgentHP:        agentHP,
 		dayInfo:        dayInfo,
+		healthInfo:     healthInfo,
 		AgentsPerFloor: agentsPerFloor,
 		logger:         *log.WithFields(log.Fields{"reporter": "simulation"}),
 		custAgents:     make(map[string]agent.Agent),
@@ -40,7 +43,7 @@ func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Initializing")
 
 	totalAgents := Sum(sE.AgentCount)
-	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, sE.AgentsPerFloor, sE.dayInfo)
+	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, sE.AgentsPerFloor, sE.dayInfo, sE.healthInfo)
 	sE.SetWorld(t)
 
 	sE.generateInitialAgents(t)
