@@ -65,3 +65,13 @@ func (a *CustomAgent3) Run() {
 	//send Message
 
 }
+
+func (a *CustomAgent3) HandleAskHP()                              {}
+func (a *CustomAgent3) HandleAskFoodTaken()                       {}
+func (a *CustomAgent3) HandleAskIntendedFoodTaken()               {}
+func (a *CustomAgent3) HandleRequestLeaveFood(request float64)    {}
+func (a *CustomAgent3) HandleRequestTakeFood(request float64)     {}
+func (a *CustomAgent3) HandleResponse(response bool)              {}
+func (a *CustomAgent3) HandleStateFoodTaken(food float64)         {}
+func (a *CustomAgent3) HandleStateHP(hp int)                      {}
+func (a *CustomAgent3) HandleStateIntendedFoodTaken(food float64) {}

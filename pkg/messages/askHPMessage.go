@@ -1,18 +1,34 @@
 package messages
 
-type askHPMessage struct{
-	*baseMessage
-	hp int
+import (
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
+)
+
+type AskHPMessage struct {
+	baseMessage *infra.BaseMessage
 }
 
-func NewaskHPMessage(SenderFloor int) *askHPMessage {
-	msg := &askHPMessage{
-		baseMessage: NewBaseMessage(SenderFloor),
+func NewAskHPMessage(senderFloor int) *AskHPMessage {
+	msg := &AskHPMessage{
+		baseMessage: infra.NewBaseMessage(senderFloor, infra.AskHP),
 	}
 	return msg
 }
 
-func (msg askHPMessage) MessageType() string {
-	return "askHPMessage"
-	
+func (msg *AskHPMessage) Reply(senderFloor int, hp float64) infra.StateMessage {
+	reply := NewStateHPMessage(senderFloor, int(hp))
+	return reply
+}
+
+func (msg *AskHPMessage) MessageType() infra.MessageType {
+	return msg.baseMessage.MessageType()
+}
+
+func (msg *AskHPMessage) SenderFloor() int {
+	return msg.baseMessage.SenderFloor()
+}
+
+func (msg *AskHPMessage) Visit(a agent.Agent) {
+	a.HandleAskHP()
 }

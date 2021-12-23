@@ -1,18 +1,16 @@
 package messages
 
+import "github.com/SOMAS2021/SOMAS2021/pkg/infra"
+
 type AckMessage struct {
-	*baseMessage
-	Ack bool
+	baseMessage *infra.BaseMessage
+	response    bool
 }
 
-func NewAckMessage(SenderFloor int, ack bool) *AckMessage {
+func NewAckMessage(SenderFloor int, response bool) *AckMessage {
 	msg := &AckMessage{
-		baseMessage: NewBaseMessage(SenderFloor),
-		Ack:         ack,
+		baseMessage: infra.NewBaseMessage(SenderFloor, infra.StateResponse),
+		response:    response,
 	}
 	return msg
-}
-
-func (msg AckMessage) MessageType() string {
-	return "AckMessage"
 }

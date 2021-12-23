@@ -6,8 +6,6 @@ import (
 	"math"
 	"sync"
 
-	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	log "github.com/sirupsen/logrus"
@@ -145,18 +143,18 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) food.FoodType {
 	return 0
 }
 
-func (a *Base) ReceiveMessage() messages.Message {
+func (a *Base) ReceiveMessage() Message {
 	a.mx.Lock()
 	defer a.mx.Unlock()
 	if a.inbox.Len() > 0 {
-		msg := a.inbox.Front().Value.(messages.Message)
+		msg := a.inbox.Front().Value.(Message)
 		(a.inbox).Remove(a.inbox.Front())
 		return msg
 	}
 	return nil
 }
 
-func (a *Base) SendMessage(direction int, msg messages.Message) {
+func (a *Base) SendMessage(direction int, msg Message) {
 	if (direction == -1) || (direction == 1) {
 		a.tower.SendMessage(direction, a.floor, msg)
 	}

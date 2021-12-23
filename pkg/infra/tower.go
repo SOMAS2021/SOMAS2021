@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"sync"
 
-	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
@@ -123,9 +122,8 @@ func (t *Tower) hpDecay() {
 	}
 }
 
-func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message) {
-	for _, agent := range t.Agents {
-		agent := agent.BaseAgent()
+func (t *Tower) SendMessage(direction int, senderFloor int, msg Message) {
+	for _, agent := range t.agents {
 		if agent.floor == senderFloor+direction {
 			agent.mx.Lock()
 			agent.inbox.PushBack(msg)

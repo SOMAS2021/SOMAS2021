@@ -22,19 +22,30 @@ func (a *CustomAgent1) Run() {
 
 	receivedMsg := a.Base.ReceiveMessage()
 	if receivedMsg != nil {
+		receivedMsg.Visit(a)
 		a.Log("I sent a message", infra.Fields{"message": receivedMsg.MessageType()})
 	} else {
-		a.Log("I got nothing")
+		a.Log("I got no thing")
 	}
 
 	if (a.myNumber)%2 == 0 {
-		msg := *messages.NewAckMessage(int(a.Floor()), true)
+		msg := messages.NewStateFoodTakenMessage(int(a.Floor()), 50.2)
 		a.SendMessage(1, msg)
 		a.Log("I sent a message", infra.Fields{"message": msg.MessageType()})
 	} else {
-		msg := *messages.NewBaseMessage(int(a.Floor()))
+		msg := messages.NewAskHPMessage(int(a.Floor()))
 		a.SendMessage(1, msg)
 	}
 	a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
 	a.TakeFood(16)
 }
+
+func (a *CustomAgent1) HandleAskHP()                              {}
+func (a *CustomAgent1) HandleAskFoodTaken()                       {}
+func (a *CustomAgent1) HandleAskIntendedFoodTaken()               {}
+func (a *CustomAgent1) HandleRequestLeaveFood(request float64)    {}
+func (a *CustomAgent1) HandleRequestTakeFood(request float64)     {}
+func (a *CustomAgent1) HandleResponse(response bool)              {}
+func (a *CustomAgent1) HandleStateFoodTaken(food float64)         {}
+func (a *CustomAgent1) HandleStateHP(hp int)                      {}
+func (a *CustomAgent1) HandleStateIntendedFoodTaken(food float64) {}

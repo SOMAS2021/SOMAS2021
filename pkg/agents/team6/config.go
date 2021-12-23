@@ -5,6 +5,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 )
 
 type behaviour float64
@@ -96,8 +97,18 @@ func (a *CustomAgent6) Run() {
 	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodAmount, "bType": a.currBehaviour.String()})
 	a.Log("Team 6 agent has HP:", infra.Fields{"HP": a.HP()})
 
-	// msg := *messages.NewBaseMessage(a.Floor())
-	// a.SendMessage(1, msg)
-	// a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
+	msg := messages.NewResponseMessage(a.Floor(), true)
+	a.SendMessage(1, msg)
+	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
 
 }
+
+func (a *CustomAgent6) HandleAskHP()                              {}
+func (a *CustomAgent6) HandleAskFoodTaken()                       {}
+func (a *CustomAgent6) HandleAskIntendedFoodTaken()               {}
+func (a *CustomAgent6) HandleRequestLeaveFood(request float64)    {}
+func (a *CustomAgent6) HandleRequestTakeFood(request float64)     {}
+func (a *CustomAgent6) HandleResponse(response bool)              {}
+func (a *CustomAgent6) HandleStateFoodTaken(food float64)         {}
+func (a *CustomAgent6) HandleStateHP(hp int)                      {}
+func (a *CustomAgent6) HandleStateIntendedFoodTaken(food float64) {}

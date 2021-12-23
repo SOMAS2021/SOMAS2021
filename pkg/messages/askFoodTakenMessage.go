@@ -1,17 +1,34 @@
 package messages
 
-type askFoodTakenMessage struct{
-	*baseMessage
+import (
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
+)
+
+type AskFoodTakenMessage struct {
+	baseMessage *infra.BaseMessage
 }
 
-func NewaskFoodTakenMessage(SenderFloor int) *askFoodTakenMessage {
-	msg := &askFoodTakenMessage{
-		baseMessage: NewBaseMessage(SenderFloor),
+func NewAskFoodTakenMessage(SenderFloor int) *AskFoodTakenMessage {
+	msg := &AskFoodTakenMessage{
+		baseMessage: infra.NewBaseMessage(SenderFloor, infra.AskFoodTaken),
 	}
 	return msg
 }
 
-func (msg askFoodTakenMessage) MessageType() string {
-	return "askFoodTakenMessage"
-	
+func (msg *AskFoodTakenMessage) Reply(senderFloor int, food float64) infra.StateMessage {
+	reply := NewStateFoodTakenMessage(senderFloor, food)
+	return reply
+}
+
+func (msg *AskFoodTakenMessage) MessageType() infra.MessageType {
+	return msg.baseMessage.MessageType()
+}
+
+func (msg *AskFoodTakenMessage) SenderFloor() int {
+	return msg.baseMessage.SenderFloor()
+}
+
+func (msg *AskFoodTakenMessage) Visit(a agent.Agent) {
+	a.HandleAskFoodTaken()
 }
