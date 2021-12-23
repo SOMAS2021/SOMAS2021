@@ -1,4 +1,4 @@
-package team4
+package team4random
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
