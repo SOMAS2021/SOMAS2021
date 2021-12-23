@@ -1,6 +1,6 @@
 # Summary
 
-*Pssst...you... yes you! I need to tell you a secret. Did you run `make lint` and perhaps `gofmt -w ./`? That's what superheroes do!*
+*Pssst...you... yes you! Did you run `make lint` and perhaps `make format`?*
 
 Please provide a summary of the change. What does this PR do? What does it solve?
 
