@@ -105,18 +105,9 @@ func (t *Tower) hpDecay() {
 	for _, agent := range t.agents {
 		newHP := 0
 
-		switch {
-		case agent.hp >= t.healthInfo.StrongLevel:
-			newHP = int(math.Min(float64(t.healthInfo.MaxHP), float64(agent.hp-t.healthInfo.CostStrong)))
-
-		case agent.hp >= t.healthInfo.HealthyLevel:
-			newHP = agent.hp - t.healthInfo.CostHealthy
-
-		case agent.hp >= t.healthInfo.WeakLevel:
-			newHP = agent.hp - t.healthInfo.CostWeak
-
-		// Critical
-		default:
+		if agent.hp >= t.healthInfo.WeakLevel {
+			newHP = int(math.Min(float64(t.healthInfo.MaxHP), float64(agent.hp)-(10.0+float64(agent.hp-10)*0.25)))
+		} else {
 			if agent.hp >= t.healthInfo.HPCritical+t.healthInfo.HPReqCToW {
 				newHP = t.healthInfo.WeakLevel
 				agent.daysAtCritical = 0
@@ -124,8 +115,8 @@ func (t *Tower) hpDecay() {
 				newHP = t.healthInfo.HPCritical
 				agent.daysAtCritical++
 			}
-
 		}
+
 		if newHP < t.healthInfo.WeakLevel {
 			newHP = t.healthInfo.HPCritical
 		}

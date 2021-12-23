@@ -76,19 +76,14 @@ func main() {
 
 	// define health parameters
 	maxHP := 100
-	strongLevel := 55
-	healthyLevel := 25
-	weakLevel := 5
+	weakLevel := 10
 	width := 45.0
 	tau := 10.0
-	costStrong := 28
-	costHealthy := 23
-	costWeak := 10
 	hpReqCToW := 2
 	hpCritical := 5
 	maxDayCritical := 3
 
-	healthInfo := health.NewHealthInfo(maxHP, strongLevel, healthyLevel, weakLevel, width, tau, costStrong, costHealthy, costWeak, hpReqCToW, hpCritical, maxDayCritical)
+	healthInfo := health.NewHealthInfo(maxHP, weakLevel, width, tau, hpReqCToW, hpCritical, maxDayCritical)
 
 	// TODO: agentParameters - struct
 
