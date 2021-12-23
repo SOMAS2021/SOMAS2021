@@ -7,7 +7,7 @@ dep: ## Get the dependencies
 	@mkdir -p ./bin/
 
 lint: ## Lint Golang files
-	@golangci-lint run
+	@golangci-lint run -E gofmt
 
 test: dep ## Run unittests
 	@go test ./...
