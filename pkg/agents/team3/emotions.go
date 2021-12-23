@@ -37,10 +37,7 @@ func changeInMood(a *CustomAgent3, pointsMin, pointsMax, direction int) {
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
 func changeInMorality(a *CustomAgent3, pointsMin, pointsMax, direction int) {
-	// TODO: Remove this line. See Issue #60.
-	s1 := rand.NewSource(time.Now().UnixNano()) //creates seed to rand
-	r1 := rand.New(s1)
-	points := r1.Intn(pointsMax-pointsMin) + pointsMin
+	points := rand.Intn(pointsMax-pointsMin) + pointsMin
 	if direction < 0 {
 		a.vars.morality = a.vars.morality - points
 		if a.vars.morality < 0 {
