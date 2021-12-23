@@ -4,23 +4,60 @@
 rootdirpath="../../../../"
 cd $rootdirpath
 
-# Initialising config file
-configFile="pkg/agents/team4/agent1/config.json"
-rm $configFile
-touch $configFile
-python3 pkg/agents/team4/agent1/initaliseConfig.py $configFile
+# Initialising config files
+agentConfigFile="pkg/agents/team4/agent1/agentConfig.json"
+bestAgentsFile="pkg/agents/team4/agent1/bestAgents.json"
+agentLifeExpectenciesFile="pkg/agents/team4/agent1/agentLifeExpectencies.json"
+rm $agentConfigFile $bestAgentsFile
+touch $agentConfigFile $bestAgentsFile
+python3 pkg/agents/team4/agent1/initaliseConfig.py $agentConfigFile $bestAgentsFile
+
+numberOfAgents=4
+numberOfIterations=0
+
+for i in $( eval echo {0..$numberOfIterations} )
+do
+    arr=()
+    for j in $( eval echo {0..$numberOfAgents} )
+    do
+        rm logs/*
+        make run
+        logfile=("logs/*")
+        # pass in logfile, num agents, agent_config.json, bestAgent.config, current iteration to python script
+        pythonOutput=$(python3 pkg/agents/team4/agent1/checkAgentPerformance.py $logfile 10 $agentConfigFile $bestAgentsFile $j)
+        arr+=($pythonOutput)
+    done
+    # for f in "${arr[@]}"; do
+    #     echo "element is: $f"
+    # done
+    printf -v joined '%s,' ${arr[*]}
+    echo "[${joined%,}]" > $agentLifeExpectenciesFile
+    python3 pkg/agents/team4/agent1/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectenciesFile
+done
 
 ## Making sure main is unchanged
 # cp cmd/backend/main.go cmd/backend/main_copy.go
 # sed -i 's/	numOfAgents :=.*/	numOfAgents := []int{10}/g' cmd/backend/main.go
 
-# Running simulation once
-for i in {0..3}
-do
-    echo "iteration: "$i
-    rm logs/*
-    make run
-    logfile=("logs/*")
-    python3 pkg/agents/team4/agent1/checkAgentPerformance.py $logfile 10 $configFile
-    echo "---------------------------------------------------------------"
-done
+# Generate set of random agents
+# for agent in agents (1)
+#   create population of only agent
+#   (create poulation of all other groups agents + this agent)
+#   record average survival rate
+# pick out top agent populations
+# save list of best agents
+# create some hybrid agents
+# create some mutated random agents
+# return to (1)
+
+
+# # Running simulation once
+# for i in {0..19}
+# do
+#     echo "iteration: "$i
+#     rm logs/*
+#     make run
+#     logfile=("logs/*")
+#     python3 pkg/agents/team4/agent1/checkAgentPerformance.py $logfile 10 $configFile
+#     echo "---------------------------------------------------------------"
+# done
