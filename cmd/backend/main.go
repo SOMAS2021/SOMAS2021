@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -17,8 +16,6 @@ import (
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	// logger setup
-	// TODO: clean up logger initialisation and closing code
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
 		if err != nil {
@@ -27,39 +24,13 @@ func main() {
 		}
 	}
 
-	// archive logs by default
 	logfileName := filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05")+".json")
-
-	// open latest archive
 	f, err := os.OpenFile(logfileName, os.O_CREATE|os.O_RDWR, 0666)
 	if err != nil {
 		fmt.Println("error opening file: ", err)
 		return
 	}
-
-	// copy latest archive to simulation.log
-	defer func() {
-		// open simulation.log
-		simLog, err := os.OpenFile("simulation.json", os.O_CREATE|os.O_RDWR, 0666)
-		if err != nil {
-			fmt.Println("error creating simulation log: ", err)
-			return
-		}
-		// close simulation.log
-		defer simLog.Close()
-		f, err = os.Open(logfileName)
-		if err != nil {
-			fmt.Println("error opening file: ", err)
-			return
-		}
-		// close latest archive
-		defer f.Close()
-		_, err = io.Copy(simLog, f)
-		if err != nil {
-			fmt.Println("error copying to simulation log: ", err)
-			return
-		}
-	}()
+	defer f.Close()
 
 	log.SetOutput(f)
 	log.SetFormatter(&log.JSONFormatter{})
