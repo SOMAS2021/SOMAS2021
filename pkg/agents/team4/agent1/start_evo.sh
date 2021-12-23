@@ -13,7 +13,7 @@ touch $agentConfigFile $bestAgentsFile
 python3 pkg/agents/team4/agent1/initaliseConfig.py $agentConfigFile $bestAgentsFile
 
 numberOfAgents=4
-numberOfIterations=20
+numberOfIterations=5
 
 for i in $( eval echo {0..$numberOfIterations} )
 do

@@ -7,6 +7,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -19,6 +20,7 @@ type Coefficient struct {
 
 type Equation struct {
 	coefficients []float64
+	
 }
 
 func (equation *Equation) EvaluateEquation(input int) float64 {
@@ -31,6 +33,8 @@ func (equation *Equation) EvaluateEquation(input int) float64 {
 }
 
 func GenerateEquations() (Equation, Equation) {
+	var mu	sync.Mutex
+	mu.Lock()
 	mydir, err := os.Getwd()
 	if err != nil {
 		fmt.Println(err)
@@ -45,6 +49,7 @@ func GenerateEquations() (Equation, Equation) {
 	newAgentFloor.coefficients = data1.Floor
 	newAgentHp.coefficients = data1.Hp
 
+	defer mu.Unlock()
 	return newAgentFloor, newAgentHp
 }
 
