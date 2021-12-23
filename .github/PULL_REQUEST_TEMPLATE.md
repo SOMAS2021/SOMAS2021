@@ -10,4 +10,4 @@ Auxiliary information and additional context for the change goes here.
 
 ## Test Plan
 
-- Add information on how you tested your changes.
+Add information on how you tested your changes.
