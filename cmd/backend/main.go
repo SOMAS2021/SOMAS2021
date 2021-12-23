@@ -78,11 +78,11 @@ func main() {
 	// define heath parameters
 	strongLevel := 55
 	healthyLevel := 25
-	weakLevel := 5 // larger than maxCriticalDay
+	weakLevel := 5
 	maxDayCritical := 3
-	tauStrong := 20.0
-	tauHealthy := 15.0
-	tauWeak := 10.0
+	tauStrong := 40.0
+	tauHealthy := 16.0
+	tauWeak := 4.0
 	foodReqCToW := 2.0
 
 	healthInfo := health.NewHealthInfo(maxHP, strongLevel, healthyLevel, weakLevel, tauStrong, tauHealthy, tauWeak, foodReqCToW, maxDayCritical)
