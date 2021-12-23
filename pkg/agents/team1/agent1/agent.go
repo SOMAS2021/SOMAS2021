@@ -28,11 +28,10 @@ func (a *CustomAgent1) Run() {
 		a.Log("I got nothing")
 	}
 
-	if (a.myNumber)%2 == 0 {  
-
+	if (a.myNumber)%2 == 0 {
 
 		msg := *messages.NewAckMessage(int(a.Floor()), true)
-				a.SendMessage(1, msg)
+		a.SendMessage(1, msg)
 		a.Log("I sent a message", infra.Fields{"message": msg.MessageType()})
 	} else {
 		msg := *messages.NewBaseMessage(int(a.Floor()))
