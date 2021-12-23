@@ -4,6 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
 type team3Variables struct {
@@ -88,7 +89,7 @@ func (a *CustomAgent3) Run() {
 	}
 
 	//eat
-	_, err := a.TakeFood(takeFoodCalculation(a))
+	_, err := a.TakeFood(food.FoodType(takeFoodCalculation(a)))
 	if err != nil {
 		switch err.(type) {
 		case *infra.FloorError:
