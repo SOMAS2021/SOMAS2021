@@ -124,6 +124,9 @@ func (a *Base) updateHP(foodTaken float64) {
 	}
 
 	a.hp = a.hp + width - int(math.Pow(math.E, -foodTaken/tau)*float64(width))
+	if a.hp > a.tower.healthInfo.MaxHP {
+		a.hp = a.tower.healthInfo.MaxHP
+	}
 }
 
 func (a *Base) HasEaten() bool {
