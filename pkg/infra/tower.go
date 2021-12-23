@@ -106,7 +106,7 @@ func (t *Tower) hpDecay() {
 		newHP := 0
 
 		if agent.hp >= t.healthInfo.WeakLevel {
-			newHP = int(math.Min(float64(t.healthInfo.MaxHP), float64(agent.hp)-(10.0+float64(agent.hp-10)*0.25)))
+			newHP = int(math.Min(float64(t.healthInfo.MaxHP), float64(agent.hp)-(10.0+float64(agent.hp-t.HealthInfo.WeakLevel)*0.25)))
 		} else {
 			if agent.hp >= t.healthInfo.HPCritical+t.healthInfo.HPReqCToW {
 				newHP = t.healthInfo.WeakLevel
