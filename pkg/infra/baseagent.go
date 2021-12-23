@@ -13,8 +13,16 @@ import (
 
 type Agent interface {
 	Run()
-	BaseAgent() *Base
 	IsAlive() bool
+	HandleAskHP()
+	HandleAskFoodTaken()
+	HandleAskIntendedFoodTaken()
+	HandleRequestLeaveFood(request float64)
+	HandleRequestTakeFood(request float64)
+	HandleResponse(response bool)
+	HandleStateFoodTaken(food float64)
+	HandleStateHP(hp int)
+	HandleStateIntendedFoodTaken(food float64)
 }
 
 type Fields = log.Fields

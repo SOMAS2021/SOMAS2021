@@ -20,6 +20,10 @@ type SimEnv struct {
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
 	world          world.World
+<<<<<<< HEAD
+=======
+	custAgents     map[string]infra.Agent
+>>>>>>> 74745ce (chore: move agent interface to baseagent)
 }
 
 func NewSimEnv(foodOnPlat food.FoodType, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *SimEnv {

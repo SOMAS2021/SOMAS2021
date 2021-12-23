@@ -2,7 +2,6 @@ package messages
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 )
 
 type AskHPMessage struct {
@@ -29,6 +28,6 @@ func (msg *AskHPMessage) SenderFloor() int {
 	return msg.baseMessage.SenderFloor()
 }
 
-func (msg *AskHPMessage) Visit(a agent.Agent) {
+func (msg *AskHPMessage) Visit(a infra.Agent) {
 	a.HandleAskHP()
 }

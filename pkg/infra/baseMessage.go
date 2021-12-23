@@ -1,7 +1,5 @@
 package infra
 
-import "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
-
 //Define message types to enable basic protocols, voting systems ...etc
 
 type MessageType int
@@ -28,7 +26,7 @@ const (
 type Message interface {
 	MessageType() MessageType
 	SenderFloor() int
-	Visit(agent.Agent)
+	Visit(Agent)
 }
 
 type AskMessage interface {

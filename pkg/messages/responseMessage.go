@@ -2,7 +2,6 @@ package messages
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 )
 
 type ResponseMessage struct {
@@ -30,6 +29,6 @@ func (msg *ResponseMessage) Response() bool {
 	return msg.response
 }
 
-func (msg *ResponseMessage) Visit(a agent.Agent) {
+func (msg *ResponseMessage) Visit(a infra.Agent) {
 	a.HandleResponse(msg.response)
 }

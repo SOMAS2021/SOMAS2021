@@ -2,7 +2,6 @@ package messages
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 )
 
 // TODO (woonmoon): HP SHOULD BE AN INT!!!
@@ -34,6 +33,6 @@ func (msg *StateHPMessage) SenderFloor() int {
 	return msg.baseMessage.SenderFloor()
 }
 
-func (msg *StateHPMessage) Visit(a agent.Agent) {
+func (msg *StateHPMessage) Visit(a infra.Agent) {
 	a.HandleStateHP(msg.hp)
 }

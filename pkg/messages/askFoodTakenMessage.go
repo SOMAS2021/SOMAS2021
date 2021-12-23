@@ -2,7 +2,6 @@ package messages
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 )
 
 type AskFoodTakenMessage struct {
@@ -29,6 +28,6 @@ func (msg *AskFoodTakenMessage) SenderFloor() int {
 	return msg.baseMessage.SenderFloor()
 }
 
-func (msg *AskFoodTakenMessage) Visit(a agent.Agent) {
+func (msg *AskFoodTakenMessage) Visit(a infra.Agent) {
 	a.HandleAskFoodTaken()
 }
