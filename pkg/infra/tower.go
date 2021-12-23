@@ -1,11 +1,13 @@
 package infra
 
 import (
+	"math"
 	"math/rand"
 	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -19,6 +21,7 @@ type Tower struct {
 	missingAgents  map[int][]int // key: floor, value: types of missing agents
 	logger         log.Entry
 	dayInfo        *day.DayInfo
+	healthInfo     *health.HealthInfo
 	mx             sync.RWMutex
 }
 
@@ -34,7 +37,7 @@ func (t *Tower) TowerStateLog(timeOfTick string) {
 }
 
 func NewTower(maxPlatFood float64, agentCount,
-	agentsPerFloor int, dayInfo *day.DayInfo) *Tower {
+	agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *Tower {
 	return &Tower{
 		currPlatFood:   maxPlatFood,
 		maxPlatFood:    maxPlatFood,
@@ -45,6 +48,7 @@ func NewTower(maxPlatFood float64, agentCount,
 		missingAgents:  make(map[int][]int),
 		logger:         *log.WithFields(log.Fields{"reporter": "tower"}),
 		dayInfo:        dayInfo,
+		healthInfo:     healthInfo,
 	}
 }
 
@@ -98,11 +102,27 @@ func (t *Tower) reshuffle(numOfFloors int) {
 }
 
 func (t *Tower) hpDecay() {
-	// TODO: can add a parameter
 	for _, agent := range t.agents {
-		newHP := agent.hp - 20
+		newHP := 0
+
+		if agent.hp >= t.healthInfo.WeakLevel {
+			newHP = int(math.Min(float64(t.healthInfo.MaxHP), float64(agent.hp)-(10.0+float64(agent.hp-t.healthInfo.WeakLevel)*0.25)))
+		} else {
+			if agent.hp >= t.healthInfo.HPCritical+t.healthInfo.HPReqCToW {
+				newHP = t.healthInfo.WeakLevel
+				agent.daysAtCritical = 0
+			} else {
+				newHP = t.healthInfo.HPCritical
+				agent.daysAtCritical++
+			}
+		}
+
+		if newHP < t.healthInfo.WeakLevel {
+			newHP = t.healthInfo.HPCritical
+		}
+
 		agent.setHasEaten(false)
-		if newHP < 0 {
+		if agent.daysAtCritical >= t.healthInfo.MaxDayCritical {
 			t.Log("Killing agent", Fields{"agent": agent.id})
 			t.missingAgents[agent.floor] = append(t.missingAgents[agent.floor], agent.agentType)
 			delete(t.agents, agent.id) // maybe lock mutex?
