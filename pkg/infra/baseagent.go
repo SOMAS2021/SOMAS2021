@@ -127,7 +127,7 @@ func (a *Base) updateHP(foodTaken float64) {
 		return
 	}
 
-	a.hp = base + width - int(math.Pow(math.E, -foodTaken/tau)*float64(width-a.hp+base))
+	a.hp = a.hp + width - int(math.Pow(math.E, -foodTaken/tau)*float64(width))
 }
 
 func (a *Base) HasEaten() bool {
