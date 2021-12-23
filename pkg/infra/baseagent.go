@@ -98,23 +98,19 @@ func (a *Base) setHP(newHP int) {
 // Modeled as a first order system step answer (see documentation for more information)
 func (a *Base) updateHP(foodTaken float64) {
 	tau := 0.0
-	base := 0
 	width := 0
 
 	switch {
 	case a.hp >= a.tower.healthInfo.StrongLevel:
 		tau = a.tower.healthInfo.TauStrong
-		base = a.tower.healthInfo.StrongLevel
 		width = a.tower.healthInfo.WidthStrong
 
 	case a.hp >= a.tower.healthInfo.HealthyLevel:
 		tau = a.tower.healthInfo.TauHealthy
-		base = a.tower.healthInfo.HealthyLevel
 		width = a.tower.healthInfo.WidthHealthy
 
 	case a.hp >= a.tower.healthInfo.WeakLevel:
 		tau = a.tower.healthInfo.TauWeak
-		base = a.tower.healthInfo.WeakLevel
 		width = a.tower.healthInfo.WidthWeak
 
 	// Critical Level - TODO: discuss its implementation
