@@ -7,34 +7,34 @@ type HealthInfo struct {
 	StrongLevel  int
 	HealthyLevel int
 	WeakLevel    int
-	// Width of every health level
-	WidthStrong   int
-	WidthHealthy  int
-	WidthWeak     int
-	WidthCritical int
-	// Food intake required to stay at a given level
-	TauStrong   float64
-	TauHealthy  float64
-	TauWeak     float64
-	FoodReqCToW float64
+	// Parameters of the updateHP function
+	Width float64
+	Tau   float64
+	// Parameters of the hpDecay function - Costs of living
+	CostStrong  int
+	CostHealthy int
+	CostWeak    int
+	// HP required to leave the critical level and reach the weak level
+	HPReqCToW int
+	// HP value attributed in the critical level
+	HPCritical int
 	// Number of days an agent can stay critical before dying
 	MaxDayCritical int
 }
 
-func NewHealthInfo(MaxHP, StrongLevel, HealthyLevel, WeakLevel int, TauStrong, TauHealthy, TauWeak, FoodReqCToW float64, MaxDayCritical int) *HealthInfo {
+func NewHealthInfo(MaxHP, StrongLevel, HealthyLevel, WeakLevel int, Width, Tau float64, CostStrong, CostHealthy, CostWeak, HPReqCToW, HPCritical, MaxDayCritical int) *HealthInfo {
 	return &HealthInfo{
 		MaxHP:          MaxHP,
 		StrongLevel:    StrongLevel,
 		HealthyLevel:   HealthyLevel,
 		WeakLevel:      WeakLevel,
-		WidthStrong:    MaxHP - StrongLevel,
-		WidthHealthy:   StrongLevel - HealthyLevel,
-		WidthWeak:      HealthyLevel - WeakLevel,
-		WidthCritical:  WeakLevel,
-		TauStrong:      TauStrong,
-		TauHealthy:     TauHealthy,
-		TauWeak:        TauWeak,
-		FoodReqCToW:    FoodReqCToW,
+		Width:          Width,
+		Tau:            Tau,
+		CostStrong:     CostStrong,
+		CostHealthy:    CostHealthy,
+		CostWeak:       CostWeak,
+		HPReqCToW:      HPReqCToW,
+		HPCritical:     HPCritical,
 		MaxDayCritical: MaxDayCritical,
 	}
 }

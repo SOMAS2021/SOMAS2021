@@ -15,16 +15,16 @@ import (
 type Fields = log.Fields
 
 type Base struct {
-	id          string
-	hp          int
-	floor       int
-	agentType   int
-	inbox       *list.List
-	tower       *Tower
-	mx          sync.RWMutex
-	logger      log.Entry
-	hasEaten    bool
-	daysInState int
+	id             string
+	hp             int
+	floor          int
+	agentType      int
+	inbox          *list.List
+	tower          *Tower
+	mx             sync.RWMutex
+	logger         log.Entry
+	hasEaten       bool
+	daysAtCritical int
 }
 
 func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {
@@ -97,36 +97,13 @@ func (a *Base) setHP(newHP int) {
 
 // Modeled as a first order system step answer (see documentation for more information)
 func (a *Base) updateHP(foodTaken float64) {
-	tau := 0.0
-	width := 0
 
-	switch {
-	case a.hp >= a.tower.healthInfo.StrongLevel:
-		tau = a.tower.healthInfo.TauStrong
-		width = a.tower.healthInfo.WidthStrong
-
-	case a.hp >= a.tower.healthInfo.HealthyLevel:
-		tau = a.tower.healthInfo.TauHealthy
-		width = a.tower.healthInfo.WidthHealthy
-
-	case a.hp >= a.tower.healthInfo.WeakLevel:
-		tau = a.tower.healthInfo.TauWeak
-		width = a.tower.healthInfo.WidthWeak
-
-	// Critical Level - TODO: discuss its implementation
-	case a.hp >= 0:
-		if foodTaken >= a.tower.healthInfo.FoodReqCToW {
-			a.hp = int(a.tower.healthInfo.WeakLevel) - 1
-		} else {
-			a.hp = 1
-		}
-		return
+	if a.hp >= a.tower.healthInfo.WeakLevel {
+		a.hp = a.hp + int(a.tower.healthInfo.Width*(1-math.Pow(math.E, -foodTaken/a.tower.healthInfo.Tau)))
+	} else {
+		a.hp = int(math.Min(float64(a.tower.healthInfo.HPReqCToW), float64(a.hp+int(a.tower.healthInfo.Width*(1-math.Pow(math.E, -foodTaken/a.tower.healthInfo.Tau))))))
 	}
 
-	a.hp = a.hp + width - int(math.Pow(math.E, -foodTaken/tau)*float64(width))
-	if a.hp > a.tower.healthInfo.MaxHP {
-		a.hp = a.tower.healthInfo.MaxHP
-	}
 }
 
 func (a *Base) HasEaten() bool {

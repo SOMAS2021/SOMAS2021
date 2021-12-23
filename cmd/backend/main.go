@@ -64,7 +64,6 @@ func main() {
 	// can have frontend parameters come go straight into simEnv
 	foodOnPlatform := 100.0
 	numOfAgents := []int{2, 2, 2, 2, 2} //agent1, agent2, team3, team6, randomAgent
-	maxHP := 100
 	agentHP := 100
 	agentsPerFloor := 1 //more than one not currently supported
 	numberOfFloors := simulation.Sum(numOfAgents) / agentsPerFloor
@@ -75,17 +74,21 @@ func main() {
 	reshuffleDays := 1
 	dayInfo := day.NewDayInfo(ticksPerFloor, ticksPerDay, simDays, reshuffleDays)
 
-	// define heath parameters
+	// define health parameters
+	maxHP := 100
 	strongLevel := 55
 	healthyLevel := 25
 	weakLevel := 5
+	width := 45.0
+	tau := 10.0
+	costStrong := 28
+	costHealthy := 23
+	costWeak := 10
+	hpReqCToW := 2
+	hpCritical := 5
 	maxDayCritical := 3
-	tauStrong := 40.0
-	tauHealthy := 16.0
-	tauWeak := 4.0
-	foodReqCToW := 2.0
 
-	healthInfo := health.NewHealthInfo(maxHP, strongLevel, healthyLevel, weakLevel, tauStrong, tauHealthy, tauWeak, foodReqCToW, maxDayCritical)
+	healthInfo := health.NewHealthInfo(maxHP, strongLevel, healthyLevel, weakLevel, width, tau, costStrong, costHealthy, costWeak, hpReqCToW, hpCritical, maxDayCritical)
 
 	// TODO: agentParameters - struct
 
