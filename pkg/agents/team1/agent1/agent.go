@@ -29,14 +29,12 @@ func (a *CustomAgent1) Run() {
 	}
 
 	if (a.myNumber)%2 == 0 {
-
 		msg := *messages.NewAckMessage(int(a.Floor()), true)
 		a.SendMessage(1, msg)
 		a.Log("I sent a message", infra.Fields{"message": msg.MessageType()})
 	} else {
 		msg := *messages.NewBaseMessage(int(a.Floor()))
 		a.SendMessage(1, msg)
-
 	}
 	a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
 	a.TakeFood(10)
