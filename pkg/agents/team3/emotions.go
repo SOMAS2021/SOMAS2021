@@ -114,13 +114,35 @@ func changeNewFloor(a *CustomAgent3) {
 	a.knowledge.floorAbove = ""
 	a.knowledge.floorBelow = ""
 
-	//calculate mood based on what floors we have been in (needs updating)
+	//calculate mood based on what floors we have been in
 	currentFloor := a.Floor()
-	if len(a.knowledge.floors) != 0 {
-		if currentFloor < a.knowledge.floors[len(a.knowledge.floors)-1] {
-			changeInMood(a, 5, 15, -1)
-		} else {
-			changeInMood(a, 10, 20, 1)
+	var lastFloor = a.knowledge.floors[len(a.knowledge.floors)-1]
+
+	//If we are still in the same floor as below we keep the same mood
+	if len(a.knowledge.floors) != 0 && currentFloor != lastFloor {
+		var beenInHigher = false
+		var beenInLower = false
+
+		for i := 0; i < len(a.knowledge.floors); i++ {
+			if a.knowledge.floors[i] < currentFloor {
+				beenInLower = true
+			}
+			if a.knowledge.floors[i] > currentFloor {
+				beenInHigher = true
+			}
+		}
+
+		if !beenInHigher {
+			changeInMood(a, 5, 10, 1)
+		}
+		if beenInHigher && currentFloor > lastFloor {
+			changeInMood(a, 0, 5, 1)
+		}
+		if beenInLower && currentFloor < lastFloor {
+			changeInMood(a, 0, 5, -1)
+		}
+		if !beenInLower {
+			changeInMood(a, 5, 15, -1) //Situation is specially bad, so we get more depressed
 		}
 
 	}
