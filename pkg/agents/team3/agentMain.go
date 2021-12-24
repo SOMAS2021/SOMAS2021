@@ -5,6 +5,7 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 )
 
@@ -62,7 +63,7 @@ func (a *CustomAgent3) Run() {
 	//receive Message
 
 	//eat
-	a.TakeFood(takeFoodCalculation(a))
+	a.TakeFood(food.FoodType(takeFoodCalculation(a)))
 
 	//send Message
 

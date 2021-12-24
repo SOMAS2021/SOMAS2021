@@ -7,6 +7,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
 type behaviour float64
@@ -92,7 +93,7 @@ func (a *CustomAgent6) Run() {
 	a.Log("Custom agent 6 after update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
 
 	foodAmount := a.foodIntake()
-	a.TakeFood(foodAmount)
+	a.TakeFood(food.FoodType(foodAmount))
 	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodAmount})
 
 	msg := *messages.NewBaseMessage(a.Floor())

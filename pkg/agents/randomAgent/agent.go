@@ -21,5 +21,5 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 
 func (a *CustomAgentRandom) Run() {
 	a.Log("Random agent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP()})
-	a.TakeFood(float64(rand.Intn(100))) //Will remove float64 call when food amount is set to Int
+	a.TakeFood(rand.Intn(100)) //Will remove float64 call when food amount is set to Int
 }

@@ -7,13 +7,14 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	log "github.com/sirupsen/logrus"
 )
 
 type Tower struct {
-	currPlatFood   int
-	maxPlatFood    int
+	currPlatFood   food.FoodType
+	maxPlatFood    food.FoodType
 	currPlatFloor  int
 	agentCount     int
 	agents         map[string]*Base
@@ -36,7 +37,7 @@ func (t *Tower) TowerStateLog(timeOfTick string) {
 	t.Log("Reporting platform status"+timeOfTick, Fields{"food_left": t.currPlatFood, "floor": t.currPlatFloor})
 }
 
-func NewTower(maxPlatFood int, agentCount,
+func NewTower(maxPlatFood food.FoodType, agentCount,
 	agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *Tower {
 	return &Tower{
 		currPlatFood:   maxPlatFood,
