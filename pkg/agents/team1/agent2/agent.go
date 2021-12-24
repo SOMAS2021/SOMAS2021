@@ -3,6 +3,9 @@ package agent2
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type CustomAgent2 struct {
@@ -11,8 +14,11 @@ type CustomAgent2 struct {
 	// new params
 }
 
-func New(baseAgent *infra.Base) (agent.Agent, error) {
-	//create other parameters
+func New(world world.World, agentType int, agentHP int, agentFloor int, id string) (agent.Agent, error) {
+	baseAgent, err := infra.NewBaseAgent(world, agentType, agentHP, agentFloor, id)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return &CustomAgent2{
 		Base:     baseAgent,
 		myNumber: 0,

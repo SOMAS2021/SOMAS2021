@@ -23,7 +23,7 @@ func (sE *SimEnv) simulationLoop(t *infra.Tower) {
 		sE.Log("", Fields{"Current Simulation Tick": sE.dayInfo.CurrTick})
 		t.TowerStateLog(" start of tick")
 		sE.replaceAgents(t)
-		sE.AgentsRun()
+		sE.AgentsRun(t)
 		sE.TowerTick()
 		sE.dayInfo.CurrTick++
 	}
@@ -35,17 +35,17 @@ func (sE *SimEnv) TowerTick() {
 	}
 }
 
-func (sE *SimEnv) AgentsRun() {
+func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 	var wg sync.WaitGroup
-	for uuid, custAgent := range sE.custAgents {
+	for uuid, custAgent := range t.Agents {
 		wg.Add(1)
 		go func(wg *sync.WaitGroup, custAgent agent.Agent, uuid string) {
 			if custAgent.IsAlive() {
 				custAgent.Run()
 			} else {
-				sE.mx.Lock()
-				delete(sE.custAgents, uuid)
-				sE.mx.Unlock()
+				// sE.mx.Lock()
+				// delete(sE.custAgents, uuid)
+				// sE.mx.Unlock()
 			}
 			wg.Done()
 		}(&wg, custAgent, uuid)
