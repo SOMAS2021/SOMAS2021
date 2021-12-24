@@ -13,6 +13,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type Agent interface {
+	Run()
+	BaseAgent() *Base
+	IsAlive() bool
+}
+
 type Fields = log.Fields
 
 type Base struct {
