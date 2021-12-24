@@ -89,6 +89,10 @@ func (a *Base) IsAlive() bool {
 	return found
 }
 
+func (a *Base) DaysAtCritical() int {
+	return a.daysAtCritical
+}
+
 func (a *Base) setFloor(newFloor int) {
 	a.floor = newFloor
 }
