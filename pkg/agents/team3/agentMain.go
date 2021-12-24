@@ -90,7 +90,7 @@ func (a *CustomAgent3) Run() {
 
 	//receive Message
 
-	message(a)
+	//message(a)
 
 	//message(a)
 
