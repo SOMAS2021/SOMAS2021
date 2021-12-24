@@ -95,6 +95,7 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 
 func (a *CustomAgent2) Run() {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	//Communication & Observation
 	//communicate before platform arrives to my floor
 
@@ -106,6 +107,15 @@ func (a *CustomAgent2) Run() {
 	//communicate before platform arrives to my floor
 	//Communication & Observation
 >>>>>>> 40c4e3f (1. Added team2 MVP; 2. Added team2 agent to simulation)
+=======
+	//Communication & Observation
+	//communicate before platform arrives to my floor
+
+	/*
+		msg := *messages.NewBaseMessage(a.Floor())
+		a.SendMessage(1, msg)
+	*/
+>>>>>>> 71a4f43 (1.Changed reward calculation; 2.added comment in main.go 3.Fixed tiny typos)
 
 	//Perform the following only when platform arrives
 	//NOTE: should let infra team add a func to see whether the plaftfrom has arrived or not
@@ -128,10 +138,13 @@ func (a *CustomAgent2) Run() {
 		a.updataPolicies(oldState)
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	msg := *messages.NewBaseMessage(a.Floor())
 	a.SendMessage(1, msg)
 	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
 >>>>>>> 40c4e3f (1. Added team2 MVP; 2. Added team2 agent to simulation)
+=======
+>>>>>>> 71a4f43 (1.Changed reward calculation; 2.added comment in main.go 3.Fixed tiny typos)
 
 }
