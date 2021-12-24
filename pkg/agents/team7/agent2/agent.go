@@ -27,7 +27,6 @@ func (a *CustomAgent1) Run() {
 	//currentAvailFood := a.CurrPlatFood()
 
 	var foodtotake food.FoodType = food.FoodType(100 - currentHP)
-	// var food food.FoodType = food.FoodType(foodtotake)
 	if foodtotake == 0 {
 
 	} else {
