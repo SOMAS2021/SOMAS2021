@@ -20,7 +20,6 @@ type Coefficient struct {
 
 type Equation struct {
 	coefficients []float64
-	
 }
 
 func (equation *Equation) EvaluateEquation(input int) float64 {
@@ -29,11 +28,12 @@ func (equation *Equation) EvaluateEquation(input int) float64 {
 		power := math.Pow(float64(input), float64(i))
 		sum += coeff * power
 	}
+
 	return sum
 }
 
 func GenerateEquations() (Equation, Equation) {
-	var mu	sync.Mutex
+	var mu sync.Mutex
 	mu.Lock()
 	mydir, err := os.Getwd()
 	if err != nil {
@@ -55,6 +55,7 @@ func GenerateEquations() (Equation, Equation) {
 
 type CustomAgentEvoParams struct {
 	// these params are based only on singular inputs
+	scalingEquation   Equation
 	currentFloorScore Equation
 	currentHpScore    Equation
 	// below params updated based in previous experience of floors
@@ -75,6 +76,9 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgentEvo{
 		Base: baseAgent,
 		params: CustomAgentEvoParams{
+			scalingEquation: Equation{
+				coefficients: []float64{1, 1, 1},
+			},
 			currentFloorScore: currentFloorScoreEquation,
 			currentHpScore:    currentHpScoreEquation,
 			trustscore:        100 * rand.Float64(),
@@ -85,15 +89,19 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 }
 
 func (a *CustomAgentEvo) Run() {
-	foodToEat := a.params.currentFloorScore.EvaluateEquation(a.Floor()) + a.params.currentHpScore.EvaluateEquation(a.HP())
+	scaledFloorScore := a.params.currentFloorScore.EvaluateEquation(a.Floor()) / a.params.scalingEquation.EvaluateEquation(a.Floor())
+	scaledHpScore := a.params.currentHpScore.EvaluateEquation(a.HP()) / a.params.scalingEquation.EvaluateEquation(a.HP())
+	foodToEat := 50*scaledFloorScore + 50*scaledHpScore
+	// fmt.Printf("FoodToEat: %f\n", foodToEat)
+	// fmt.Printf("Floor is %f\n", a.params.currentFloorScore.EvaluateEquation(a.Floor())/a.params.scalingEquation.EvaluateEquation(a.Floor()))
+	// fmt.Printf("HP is %f\n", a.params.currentHpScore.EvaluateEquation(a.HP())/a.params.scalingEquation.EvaluateEquation(a.HP()))
 	// scaledFoodToEat := 100 * math.Tanh(foodToEat/5000)
-	scaledFoodToEat := foodToEat
 	// fmt.Printf("%f", 100*math.Tanh(foodToEat/5000))
 
 	beforeHP := a.HP()
 	a.TakeFood(food.FoodType(foodToEat))
 	foodEaten := a.HP() - beforeHP
-	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "foodToEat": scaledFoodToEat, "foodEaten": foodEaten, "currentFloorScore": a.params.currentFloorScore.coefficients, "currentHpScore": a.params.currentHpScore.coefficients})
+	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "foodToEat": foodToEat, "foodEaten": foodEaten, "currentFloorScore": a.params.currentFloorScore.coefficients, "currentHpScore": a.params.currentHpScore.coefficients})
 	// fmt.Printf("Food to eat: %f", foodToEat)
 	if a.HP() < 25 {
 		a.params.trauma = math.Min(100, a.params.trauma+1)
