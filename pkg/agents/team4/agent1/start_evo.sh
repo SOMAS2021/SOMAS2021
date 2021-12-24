@@ -10,29 +10,29 @@ bestAgentsFile="pkg/agents/team4/agent1/bestAgents.json"
 agentLifeExpectenciesFile="pkg/agents/team4/agent1/agentLifeExpectencies.json"
 rm $agentConfigFile $bestAgentsFile
 touch $agentConfigFile $bestAgentsFile
-python3 pkg/agents/team4/agent1/initaliseConfig.py $agentConfigFile $bestAgentsFile
 
-numberOfAgents=4
+degreeOfEquations=1
+numberOfBestAgents=4
+numberOfAgentsPerSim=20
 numberOfIterations=5
+
+python3 pkg/agents/team4/agent1/initaliseConfig.py $agentConfigFile $bestAgentsFile $degreeOfEquations $numberOfBestAgents
 
 for i in $( eval echo {0..$numberOfIterations} )
 do
     arr=()
-    for j in $( eval echo {0..$numberOfAgents} )
+    for j in $( eval echo {0..$numberOfBestAgents} )
     do
         rm logs/*
         make run
         logfile=("logs/*")
         # pass in logfile, num agents, agent_config.json, bestAgent.config, current iteration to python script
-        pythonOutput=$(python3 pkg/agents/team4/agent1/checkAgentPerformance.py $logfile 10 $agentConfigFile $bestAgentsFile $j)
+        pythonOutput=$(python3 pkg/agents/team4/agent1/checkAgentPerformance.py $logfile $numberOfAgentsPerSim $agentConfigFile $bestAgentsFile $j)
         arr+=($pythonOutput)
     done
-    # for f in "${arr[@]}"; do
-    #     echo "element is: $f"
-    # done
     printf -v joined '%s,' ${arr[*]}
     echo "[${joined%,}]" > $agentLifeExpectenciesFile
-    python3 pkg/agents/team4/agent1/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectenciesFile
+    python3 pkg/agents/team4/agent1/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectenciesFile $degreeOfEquations
 done
 
 ## Making sure main is unchanged
@@ -49,15 +49,3 @@ done
 # create some hybrid agents
 # create some mutated random agents
 # return to (1)
-
-
-# # Running simulation once
-# for i in {0..19}
-# do
-#     echo "iteration: "$i
-#     rm logs/*
-#     make run
-#     logfile=("logs/*")
-#     python3 pkg/agents/team4/agent1/checkAgentPerformance.py $logfile 10 $configFile
-#     echo "---------------------------------------------------------------"
-# done

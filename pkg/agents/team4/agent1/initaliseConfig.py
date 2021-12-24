@@ -4,11 +4,15 @@ import random
 
 agent_config_file_name = sys.argv[1]
 best_agent_file_name = sys.argv[2]
+degree_of_equations = sys.argv[3]
+number_of_best_agents = sys.argv[4]
+
 agent_config_file = open(agent_config_file_name, 'r+')
 best_agents_file = open(best_agent_file_name, 'r+')
 
+number_of_agents = int(number_of_best_agents) + 1
+
 best_agents = []
-number_of_agents = 5
 for _ in range(number_of_agents):
     agent_config = {
         "Floor": [],
@@ -16,7 +20,8 @@ for _ in range(number_of_agents):
     }
 
     for k, _ in agent_config.items():
-        agent_config[k] = [round(random.random(), 4) for _ in range(3)]
+        agent_config[k] = [round(0.0, 4)
+                           for _ in range(int(degree_of_equations) + 1)]
 
     best_agents.append(agent_config)
 

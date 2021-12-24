@@ -77,7 +77,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		Base: baseAgent,
 		params: CustomAgentEvoParams{
 			scalingEquation: Equation{
-				coefficients: []float64{1, 1, 1},
+				coefficients: []float64{1, 1},
 			},
 			currentFloorScore: currentFloorScoreEquation,
 			currentHpScore:    currentHpScoreEquation,
@@ -101,6 +101,7 @@ func (a *CustomAgentEvo) Run() {
 	beforeHP := a.HP()
 	a.TakeFood(food.FoodType(foodToEat))
 	foodEaten := a.HP() - beforeHP
+
 	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "foodToEat": foodToEat, "foodEaten": foodEaten, "currentFloorScore": a.params.currentFloorScore.coefficients, "currentHpScore": a.params.currentHpScore.coefficients})
 	// fmt.Printf("Food to eat: %f", foodToEat)
 	if a.HP() < 25 {
