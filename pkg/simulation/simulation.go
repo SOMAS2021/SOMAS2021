@@ -1,8 +1,6 @@
 package simulation
 
 import (
-	"sync"
-
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
@@ -15,7 +13,6 @@ import (
 type Fields = log.Fields
 
 type SimEnv struct {
-	mx             sync.RWMutex
 	FoodOnPlatform food.FoodType
 	AgentCount     []int
 	AgentHP        int
