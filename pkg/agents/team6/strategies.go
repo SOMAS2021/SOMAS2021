@@ -22,7 +22,6 @@ var daysInCritical int = 0
 var foodTakeDay int
 
 func (a *CustomAgent6) foodIntake() float64 {
-
 	healthInfo := a.HealthInfo()
 
 	thresholds := thresholdData{
