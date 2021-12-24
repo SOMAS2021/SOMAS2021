@@ -1,4 +1,4 @@
-package team7
+package team7agent1
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
