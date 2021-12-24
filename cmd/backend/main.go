@@ -9,6 +9,7 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	log "github.com/sirupsen/logrus"
 )
@@ -36,7 +37,7 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 
 	// can have frontend parameters come go straight into simEnv
-	foodOnPlatform := 100
+	foodOnPlatform := food.FoodType(100)
 	numOfAgents := []int{2, 2, 2, 2, 2} //agent1, agent2, team3, team6, randomAgent
 	agentHP := 100
 	agentsPerFloor := 1 //more than one not currently supported

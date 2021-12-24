@@ -1,3 +1,3 @@
 package food
 
-type FoodType = int
+type FoodType int
