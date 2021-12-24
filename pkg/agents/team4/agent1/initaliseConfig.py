@@ -12,6 +12,7 @@ best_agents_file = open(best_agent_file_name, 'r+')
 
 number_of_agents = int(number_of_best_agents) + 1
 
+# Initialising all configuration files to 0 values
 best_agents = []
 for _ in range(number_of_agents):
     agent_config = {

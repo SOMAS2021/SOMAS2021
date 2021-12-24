@@ -39,7 +39,7 @@ equation = ["Floor", "Hp"]
 agent_1_slight_mutations_1 = agent_1
 for i in equation:
     for j in range(number_of_coefficients):
-        rand = 0.0001*random.random()
+        rand = 0.001*random.random()
         add_sub = random.random()
         if (add_sub < 0.5):
             agent_1_slight_mutations_1[i][j] += rand
@@ -51,35 +51,36 @@ for i in equation:
         elif(agent_1_slight_mutations_1[i][j] < -1):
             agent_1_slight_mutations_1[i][j] = -1
 
-agent_1_slight_mutations_2 = agent_1
-for i in equation:
-    for j in range(number_of_coefficients):
-        rand = 0.0001*random.random()
-        add_sub = random.random()
-        if (add_sub < 0.5):
-            agent_1_slight_mutations_2[i][j] += rand
-        else:
-            agent_1_slight_mutations_2[i][j] -= rand
+# UNUSED FOR NOW
+# agent_1_slight_mutations_2 = agent_1
+# for i in equation:
+#     for j in range(number_of_coefficients):
+#         rand = 0.001*random.random()
+#         add_sub = random.random()
+#         if (add_sub < 0.5):
+#             agent_1_slight_mutations_2[i][j] += rand
+#         else:
+#             agent_1_slight_mutations_2[i][j] -= rand
 
-        if (agent_1_slight_mutations_2[i][j] > 1):
-            agent_1_slight_mutations_2[i][j] = 1
-        elif(agent_1_slight_mutations_2[i][j] < -1):
-            agent_1_slight_mutations_2[i][j] = -1
+#         if (agent_1_slight_mutations_2[i][j] > 1):
+#             agent_1_slight_mutations_2[i][j] = 1
+#         elif(agent_1_slight_mutations_2[i][j] < -1):
+#             agent_1_slight_mutations_2[i][j] = -1
 
-agent_1_big_mutation = agent_1
-for i in equation:
-    for j in range(number_of_coefficients):
-        rand = 0.1*random.random()
-        add_sub = random.random()
-        if (add_sub < 0.5):
-            agent_1_big_mutation[i][j] += rand
-        else:
-            agent_1_big_mutation[i][j] -= rand
+# agent_1_big_mutation = agent_1
+# for i in equation:
+#     for j in range(number_of_coefficients):
+#         rand = 0.1*random.random()
+#         add_sub = random.random()
+#         if (add_sub < 0.5):
+#             agent_1_big_mutation[i][j] += rand
+#         else:
+#             agent_1_big_mutation[i][j] -= rand
 
-        if (agent_1_big_mutation[i][j] > 1):
-            agent_1_big_mutation[i][j] = 1
-        elif(agent_1_big_mutation[i][j] < -1):
-            agent_1_big_mutation[i][j] = -1
+#         if (agent_1_big_mutation[i][j] > 1):
+#             agent_1_big_mutation[i][j] = 1
+#         elif(agent_1_big_mutation[i][j] < -1):
+#             agent_1_big_mutation[i][j] = -1
 
 agent_mix_1 = {}
 for i in equation:

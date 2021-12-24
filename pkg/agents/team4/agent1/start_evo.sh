@@ -11,11 +11,12 @@ agentLifeExpectenciesFile="pkg/agents/team4/agent1/agentLifeExpectencies.json"
 rm $agentConfigFile $bestAgentsFile
 touch $agentConfigFile $bestAgentsFile
 
-degreeOfEquations=1
+degreeOfEquations=3
 numberOfBestAgents=4
 numberOfAgentsPerSim=20
 numberOfIterations=20
 
+# Generate set of agents with 0 parameters
 python3 pkg/agents/team4/agent1/initaliseConfig.py $agentConfigFile $bestAgentsFile $degreeOfEquations $numberOfBestAgents
 
 for i in $( eval echo {0..$numberOfIterations} )
@@ -24,25 +25,25 @@ do
     for j in $( eval echo {0..$numberOfBestAgents} )
     do
         rm logs/*
+        # create population of only agent
+        # (could be changed in future for other groups agents + this agent)
         make run
         logfile=("logs/*")
         # pass in logfile, num agents, agent_config.json, bestAgent.config, current iteration to python script
         pythonOutput=$(python3 pkg/agents/team4/agent1/checkAgentPerformance.py $logfile $numberOfAgentsPerSim $agentConfigFile $bestAgentsFile $j)
+        # record average survival rate
         arr+=($pythonOutput)
     done
     printf -v joined '%s,' ${arr[*]}
     echo "[${joined%,}]" > $agentLifeExpectenciesFile
+    # generate new set of best agents generated from previous perfomance 
     python3 pkg/agents/team4/agent1/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectenciesFile $degreeOfEquations
 done
 
-## Making sure main is unchanged
-# cp cmd/backend/main.go cmd/backend/main_copy.go
-# sed -i 's/	numOfAgents :=.*/	numOfAgents := []int{10}/g' cmd/backend/main.go
-
-# Generate set of random agents
-# for agent in agents (1)
+# Initialise set of agents
+# for agents in all agents
 #   create population of only agent
-#   (create poulation of all other groups agents + this agent)
+#   (could be changed in future for other groups agents + this agent)
 #   record average survival rate
 # pick out top agent populations
 # save list of best agents
