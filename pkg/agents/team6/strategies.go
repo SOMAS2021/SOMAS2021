@@ -1,17 +1,19 @@
 package team6
 
+import "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+
 type thresholdData struct {
-	satisficeThresh float64
-	satisfyThresh   float64
-	maxIntake       float64
+	satisficeThresh food.FoodType
+	satisfyThresh   food.FoodType
+	maxIntake       food.FoodType
 }
 
-func (a *CustomAgent6) foodIntake() float64 {
-	thresholds := thresholdData{satisficeThresh: 20.0, satisfyThresh: 60.0, maxIntake: 80.0}
+func (a *CustomAgent6) foodIntake() food.FoodType {
+	thresholds := thresholdData{satisficeThresh: 20, satisfyThresh: 60, maxIntake: 80}
 
 	switch a.currBehaviour.String() {
 	case "Altruist":
-		return 0.0
+		return 0
 	case "Collectivist":
 		return thresholds.satisficeThresh
 	case "Selfish":
@@ -19,6 +21,6 @@ func (a *CustomAgent6) foodIntake() float64 {
 	case "Narcissist":
 		return thresholds.maxIntake
 	default:
-		return 0.0
+		return 0
 	}
 }
