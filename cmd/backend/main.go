@@ -40,6 +40,13 @@ func main() {
 	//currently only one used is -configpath, but we are likely to need more in the near future.
 	// if not set, it uses default of "config.json"
 	configPathPtr := flag.String("configpath", "config.json", "path for parameter configuration json file")
+	// can have frontend parameters come go straight into simEnv
+	//foodOnPlatform := 100.0
+	//numOfAgents := []int{2, 2, 2, 2, 2, 2} //agent1, agent2, team3, team6, randomAgent
+	//agentHP := 100
+	//agentsPerFloor := 1 //more than one not currently supported
+	//numberOfFloors := simulation.Sum(numOfAgents) / agentsPerFloor
+	//ticksPerFloor := 10
 
 	flag.Parse()
 
