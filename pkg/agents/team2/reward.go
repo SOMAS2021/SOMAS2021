@@ -10,11 +10,13 @@ func calcReward(hp int, hpInc int) float32 {
 	} else {
 		ret -= 0.5
 	}
-	//we encourage ageny to eat less
-	if hpInc <= 20 {
+	//we encourage ageny to eat less when hp level is high
+	oldHP := float32(hp - hpInc)
+	incRate := float32(hpInc) / oldHP
+	if incRate > 1.0 {
 		ret += 1.0
 	} else {
-		ret -= 0.5
+		ret -= 1.0
 	}
 	return ret
 	//TODO: we encourage agent to save other agent
