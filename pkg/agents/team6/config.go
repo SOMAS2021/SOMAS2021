@@ -37,6 +37,7 @@ type CustomAgent6 struct {
 	//keep track of the lowest floor we've been to
 	maxFloorGuess int
 	currBehaviour behaviour
+	foodTakeDay   int
 }
 
 type thresholdBehaviourPair struct {
@@ -66,6 +67,7 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 		},
 		currBehaviour: initialBehaviour,
 		maxFloorGuess: baseAgent.Floor() + 2,
+		foodTakeDay:   0,
 	}, nil
 }
 

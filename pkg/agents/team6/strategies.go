@@ -20,7 +20,6 @@ type levelsData struct { // tiers of HP
 }
 
 var daysInCritical int = 0
-var foodTakeDay int
 
 func (a *CustomAgent6) foodIntake() food.FoodType {
 	healthInfo := a.HealthInfo()
@@ -42,14 +41,14 @@ func (a *CustomAgent6) foodIntake() food.FoodType {
 	case "Altruist": // Never eat
 		return food.FoodType(0)
 
-	case "Collectivist": // Only eat when in critical zone on Day 3
+	case "Collectivist": // Only eat when in critical zone randomly before expiry
 		switch {
 		case currentHP >= levels.weakLevel:
 			daysInCritical = 0
-			foodTakeDay = rand.Intn(healthInfo.MaxDayCritical) // Stagger the days when agents return to weak
+			a.foodTakeDay = rand.Intn(healthInfo.MaxDayCritical) // Stagger the days when agents return to weak
 			return food.FoodType(0)
 		case currentHP >= levels.critLevel:
-			if daysInCritical == foodTakeDay {
+			if daysInCritical == a.foodTakeDay {
 				return food.FoodType(healthInfo.HPReqCToW)
 			}
 			daysInCritical++
