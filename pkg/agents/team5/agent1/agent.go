@@ -4,7 +4,6 @@ import (
 	"math"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
@@ -32,7 +31,7 @@ type CustomAgent5 struct {
 	// memory map[string]Memory
 }
 
-func New(baseAgent *infra.Base) (agent.Agent, error) {
+func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgent5{
 		Base:              baseAgent,
 		selfishness:       3,    // of 0 to 3, with 3 being completely selfish, 0 being completely selfless
