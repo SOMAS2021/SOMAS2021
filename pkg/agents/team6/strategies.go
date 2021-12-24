@@ -1,11 +1,14 @@
 package team6
 
-import "math"
+import (
+	"math"
+	"math/rand"
+
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
+)
 
 type thresholdData struct {
-	satisficeThresh float64
-	satisfyThresh   float64
-	maxIntake       float64
+	maxIntake float64
 }
 
 type levelsData struct {
@@ -15,39 +18,40 @@ type levelsData struct {
 	critLevel    float64
 }
 
-type widthData struct {
-	strong2max     float64
-	healthy2strong float64
-	weak2healthy   float64
-	crit2weak      float64
-}
+// type widthData struct {
+// 	strong2max     float64
+// 	healthy2strong float64
+// 	weak2healthy   float64
+// 	crit2weak      float64
+// }
 
-var tau float64 = 10.0
-var hp float64
 var ctr int = 0
+var foodTakeDay int
 
 func (a *CustomAgent6) foodIntake() float64 {
+
+	// towerInfo := a.Tower()
+	healthInfo := a.HealthInfo()
+
 	thresholds := thresholdData{
-		satisficeThresh: 20.0,
-		satisfyThresh:   60.0,
-		maxIntake:       80.0,
+		maxIntake: 80.0,
 	}
 
 	levels := levelsData{
-		strongLevel:  60.0,
-		healthyLevel: 30.0,
-		weakLevel:    10.0,
+		strongLevel:  0.6 * float64(healthInfo.MaxHP),
+		healthyLevel: 0.3 * float64(healthInfo.MaxHP),
+		weakLevel:    0.1 * float64(healthInfo.MaxHP),
 		critLevel:    0.0,
 	}
 
-	widths := widthData{
-		strong2max:     40.0,
-		healthy2strong: 30.0,
-		weak2healthy:   20.0,
-		crit2weak:      10.0,
-	}
+	// widths := widthData{
+	// 	strong2max:     float64(healthInfo.MaxHP) - levels.strongLevel,
+	// 	healthy2strong: levels.strongLevel - levels.healthyLevel,
+	// 	weak2healthy:   levels.healthyLevel - levels.weakLevel,
+	// 	crit2weak:      levels.weakLevel,
+	// }
 
-	hp = float64(a.HP())
+	hp := float64(a.HP())
 
 	switch a.currBehaviour.String() {
 	case "Altruist": // Never eat
@@ -57,13 +61,12 @@ func (a *CustomAgent6) foodIntake() float64 {
 		switch {
 		case hp >= levels.weakLevel:
 			ctr = 0
+			foodTakeDay = rand.Intn(healthInfo.MaxDayCritical) + 1
 			return 0.0
 		case hp >= levels.critLevel:
 			ctr = ctr + 1
-			if ctr == 3 {
-				return foodRequiredToAscend(hp, levels.critLevel, widths.crit2weak, tau)
-				// return 2.0;
-				// return a.tower.healthInfo.FoodReqCToW;
+			if ctr == foodTakeDay {
+				return float64(healthInfo.HPReqCToW)
 			}
 			return 0.0
 		default:
@@ -75,12 +78,9 @@ func (a *CustomAgent6) foodIntake() float64 {
 		case hp >= levels.strongLevel:
 			return 0.0
 		case hp >= levels.healthyLevel:
-			return foodRequiredToStay(hp, levels.healthyLevel, widths.healthy2strong, tau)
-		case hp >= levels.weakLevel:
-			return foodRequiredToAscend(hp, levels.weakLevel, widths.weak2healthy, tau)
+			return foodRequired(hp, hp, healthInfo)
 		default:
-			return foodRequiredToAscend(hp, levels.critLevel, widths.crit2weak, tau)
-			// return 2.0
+			return foodRequired(hp, levels.healthyLevel, healthInfo)
 		}
 
 	case "Narcissist": // Eat max intake (Later development: stay in Strong zone?)
@@ -91,13 +91,17 @@ func (a *CustomAgent6) foodIntake() float64 {
 	}
 }
 
-func foodRequiredToStay(currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {
-	return tau*math.Log(currentLevel+levelWidth-currentHP) - tau*math.Log(math.Pow(math.E, -1)*levelWidth)
+func foodRequired(currentHP, goalHP float64, healthInfo *health.HealthInfo) float64 {
+	return healthInfo.Tau*math.Log(healthInfo.Width) - healthInfo.Tau*math.Log(healthInfo.Width-goalHP+0.75*currentHP-10+0.25*float64(healthInfo.WeakLevel))
 }
 
-func foodRequiredToAscend(currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {
-	return tau*math.Log(currentLevel+levelWidth-currentHP) - tau*math.Log(math.Pow(math.E, -3)*levelWidth)
-}
+// func foodRequiredToStay(currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {
+// 	return tau*math.Log(currentLevel+levelWidth-currentHP) - tau*math.Log(math.Pow(math.E, -1)*levelWidth)
+// }
+
+// func foodRequiredToAscend(currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {
+// 	return tau*math.Log(currentLevel+levelWidth-currentHP) - tau*math.Log(math.Pow(math.E, -3)*levelWidth)
+// }
 
 // func hpFunc(x float64, currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {
 // 	return currentLevel + levelWidth - math.Exp(-x/tau)*(levelWidth+currentHP-currentLevel)

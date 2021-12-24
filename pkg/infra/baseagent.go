@@ -146,3 +146,7 @@ func (a *Base) SendMessage(direction int, msg messages.Message) {
 func (a *Base) HealthInfo() *health.HealthInfo {
 	return a.tower.healthInfo
 }
+
+// func (a *Base) Tower() *Tower {
+// 	return a.tower
+// }
