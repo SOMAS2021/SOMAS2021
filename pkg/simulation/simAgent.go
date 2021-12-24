@@ -7,12 +7,11 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team3"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
-type AgentNewFunc func(world world.World, agentType int, agentHP int, agentFloor int, id string) (infra.Agent, error)
+type AgentNewFunc func(base *infra.Base) (infra.Agent, error)
 
 func (sE *SimEnv) generateInitialAgents(t *infra.Tower) {
 	agentIndex := 1
@@ -30,7 +29,12 @@ func (sE *SimEnv) createNewAgent(tower *infra.Tower, i, floor int) {
 	abs := []AgentNewFunc{agent1.New, agent2.New, team3.New, team6.New, randomAgent.New}
 	uuid := uuid.New().String()
 
-	custAgent, err := abs[i](sE.world, i, sE.AgentHP, floor, uuid)
+	bAgent, err := infra.NewBaseAgent(sE.world, i, sE.AgentHP, floor, uuid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	custAgent, err := abs[i](bAgent)
 	if err != nil {
 		log.Fatal(err)
 	}
