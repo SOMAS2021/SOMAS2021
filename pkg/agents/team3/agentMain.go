@@ -4,10 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
-
 	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	log "github.com/sirupsen/logrus"
 )
 
 type team3Variables struct {
@@ -33,11 +30,7 @@ type CustomAgent3 struct {
 	//and an array of tuples for friendships
 }
 
-func New(world world.World, agentType int, agentHP int, agentFloor int, id string) (infra.Agent, error) {
-	baseAgent, err := infra.NewBaseAgent(world, agentType, agentHP, agentFloor, id)
-	if err != nil {
-		log.Fatal(err)
-	}
+func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgent3{
 		Base: baseAgent,
 		vars: team3Variables{

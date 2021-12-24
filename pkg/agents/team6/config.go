@@ -6,8 +6,6 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
-	log "github.com/sirupsen/logrus"
 )
 
 type behaviour float64
@@ -54,11 +52,7 @@ func chooseInitialBehaviour() behaviour {
 	return behaviour(rand.Float64()) * maxBehaviourThreshold
 }
 
-func New(world world.World, agentType int, agentHP int, agentFloor int, id string) (infra.Agent, error) {
-	baseAgent, err := infra.NewBaseAgent(world, agentType, agentHP, agentFloor, id)
-	if err != nil {
-		log.Fatal(err)
-	}
+func New(baseAgent *infra.Base) (infra.Agent, error) {
 	initialBehaviour := chooseInitialBehaviour()
 	return &CustomAgent6{
 		Base: baseAgent,

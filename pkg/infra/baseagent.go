@@ -102,6 +102,10 @@ func (a *Base) AgentType() int {
 	return a.agentType
 }
 
+func (a *Base) DaysAtCritical() int {
+	return a.daysAtCritical
+}
+
 func (a *Base) setFloor(newFloor int) {
 	a.floor = newFloor
 }
