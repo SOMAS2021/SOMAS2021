@@ -50,9 +50,7 @@ func (sE *SimEnv) AgentsRun() {
 		}(&wg, custAgent, uuid)
 	}
 	wg.Wait()
-	sE.mx.Lock()
 	for agentUUID := range agentsToRemove {
 		delete(sE.custAgents, agentsToRemove[agentUUID])
 	}
-	sE.mx.Unlock()
 }

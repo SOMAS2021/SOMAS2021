@@ -84,7 +84,8 @@ func (a *Base) ID() string {
 }
 
 func (a *Base) IsAlive() bool {
-	return a.hp > 0
+	_, found := a.tower.agents[a.id]
+	return found
 }
 
 func (a *Base) setFloor(newFloor int) {
