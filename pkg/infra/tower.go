@@ -17,9 +17,8 @@ type Tower struct {
 	maxPlatFood    food.FoodType
 	currPlatFloor  int
 	agentCount     int
-	agents         map[string]*Base
+	Agents         map[string]Agent
 	agentsPerFloor int
-	missingAgents  map[int][]int // key: floor, value: types of missing agents
 	logger         log.Entry
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
@@ -44,9 +43,8 @@ func NewTower(maxPlatFood food.FoodType, agentCount,
 		maxPlatFood:    maxPlatFood,
 		currPlatFloor:  1,
 		agentCount:     agentCount,
-		agents:         make(map[string]*Base),
+		Agents:         make(map[string]Agent),
 		agentsPerFloor: agentsPerFloor,
-		missingAgents:  make(map[int][]int),
 		logger:         *log.WithFields(log.Fields{"reporter": "tower"}),
 		dayInfo:        dayInfo,
 		healthInfo:     healthInfo,
@@ -72,37 +70,32 @@ func (t *Tower) Tick() {
 	}
 }
 
-func (t *Tower) UpdateMissingAgents() map[int][]int {
-	deadAgents := t.missingAgents
-	t.missingAgents = make(map[int][]int)
-	return deadAgents
-}
-
-func (t *Tower) AddAgent(bagent *Base) {
-	t.agents[bagent.id] = bagent
+func (t *Tower) AddAgent(agent Agent) {
+	t.Agents[agent.BaseAgent().id] = agent
 }
 
 func (t *Tower) Reshuffle() {
 	numOfFloors := t.agentCount / t.agentsPerFloor
 	remainingVacancies := make([]int, numOfFloors)
-	t.Log("Reshuffling alive agents...", Fields{"agents_count": len(t.agents)})
+	t.Log("Reshuffling alive agents...", Fields{"agents_count": len(t.Agents)})
 	for i := 0; i < numOfFloors; i++ { // adding a max to each floor
 		remainingVacancies[i] = t.agentsPerFloor
 	}
 	// allocating agents to floors randomly
 	// iterate through the uuid strings of each agent
-	for _, agent := range t.agents {
+	for _, agent := range t.Agents {
 		newFloor := rand.Intn(numOfFloors)
 		for remainingVacancies[newFloor] == 0 {
 			newFloor = rand.Intn(numOfFloors)
 		}
-		agent.setFloor(newFloor + 1)
+		agent.BaseAgent().setFloor(newFloor + 1)
 		remainingVacancies[newFloor]--
 	}
 }
 
 func (t *Tower) hpDecay() {
-	for _, agent := range t.agents {
+	for _, agent := range t.Agents {
+		agent := agent.BaseAgent()
 		newHP := 0
 
 		if agent.hp >= t.healthInfo.WeakLevel {
@@ -124,16 +117,15 @@ func (t *Tower) hpDecay() {
 		agent.setHasEaten(false)
 		if agent.daysAtCritical >= t.healthInfo.MaxDayCritical {
 			t.Log("Killing agent", Fields{"agent": agent.id})
-			t.missingAgents[agent.floor] = append(t.missingAgents[agent.floor], agent.agentType)
-			delete(t.agents, agent.id) // maybe lock mutex?
-		} else {
-			agent.setHP(newHP)
+			newHP = 0
 		}
+		agent.setHP(newHP)
 	}
 }
 
 func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message) {
-	for _, agent := range t.agents {
+	for _, agent := range t.Agents {
+		agent := agent.BaseAgent()
 		if agent.floor == senderFloor+direction {
 			agent.mx.Lock()
 			agent.inbox.PushBack(msg)
@@ -151,5 +143,5 @@ func (t *Tower) ResetTower() {
 func (t *Tower) TotalAgents() int {
 	t.mx.RLock()
 	defer t.mx.RUnlock()
-	return len(t.agents)
+	return len(t.Agents)
 }
