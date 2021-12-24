@@ -3,6 +3,7 @@ package simulation
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	log "github.com/sirupsen/logrus"
@@ -11,7 +12,7 @@ import (
 type Fields = log.Fields
 
 type SimEnv struct {
-	FoodOnPlatform float64
+	FoodOnPlatform food.FoodType
 	AgentCount     []int
 	AgentHP        int
 	AgentsPerFloor int
@@ -21,7 +22,7 @@ type SimEnv struct {
 	world          world.World
 }
 
-func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *SimEnv {
+func NewSimEnv(foodOnPlat food.FoodType, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *SimEnv {
 	return &SimEnv{
 		FoodOnPlatform: foodOnPlat,
 		AgentCount:     agentCount,

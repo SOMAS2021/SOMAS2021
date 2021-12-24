@@ -4,6 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	log "github.com/sirupsen/logrus"
 )
@@ -25,5 +26,5 @@ func New(world world.World, agentType int, agentHP int, agentFloor int, id strin
 
 func (a *CustomAgentRandom) Run() {
 	a.Log("Random agent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP()})
-	a.TakeFood(float64(rand.Intn(100))) //Will remove float64 call when food amount is set to Int
+	a.TakeFood(food.FoodType(rand.Intn(100)))
 }
