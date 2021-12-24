@@ -48,6 +48,10 @@ func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int,
 	}, nil
 }
 
+func (a *Base) BaseAgent() *Base {
+	return a
+}
+
 func (a *Base) Log(message string, fields ...Fields) {
 	if len(fields) == 0 {
 		fields = append(fields, Fields{})
@@ -83,7 +87,7 @@ func (a *Base) ID() string {
 }
 
 func (a *Base) IsAlive() bool {
-	_, found := a.tower.agents[a.id]
+	_, found := a.tower.Agents[a.id]
 	return found
 }
 

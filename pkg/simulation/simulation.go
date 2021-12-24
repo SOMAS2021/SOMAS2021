@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
@@ -23,7 +22,7 @@ type SimEnv struct {
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
 	world          world.World
-	custAgents     map[string]agent.Agent
+	// custAgents     map[string]agent.Agent
 }
 
 func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *SimEnv {
@@ -35,7 +34,7 @@ func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int
 		healthInfo:     healthInfo,
 		AgentsPerFloor: agentsPerFloor,
 		logger:         *log.WithFields(log.Fields{"reporter": "simulation"}),
-		custAgents:     make(map[string]agent.Agent),
+		// custAgents:     make(map[string]agent.Agent),
 	}
 }
 
