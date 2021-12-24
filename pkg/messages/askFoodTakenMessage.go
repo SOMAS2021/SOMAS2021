@@ -1,26 +1,22 @@
 package messages
 
-import (
-	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-)
-
 type AskFoodTakenMessage struct {
-	baseMessage *infra.BaseMessage
+	baseMessage *BaseMessage
 }
 
 func NewAskFoodTakenMessage(SenderFloor int) *AskFoodTakenMessage {
 	msg := &AskFoodTakenMessage{
-		baseMessage: infra.NewBaseMessage(SenderFloor, infra.AskFoodTaken),
+		baseMessage: NewBaseMessage(SenderFloor, AskFoodTaken),
 	}
 	return msg
 }
 
-func (msg *AskFoodTakenMessage) Reply(senderFloor int, food int) infra.StateMessage {
+func (msg *AskFoodTakenMessage) Reply(senderFloor int, food int) StateMessage {
 	reply := NewStateFoodTakenMessage(senderFloor, food)
 	return reply
 }
 
-func (msg *AskFoodTakenMessage) MessageType() infra.MessageType {
+func (msg *AskFoodTakenMessage) MessageType() MessageType {
 	return msg.baseMessage.MessageType()
 }
 
@@ -28,6 +24,6 @@ func (msg *AskFoodTakenMessage) SenderFloor() int {
 	return msg.baseMessage.SenderFloor()
 }
 
-func (msg *AskFoodTakenMessage) Visit(a infra.Agent) {
-	a.HandleAskFoodTaken(msg)
+func (msg *AskFoodTakenMessage) Visit(a Agent) {
+	a.HandleAskFoodTaken(*msg)
 }

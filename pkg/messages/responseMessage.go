@@ -1,34 +1,30 @@
 package messages
 
-import (
-	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-)
-
-type ResponseMessage struct {
-	baseMessage *infra.BaseMessage
+type BoolResponseMessage struct {
+	baseMessage BaseMessage
 	response    bool
 }
 
-func NewResponseMessage(senderFloor int, response bool) *ResponseMessage {
-	msg := &ResponseMessage{
-		baseMessage: infra.NewBaseMessage(senderFloor, infra.Response),
+func NewResponseMessage(senderFloor int, response bool) *BoolResponseMessage {
+	msg := &BoolResponseMessage{
+		baseMessage: *NewBaseMessage(senderFloor, Response),
 		response:    response,
 	}
 	return msg
 }
 
-func (msg *ResponseMessage) MessageType() infra.MessageType {
+func (msg *BoolResponseMessage) MessageType() MessageType {
 	return msg.baseMessage.MessageType()
 }
 
-func (msg *ResponseMessage) SenderFloor() int {
+func (msg *BoolResponseMessage) SenderFloor() int {
 	return msg.baseMessage.SenderFloor()
 }
 
-func (msg *ResponseMessage) Response() bool {
+func (msg *BoolResponseMessage) Response() bool {
 	return msg.response
 }
 
-func (msg *ResponseMessage) Visit(a infra.Agent) {
-	a.HandleResponse(msg)
+func (msg *BoolResponseMessage) Visit(a Agent) {
+	a.HandleResponse(*msg)
 }

@@ -72,52 +72,52 @@ func (a *CustomAgent1) Run() {
 	a.TakeFood(16)
 }
 
-func (a *CustomAgent1) HandleAskHP(msg infra.AskMessage) {
+func (a *CustomAgent1) HandleAskHP(msg messages.AskHPMessage) {
 	reply := msg.Reply(a.Floor(), a.HP())
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
-func (a *CustomAgent1) HandleAskFoodTaken(msg infra.AskMessage) {
+func (a *CustomAgent1) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 	reply := msg.Reply(a.Floor(), 10)
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I recieved an askFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
-func (a *CustomAgent1) HandleAskIntendedFoodTaken(msg infra.AskMessage) {
+func (a *CustomAgent1) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
 	reply := msg.Reply(a.Floor(), 11)
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
-func (a *CustomAgent1) HandleRequestLeaveFood(msg infra.RequestMessage) {
+func (a *CustomAgent1) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
 	reply := msg.Reply(a.Floor(), true)
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I recieved a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
-func (a *CustomAgent1) HandleRequestTakeFood(msg infra.RequestMessage) {
+func (a *CustomAgent1) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
 	reply := msg.Reply(a.Floor(), true)
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I recieved a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
-func (a *CustomAgent1) HandleResponse(msg infra.ResponseMessage) {
+func (a *CustomAgent1) HandleResponse(msg messages.BoolResponseMessage) {
 	response := msg.Response()
 	a.Log("I recieved a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": response})
 }
 
-func (a *CustomAgent1) HandleStateFoodTaken(msg infra.StateMessage) {
+func (a *CustomAgent1) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
 	statement := msg.Statement()
 	a.Log("I recieved a StateFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": statement})
 }
 
-func (a *CustomAgent1) HandleStateHP(msg infra.StateMessage) {
+func (a *CustomAgent1) HandleStateHP(msg messages.StateHPMessage) {
 	statement := msg.Statement()
 	a.Log("I recieved a StateHP message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": statement})
 }
 
-func (a *CustomAgent1) HandleStateIntendedFoodTaken(msg infra.StateMessage) {
+func (a *CustomAgent1) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
 	statement := msg.Statement()
 	a.Log("I recieved a StateIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": statement})
 }

@@ -6,6 +6,7 @@ import (
 	"math"
 	"sync"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	log "github.com/sirupsen/logrus"
@@ -14,15 +15,15 @@ import (
 type Agent interface {
 	Run()
 	IsAlive() bool
-	HandleAskHP(msg AskMessage)
-	HandleAskFoodTaken(msg AskMessage)
-	HandleAskIntendedFoodTaken(msg AskMessage)
-	HandleRequestLeaveFood(msg RequestMessage)
-	HandleRequestTakeFood(msg RequestMessage)
-	HandleResponse(msg ResponseMessage)
-	HandleStateFoodTaken(msg StateMessage)
-	HandleStateHP(msg StateMessage)
-	HandleStateIntendedFoodTaken(msg StateMessage)
+	HandleAskHP(msg messages.AskHPMessage)
+	HandleAskFoodTaken(msg messages.AskFoodTakenMessage)
+	HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)
+	HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage)
+	HandleRequestTakeFood(msg messages.RequestTakeFoodMessage)
+	HandleResponse(msg messages.BoolResponseMessage)
+	HandleStateFoodTaken(msg messages.StateFoodTakenMessage)
+	HandleStateHP(msg messages.StateHPMessage)
+	HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage)
 }
 
 type Fields = log.Fields
@@ -151,18 +152,18 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) food.FoodType {
 	return 0
 }
 
-func (a *Base) ReceiveMessage() Message {
+func (a *Base) ReceiveMessage() messages.Message {
 	a.mx.Lock()
 	defer a.mx.Unlock()
 	if a.inbox.Len() > 0 {
-		msg := a.inbox.Front().Value.(Message)
+		msg := a.inbox.Front().Value.(messages.Message)
 		(a.inbox).Remove(a.inbox.Front())
 		return msg
 	}
 	return nil
 }
 
-func (a *Base) SendMessage(direction int, msg Message) {
+func (a *Base) SendMessage(direction int, msg messages.Message) {
 	if (direction == -1) || (direction == 1) {
 		a.tower.SendMessage(direction, a.floor, msg)
 	}
@@ -172,12 +173,12 @@ func (a *Base) HealthInfo() *health.HealthInfo {
 	return a.tower.healthInfo
 }
 
-func (a *Base) HandleAskHP(msg AskMessage)                    {}
-func (a *Base) HandleAskFoodTaken(msg AskMessage)             {}
-func (a *Base) HandleAskIntendedFoodTaken(msg AskMessage)     {}
-func (a *Base) HandleRequestLeaveFood(msg RequestMessage)     {}
-func (a *Base) HandleRequestTakeFood(msg RequestMessage)      {}
-func (a *Base) HandleResponse(msg ResponseMessage)            {}
-func (a *Base) HandleStateFoodTaken(msg StateMessage)         {}
-func (a *Base) HandleStateHP(msg StateMessage)                {}
-func (a *Base) HandleStateIntendedFoodTaken(msg StateMessage) {}
+func (a *Base) HandleAskHP(msg messages.AskHPMessage)                                    {}
+func (a *Base) HandleAskFoodTaken(msg messages.AskFoodTakenMessage)                      {}
+func (a *Base) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)     {}
+func (a *Base) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage)              {}
+func (a *Base) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage)                {}
+func (a *Base) HandleResponse(msg messages.ResponseMessage)                              {}
+func (a *Base) HandleStateFoodTaken(msg messages.StateFoodTakenMessage)                  {}
+func (a *Base) HandleStateHP(msg messages.StateHPMessage)                                {}
+func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}

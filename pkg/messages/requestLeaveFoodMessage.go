@@ -1,17 +1,13 @@
 package messages
 
-import (
-	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-)
-
 type RequestLeaveFoodMessage struct {
-	baseMessage *infra.BaseMessage
+	baseMessage *BaseMessage
 	food        int
 }
 
 func NewRequestLeaveFoodMessage(SenderFloor int, food int) *RequestLeaveFoodMessage {
 	msg := &RequestLeaveFoodMessage{
-		baseMessage: infra.NewBaseMessage(SenderFloor, infra.RequestLeaveFood),
+		baseMessage: NewBaseMessage(SenderFloor, RequestLeaveFood),
 		food:        food,
 	}
 	return msg
@@ -21,12 +17,12 @@ func (msg *RequestLeaveFoodMessage) Request() int {
 	return msg.food
 }
 
-func (msg *RequestLeaveFoodMessage) Reply(senderFloor int, response bool) infra.ResponseMessage {
+func (msg *RequestLeaveFoodMessage) Reply(senderFloor int, response bool) ResponseMessage {
 	reply := NewResponseMessage(senderFloor, response)
 	return reply
 }
 
-func (msg *RequestLeaveFoodMessage) MessageType() infra.MessageType {
+func (msg *RequestLeaveFoodMessage) MessageType() MessageType {
 	return msg.baseMessage.MessageType()
 }
 
@@ -34,6 +30,6 @@ func (msg *RequestLeaveFoodMessage) SenderFloor() int {
 	return msg.baseMessage.SenderFloor()
 }
 
-func (msg *RequestLeaveFoodMessage) Visit(a infra.Agent) {
-	a.HandleRequestLeaveFood(msg)
+func (msg *RequestLeaveFoodMessage) Visit(a Agent) {
+	a.HandleRequestLeaveFood(*msg)
 }

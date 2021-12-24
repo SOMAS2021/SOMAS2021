@@ -4,6 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 )
 
 type team3Variables struct {
@@ -65,12 +66,12 @@ func (a *CustomAgent3) Run() {
 
 }
 
-func (a *CustomAgent3) HandleAskHP(msg infra.AskMessage)                    {}
-func (a *CustomAgent3) HandleAskFoodTaken(msg infra.AskMessage)             {}
-func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg infra.AskMessage)     {}
-func (a *CustomAgent3) HandleRequestLeaveFood(msg infra.RequestMessage)     {}
-func (a *CustomAgent3) HandleRequestTakeFood(msg infra.RequestMessage)      {}
-func (a *CustomAgent3) HandleResponse(msg infra.ResponseMessage)            {}
-func (a *CustomAgent3) HandleStateFoodTaken(msg infra.StateMessage)         {}
-func (a *CustomAgent3) HandleStateHP(msg infra.StateMessage)                {}
-func (a *CustomAgent3) HandleStateIntendedFoodTaken(msg infra.StateMessage) {}
+func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage)                                    {}
+func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage)                      {}
+func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)     {}
+func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage)              {}
+func (a *CustomAgent3) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage)                {}
+func (a *CustomAgent3) HandleResponse(msg messages.BoolResponseMessage)                          {}
+func (a *CustomAgent3) HandleStateFoodTaken(msg messages.StateFoodTakenMessage)                  {}
+func (a *CustomAgent3) HandleStateHP(msg messages.StateHPMessage)                                {}
+func (a *CustomAgent3) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}

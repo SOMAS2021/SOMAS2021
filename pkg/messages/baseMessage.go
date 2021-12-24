@@ -1,4 +1,4 @@
-package infra
+package messages
 
 //Define message types to enable basic protocols, voting systems ...etc
 
@@ -23,10 +23,22 @@ const (
 	Response
 )
 
+type Agent interface {
+	HandleAskHP(msg AskHPMessage)
+	HandleAskFoodTaken(msg AskFoodTakenMessage)
+	HandleAskIntendedFoodTaken(msg AskIntendedFoodIntakeMessage)
+	HandleRequestLeaveFood(msg RequestLeaveFoodMessage)
+	HandleRequestTakeFood(msg RequestTakeFoodMessage)
+	HandleResponse(msg BoolResponseMessage)
+	HandleStateFoodTaken(msg StateFoodTakenMessage)
+	HandleStateHP(msg StateHPMessage)
+	HandleStateIntendedFoodTaken(msg StateIntendedFoodIntakeMessage)
+}
+
 type Message interface {
 	MessageType() MessageType
 	SenderFloor() int
-	Visit(Agent)
+	Visit(a Agent)
 }
 
 type AskMessage interface {

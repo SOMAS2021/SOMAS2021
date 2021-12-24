@@ -1,21 +1,17 @@
 package messages
 
-import (
-	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-)
-
 type AskIntendedFoodIntakeMessage struct {
-	baseMessage *infra.BaseMessage
+	baseMessage *BaseMessage
 }
 
-func NewAskIntendedFoodIntakeMessage(SenderFloor int) *AskIntendedFoodIntakeMessage {
+func NewAskIntendedFoodIntakeMessage(senderFloor int) *AskIntendedFoodIntakeMessage {
 	msg := &AskIntendedFoodIntakeMessage{
-		baseMessage: infra.NewBaseMessage(SenderFloor, infra.AskIntendedFoodIntake),
+		baseMessage: NewBaseMessage(senderFloor, AskIntendedFoodIntake),
 	}
 	return msg
 }
 
-func (msg *AskIntendedFoodIntakeMessage) MessageType() infra.MessageType {
+func (msg *AskIntendedFoodIntakeMessage) MessageType() MessageType {
 	return msg.baseMessage.MessageType()
 }
 
@@ -23,11 +19,11 @@ func (msg *AskIntendedFoodIntakeMessage) SenderFloor() int {
 	return msg.baseMessage.SenderFloor()
 }
 
-func (msg *AskIntendedFoodIntakeMessage) Reply(senderFloor int, food int) infra.StateMessage {
+func (msg *AskIntendedFoodIntakeMessage) Reply(senderFloor int, food int) StateMessage {
 	reply := NewStateIntendedFoodIntakeMessage(senderFloor, food)
 	return reply
 }
 
-func (msg *AskIntendedFoodIntakeMessage) Visit(a infra.Agent) {
-	a.HandleAskIntendedFoodTaken(msg)
+func (msg *AskIntendedFoodIntakeMessage) Visit(a Agent) {
+	a.HandleAskIntendedFoodTaken(*msg)
 }

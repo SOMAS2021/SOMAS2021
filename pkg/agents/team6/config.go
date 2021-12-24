@@ -103,12 +103,12 @@ func (a *CustomAgent6) Run() {
 
 }
 
-func (a *CustomAgent6) HandleAskHP(msg infra.AskMessage)                    {}
-func (a *CustomAgent6) HandleAskFoodTaken(msg infra.AskMessage)             {}
-func (a *CustomAgent6) HandleAskIntendedFoodTaken(msg infra.AskMessage)     {}
-func (a *CustomAgent6) HandleRequestLeaveFood(msg infra.RequestMessage)     {}
-func (a *CustomAgent6) HandleRequestTakeFood(msg infra.RequestMessage)      {}
-func (a *CustomAgent6) HandleResponse(msg infra.ResponseMessage)            {}
-func (a *CustomAgent6) HandleStateFoodTaken(msg infra.StateMessage)         {}
-func (a *CustomAgent6) HandleStateHP(msg infra.StateMessage)                {}
-func (a *CustomAgent6) HandleStateIntendedFoodTaken(msg infra.StateMessage) {}
+func (a *CustomAgent6) HandleAskHP(msg messages.AskHPMessage)                                    {}
+func (a *CustomAgent6) HandleAskFoodTaken(msg messages.AskFoodTakenMessage)                      {}
+func (a *CustomAgent6) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)     {}
+func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage)              {}
+func (a *CustomAgent6) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage)                {}
+func (a *CustomAgent6) HandleResponse(msg messages.BoolResponseMessage)                          {}
+func (a *CustomAgent6) HandleStateFoodTaken(msg messages.StateFoodTakenMessage)                  {}
+func (a *CustomAgent6) HandleStateHP(msg messages.StateHPMessage)                                {}
+func (a *CustomAgent6) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}
