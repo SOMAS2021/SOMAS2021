@@ -24,6 +24,7 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           go-version: 1.17
+          args: -E gofmt
           
   test:
     name: Test
