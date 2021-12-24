@@ -53,12 +53,10 @@ func NewTower(maxPlatFood food.FoodType, agentCount,
 
 func (t *Tower) Tick() {
 	t.TowerStateLog(" end of tick")
-	//useful parameters
-	numOfFloors := t.agentCount / t.agentsPerFloor
 
 	// Shuffle the agents
 	if t.dayInfo.CurrTick%t.dayInfo.TicksPerReshuffle == 0 {
-		t.reshuffle(numOfFloors)
+		t.Reshuffle()
 	}
 	// Move the platform
 	if t.dayInfo.CurrTick%t.dayInfo.TicksPerFloor == 0 {
@@ -76,7 +74,8 @@ func (t *Tower) AddAgent(agent Agent) {
 	t.Agents[agent.BaseAgent().id] = agent
 }
 
-func (t *Tower) reshuffle(numOfFloors int) {
+func (t *Tower) Reshuffle() {
+	numOfFloors := t.agentCount / t.agentsPerFloor
 	remainingVacancies := make([]int, numOfFloors)
 	t.Log("Reshuffling alive agents...", Fields{"agents_count": len(t.Agents)})
 	for i := 0; i < numOfFloors; i++ { // adding a max to each floor
