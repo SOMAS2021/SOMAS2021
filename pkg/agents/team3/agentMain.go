@@ -88,6 +88,10 @@ func (a *CustomAgent3) Run() {
 		a.decisions.foodToLeave = -1
 	}
 
+	//receive Message
+
+	//message(a)
+
 	//eat
 	_, err := a.TakeFood(food.FoodType(takeFoodCalculation(a)))
 	if err != nil {
