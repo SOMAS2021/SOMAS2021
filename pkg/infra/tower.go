@@ -84,6 +84,13 @@ func (t *Tower) AddAgent(bagent *Base) {
 	t.agents[bagent.id] = bagent
 }
 
+func (t *Tower) InitReshuffle() {
+	if t.dayInfo.CurrTick == 1 {
+		numOfFloors := t.agentCount / t.agentsPerFloor
+		t.reshuffle(numOfFloors)
+	}
+}
+
 func (t *Tower) reshuffle(numOfFloors int) {
 	remainingVacancies := make([]int, numOfFloors)
 	t.Log("Reshuffling alive agents...", Fields{"agents_count": len(t.agents)})

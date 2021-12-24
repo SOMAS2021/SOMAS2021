@@ -19,6 +19,7 @@ func (sE *SimEnv) World() world.World {
 }
 
 func (sE *SimEnv) simulationLoop(t *infra.Tower) {
+	t.InitReshuffle()
 	for sE.dayInfo.CurrTick <= sE.dayInfo.TotalTicks {
 		sE.Log("", Fields{"Current Simulation Tick": sE.dayInfo.CurrTick})
 		t.TowerStateLog(" start of tick")
