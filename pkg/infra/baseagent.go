@@ -14,15 +14,15 @@ import (
 type Agent interface {
 	Run()
 	IsAlive() bool
-	HandleAskHP()
-	HandleAskFoodTaken()
-	HandleAskIntendedFoodTaken()
-	HandleRequestLeaveFood(request float64)
-	HandleRequestTakeFood(request float64)
-	HandleResponse(response bool)
-	HandleStateFoodTaken(food float64)
-	HandleStateHP(hp int)
-	HandleStateIntendedFoodTaken(food float64)
+	HandleAskHP(msg AskMessage)
+	HandleAskFoodTaken(msg AskMessage)
+	HandleAskIntendedFoodTaken(msg AskMessage)
+	HandleRequestLeaveFood(msg RequestMessage)
+	HandleRequestTakeFood(msg RequestMessage)
+	HandleResponse(msg ResponseMessage)
+	HandleStateFoodTaken(msg StateMessage)
+	HandleStateHP(msg StateMessage)
+	HandleStateIntendedFoodTaken(msg StateMessage)
 }
 
 type Fields = log.Fields
@@ -171,3 +171,13 @@ func (a *Base) SendMessage(direction int, msg Message) {
 func (a *Base) HealthInfo() *health.HealthInfo {
 	return a.tower.healthInfo
 }
+
+func (a *Base) HandleAskHP(msg AskMessage)                    {}
+func (a *Base) HandleAskFoodTaken(msg AskMessage)             {}
+func (a *Base) HandleAskIntendedFoodTaken(msg AskMessage)     {}
+func (a *Base) HandleRequestLeaveFood(msg RequestMessage)     {}
+func (a *Base) HandleRequestTakeFood(msg RequestMessage)      {}
+func (a *Base) HandleResponse(msg ResponseMessage)            {}
+func (a *Base) HandleStateFoodTaken(msg StateMessage)         {}
+func (a *Base) HandleStateHP(msg StateMessage)                {}
+func (a *Base) HandleStateIntendedFoodTaken(msg StateMessage) {}

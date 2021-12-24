@@ -31,17 +31,17 @@ type Message interface {
 
 type AskMessage interface {
 	Message
-	Reply(senderFloor int, food float64) StateMessage
+	Reply(senderFloor int, food int) StateMessage
 }
 
 type StateMessage interface {
 	Message
-	Statement() float64
+	Statement() int
 }
 
 type RequestMessage interface {
 	Message
-	Request() float64
+	Request() int
 	Reply(senderFloor int, response bool) ResponseMessage
 }
 

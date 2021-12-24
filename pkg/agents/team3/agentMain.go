@@ -65,12 +65,12 @@ func (a *CustomAgent3) Run() {
 
 }
 
-func (a *CustomAgent3) HandleAskHP()                              {}
-func (a *CustomAgent3) HandleAskFoodTaken()                       {}
-func (a *CustomAgent3) HandleAskIntendedFoodTaken()               {}
-func (a *CustomAgent3) HandleRequestLeaveFood(request float64)    {}
-func (a *CustomAgent3) HandleRequestTakeFood(request float64)     {}
-func (a *CustomAgent3) HandleResponse(response bool)              {}
-func (a *CustomAgent3) HandleStateFoodTaken(food float64)         {}
-func (a *CustomAgent3) HandleStateHP(hp int)                      {}
-func (a *CustomAgent3) HandleStateIntendedFoodTaken(food float64) {}
+func (a *CustomAgent3) HandleAskHP(msg infra.AskMessage)                    {}
+func (a *CustomAgent3) HandleAskFoodTaken(msg infra.AskMessage)             {}
+func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg infra.AskMessage)     {}
+func (a *CustomAgent3) HandleRequestLeaveFood(msg infra.RequestMessage)     {}
+func (a *CustomAgent3) HandleRequestTakeFood(msg infra.RequestMessage)      {}
+func (a *CustomAgent3) HandleResponse(msg infra.ResponseMessage)            {}
+func (a *CustomAgent3) HandleStateFoodTaken(msg infra.StateMessage)         {}
+func (a *CustomAgent3) HandleStateHP(msg infra.StateMessage)                {}
+func (a *CustomAgent3) HandleStateIntendedFoodTaken(msg infra.StateMessage) {}

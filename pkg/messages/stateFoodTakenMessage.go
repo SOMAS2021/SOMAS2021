@@ -6,10 +6,10 @@ import (
 
 type StateFoodTakenMessage struct {
 	baseMessage *infra.BaseMessage
-	food        float64 // Planning to change this to int, see #21
+	food        int // Planning to change this to int, see #21
 }
 
-func NewStateFoodTakenMessage(senderFloor int, foodTaken float64) *StateFoodTakenMessage {
+func NewStateFoodTakenMessage(senderFloor int, foodTaken int) *StateFoodTakenMessage {
 	msg := &StateFoodTakenMessage{
 		baseMessage: infra.NewBaseMessage(senderFloor, infra.StateFoodTaken),
 		food:        foodTaken,
@@ -17,7 +17,7 @@ func NewStateFoodTakenMessage(senderFloor int, foodTaken float64) *StateFoodTake
 	return msg
 }
 
-func (msg *StateFoodTakenMessage) Statement() float64 {
+func (msg *StateFoodTakenMessage) Statement() int {
 	return msg.food
 }
 
@@ -30,5 +30,5 @@ func (msg *StateFoodTakenMessage) SenderFloor() int {
 }
 
 func (msg *StateFoodTakenMessage) Visit(a infra.Agent) {
-	a.HandleStateFoodTaken(msg.food)
+	a.HandleStateFoodTaken(msg)
 }

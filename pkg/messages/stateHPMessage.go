@@ -20,9 +20,9 @@ func NewStateHPMessage(senderFloor int, hp int) *StateHPMessage {
 	return msg
 }
 
-func (msg *StateHPMessage) Statement() float64 {
+func (msg *StateHPMessage) Statement() int {
 	// TODO (woonmoon): GET RID OF THIS CONVERSION by supporting pseudo-union return types of Statement() function
-	return float64(msg.hp)
+	return msg.hp
 }
 
 func (msg *StateHPMessage) MessageType() infra.MessageType {
@@ -34,5 +34,5 @@ func (msg *StateHPMessage) SenderFloor() int {
 }
 
 func (msg *StateHPMessage) Visit(a infra.Agent) {
-	a.HandleStateHP(msg.hp)
+	a.HandleStateHP(msg)
 }

@@ -1,6 +1,8 @@
 package agent1
 
 import (
+	"math/rand"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 )
@@ -23,29 +25,99 @@ func (a *CustomAgent1) Run() {
 	receivedMsg := a.Base.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
-		a.Log("I sent a message", infra.Fields{"message": receivedMsg.MessageType()})
 	} else {
 		a.Log("I got no thing")
 	}
 
-	if (a.myNumber)%2 == 0 {
-		msg := messages.NewStateFoodTakenMessage(int(a.Floor()), 50.2)
+	r := rand.Intn(9)
+	switch r {
+	case 0:
+		msg := messages.NewAskFoodTakenMessage(a.Floor())
 		a.SendMessage(1, msg)
-		a.Log("I sent a message", infra.Fields{"message": msg.MessageType()})
-	} else {
-		msg := messages.NewAskHPMessage(int(a.Floor()))
+		a.Log("I sent a message", infra.Fields{"message": "AskFoodTaken"})
+	case 1:
+		msg := messages.NewAskHPMessage(a.Floor())
 		a.SendMessage(1, msg)
+		a.Log("I sent a message", infra.Fields{"message": "AskHP"})
+	case 2:
+		msg := messages.NewAskIntendedFoodIntakeMessage(a.Floor())
+		a.SendMessage(1, msg)
+		a.Log("I sent a message", infra.Fields{"message": "AskIntendedFoodIntake"})
+	case 3:
+		msg := messages.NewRequestLeaveFoodMessage(a.Floor(), 10)
+		a.SendMessage(1, msg)
+		a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
+	case 4:
+		msg := messages.NewRequestTakeFoodMessage(a.Floor(), 20)
+		a.SendMessage(1, msg)
+		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
+	case 5:
+		msg := messages.NewResponseMessage(a.Floor(), true)
+		a.SendMessage(1, msg)
+		a.Log("I sent a message", infra.Fields{"message": "Response"})
+	case 6:
+		msg := messages.NewStateFoodTakenMessage(a.Floor(), 30)
+		a.SendMessage(1, msg)
+		a.Log("I sent a message", infra.Fields{"message": "StateFoodTaken"})
+	case 7:
+		msg := messages.NewStateHPMessage(a.Floor(), 40)
+		a.SendMessage(1, msg)
+		a.Log("I sent a message", infra.Fields{"message": "StateHP"})
+	case 8:
+		msg := messages.NewStateIntendedFoodIntakeMessage(a.Floor(), 50)
+		a.SendMessage(1, msg)
+		a.Log("I sent a message", infra.Fields{"message": "StateIntendedFoodIntake"})
 	}
 	a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
 	a.TakeFood(16)
 }
 
-func (a *CustomAgent1) HandleAskHP()                              {}
-func (a *CustomAgent1) HandleAskFoodTaken()                       {}
-func (a *CustomAgent1) HandleAskIntendedFoodTaken()               {}
-func (a *CustomAgent1) HandleRequestLeaveFood(request float64)    {}
-func (a *CustomAgent1) HandleRequestTakeFood(request float64)     {}
-func (a *CustomAgent1) HandleResponse(response bool)              {}
-func (a *CustomAgent1) HandleStateFoodTaken(food float64)         {}
-func (a *CustomAgent1) HandleStateHP(hp int)                      {}
-func (a *CustomAgent1) HandleStateIntendedFoodTaken(food float64) {}
+func (a *CustomAgent1) HandleAskHP(msg infra.AskMessage) {
+	reply := msg.Reply(a.Floor(), a.HP())
+	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
+}
+
+func (a *CustomAgent1) HandleAskFoodTaken(msg infra.AskMessage) {
+	reply := msg.Reply(a.Floor(), 10)
+	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	a.Log("I recieved an askFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
+}
+
+func (a *CustomAgent1) HandleAskIntendedFoodTaken(msg infra.AskMessage) {
+	reply := msg.Reply(a.Floor(), 11)
+	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
+}
+
+func (a *CustomAgent1) HandleRequestLeaveFood(msg infra.RequestMessage) {
+	reply := msg.Reply(a.Floor(), true)
+	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	a.Log("I recieved a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
+}
+
+func (a *CustomAgent1) HandleRequestTakeFood(msg infra.RequestMessage) {
+	reply := msg.Reply(a.Floor(), true)
+	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	a.Log("I recieved a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
+}
+
+func (a *CustomAgent1) HandleResponse(msg infra.ResponseMessage) {
+	response := msg.Response()
+	a.Log("I recieved a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": response})
+}
+
+func (a *CustomAgent1) HandleStateFoodTaken(msg infra.StateMessage) {
+	statement := msg.Statement()
+	a.Log("I recieved a StateFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": statement})
+}
+
+func (a *CustomAgent1) HandleStateHP(msg infra.StateMessage) {
+	statement := msg.Statement()
+	a.Log("I recieved a StateHP message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": statement})
+}
+
+func (a *CustomAgent1) HandleStateIntendedFoodTaken(msg infra.StateMessage) {
+	statement := msg.Statement()
+	a.Log("I recieved a StateIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": statement})
+}

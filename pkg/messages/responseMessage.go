@@ -30,5 +30,5 @@ func (msg *ResponseMessage) Response() bool {
 }
 
 func (msg *ResponseMessage) Visit(a infra.Agent) {
-	a.HandleResponse(msg.response)
+	a.HandleResponse(msg)
 }

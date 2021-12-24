@@ -23,11 +23,11 @@ func (msg *AskIntendedFoodIntakeMessage) SenderFloor() int {
 	return msg.baseMessage.SenderFloor()
 }
 
-func (msg *AskIntendedFoodIntakeMessage) Reply(senderFloor int, food float64) infra.StateMessage {
-	reply := NewStateIntendedFoodIntake(senderFloor, food)
+func (msg *AskIntendedFoodIntakeMessage) Reply(senderFloor int, food int) infra.StateMessage {
+	reply := NewStateIntendedFoodIntakeMessage(senderFloor, food)
 	return reply
 }
 
 func (msg *AskIntendedFoodIntakeMessage) Visit(a infra.Agent) {
-	a.HandleAskIntendedFoodTaken()
+	a.HandleAskIntendedFoodTaken(msg)
 }

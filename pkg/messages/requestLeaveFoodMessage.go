@@ -6,10 +6,10 @@ import (
 
 type RequestLeaveFoodMessage struct {
 	baseMessage *infra.BaseMessage
-	food        float64
+	food        int
 }
 
-func NewRequestLeaveFoodMessage(SenderFloor int, food float64) *RequestLeaveFoodMessage {
+func NewRequestLeaveFoodMessage(SenderFloor int, food int) *RequestLeaveFoodMessage {
 	msg := &RequestLeaveFoodMessage{
 		baseMessage: infra.NewBaseMessage(SenderFloor, infra.RequestLeaveFood),
 		food:        food,
@@ -17,7 +17,7 @@ func NewRequestLeaveFoodMessage(SenderFloor int, food float64) *RequestLeaveFood
 	return msg
 }
 
-func (msg *RequestLeaveFoodMessage) Request() float64 {
+func (msg *RequestLeaveFoodMessage) Request() int {
 	return msg.food
 }
 
@@ -35,5 +35,5 @@ func (msg *RequestLeaveFoodMessage) SenderFloor() int {
 }
 
 func (msg *RequestLeaveFoodMessage) Visit(a infra.Agent) {
-	a.HandleRequestLeaveFood(msg.food)
+	a.HandleRequestLeaveFood(msg)
 }

@@ -15,7 +15,7 @@ func NewAskFoodTakenMessage(SenderFloor int) *AskFoodTakenMessage {
 	return msg
 }
 
-func (msg *AskFoodTakenMessage) Reply(senderFloor int, food float64) infra.StateMessage {
+func (msg *AskFoodTakenMessage) Reply(senderFloor int, food int) infra.StateMessage {
 	reply := NewStateFoodTakenMessage(senderFloor, food)
 	return reply
 }
@@ -29,5 +29,5 @@ func (msg *AskFoodTakenMessage) SenderFloor() int {
 }
 
 func (msg *AskFoodTakenMessage) Visit(a infra.Agent) {
-	a.HandleAskFoodTaken()
+	a.HandleAskFoodTaken(msg)
 }

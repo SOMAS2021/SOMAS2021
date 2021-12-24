@@ -15,8 +15,8 @@ func NewAskHPMessage(senderFloor int) *AskHPMessage {
 	return msg
 }
 
-func (msg *AskHPMessage) Reply(senderFloor int, hp float64) infra.StateMessage {
-	reply := NewStateHPMessage(senderFloor, int(hp))
+func (msg *AskHPMessage) Reply(senderFloor int, hp int) infra.StateMessage {
+	reply := NewStateHPMessage(senderFloor, hp)
 	return reply
 }
 
@@ -29,5 +29,5 @@ func (msg *AskHPMessage) SenderFloor() int {
 }
 
 func (msg *AskHPMessage) Visit(a infra.Agent) {
-	a.HandleAskHP()
+	a.HandleAskHP(msg)
 }

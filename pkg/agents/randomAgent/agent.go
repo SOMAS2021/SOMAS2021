@@ -23,12 +23,12 @@ func (a *CustomAgentRandom) Run() {
 	a.TakeFood(food.FoodType(rand.Intn(100)))
 }
 
-func (a *CustomAgentRandom) HandleAskHP()                              {}
-func (a *CustomAgentRandom) HandleAskFoodTaken()                       {}
-func (a *CustomAgentRandom) HandleAskIntendedFoodTaken()               {}
-func (a *CustomAgentRandom) HandleRequestLeaveFood(request float64)    {}
-func (a *CustomAgentRandom) HandleRequestTakeFood(request float64)     {}
-func (a *CustomAgentRandom) HandleResponse(response bool)              {}
-func (a *CustomAgentRandom) HandleStateFoodTaken(food float64)         {}
-func (a *CustomAgentRandom) HandleStateHP(hp int)                      {}
-func (a *CustomAgentRandom) HandleStateIntendedFoodTaken(food float64) {}
+func (a *CustomAgentRandom) HandleAskHP(msg infra.AskMessage)                    {}
+func (a *CustomAgentRandom) HandleAskFoodTaken(msg infra.AskMessage)             {}
+func (a *CustomAgentRandom) HandleAskIntendedFoodTaken(msg infra.AskMessage)     {}
+func (a *CustomAgentRandom) HandleRequestLeaveFood(msg infra.RequestMessage)     {}
+func (a *CustomAgentRandom) HandleRequestTakeFood(msg infra.RequestMessage)      {}
+func (a *CustomAgentRandom) HandleResponse(msg infra.ResponseMessage)            {}
+func (a *CustomAgentRandom) HandleStateFoodTaken(msg infra.StateMessage)         {}
+func (a *CustomAgentRandom) HandleStateHP(msg infra.StateMessage)                {}
+func (a *CustomAgentRandom) HandleStateIntendedFoodTaken(msg infra.StateMessage) {}
