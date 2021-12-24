@@ -20,8 +20,6 @@ type CustomAgent5 struct {
 	daysSinceLastMeal int
 	currentAim        int
 	satisfaction      int
-	lastHP            int
-	lastCriticalCount int
 	daysAlive         int
 	attemptToEat      bool
 	memory            map[string]Memory
@@ -35,8 +33,6 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 		daysSinceLastMeal: 0,                   //Count of how many days since last eating
 		currentAim:        0,                   //Scale of 0 to 2, 0 being willing to lose health, 1 being maintaining health, 2 being gaining health
 		satisfaction:      0,                   //Scale of -3 to 3, with 3 being satisfied and unsatisfied
-		lastHP:            0,                   //Remember last hp so we can see when a day has passed
-		lastCriticalCount: 0,                   //Remember critical count so we can see when a day has passed
 		daysAlive:         0,                   //Count how many days agent has been alive
 		attemptToEat:      true,                //Variable needed to check if we have already attempted to eat on a day
 		memory:            map[string]Memory{}, // Memory of other agents, key is agent id
@@ -76,7 +72,7 @@ func (a *CustomAgent5) UpdateSelfishness() {
 	if a.satisfaction == 3 {
 		a.selflishness--
 	}
-	if a.satisfaction < 0 {
+	if a.satisfaction < 0 || a.daysSinceLastMeal > 2 {
 		a.selflishness++
 	}
 	//The above is a basic implementation for now while messaging is not functional
