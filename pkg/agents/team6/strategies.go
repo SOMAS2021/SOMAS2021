@@ -4,14 +4,15 @@ import (
 	"math"
 	"math/rand"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 )
 
 type thresholdData struct {
-	maxIntake float64
+	maxIntake food.FoodType
 }
 
-type levelsData struct {
+type levelsData struct { // tiers of HP
 	strongLevel  float64
 	healthyLevel float64
 	weakLevel    float64
@@ -21,11 +22,11 @@ type levelsData struct {
 var daysInCritical int = 0
 var foodTakeDay int
 
-func (a *CustomAgent6) foodIntake() float64 {
+func (a *CustomAgent6) foodIntake() food.FoodType {
 	healthInfo := a.HealthInfo()
 
 	thresholds := thresholdData{
-		maxIntake: 80.0,
+		maxIntake: food.FoodType(80),
 	}
 
 	levels := levelsData{
@@ -39,28 +40,28 @@ func (a *CustomAgent6) foodIntake() float64 {
 
 	switch a.currBehaviour.String() {
 	case "Altruist": // Never eat
-		return 0.0
+		return food.FoodType(0)
 
 	case "Collectivist": // Only eat when in critical zone on Day 3
 		switch {
 		case currentHP >= levels.weakLevel:
 			daysInCritical = 0
 			foodTakeDay = rand.Intn(healthInfo.MaxDayCritical) // Stagger the days when agents return to weak
-			return 0.0
+			return food.FoodType(0)
 		case currentHP >= levels.critLevel:
 			if daysInCritical == foodTakeDay {
-				return float64(healthInfo.HPReqCToW)
+				return food.FoodType(healthInfo.HPReqCToW)
 			}
 			daysInCritical++
-			return 0.0
+			return food.FoodType(0)
 		default:
-			return 0.0
+			return food.FoodType(0)
 		}
 
 	case "Selfish": // Stay in Healthy zone
 		switch {
 		case currentHP >= levels.strongLevel:
-			return 0.0
+			return food.FoodType(0)
 		case currentHP >= levels.healthyLevel:
 			return foodRequired(currentHP, currentHP, healthInfo)
 		default:
@@ -71,12 +72,13 @@ func (a *CustomAgent6) foodIntake() float64 {
 		return thresholds.maxIntake
 
 	default:
-		return 0.0
+		return food.FoodType(0)
 	}
 }
 
-func foodRequired(currentHP, goalHP float64, healthInfo *health.HealthInfo) float64 {
-	return healthInfo.Tau*math.Log(healthInfo.Width) - healthInfo.Tau*math.Log(healthInfo.Width-goalHP+0.75*currentHP-10+0.25*float64(healthInfo.WeakLevel))
+func foodRequired(currentHP, goalHP float64, healthInfo *health.HealthInfo) food.FoodType {
+	denom := healthInfo.Width - goalHP + 0.75*currentHP - 10 + 0.25*float64(healthInfo.WeakLevel)
+	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
 }
 
 // func foodRequiredToStay(currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {
