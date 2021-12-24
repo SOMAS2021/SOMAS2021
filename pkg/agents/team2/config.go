@@ -2,7 +2,6 @@ package team2
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 )
 
@@ -95,8 +94,13 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 }
 
 func (a *CustomAgent2) Run() {
-	//communicate before platform arrives to my floor
 	//Communication & Observation
+	//communicate before platform arrives to my floor
+
+	/*
+		msg := *messages.NewBaseMessage(a.Floor())
+		a.SendMessage(1, msg)
+	*/
 
 	//Perform the following only when platform arrives
 	//NOTE: should let infra team add a func to see whether the plaftfrom has arrived or not
@@ -118,8 +122,5 @@ func (a *CustomAgent2) Run() {
 		a.updateQTable(oldState, action)
 		a.updataPolicies(oldState)
 	}
-	msg := *messages.NewBaseMessage(a.Floor())
-	a.SendMessage(1, msg)
-	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
 
 }
