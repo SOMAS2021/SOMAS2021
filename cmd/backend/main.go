@@ -36,7 +36,7 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 
 	// can have frontend parameters come go straight into simEnv
-	foodOnPlatform := 100.0
+	foodOnPlatform := 100
 	numOfAgents := []int{2, 2, 2, 2, 2} //agent1, agent2, team3, team6, randomAgent
 	agentHP := 100
 	agentsPerFloor := 1 //more than one not currently supported

@@ -12,8 +12,8 @@ import (
 )
 
 type Tower struct {
-	currPlatFood   float64
-	maxPlatFood    float64
+	currPlatFood   int
+	maxPlatFood    int
 	currPlatFloor  int
 	agentCount     int
 	agents         map[string]*Base
@@ -36,7 +36,7 @@ func (t *Tower) TowerStateLog(timeOfTick string) {
 	t.Log("Reporting platform status"+timeOfTick, Fields{"food_left": t.currPlatFood, "floor": t.currPlatFloor})
 }
 
-func NewTower(maxPlatFood float64, agentCount,
+func NewTower(maxPlatFood int, agentCount,
 	agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *Tower {
 	return &Tower{
 		currPlatFood:   maxPlatFood,

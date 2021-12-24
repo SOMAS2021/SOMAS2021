@@ -15,7 +15,7 @@ type Fields = log.Fields
 
 type SimEnv struct {
 	mx             sync.RWMutex
-	FoodOnPlatform float64
+	FoodOnPlatform int
 	AgentCount     []int
 	AgentHP        int
 	AgentsPerFloor int
@@ -26,7 +26,7 @@ type SimEnv struct {
 	custAgents     map[string]agent.Agent
 }
 
-func NewSimEnv(foodOnPlat float64, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *SimEnv {
+func NewSimEnv(foodOnPlat int, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *SimEnv {
 	return &SimEnv{
 		FoodOnPlatform: foodOnPlat,
 		AgentCount:     agentCount,
