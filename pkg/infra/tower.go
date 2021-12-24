@@ -16,7 +16,7 @@ type Tower struct {
 	maxPlatFood    float64
 	currPlatFloor  int
 	agentCount     int
-	Agents         map[string]*Base
+	Agents         map[string]Agent
 	agentsPerFloor int
 	missingAgents  map[int][]int // key: floor, value: types of missing agents
 	logger         log.Entry
@@ -43,7 +43,7 @@ func NewTower(maxPlatFood float64, agentCount,
 		maxPlatFood:    maxPlatFood,
 		currPlatFloor:  1,
 		agentCount:     agentCount,
-		Agents:         make(map[string]*Base),
+		Agents:         make(map[string]Agent),
 		agentsPerFloor: agentsPerFloor,
 		missingAgents:  make(map[int][]int),
 		logger:         *log.WithFields(log.Fields{"reporter": "tower"}),
@@ -79,8 +79,8 @@ func (t *Tower) UpdateMissingAgents() map[int][]int {
 	return deadAgents
 }
 
-func (t *Tower) AddAgent(agent *Base) {
-	t.Agents[agent.id] = agent
+func (t *Tower) AddAgent(agent Agent) {
+	t.Agents[agent.BaseAgent().id] = agent
 }
 
 func (t *Tower) reshuffle(numOfFloors int) {
@@ -96,13 +96,14 @@ func (t *Tower) reshuffle(numOfFloors int) {
 		for remainingVacancies[newFloor] == 0 {
 			newFloor = rand.Intn(numOfFloors)
 		}
-		agent.setFloor(newFloor + 1)
+		agent.BaseAgent().setFloor(newFloor + 1)
 		remainingVacancies[newFloor]--
 	}
 }
 
 func (t *Tower) hpDecay() {
 	for _, agent := range t.Agents {
+		agent := agent.BaseAgent()
 		newHP := 0
 
 		if agent.hp >= t.healthInfo.WeakLevel {
@@ -134,6 +135,7 @@ func (t *Tower) hpDecay() {
 
 func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message) {
 	for _, agent := range t.Agents {
+		agent := agent.BaseAgent()
 		if agent.floor == senderFloor+direction {
 			agent.mx.Lock()
 			agent.inbox.PushBack(msg)
