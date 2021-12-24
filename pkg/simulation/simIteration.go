@@ -36,6 +36,7 @@ func (sE *SimEnv) TowerTick() {
 }
 
 func (sE *SimEnv) AgentsRun() {
+	agentsToRemove := make([]string, 0)
 	var wg sync.WaitGroup
 	for uuid, custAgent := range sE.custAgents {
 		wg.Add(1)
@@ -43,12 +44,15 @@ func (sE *SimEnv) AgentsRun() {
 			if custAgent.IsAlive() {
 				custAgent.Run()
 			} else {
-				sE.mx.Lock()
-				delete(sE.custAgents, uuid)
-				sE.mx.Unlock()
+				agentsToRemove = append(agentsToRemove, uuid)
 			}
 			wg.Done()
 		}(&wg, custAgent, uuid)
 	}
 	wg.Wait()
+	sE.mx.Lock()
+	for agentUUID := range agentsToRemove {
+		delete(sE.custAgents, agentsToRemove[agentUUID])
+	}
+	sE.mx.Unlock()
 }
