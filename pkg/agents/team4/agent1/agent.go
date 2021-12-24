@@ -90,9 +90,9 @@ func (a *CustomAgentEvo) Run() {
 	// Using custom params to decide how much food to eat
 	scaledFloorScore := a.params.currentFloorScore.EvaluateEquation(a.Floor()) / a.params.scalingEquation.EvaluateEquation(a.Floor())
 	scaledHpScore := a.params.currentHpScore.EvaluateEquation(a.HP()) / a.params.scalingEquation.EvaluateEquation(a.HP())
-	foodToEat := math.Max(0.0, 50*scaledFloorScore+50*scaledHpScore)
+	foodToEat := food.FoodType(math.Max(0.0, 50*scaledFloorScore+50*scaledHpScore))
 
-	foodEaten := a.TakeFood(food.FoodType(foodToEat))
+	foodEaten := a.TakeFood(foodToEat)
 
 	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "foodToEat": foodToEat, "foodEaten": foodEaten, "currentFloorScore": a.params.currentFloorScore.coefficients, "currentHpScore": a.params.currentHpScore.coefficients})
 
