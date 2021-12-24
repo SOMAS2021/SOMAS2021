@@ -13,6 +13,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type Agent interface {
+	Run()
+	BaseAgent() *Base
+	IsAlive() bool
+}
+
 type Fields = log.Fields
 
 type Base struct {
@@ -50,6 +56,10 @@ func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int,
 	}, nil
 }
 
+func (a *Base) BaseAgent() *Base {
+	return a
+}
+
 func (a *Base) Log(message string, fields ...Fields) {
 	if len(fields) == 0 {
 		fields = append(fields, Fields{})
@@ -85,8 +95,11 @@ func (a *Base) ID() string {
 }
 
 func (a *Base) IsAlive() bool {
-	_, found := a.tower.agents[a.id]
-	return found
+	return a.hp > 0
+}
+
+func (a *Base) AgentType() int {
+	return a.agentType
 }
 
 func (a *Base) DaysAtCritical() int {

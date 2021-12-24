@@ -3,7 +3,6 @@ package agent1
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 )
 
 type CustomAgent1 struct {
@@ -11,7 +10,7 @@ type CustomAgent1 struct {
 	myNumber int
 }
 
-func New(baseAgent *infra.Base) (agent.Agent, error) {
+func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgent1{
 		Base:     baseAgent,
 		myNumber: 0,
