@@ -18,19 +18,11 @@ type levelsData struct {
 	critLevel    float64
 }
 
-// type widthData struct {
-// 	strong2max     float64
-// 	healthy2strong float64
-// 	weak2healthy   float64
-// 	crit2weak      float64
-// }
-
-var ctr int = 0
+var daysInCritical int = 0
 var foodTakeDay int
 
 func (a *CustomAgent6) foodIntake() float64 {
 
-	// towerInfo := a.Tower()
 	healthInfo := a.HealthInfo()
 
 	thresholds := thresholdData{
@@ -44,14 +36,7 @@ func (a *CustomAgent6) foodIntake() float64 {
 		critLevel:    0.0,
 	}
 
-	// widths := widthData{
-	// 	strong2max:     float64(healthInfo.MaxHP) - levels.strongLevel,
-	// 	healthy2strong: levels.strongLevel - levels.healthyLevel,
-	// 	weak2healthy:   levels.healthyLevel - levels.weakLevel,
-	// 	crit2weak:      levels.weakLevel,
-	// }
-
-	hp := float64(a.HP())
+	currentHP := float64(a.HP())
 
 	switch a.currBehaviour.String() {
 	case "Altruist": // Never eat
@@ -59,15 +44,15 @@ func (a *CustomAgent6) foodIntake() float64 {
 
 	case "Collectivist": // Only eat when in critical zone on Day 3
 		switch {
-		case hp >= levels.weakLevel:
-			ctr = 0
-			foodTakeDay = rand.Intn(healthInfo.MaxDayCritical) + 1
+		case currentHP >= levels.weakLevel:
+			daysInCritical = 0
+			foodTakeDay = rand.Intn(healthInfo.MaxDayCritical) // Stagger the days when agents return to weak
 			return 0.0
-		case hp >= levels.critLevel:
-			ctr = ctr + 1
-			if ctr == foodTakeDay {
+		case currentHP >= levels.critLevel:
+			if daysInCritical == foodTakeDay {
 				return float64(healthInfo.HPReqCToW)
 			}
+			daysInCritical++
 			return 0.0
 		default:
 			return 0.0
@@ -75,15 +60,15 @@ func (a *CustomAgent6) foodIntake() float64 {
 
 	case "Selfish": // Stay in Healthy zone
 		switch {
-		case hp >= levels.strongLevel:
+		case currentHP >= levels.strongLevel:
 			return 0.0
-		case hp >= levels.healthyLevel:
-			return foodRequired(hp, hp, healthInfo)
+		case currentHP >= levels.healthyLevel:
+			return foodRequired(currentHP, currentHP, healthInfo)
 		default:
-			return foodRequired(hp, levels.healthyLevel, healthInfo)
+			return foodRequired(currentHP, levels.healthyLevel, healthInfo)
 		}
 
-	case "Narcissist": // Eat max intake (Later development: stay in Strong zone?)
+	case "Narcissist": // Eat max intake (Possible TODO: Stay in strong instead?)
 		return thresholds.maxIntake
 
 	default:
