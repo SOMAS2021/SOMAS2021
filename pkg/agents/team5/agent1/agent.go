@@ -15,19 +15,31 @@ type Memory struct {
 
 type CustomAgent5 struct {
 	*infra.Base
-	desperation  float64
-	selflishness float64
-	lastMeal     float64
-	memory       map[string]Memory
+	selflishness      float64
+	lastMeal          float64
+	daysSinceLastMeal int
+	currentAim        int
+	satisfaction      int
+	lastHP            int
+	lastCriticalCount int
+	daysAlive         int
+	attemptToEat      bool
+	memory            map[string]Memory
 }
 
 func New(baseAgent *infra.Base) (agent.Agent, error) {
 	return &CustomAgent5{
-		Base:         baseAgent,
-		desperation:  3.0,                 //Scale of 1 to 4, with 1 being near max health, 4 being about to die and 2 & 3 in between
-		selflishness: 2.0,                 // of 0 to 3, with 3 being completely selflish, 0 being completely selfless
-		lastMeal:     0,                   //Stores value of the last amount of food taken
-		memory:       map[string]Memory{}, // Memory of other agents, key is agent id
+		Base:              baseAgent,
+		selflishness:      3.0,                 // of 0 to 3, with 3 being completely selflish, 0 being completely selfless
+		lastMeal:          0,                   //Stores value of the last amount of food taken
+		daysSinceLastMeal: 0,                   //Count of how many days since last eating
+		currentAim:        0,                   //Scale of 0 to 2, 0 being willing to lose health, 1 being maintaining health, 2 being gaining health
+		satisfaction:      0,                   //Scale of -3 to 3, with 3 being satisfied and unsatisfied
+		lastHP:            0,                   //Remember last hp so we can see when a day has passed
+		lastCriticalCount: 0,                   //Remember critical count so we can see when a day has passed
+		daysAlive:         0,                   //Count how many days agent has been alive
+		attemptToEat:      true,                //Variable needed to check if we have already attempted to eat on a day
+		memory:            map[string]Memory{}, // Memory of other agents, key is agent id
 	}, nil
 }
 
@@ -39,28 +51,59 @@ func (a *CustomAgent5) NewMemory(id string) {
 	}
 }
 
-func (a *CustomAgent5) UpdateDesperation() {
+func (a *CustomAgent5) UpdateAim() {
 	switch {
-	case a.HP() <= 20:
-		a.desperation = 4.0
-	case a.HP() <= 50:
-		a.desperation = 3.0
-	case a.HP() < 80:
-		a.desperation = 2.0
-	case a.HP() >= 80:
-		a.desperation = 1.0
+	case a.selflishness >= 3:
+		a.currentAim = 2 //If fully selfish always try to gain health
+	case a.HP() > 80 && a.selflishness == 2:
+		a.currentAim = 1 //Try to maintain health if near max health if mostly selfish
+	case a.HP() > 80 && a.selflishness < 2:
+		a.currentAim = 0 //Willing to lose health near max health if mostly or completely selfless
+	case a.HP() > 50 && a.selflishness == 2:
+		a.currentAim = 2 //Try to gain health if mostly selfish when above half health
+	case a.HP() > 50 && a.selflishness == 1:
+		a.currentAim = 1 //Try to maintain half health even if being mostly selfless
+	case a.HP() > 50 && a.selflishness == 0:
+		a.currentAim = 0 //Willing to lose health if being completely selfless
+	case a.HP() > 10 && a.selflishness >= 1:
+		a.currentAim = 2 //Try to gain health if less than half health and being anything but completely selfless
+	default:
+		a.currentAim = 1 //Default to maintain health if being completely selfless at less than half health
 	}
 }
 
 func (a *CustomAgent5) UpdateSelfishness() {
-	//Some function that returns a new value of selfishness based on social network
-	//Will also be based on the desperation value as we do not want to set this low and cause agent to die if hungry
+	if a.satisfaction == 3 {
+		a.selflishness--
+	}
+	if a.satisfaction < 0 {
+		a.selflishness++
+	}
+	//The above is a basic implementation for now while messaging is not functional
+	//Once messages are implemented this function will be dependent on our social network and treaties etc
 }
 
-func (a *CustomAgent5) FoodAmount() float64 {
-	provisional := 20.0 * a.desperation //This determines the base level of food based on desperation
-	selfWeight := a.selflishness / 3.0  //This scales the taken amount by selfishness of agent
-	return math.Round(provisional * selfWeight)
+func (a *CustomAgent5) FoodGain() float64 {
+	return a.HealthInfo().Tau * 3
+}
+
+func (a *CustomAgent5) FoodMaintain() float64 {
+	return a.HealthInfo().Tau * math.Log(1-(float64((a.HP()+30))/(3*a.HealthInfo().Width))) * -1
+}
+
+func (a *CustomAgent5) UpdateSatisfaction() {
+	if a.HP() > 100 {
+		a.satisfaction = 3
+	}
+	if a.lastMeal == 0 && a.satisfaction > -3 {
+		a.satisfaction--
+	}
+	if a.HP() < 25 && a.satisfaction > -3 {
+		a.satisfaction--
+	}
+	if a.HP() > 75 && a.satisfaction < 3 {
+		a.satisfaction++
+	}
 }
 
 func (a *CustomAgent5) GetMessages() {
@@ -76,15 +119,38 @@ func (a *CustomAgent5) SendMessages() {
 	//function that will send all messages we need to the other agents
 }
 
+func (a *CustomAgent5) DayPassed() {
+	a.daysAlive++
+	a.daysSinceLastMeal++
+	//Also update daySinceLastSeen for memory here
+}
+
 func (a *CustomAgent5) Run() {
 	a.Log("Reporting agent state of team 5 agent", infra.Fields{"health": a.HP(), "floor": a.Floor()})
-	a.UpdateDesperation()
 	a.UpdateSelfishness()
-	attemptFood := a.FoodAmount()
-	if !a.HasEaten() {
+	a.UpdateAim()
+	attemptFood := 0.0
+	if a.HP() < 10 {
+		attemptFood = 1 //No point taking more food than 1 if in critical state as we will only reach 10hp with any amount of food > 0
+	} else {
+		if a.currentAim == 1 {
+			attemptFood = a.FoodMaintain()
+		} else if a.currentAim == 2 {
+			attemptFood = a.FoodGain()
+		}
+	}
+	if a.CurrPlatFood() != -1 && a.attemptToEat { //When platform reaches our floor and we haven't tried to eat, then try to eat
 		a.lastMeal = a.TakeFood(attemptFood)
 		if a.lastMeal > 0 {
 			a.Log("Team 5 agent has taken food", infra.Fields{"amount": a.lastMeal})
+			a.daysSinceLastMeal = 0
 		}
+		a.UpdateSatisfaction()
+		a.attemptToEat = false
+	}
+	if (a.CurrPlatFood() == -1 && !a.attemptToEat) || a.CurrPlatFood() == 100 { //When platform has passed our floor, take that as a day passing and update parameters
+		//Check for CurrPlatFood == 100 needed because of rare case when you are on bottom floor then reshuffled to top, the platform never passes you
+		a.DayPassed()
+		a.attemptToEat = true
 	}
 }
