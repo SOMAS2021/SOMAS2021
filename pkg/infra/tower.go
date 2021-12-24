@@ -19,7 +19,6 @@ type Tower struct {
 	agentCount     int
 	Agents         map[string]Agent
 	agentsPerFloor int
-	missingAgents  map[int][]int // key: floor, value: types of missing agents
 	logger         log.Entry
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
@@ -46,7 +45,6 @@ func NewTower(maxPlatFood food.FoodType, agentCount,
 		agentCount:     agentCount,
 		Agents:         make(map[string]Agent),
 		agentsPerFloor: agentsPerFloor,
-		missingAgents:  make(map[int][]int),
 		logger:         *log.WithFields(log.Fields{"reporter": "tower"}),
 		dayInfo:        dayInfo,
 		healthInfo:     healthInfo,
@@ -72,12 +70,6 @@ func (t *Tower) Tick() {
 		t.ResetTower()
 		t.Log("-----------------END----OF----DAY-----------------", Fields{})
 	}
-}
-
-func (t *Tower) UpdateMissingAgents() map[int][]int {
-	deadAgents := t.missingAgents
-	t.missingAgents = make(map[int][]int)
-	return deadAgents
 }
 
 func (t *Tower) AddAgent(agent Agent) {
@@ -126,11 +118,9 @@ func (t *Tower) hpDecay() {
 		agent.setHasEaten(false)
 		if agent.daysAtCritical >= t.healthInfo.MaxDayCritical {
 			t.Log("Killing agent", Fields{"agent": agent.id})
-			t.missingAgents[agent.floor] = append(t.missingAgents[agent.floor], agent.agentType)
-			delete(t.Agents, agent.id) // maybe lock mutex?
-		} else {
-			agent.setHP(newHP)
+			newHP = 0
 		}
+		agent.setHP(newHP)
 	}
 }
 

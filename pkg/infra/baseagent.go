@@ -95,8 +95,11 @@ func (a *Base) ID() string {
 }
 
 func (a *Base) IsAlive() bool {
-	_, found := a.tower.Agents[a.id]
-	return found
+	return a.hp > 0
+}
+
+func (a *Base) AgentType() int {
+	return a.agentType
 }
 
 func (a *Base) DaysAtCritical() int {
