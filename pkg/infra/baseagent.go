@@ -37,14 +37,15 @@ func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int,
 	}
 	logger := log.WithFields(log.Fields{"agent_id": id, "agent_type": agentType, "reporter": "agent"})
 	return &Base{
-		id:        id,
-		hp:        agentHP,
-		floor:     agentFloor,
-		agentType: agentType,
-		tower:     tower,
-		inbox:     list.New(),
-		logger:    *logger,
-		hasEaten:  false,
+		id:             id,
+		hp:             agentHP,
+		floor:          agentFloor,
+		agentType:      agentType,
+		tower:          tower,
+		inbox:          list.New(),
+		logger:         *logger,
+		hasEaten:       false,
+		daysAtCritical: 0,
 	}, nil
 }
 
