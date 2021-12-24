@@ -9,7 +9,7 @@ type thresholdData struct {
 }
 
 func (a *CustomAgent6) foodIntake() food.FoodType {
-	thresholds := thresholdData{satisficeThresh: 20, satisfyThresh: 60, maxIntake: 80}
+	thresholds := thresholdData{satisficeThresh: food.FoodType(20), satisfyThresh: food.FoodType(60), maxIntake: food.FoodType(80)}
 
 	switch a.currBehaviour.String() {
 	case "Altruist":
