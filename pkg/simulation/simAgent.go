@@ -38,10 +38,11 @@ func (sE *SimEnv) createNewAgent(tower *infra.Tower, i, floor int) {
 }
 
 func (sE *SimEnv) replaceAgents(t *infra.Tower) {
-	missingAgentsMap := t.UpdateMissingAgents()
-	for floor := range missingAgentsMap {
-		for _, agentType := range missingAgentsMap[floor] {
-			sE.createNewAgent(t, agentType, floor)
+	for uuid, agent := range t.Agents {
+		agent := agent.BaseAgent()
+		if !agent.IsAlive() {
+			delete(t.Agents, uuid)
+			sE.createNewAgent(t, agent.AgentType(), agent.Floor())
 		}
 	}
 }
