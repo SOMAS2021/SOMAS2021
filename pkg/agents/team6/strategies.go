@@ -21,6 +21,6 @@ func (a *CustomAgent6) foodIntake() food.FoodType {
 	case "Narcissist":
 		return thresholds.maxIntake
 	default:
-		return 0
+		return food.FoodType(0)
 	}
 }
