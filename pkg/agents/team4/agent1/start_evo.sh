@@ -14,7 +14,7 @@ touch $agentConfigFile $bestAgentsFile
 degreeOfEquations=1
 numberOfBestAgents=4
 numberOfAgentsPerSim=20
-numberOfIterations=5
+numberOfIterations=20
 
 python3 pkg/agents/team4/agent1/initaliseConfig.py $agentConfigFile $bestAgentsFile $degreeOfEquations $numberOfBestAgents
 

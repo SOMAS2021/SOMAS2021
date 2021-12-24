@@ -48,8 +48,8 @@ for i in equation:
 
         if (agent_1_slight_mutations_1[i][j] > 1):
             agent_1_slight_mutations_1[i][j] = 1
-        elif(agent_1_slight_mutations_1[i][j] < 0):
-            agent_1_slight_mutations_1[i][j] = 0
+        elif(agent_1_slight_mutations_1[i][j] < -1):
+            agent_1_slight_mutations_1[i][j] = -1
 
 agent_1_slight_mutations_2 = agent_1
 for i in equation:
@@ -63,8 +63,8 @@ for i in equation:
 
         if (agent_1_slight_mutations_2[i][j] > 1):
             agent_1_slight_mutations_2[i][j] = 1
-        elif(agent_1_slight_mutations_2[i][j] < 0):
-            agent_1_slight_mutations_2[i][j] = 0
+        elif(agent_1_slight_mutations_2[i][j] < -1):
+            agent_1_slight_mutations_2[i][j] = -1
 
 agent_1_big_mutation = agent_1
 for i in equation:
@@ -78,8 +78,8 @@ for i in equation:
 
         if (agent_1_big_mutation[i][j] > 1):
             agent_1_big_mutation[i][j] = 1
-        elif(agent_1_big_mutation[i][j] < 0):
-            agent_1_big_mutation[i][j] = 0
+        elif(agent_1_big_mutation[i][j] < -1):
+            agent_1_big_mutation[i][j] = -1
 
 agent_mix_1 = {}
 for i in equation:

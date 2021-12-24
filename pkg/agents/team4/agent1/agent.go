@@ -1,13 +1,11 @@
 package team4EvoAgent
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"math/rand"
 	"os"
-	"sync"
+	"bufio"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -33,23 +31,34 @@ func (equation *Equation) EvaluateEquation(input int) float64 {
 }
 
 func GenerateEquations() (Equation, Equation) {
-	var mu sync.Mutex
-	mu.Lock()
 	mydir, err := os.Getwd()
 	if err != nil {
 		fmt.Println(err)
 	}
-	file, _ := ioutil.ReadFile(fmt.Sprintf("%s/pkg/agents/team4/agent1/agentConfig.json", mydir))
-	var data1 Coefficient
-	_ = json.Unmarshal(file, &data1)
+	// file, _ := ioutil.ReadFile(fmt.Sprintf("%s/pkg/agents/team4/agent1/agentConfig.json", mydir))
+	// var data1 Coefficient
+	// _ = json.Unmarshal(file, &data1)
+
+
+	f, err := os.Open(fmt.Sprintf("%s/pkg/agents/team4/agent1/agentConfig.json", mydir))
+    if err != nil {
+        fmt.Printf("open file error: %v\n", err)
+        return
+    }
+    defer f.Close()
+
+    sc := bufio.NewScanner(f)
+    for sc.Scan() {
+        fmt.Println(sc.Text())  // GET the line string
+    }
 
 	var newAgentFloor Equation
 	var newAgentHp Equation
 
-	newAgentFloor.coefficients = data1.Floor
-	newAgentHp.coefficients = data1.Hp
-
-	defer mu.Unlock()
+	// newAgentFloor.coefficients = data1.Floor
+	// newAgentHp.coefficients = data1.Hp
+	newAgentFloor.coefficients = []float64{1, 2}
+	newAgentHp.coefficients = []float64{1, 2}
 	return newAgentFloor, newAgentHp
 }
 
@@ -91,7 +100,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 func (a *CustomAgentEvo) Run() {
 	scaledFloorScore := a.params.currentFloorScore.EvaluateEquation(a.Floor()) / a.params.scalingEquation.EvaluateEquation(a.Floor())
 	scaledHpScore := a.params.currentHpScore.EvaluateEquation(a.HP()) / a.params.scalingEquation.EvaluateEquation(a.HP())
-	foodToEat := 50*scaledFloorScore + 50*scaledHpScore
+	foodToEat := math.Min(0, 50*scaledFloorScore + 50*scaledHpScore)
 	// fmt.Printf("FoodToEat: %f\n", foodToEat)
 	// fmt.Printf("Floor is %f\n", a.params.currentFloorScore.EvaluateEquation(a.Floor())/a.params.scalingEquation.EvaluateEquation(a.Floor()))
 	// fmt.Printf("HP is %f\n", a.params.currentHpScore.EvaluateEquation(a.HP())/a.params.scalingEquation.EvaluateEquation(a.HP()))
