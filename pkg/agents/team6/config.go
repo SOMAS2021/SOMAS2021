@@ -5,7 +5,6 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 )
 
@@ -38,6 +37,7 @@ type CustomAgent6 struct {
 	//keep track of the lowest floor we've been to
 	maxFloorGuess int
 	currBehaviour behaviour
+	foodTakeDay   int
 }
 
 type thresholdBehaviourPair struct {
@@ -67,6 +67,7 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 		},
 		currBehaviour: initialBehaviour,
 		maxFloorGuess: baseAgent.Floor() + 2,
+		foodTakeDay:   0,
 	}, nil
 }
 
@@ -85,18 +86,19 @@ func (b behaviour) String() string {
 }
 
 func (a *CustomAgent6) Run() {
-	a.Log("Custom agent 6 before update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
+	// a.Log("Custom agent 6 before update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
 
 	a.updateBehaviour()
 
-	a.Log("Custom agent 6 after update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
+	// a.Log("Custom agent 6 after update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
 
 	foodAmount := a.foodIntake()
 	a.TakeFood(foodAmount)
-	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodAmount})
+	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodAmount, "bType": a.currBehaviour.String()})
+	a.Log("Team 6 agent has HP:", infra.Fields{"HP": a.HP()})
 
-	msg := *messages.NewBaseMessage(a.Floor())
-	a.SendMessage(1, msg)
-	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
+	// msg := *messages.NewBaseMessage(a.Floor())
+	// a.SendMessage(1, msg)
+	// a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
 
 }
