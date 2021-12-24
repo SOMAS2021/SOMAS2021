@@ -110,18 +110,18 @@ func changeNewDay(a *CustomAgent3) {
 
 // Function is called when the floor changes, changes the mood when we change floors
 func changeNewFloor(a *CustomAgent3) {
-	//Restart neighbour functions as we don´t know who is above/bellow anymore
+	//Restart neighbour functions as we don´t know who is above/below anymore
 	a.knowledge.floorAbove = ""
 	a.knowledge.floorBelow = ""
 
 	//calculate mood based on what floors we have been in
 	currentFloor := a.Floor()
-	var lastFloor = a.knowledge.floors[len(a.knowledge.floors)-1]
 
-	//If we are still in the same floor as below we keep the same mood
-	if len(a.knowledge.floors) != 0 && currentFloor != lastFloor {
-		var beenInHigher = false
-		var beenInLower = false
+	//If we are still in the same floor as before we keep the same mood
+	if len(a.knowledge.floors) != 0 {
+		lastFloor := a.knowledge.floors[len(a.knowledge.floors)-1]
+		beenInHigher := false
+		beenInLower := false
 
 		for i := 0; i < len(a.knowledge.floors); i++ {
 			if a.knowledge.floors[i] < currentFloor {
@@ -130,8 +130,10 @@ func changeNewFloor(a *CustomAgent3) {
 			if a.knowledge.floors[i] > currentFloor {
 				beenInHigher = true
 			}
+			if beenInLower && beenInHigher {
+				break
+			}
 		}
-
 		if !beenInHigher {
 			changeInMood(a, 5, 10, 1)
 		}

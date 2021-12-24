@@ -4,8 +4,6 @@ import (
 	"math"
 )
 
-// ranges of stubbornness, mood and morality are 0-100
-
 //To Do:
 //1. Remove int() from platFood once platFood is type int
 //2. Change last resort critical state to "if a.HP() == 1 && a.daysInCriticalState == 2" once daysInCriticalState is implemented
@@ -18,6 +16,7 @@ func takeFoodCalculation(a *CustomAgent3) int {
 	switch a.decisions.foodToEat | a.decisions.foodToLeave {
 	case (-1 | -1): //uses platFood, HP and morality
 
+		//TO DO: Modify for the new HP functions and requirements
 		if a.HP() == 1 { //if critical, calculates to take minimum 2 food if possible. Full range = 2-10
 			return int(10.0 - math.Floor((float64(a.vars.morality) / 25.0)) - math.Floor((float64(a.vars.mood))/25.0))
 		}
@@ -27,7 +26,7 @@ func takeFoodCalculation(a *CustomAgent3) int {
 		if platFood >= foodCalc {
 			return foodCalc
 		} else {
-			return platFood
+			return platFood //if platfood smaller than foodCalc eat all thats left
 		}
 
 	case (-1 | a.decisions.foodToLeave): //uses platFood, HP, morality and foodToLeave
