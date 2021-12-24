@@ -13,7 +13,7 @@ func (a *CustomAgent6) foodIntake() food.FoodType {
 
 	switch a.currBehaviour.String() {
 	case "Altruist":
-		return 0
+		return food.FoodType(0)
 	case "Collectivist":
 		return thresholds.satisficeThresh
 	case "Selfish":
