@@ -5,89 +5,108 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
-type Memory struct {
-	trust             float64 // scale of -5 to 5, with -5 being least trustworthy and 5 being most trustworthy, 0 is neutral
-	favour            float64 // e.g. generosity; scale of -5 to 5, with -5 being least favoured and 5 being most favoured, 0 is neutral
-	daysSinceLastSeen int     // days since last interaction
-}
+// TODO: Requires message passing
+// type Memory struct {
+// 	trust             float64 // scale of -5 to 5, with -5 being least trustworthy and 5 being most trustworthy, 0 is neutral
+// 	favour            float64 // e.g. generosity; scale of -5 to 5, with -5 being least favoured and 5 being most favoured, 0 is neutral
+// 	daysSinceLastSeen int     // days since last interaction
+// }
 
 type CustomAgent5 struct {
 	*infra.Base
-	selflishness      float64
-	lastMeal          float64
+	selfishness       int
+	lastMeal          food.FoodType
 	daysSinceLastMeal int
-	currentAim        int
-	satisfaction      int
-	daysAlive         int
-	attemptToEat      bool
-	memory            map[string]Memory
+	// TODO: Change this to an enum
+	currentAim   int
+	satisfaction int
+	daysAlive    int
+	// TODO: Check difference between this and HasEaten()
+	// If true, then agent will attempt to eat
+	attemptToEat bool
+	// TODO: Requires message passing
+	// Social network of other agents
+	// memory map[string]Memory
 }
 
 func New(baseAgent *infra.Base) (agent.Agent, error) {
 	return &CustomAgent5{
 		Base:              baseAgent,
-		selflishness:      3.0,                 // of 0 to 3, with 3 being completely selflish, 0 being completely selfless
-		lastMeal:          0,                   //Stores value of the last amount of food taken
-		daysSinceLastMeal: 0,                   //Count of how many days since last eating
-		currentAim:        0,                   //Scale of 0 to 2, 0 being willing to lose health, 1 being maintaining health, 2 being gaining health
-		satisfaction:      0,                   //Scale of -3 to 3, with 3 being satisfied and unsatisfied
-		daysAlive:         0,                   //Count how many days agent has been alive
-		attemptToEat:      true,                //Variable needed to check if we have already attempted to eat on a day
-		memory:            map[string]Memory{}, // Memory of other agents, key is agent id
+		selfishness:       3,    // of 0 to 3, with 3 being completely selfish, 0 being completely selfless
+		lastMeal:          0,    //Stores value of the last amount of food taken
+		daysSinceLastMeal: 0,    //Count of how many days since last eating
+		currentAim:        0,    //Scale of 0 to 2, 0 being willing to lose health, 1 being maintaining health, 2 being gaining health
+		satisfaction:      0,    //Scale of -3 to 3, with 3 being satisfied and unsatisfied
+		daysAlive:         0,    //Count how many days agent has been alive
+		attemptToEat:      true, //Variable needed to check if we have already attempted to eat on a day
+		// TODO: Requires message passing
+		// memory:            map[string]Memory{}, // Memory of other agents, key is agent id
 	}, nil
 }
 
-func (a *CustomAgent5) NewMemory(id string) {
-	a.memory[id] = Memory{
-		trust:             0,
-		favour:            0,
-		daysSinceLastSeen: 0,
-	}
-}
+// TODO: Requires message passing
+// func (a *CustomAgent5) newMemory(id string) {
+// 	a.memory[id] = Memory{
+// 		trust:             0,
+// 		favour:            0,
+// 		daysSinceLastSeen: 0,
+// 	}
+// }
 
-func (a *CustomAgent5) UpdateAim() {
+func (a *CustomAgent5) updateAim() {
 	switch {
-	case a.selflishness >= 3:
-		a.currentAim = 2 //If fully selfish always try to gain health
-	case a.HP() > 80 && a.selflishness == 2:
-		a.currentAim = 1 //Try to maintain health if near max health if mostly selfish
-	case a.HP() > 80 && a.selflishness < 2:
-		a.currentAim = 0 //Willing to lose health near max health if mostly or completely selfless
-	case a.HP() > 50 && a.selflishness == 2:
-		a.currentAim = 2 //Try to gain health if mostly selfish when above half health
-	case a.HP() > 50 && a.selflishness == 1:
-		a.currentAim = 1 //Try to maintain half health even if being mostly selfless
-	case a.HP() > 50 && a.selflishness == 0:
-		a.currentAim = 0 //Willing to lose health if being completely selfless
-	case a.HP() > 10 && a.selflishness >= 1:
-		a.currentAim = 2 //Try to gain health if less than half health and being anything but completely selfless
+	case a.selfishness >= 3:
+		// If fully selfish always try to gain health
+		a.currentAim = 2
+	case a.HP() > 80 && a.selfishness == 2:
+		// Try to maintain health if near max health if mostly selfish
+		a.currentAim = 1
+	case a.HP() > 80 && a.selfishness < 2:
+		// Willing to lose health near max health if mostly or completely selfless
+		a.currentAim = 0
+	case a.HP() > 50 && a.selfishness == 2:
+		// Try to gain health if mostly selfish when above half health
+		a.currentAim = 2
+	case a.HP() > 50 && a.selfishness == 1:
+		// Try to maintain half health even if being mostly selfless
+		a.currentAim = 1
+	case a.HP() > 50 && a.selfishness == 0:
+		// Willing to lose health if being completely selfless
+		a.currentAim = 0
+	case a.HP() > 10 && a.selfishness >= 1:
+		// Try to gain health if less than half health and being anything but completely selfless
+		a.currentAim = 2
 	default:
-		a.currentAim = 1 //Default to maintain health if being completely selfless at less than half health
+		// Default to maintain health if being completely selfless at less than half health
+		a.currentAim = 1
 	}
 }
 
-func (a *CustomAgent5) UpdateSelfishness() {
+func (a *CustomAgent5) updateSelfishness() {
 	if a.satisfaction == 3 {
-		a.selflishness--
+		a.selfishness--
 	}
 	if a.satisfaction < 0 || a.daysSinceLastMeal > 2 {
-		a.selflishness++
+		a.selfishness++
 	}
 	//The above is a basic implementation for now while messaging is not functional
 	//Once messages are implemented this function will be dependent on our social network and treaties etc
 }
 
-func (a *CustomAgent5) FoodGain() float64 {
-	return a.HealthInfo().Tau * 3
+// This should probably be done inside health.
+func (a *CustomAgent5) foodGain() food.FoodType {
+	return food.FoodType(a.HealthInfo().Tau * 3)
 }
 
-func (a *CustomAgent5) FoodMaintain() float64 {
-	return a.HealthInfo().Tau * math.Log(1-(float64((a.HP()+30))/(3*a.HealthInfo().Width))) * -1
+// This should probably be done inside health.
+func (a *CustomAgent5) foodMaintain() food.FoodType {
+	return food.FoodType(a.HealthInfo().Tau * math.Log(1-(float64((a.HP()+30))/(3*a.HealthInfo().Width))) * -1)
 }
 
-func (a *CustomAgent5) UpdateSatisfaction() {
+func (a *CustomAgent5) updateSatisfaction() {
 	if a.HP() > 100 {
 		a.satisfaction = 3
 	}
@@ -102,20 +121,21 @@ func (a *CustomAgent5) UpdateSatisfaction() {
 	}
 }
 
-func (a *CustomAgent5) GetMessages() {
-	receivedMsg := a.Base.ReceiveMessage()
-	for receivedMsg != nil {
-		//some message processing depending on the type of the message
+// TODO: Implement message handling
+// func (a *CustomAgent5) GetMessages() {
+// 	receivedMsg := a.Base.ReceiveMessage()
+// 	for receivedMsg != nil {
+// 		//some message processing depending on the type of the message
 
-		receivedMsg = a.Base.ReceiveMessage() // receive next message in the inbox
-	}
-}
+// 		receivedMsg = a.Base.ReceiveMessage() // receive next message in the inbox
+// 	}
+// }
 
-func (a *CustomAgent5) SendMessages() {
-	//function that will send all messages we need to the other agents
-}
+// func (a *CustomAgent5) SendMessages() {
+// 	//function that will send all messages we need to the other agents
+// }
 
-func (a *CustomAgent5) DayPassed() {
+func (a *CustomAgent5) dayPassed() {
 	a.daysAlive++
 	a.daysSinceLastMeal++
 	//Also update daySinceLastSeen for memory here
@@ -123,30 +143,33 @@ func (a *CustomAgent5) DayPassed() {
 
 func (a *CustomAgent5) Run() {
 	a.Log("Reporting agent state of team 5 agent", infra.Fields{"health": a.HP(), "floor": a.Floor()})
-	a.UpdateSelfishness()
-	a.UpdateAim()
-	attemptFood := 0.0
+	a.updateSelfishness()
+	a.updateAim()
+	attemptFood := food.FoodType(0)
 	if a.HP() < 10 {
-		attemptFood = 1 //No point taking more food than 1 if in critical state as we will only reach 10hp with any amount of food > 0
+		//No point taking more food than 1 if in critical state as we will only reach 10hp with any amount of food > 0
+		attemptFood = 1
 	} else {
 		if a.currentAim == 1 {
-			attemptFood = a.FoodMaintain()
+			attemptFood = a.foodMaintain()
 		} else if a.currentAim == 2 {
-			attemptFood = a.FoodGain()
+			attemptFood = a.foodGain()
 		}
 	}
-	if a.CurrPlatFood() != -1 && a.attemptToEat { //When platform reaches our floor and we haven't tried to eat, then try to eat
+	//When platform reaches our floor and we haven't tried to eat, then try to eat
+	if a.CurrPlatFood() != -1 && a.attemptToEat {
 		a.lastMeal = a.TakeFood(attemptFood)
 		if a.lastMeal > 0 {
 			a.Log("Team 5 agent has taken food", infra.Fields{"amount": a.lastMeal})
 			a.daysSinceLastMeal = 0
 		}
-		a.UpdateSatisfaction()
+		a.updateSatisfaction()
 		a.attemptToEat = false
 	}
-	if (a.CurrPlatFood() == -1 && !a.attemptToEat) || a.CurrPlatFood() == 100 { //When platform has passed our floor, take that as a day passing and update parameters
+	//When platform has passed our floor, take that as a day passing and update parameters
+	if (a.CurrPlatFood() == -1 && !a.attemptToEat) || a.CurrPlatFood() == 100 {
 		//Check for CurrPlatFood == 100 needed because of rare case when you are on bottom floor then reshuffled to top, the platform never passes you
-		a.DayPassed()
+		a.dayPassed()
 		a.attemptToEat = true
 	}
 }
