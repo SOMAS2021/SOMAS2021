@@ -134,7 +134,7 @@ func (a *Base) setHasEaten(newStatus bool) {
 }
 
 func (a *Base) TakeFood(amountOfFood food.FoodType) food.FoodType {
-	if a.floor == a.tower.currPlatFloor && !a.hasEaten {
+	if a.floor == a.tower.currPlatFloor && !a.hasEaten && amountOfFood > 0 {
 		foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood)))
 		a.updateHP(foodTaken)
 		a.tower.currPlatFood -= foodTaken
