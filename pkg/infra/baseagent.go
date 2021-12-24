@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	log "github.com/sirupsen/logrus"
@@ -66,13 +67,13 @@ func (a *Base) HP() int {
 
 // only show the food on the platform if the platform is on the
 // same floor as the agent or directly below
-func (a *Base) CurrPlatFood() float64 {
+func (a *Base) CurrPlatFood() food.FoodType {
 	foodOnPlatform := a.tower.currPlatFood
 	platformFloor := a.tower.currPlatFloor
 	if platformFloor == a.floor || platformFloor == a.floor+1 {
 		return foodOnPlatform
 	}
-	return -1.0
+	return -1
 }
 
 func (a *Base) Floor() int {
@@ -96,8 +97,8 @@ func (a *Base) setHP(newHP int) {
 }
 
 // Modeled as a first order system step answer (see documentation for more information)
-func (a *Base) updateHP(foodTaken float64) {
-	hpChange := a.tower.healthInfo.Width * (1 - math.Pow(math.E, -foodTaken/a.tower.healthInfo.Tau))
+func (a *Base) updateHP(foodTaken food.FoodType) {
+	hpChange := a.tower.healthInfo.Width * (1 - math.Pow(math.E, -float64(foodTaken)/a.tower.healthInfo.Tau))
 	if a.hp >= a.tower.healthInfo.WeakLevel {
 		a.hp = a.hp + int(hpChange)
 	} else {
@@ -114,16 +115,16 @@ func (a *Base) setHasEaten(newStatus bool) {
 	a.hasEaten = newStatus
 }
 
-func (a *Base) TakeFood(amountOfFood float64) float64 {
+func (a *Base) TakeFood(amountOfFood food.FoodType) food.FoodType {
 	if a.floor == a.tower.currPlatFloor && !a.hasEaten {
-		foodTaken := math.Min(a.tower.currPlatFood, amountOfFood)
+		foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood)))
 		a.updateHP(foodTaken)
 		a.tower.currPlatFood -= foodTaken
 		a.setHasEaten(foodTaken > 0)
 		a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
 		return foodTaken
 	}
-	return 0.0
+	return 0
 }
 
 func (a *Base) ReceiveMessage() messages.Message {
