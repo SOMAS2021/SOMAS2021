@@ -102,13 +102,3 @@ func (a *CustomAgent6) Run() {
 	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
 
 }
-
-func (a *CustomAgent6) HandleAskHP(msg messages.AskHPMessage)                                    {}
-func (a *CustomAgent6) HandleAskFoodTaken(msg messages.AskFoodTakenMessage)                      {}
-func (a *CustomAgent6) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)     {}
-func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage)              {}
-func (a *CustomAgent6) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage)                {}
-func (a *CustomAgent6) HandleResponse(msg messages.BoolResponseMessage)                          {}
-func (a *CustomAgent6) HandleStateFoodTaken(msg messages.StateFoodTakenMessage)                  {}
-func (a *CustomAgent6) HandleStateHP(msg messages.StateHPMessage)                                {}
-func (a *CustomAgent6) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}

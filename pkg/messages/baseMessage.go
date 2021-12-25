@@ -4,8 +4,6 @@ package messages
 
 type MessageType int
 
-// woonmoon(TODO): See if there's a more Go-friendly way to do this...
-// ideally Ask/State/Request would be three different Messagetypes
 const (
 	AskFoodTaken MessageType = iota + 1
 	AskHP
