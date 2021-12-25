@@ -23,14 +23,40 @@ func (a *CustomAgent1) Run() {
 
 	//UserID := a.ID()
 	currentHP := a.HP()
-	//currentFloor := a.Floor()
+
+	H := 60 //Healthy HP
+	G := 40 //Green HP
+	W := 10 //Weak HP
+	C := 5  //Critial HP
+
+	F := a.Floor() //currentFloor := a.Floor()
+	Y := 5
+	X := 15
+
 	//currentAvailFood := a.CurrPlatFood()
 
-	var foodtotake food.FoodType = food.FoodType(100 - currentHP)
-	if foodtotake == 0 {
-
+	if F < Y {
+		var foodtotake food.FoodType = food.FoodType(G - currentHP)
+		if foodtotake != 0 {
+			a.TakeFood(foodtotake)
+		}
+	} else if currentHP < C {
+		var foodtotake food.FoodType = food.FoodType(G - currentHP)
+		if foodtotake != 0 {
+			a.TakeFood(foodtotake)
+		}
 	} else {
-		a.TakeFood(foodtotake)
+		if F < X && (G+(F-Y) < H) {
+			var foodtotake food.FoodType = food.FoodType((G + (F - Y)) - currentHP)
+			if foodtotake != 0 {
+				a.TakeFood(foodtotake)
+			}
+		} else {
+			var foodtotake food.FoodType = food.FoodType(H - currentHP)
+			if foodtotake != 0 {
+				a.TakeFood(foodtotake)
+			}
+		}
 	}
 
 }
