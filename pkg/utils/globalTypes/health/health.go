@@ -14,9 +14,13 @@ type HealthInfo struct {
 	HPCritical int
 	// Number of days an agent can stay critical before dying
 	MaxDayCritical int
+	// HP loss when currentHP = weakLevel
+	HPLossBase int
+	// HP loss slope w.r.t currentHP - weakLevel
+	HPLossSlope float64
 }
 
-func NewHealthInfo(MaxHP, WeakLevel int, Width, Tau float64, HPReqCToW, HPCritical, MaxDayCritical int) *HealthInfo {
+func NewHealthInfo(MaxHP, WeakLevel int, Width, Tau float64, HPReqCToW, HPCritical, MaxDayCritical, HPLossBase int, HPLossSlope float64) *HealthInfo {
 	return &HealthInfo{
 		MaxHP:          MaxHP,
 		WeakLevel:      WeakLevel,
@@ -25,5 +29,7 @@ func NewHealthInfo(MaxHP, WeakLevel int, Width, Tau float64, HPReqCToW, HPCritic
 		HPReqCToW:      HPReqCToW,
 		HPCritical:     HPCritical,
 		MaxDayCritical: MaxDayCritical,
+		HPLossBase:     HPLossBase,
+		HPLossSlope:    HPLossSlope,
 	}
 }

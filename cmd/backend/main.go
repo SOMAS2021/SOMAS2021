@@ -60,8 +60,10 @@ func main() {
 	hpReqCToW := 2
 	hpCritical := 5
 	maxDayCritical := 3
+	HPLossBase := 10
+	HPLossSlope := 0.25
 
-	healthInfo := health.NewHealthInfo(maxHP, weakLevel, width, tau, hpReqCToW, hpCritical, maxDayCritical)
+	healthInfo := health.NewHealthInfo(maxHP, weakLevel, width, tau, hpReqCToW, hpCritical, maxDayCritical, HPLossBase, HPLossSlope)
 
 	// TODO: agentParameters - struct
 
