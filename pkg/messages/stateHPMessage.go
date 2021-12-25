@@ -17,7 +17,6 @@ func NewStateHPMessage(senderFloor int, hp int) *StateHPMessage {
 }
 
 func (msg *StateHPMessage) Statement() int {
-	// TODO (woonmoon): GET RID OF THIS CONVERSION by supporting pseudo-union return types of Statement() function
 	return msg.hp
 }
 
