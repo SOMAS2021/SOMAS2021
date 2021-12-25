@@ -36,23 +36,23 @@ func (a *CustomAgent1) Run() {
 	//currentAvailFood := a.CurrPlatFood()
 
 	if F < Y {
-		var foodtotake food.FoodType = food.FoodType(G - currentHP)
+		foodtotake := food.FoodType(G - currentHP)
 		if foodtotake != 0 {
 			a.TakeFood(foodtotake)
 		}
 	} else if currentHP < C {
-		var foodtotake food.FoodType = food.FoodType(G - currentHP)
+		foodtotake := food.FoodType(G - currentHP)
 		if foodtotake != 0 {
 			a.TakeFood(foodtotake)
 		}
 	} else {
 		if F < X && (G+(F-Y) < H) {
-			var foodtotake food.FoodType = food.FoodType((G + (F - Y)) - currentHP)
+			foodtotake := food.FoodType((G + (F - Y)) - currentHP)
 			if foodtotake != 0 {
 				a.TakeFood(foodtotake)
 			}
 		} else {
-			var foodtotake food.FoodType = food.FoodType(H - currentHP)
+			foodtotake := food.FoodType(H - currentHP)
 			if foodtotake != 0 {
 				a.TakeFood(foodtotake)
 			}
