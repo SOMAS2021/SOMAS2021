@@ -22,7 +22,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 func (a *CustomAgent1) Run() {
 	a.Log("Reporting agent state", infra.Fields{"health": a.HP(), "floor": a.Floor()})
 
-	receivedMsg := a.Base.ReceiveMessage()
+	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
 	} else {
