@@ -124,7 +124,8 @@ func (t *Tower) hpDecay() {
 }
 
 func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message) {
-	for _, agent := range t.agents {
+	for _, agent := range t.Agents {
+		agent := agent.BaseAgent()
 		if agent.floor == senderFloor+direction {
 			agent.mx.Lock()
 			agent.inbox.PushBack(msg)

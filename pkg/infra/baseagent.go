@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	log "github.com/sirupsen/logrus"
@@ -15,6 +16,7 @@ import (
 type Agent interface {
 	Run()
 	IsAlive() bool
+	BaseAgent() *Base
 	HandleAskHP(msg messages.AskHPMessage)
 	HandleAskFoodTaken(msg messages.AskFoodTakenMessage)
 	HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)
@@ -178,7 +180,7 @@ func (a *Base) HandleAskFoodTaken(msg messages.AskFoodTakenMessage)             
 func (a *Base) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)     {}
 func (a *Base) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage)              {}
 func (a *Base) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage)                {}
-func (a *Base) HandleResponse(msg messages.ResponseMessage)                              {}
+func (a *Base) HandleResponse(msg messages.BoolResponseMessage)                          {}
 func (a *Base) HandleStateFoodTaken(msg messages.StateFoodTakenMessage)                  {}
 func (a *Base) HandleStateHP(msg messages.StateHPMessage)                                {}
 func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}
