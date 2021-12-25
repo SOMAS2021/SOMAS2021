@@ -38,7 +38,10 @@ func main() {
 
 	// can have frontend parameters come go straight into simEnv
 	foodOnPlatform := food.FoodType(100)
-	numOfAgents := []int{1, 1}
+	numOfAgents := []int{2, 2, 2, 2, 2, 2, 2} //agent1, agent2, team3, team4EvoAgent, team 5, team6, randomAgent
+	// NOTE(woonmoon): Leaving the line below commented just in case any teams want to run the 2-agent
+	// 				   configuration to see how the message-passing works.
+	// numOfAgents := []int{1, 1}
 	agentHP := 100
 	agentsPerFloor := 1 //more than one not currently supported
 	numberOfFloors := simulation.Sum(numOfAgents) / agentsPerFloor
