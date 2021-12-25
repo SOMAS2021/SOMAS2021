@@ -1,22 +1,14 @@
 package messages
 
 type AskIntendedFoodIntakeMessage struct {
-	baseMessage *BaseMessage
+	*BaseMessage
 }
 
 func NewAskIntendedFoodIntakeMessage(senderFloor int) *AskIntendedFoodIntakeMessage {
 	msg := &AskIntendedFoodIntakeMessage{
-		baseMessage: NewBaseMessage(senderFloor, AskIntendedFoodIntake),
+		NewBaseMessage(senderFloor, AskIntendedFoodIntake),
 	}
 	return msg
-}
-
-func (msg *AskIntendedFoodIntakeMessage) MessageType() MessageType {
-	return msg.baseMessage.MessageType()
-}
-
-func (msg *AskIntendedFoodIntakeMessage) SenderFloor() int {
-	return msg.baseMessage.SenderFloor()
 }
 
 func (msg *AskIntendedFoodIntakeMessage) Reply(senderFloor int, food int) StateMessage {

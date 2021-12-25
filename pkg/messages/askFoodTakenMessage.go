@@ -1,12 +1,12 @@
 package messages
 
 type AskFoodTakenMessage struct {
-	baseMessage *BaseMessage
+	*BaseMessage
 }
 
 func NewAskFoodTakenMessage(SenderFloor int) *AskFoodTakenMessage {
 	msg := &AskFoodTakenMessage{
-		baseMessage: NewBaseMessage(SenderFloor, AskFoodTaken),
+		NewBaseMessage(SenderFloor, AskFoodTaken),
 	}
 	return msg
 }
@@ -14,14 +14,6 @@ func NewAskFoodTakenMessage(SenderFloor int) *AskFoodTakenMessage {
 func (msg *AskFoodTakenMessage) Reply(senderFloor int, food int) StateMessage {
 	reply := NewStateFoodTakenMessage(senderFloor, food)
 	return reply
-}
-
-func (msg *AskFoodTakenMessage) MessageType() MessageType {
-	return msg.baseMessage.MessageType()
-}
-
-func (msg *AskFoodTakenMessage) SenderFloor() int {
-	return msg.baseMessage.SenderFloor()
 }
 
 func (msg *AskFoodTakenMessage) Visit(a Agent) {
