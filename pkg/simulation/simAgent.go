@@ -7,6 +7,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team3"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
 	team7agent1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team7/agent1"
+	team7agent2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team7/agent2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/google/uuid"
@@ -29,7 +30,7 @@ func (sE *SimEnv) generateInitialAgents(t *infra.Tower) {
 func (sE *SimEnv) createNewAgent(tower *infra.Tower, i, floor int) {
 	// TODO: clean this looping, make a nice abs map
 	sE.Log("Creating new agent")
-	abs := []AgentNewFunc{agent1.New, agent2.New, team3.New, team6.New, team7agent1.New, randomAgent.New}
+	abs := []AgentNewFunc{agent1.New, agent2.New, team3.New, team6.New, team7agent1.New, team7agent2.New, randomAgent.New}
 	uuid := uuid.New().String()
 	bagent, err := infra.NewBaseAgent(sE.world, i, sE.AgentHP, floor, uuid)
 	if err != nil {
