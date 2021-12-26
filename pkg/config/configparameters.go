@@ -48,8 +48,10 @@ func LoadParamFromJson(path string) (ConfigParameters, error) {
 	//parse it and put values in tempParameters
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
-	json.Unmarshal(byteValue, &tempParameters)
-
+	err = json.Unmarshal(byteValue, &tempParameters)
+	if err != nil {
+		return tempParameters, err
+	}
 	//do the calculations for parameters that depend on other parameters
 	tempParameters.NumberOfFloors = simulation.Sum(tempParameters.NumOfAgents) / tempParameters.AgentsPerFloor
 	tempParameters.TicksPerDay = tempParameters.NumberOfFloors * tempParameters.TicksPerFloor
