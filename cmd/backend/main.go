@@ -41,6 +41,8 @@ func main() {
 	// if not set, it uses default of "config.json"
 	configPathPtr := flag.String("configpath", "config.json", "path for parameter configuration json file")
 
+	flag.Parse()
+
 	parameters, err := config.LoadParamFromJson(*configPathPtr)
 	if err != nil {
 		fmt.Println(err)
