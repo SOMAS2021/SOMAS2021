@@ -85,7 +85,7 @@ func (t *Tower) Reshuffle() {
 	// iterate through the uuid strings of each agent
 	for _, agent := range t.Agents {
 		newFloor := rand.Intn(numOfFloors)
-		for remainingVacancies[newFloor] == 0 {
+		for remainingVacancies[newFloor] == 0 || newFloor == agent.BaseAgent().floor {
 			newFloor = rand.Intn(numOfFloors)
 		}
 		agent.BaseAgent().setFloor(newFloor + 1)
