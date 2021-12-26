@@ -1,0 +1,18 @@
+{
+    "FoodOnPlatform": 100,
+    "NumOfAgents": [2,2,2,2,2,2,2],
+    "AgentHP": 100,
+    "AgentsPerFloor": 1,
+    "TicksPerFloor": 10,
+    "SimDays": 8,
+    "ReshuffleDays": 1,
+    "maxHP": 100,
+    "weakLevel": 10,
+    "width": 45,
+    "tau": 10,
+    "hpReqCToW": 2,
+    "hpCritical": 5,
+    "maxDayCritical": 3,
+    "HPLossBase": 10,
+    "HPLossSlope": 0.25
+}
