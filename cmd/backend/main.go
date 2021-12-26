@@ -47,10 +47,11 @@ func main() {
 		return
 	}
 
-	healthInfo := health.NewHealthInfo(parameters.MaxHP, parameters.WeakLevel, parameters.Width, parameters.Tau, parameters.HpReqCToW, parameters.HpCritical, parameters.MaxDayCritical, parameters.HPLossBase, parameters.HPLossSlope)
+	healthInfo := health.NewHealthInfo(&parameters)
 
 	// TODO: agentParameters - struct
 
-	simEnv := simulation.NewSimEnv(parameters.FoodOnPlatform, parameters.NumOfAgents, parameters.AgentHP, parameters.AgentsPerFloor, parameters.DayInfo, healthInfo)
+	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
+
 	simEnv.Simulate()
 }
