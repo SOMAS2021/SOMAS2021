@@ -26,8 +26,8 @@ func (a *CustomAgent1) Run() {
 
 	H := 60 //Healthy HP
 	G := 40 //Green HP
-	W := 10 //Weak HP
-	C := 5  //Critial HP
+	// W := 10 //Weak HP
+	C := 5 //Critial HP
 
 	F := a.Floor() //currentFloor := a.Floor()
 	Y := 5
