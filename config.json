@@ -1,6 +1,12 @@
 {
     "FoodOnPlatform": 100,
-    "NumOfAgents": [2,2,2,2,2,2,2],
+    "Team1Agents": 2,
+    "Team2Agents": 2,
+    "Team3Agents": 2,
+    "Team4Agents": 2,
+    "Team5Agents": 2,
+    "Team6Agents": 2,
+    "RandomAgents": 2,
     "AgentHP": 100,
     "AgentsPerFloor": 1,
     "TicksPerFloor": 10,

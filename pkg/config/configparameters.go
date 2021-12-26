@@ -13,7 +13,13 @@ import (
 
 type ConfigParameters struct {
 	FoodOnPlatform food.FoodType `json:"FoodOnPlatform"`
-	NumOfAgents    []int         `json:"NumOfAgents"`
+	Team1Agents    int           `json:"Team1Agents"`
+	Team2Agents    int           `json:"Team2Agents"`
+	Team3Agents    int           `json:"Team3Agents"`
+	Team4Agents    int           `json:"Team4Agents"`
+	Team5Agents    int           `json:"Team5Agents"`
+	Team6Agents    int           `json:"Team6Agents"`
+	RandomAgents   int           `json:"RandomAgents"`
 	AgentHP        int           `json:"AgentHP"`
 	AgentsPerFloor int           `json:"AgentsPerFloor"`
 	TicksPerFloor  int           `json:"TicksPerFloor"`
@@ -28,6 +34,7 @@ type ConfigParameters struct {
 	MaxDayCritical int           `json:"maxDayCritical"`
 	HPLossBase     int           `json:"HPLossBase"`
 	HPLossSlope    float64       `json:"HPLossSlope"`
+	NumOfAgents    []int
 	NumberOfFloors int
 	TicksPerDay    int
 	DayInfo        *day.DayInfo
@@ -56,6 +63,9 @@ func LoadParamFromJson(path string) (ConfigParameters, error) {
 	tempParameters.NumberOfFloors = utilfunctions.Sum(tempParameters.NumOfAgents) / tempParameters.AgentsPerFloor
 	tempParameters.TicksPerDay = tempParameters.NumberOfFloors * tempParameters.TicksPerFloor
 	tempParameters.DayInfo = day.NewDayInfo(tempParameters.TicksPerFloor, tempParameters.TicksPerDay, tempParameters.SimDays, tempParameters.ReshuffleDays)
+
+	//appending the sizes of the agents to the array
+	tempParameters.NumOfAgents = append(tempParameters.NumOfAgents, tempParameters.Team1Agents, tempParameters.Team2Agents, tempParameters.Team3Agents, tempParameters.Team4Agents, tempParameters.Team5Agents, tempParameters.Team6Agents, tempParameters.RandomAgents)
 
 	return tempParameters, nil
 }
