@@ -37,5 +37,3 @@ func NewHealthInfo(parameters *config.ConfigParameters) *HealthInfo {
 		HPLossSlope:    parameters.HPLossSlope,
 	}
 }
-
-*/
