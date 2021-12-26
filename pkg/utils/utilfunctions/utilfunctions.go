@@ -1,4 +1,4 @@
-package usefulfunctions
+package utilfunctions
 
 func Sum(inputList []int) int {
 	totalAgents := 0
@@ -6,4 +6,5 @@ func Sum(inputList []int) int {
 		totalAgents += value
 	}
 	return totalAgents
+
 }
