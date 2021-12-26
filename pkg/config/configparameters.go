@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/SOMAS2021/SOMAS2021/pkg/simulation" //for the sum function. That function should probably be moved somewhere else, like utils
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilfunctions"
 )
 
 type ConfigParameters struct {
@@ -53,7 +53,7 @@ func LoadParamFromJson(path string) (ConfigParameters, error) {
 		return tempParameters, err
 	}
 	//do the calculations for parameters that depend on other parameters
-	tempParameters.NumberOfFloors = simulation.Sum(tempParameters.NumOfAgents) / tempParameters.AgentsPerFloor
+	tempParameters.NumberOfFloors = utilfunctions.Sum(tempParameters.NumOfAgents) / tempParameters.AgentsPerFloor
 	tempParameters.TicksPerDay = tempParameters.NumberOfFloors * tempParameters.TicksPerFloor
 	tempParameters.DayInfo = day.NewDayInfo(tempParameters.TicksPerFloor, tempParameters.TicksPerDay, tempParameters.SimDays, tempParameters.ReshuffleDays)
 
