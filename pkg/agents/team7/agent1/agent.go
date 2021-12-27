@@ -27,6 +27,8 @@ func (a *CustomAgent1) Run() {
 	//currentAvailFood := a.CurrPlatFood()
 
 	var foodtotake food.FoodType = food.FoodType(100 - currentHP)
+	
+	//Only call take food if you want food
 	if foodtotake != 0 {
 		a.TakeFood(foodtotake)
 	}
