@@ -19,18 +19,44 @@ func New(baseAgent *infra.Base) (agent.Agent, error) {
 }
 
 func (a *CustomAgent1) Run() {
-	a.Log("Agent7 reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP()})
+	a.Log("Team7Agent2 reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP()})
 
 	//UserID := a.ID()
 	currentHP := a.HP()
-	//currentFloor := a.Floor()
+
+	H := 60 //Healthy HP
+	G := 40 //Green HP
+	// W := 10 //Weak HP
+	C := 5 //Critial HP
+
+	F := a.Floor() //currentFloor := a.Floor()
+	Y := 5
+	X := 15
+
 	//currentAvailFood := a.CurrPlatFood()
 
-	var foodtotake food.FoodType = food.FoodType(100 - currentHP)
-	if foodtotake == 0 {
-
+	if F < Y {
+		foodtotake := food.FoodType(G - currentHP)
+		if foodtotake != 0 {
+			a.TakeFood(foodtotake)
+		}
+	} else if currentHP < C {
+		foodtotake := food.FoodType(G - currentHP)
+		if foodtotake != 0 {
+			a.TakeFood(foodtotake)
+		}
 	} else {
-		a.TakeFood(foodtotake)
+		if F < X && (G+(F-Y) < H) {
+			foodtotake := food.FoodType((G + (F - Y)) - currentHP)
+			if foodtotake != 0 {
+				a.TakeFood(foodtotake)
+			}
+		} else {
+			foodtotake := food.FoodType(H - currentHP)
+			if foodtotake != 0 {
+				a.TakeFood(foodtotake)
+			}
+		}
 	}
 
 }
