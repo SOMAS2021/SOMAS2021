@@ -61,7 +61,8 @@ jobs:
     
   run:
     name: Run
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs: [build]
     steps:
       - name: Set up Go
