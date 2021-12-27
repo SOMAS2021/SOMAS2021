@@ -1,13 +1,11 @@
 package simulation
 
 import (
-	"github.com/SOMAS2021/SOMAS2021/pkg/config"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilfunctions"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -24,14 +22,14 @@ type SimEnv struct {
 	world          world.World
 }
 
-func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
+func NewSimEnv(foodOnPlat food.FoodType, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *SimEnv {
 	return &SimEnv{
-		FoodOnPlatform: parameters.FoodOnPlatform,
-		AgentCount:     parameters.NumOfAgents,
-		AgentHP:        parameters.AgentHP,
-		dayInfo:        parameters.DayInfo,
+		FoodOnPlatform: foodOnPlat,
+		AgentCount:     agentCount,
+		AgentHP:        agentHP,
+		dayInfo:        dayInfo,
 		healthInfo:     healthInfo,
-		AgentsPerFloor: parameters.AgentsPerFloor,
+		AgentsPerFloor: agentsPerFloor,
 		logger:         *log.WithFields(log.Fields{"reporter": "simulation"}),
 	}
 }
@@ -39,7 +37,7 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Initializing")
 
-	totalAgents := utilfunctions.Sum(sE.AgentCount)
+	totalAgents := Sum(sE.AgentCount)
 	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, sE.AgentsPerFloor, sE.dayInfo, sE.healthInfo)
 	sE.SetWorld(t)
 
@@ -48,6 +46,15 @@ func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Started")
 	sE.simulationLoop(t)
 	sE.Log("Simulation Ended")
+}
+
+// TODO: move to a general list of functions
+func Sum(inputList []int) int {
+	totalAgents := 0
+	for _, value := range inputList {
+		totalAgents += value
+	}
+	return totalAgents
 }
 
 func (s *SimEnv) Log(message string, fields ...Fields) {

@@ -1,9 +1,5 @@
 package health
 
-import (
-	"github.com/SOMAS2021/SOMAS2021/pkg/config"
-)
-
 type HealthInfo struct {
 	// Maximum HP
 	MaxHP int
@@ -24,16 +20,16 @@ type HealthInfo struct {
 	HPLossSlope float64
 }
 
-func NewHealthInfo(parameters *config.ConfigParameters) *HealthInfo {
+func NewHealthInfo(MaxHP, WeakLevel int, Width, Tau float64, HPReqCToW, HPCritical, MaxDayCritical, HPLossBase int, HPLossSlope float64) *HealthInfo {
 	return &HealthInfo{
-		MaxHP:          parameters.MaxHP,
-		WeakLevel:      parameters.WeakLevel,
-		Width:          parameters.Width,
-		Tau:            parameters.Tau,
-		HPReqCToW:      parameters.HpReqCToW,
-		HPCritical:     parameters.HpCritical,
-		MaxDayCritical: parameters.MaxDayCritical,
-		HPLossBase:     parameters.HPLossBase,
-		HPLossSlope:    parameters.HPLossSlope,
+		MaxHP:          MaxHP,
+		WeakLevel:      WeakLevel,
+		Width:          Width,
+		Tau:            Tau,
+		HPReqCToW:      HPReqCToW,
+		HPCritical:     HPCritical,
+		MaxDayCritical: MaxDayCritical,
+		HPLossBase:     HPLossBase,
+		HPLossSlope:    HPLossSlope,
 	}
 }
