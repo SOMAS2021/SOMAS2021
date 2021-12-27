@@ -72,7 +72,7 @@ func (a *CustomAgent6) foodIntake() food.FoodType {
 }
 
 func foodRequired(currentHP, goalHP float64, healthInfo *health.HealthInfo) food.FoodType {
-	denom := healthInfo.Width - goalHP + 0.75*currentHP - 10 + 0.25*float64(healthInfo.WeakLevel)
+	denom := healthInfo.Width - goalHP + (1-healthInfo.HPLossSlope)*currentHP - float64(healthInfo.HPLossBase) + healthInfo.HPLossSlope*float64(healthInfo.WeakLevel)
 	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
 }
 

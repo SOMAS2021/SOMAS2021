@@ -1,10 +1,7 @@
 package simulation
 
 import (
-	"sync"
-
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
@@ -15,7 +12,6 @@ import (
 type Fields = log.Fields
 
 type SimEnv struct {
-	mx             sync.RWMutex
 	FoodOnPlatform food.FoodType
 	AgentCount     []int
 	AgentHP        int
@@ -24,7 +20,6 @@ type SimEnv struct {
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
 	world          world.World
-	custAgents     map[string]agent.Agent
 }
 
 func NewSimEnv(foodOnPlat food.FoodType, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *SimEnv {
@@ -36,7 +31,6 @@ func NewSimEnv(foodOnPlat food.FoodType, agentCount []int, agentHP, agentsPerFlo
 		healthInfo:     healthInfo,
 		AgentsPerFloor: agentsPerFloor,
 		logger:         *log.WithFields(log.Fields{"reporter": "simulation"}),
-		custAgents:     make(map[string]agent.Agent),
 	}
 }
 

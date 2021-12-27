@@ -42,7 +42,7 @@ func main() {
 	agentHP := 100
 	agentsPerFloor := 1 //more than one not currently supported
 	numberOfFloors := simulation.Sum(numOfAgents) / agentsPerFloor
-	ticksPerFloor := 10
+	ticksPerFloor := 1
 
 	ticksPerDay := numberOfFloors * ticksPerFloor
 	simDays := 8
@@ -57,8 +57,10 @@ func main() {
 	hpReqCToW := 2
 	hpCritical := 5
 	maxDayCritical := 3
+	HPLossBase := 10
+	HPLossSlope := 0.25
 
-	healthInfo := health.NewHealthInfo(maxHP, weakLevel, width, tau, hpReqCToW, hpCritical, maxDayCritical)
+	healthInfo := health.NewHealthInfo(maxHP, weakLevel, width, tau, hpReqCToW, hpCritical, maxDayCritical, HPLossBase, HPLossSlope)
 
 	// TODO: agentParameters - struct
 
