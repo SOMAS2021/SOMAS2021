@@ -1,15 +1,15 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/config"
 	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	log "github.com/sirupsen/logrus"
 )
@@ -36,37 +36,24 @@ func main() {
 	log.SetOutput(f)
 	log.SetFormatter(&log.JSONFormatter{})
 
-	// can have frontend parameters come go straight into simEnv
-	foodOnPlatform := food.FoodType(100)
-	numOfAgents := []int{2, 2, 2, 2, 2, 2, 2} //agent1, agent2, team3, team4EvoAgent, team 5, team6, randomAgent
-	// NOTE(woonmoon): Leaving the line below commented just in case any teams want to run the 2-agent
-	// 				   configuration to see how the message-passing works.
-	// numOfAgents := []int{1, 1}
-	agentHP := 100
-	agentsPerFloor := 1 //more than one not currently supported
-	numberOfFloors := simulation.Sum(numOfAgents) / agentsPerFloor
-	ticksPerFloor := 10
+	//processing the command-line flags
+	//currently only one used is -configpath, but we are likely to need more in the near future.
+	// if not set, it uses default of "config.json"
+	configPathPtr := flag.String("configpath", "config.json", "path for parameter configuration json file")
 
-	ticksPerDay := numberOfFloors * ticksPerFloor
-	simDays := 8
-	reshuffleDays := 1
-	dayInfo := day.NewDayInfo(ticksPerFloor, ticksPerDay, simDays, reshuffleDays)
+	flag.Parse()
 
-	// define health parameters
-	maxHP := 100
-	weakLevel := 10
-	width := 45.0
-	tau := 10.0
-	hpReqCToW := 2
-	hpCritical := 5
-	maxDayCritical := 3
-	HPLossBase := 10
-	HPLossSlope := 0.25
+	parameters, err := config.LoadParamFromJson(*configPathPtr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	healthInfo := health.NewHealthInfo(maxHP, weakLevel, width, tau, hpReqCToW, hpCritical, maxDayCritical, HPLossBase, HPLossSlope)
+	healthInfo := health.NewHealthInfo(&parameters)
 
 	// TODO: agentParameters - struct
 
-	simEnv := simulation.NewSimEnv(foodOnPlatform, numOfAgents, agentHP, agentsPerFloor, dayInfo, healthInfo)
+	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
+
 	simEnv.Simulate()
 }
