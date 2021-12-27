@@ -134,6 +134,9 @@ func (a *Base) setHasEaten(newStatus bool) {
 }
 
 func (a *Base) TakeFood(amountOfFood food.FoodType) food.FoodType {
+	if amountOfFood == 0 {
+		return 0
+	}
 	if a.floor == a.tower.currPlatFloor && !a.hasEaten && amountOfFood > 0 {
 		foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood)))
 		a.updateHP(foodTaken)
@@ -142,7 +145,7 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) food.FoodType {
 		a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
 		return foodTaken
 	}
-	return 0
+	return -1
 }
 
 func (a *Base) ReceiveMessage() messages.Message {
