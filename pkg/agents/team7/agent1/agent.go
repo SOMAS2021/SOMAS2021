@@ -2,7 +2,6 @@ package team7agent1
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
@@ -11,7 +10,7 @@ type CustomAgent1 struct {
 	// new params
 }
 
-func New(baseAgent *infra.Base) (agent.Agent, error) {
+func New(baseAgent *infra.Base) (infra.Agent, error) {
 	//create other parameters
 	return &CustomAgent1{
 		Base: baseAgent,
