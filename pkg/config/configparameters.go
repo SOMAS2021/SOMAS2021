@@ -8,7 +8,7 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilfunctions"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
 )
 
 type ConfigParameters struct {
@@ -63,7 +63,7 @@ func LoadParamFromJson(path string) (ConfigParameters, error) {
 	tempParameters.NumOfAgents = append(tempParameters.NumOfAgents, tempParameters.Team1Agents, tempParameters.Team2Agents, tempParameters.Team3Agents, tempParameters.Team4Agents, tempParameters.Team5Agents, tempParameters.Team6Agents, tempParameters.RandomAgents)
 
 	//do the calculations for parameters that depend on other parameters
-	tempParameters.NumberOfFloors = utilfunctions.Sum(tempParameters.NumOfAgents) / tempParameters.AgentsPerFloor
+	tempParameters.NumberOfFloors = utilFunctions.Sum(tempParameters.NumOfAgents) / tempParameters.AgentsPerFloor
 	tempParameters.TicksPerDay = tempParameters.NumberOfFloors * tempParameters.TicksPerFloor
 	tempParameters.DayInfo = day.NewDayInfo(tempParameters.TicksPerFloor, tempParameters.TicksPerDay, tempParameters.SimDays, tempParameters.ReshuffleDays)
 
