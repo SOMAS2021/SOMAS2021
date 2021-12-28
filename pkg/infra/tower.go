@@ -23,6 +23,7 @@ type Tower struct {
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
 	mx             sync.RWMutex
+	deadAgents     map[int]int
 }
 
 func (t *Tower) Log(message string, fields ...Fields) {
@@ -48,6 +49,7 @@ func NewTower(maxPlatFood food.FoodType, agentCount,
 		logger:         *log.WithFields(log.Fields{"reporter": "tower"}),
 		dayInfo:        dayInfo,
 		healthInfo:     healthInfo,
+		deadAgents:     make(map[int]int),
 	}
 }
 
@@ -143,4 +145,12 @@ func (t *Tower) TotalAgents() int {
 	t.mx.RLock()
 	defer t.mx.RUnlock()
 	return len(t.Agents)
+}
+
+func (t *Tower) UpdateDeadAgents(agentType int) {
+	t.deadAgents[agentType]++
+}
+
+func (t *Tower) DeadAgents() map[int]int {
+	return t.deadAgents
 }

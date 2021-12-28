@@ -48,7 +48,9 @@ func (sE *SimEnv) replaceAgents(t *infra.Tower) {
 		agent := agent.BaseAgent()
 		if !agent.IsAlive() {
 			delete(t.Agents, uuid)
+			sE.Log("An Agent has died", infra.Fields{"Agent Type": agent.AgentType()})
 			sE.createNewAgent(t, agent.AgentType(), agent.Floor())
+			t.UpdateDeadAgents(agent.AgentType())
 		}
 	}
 }
