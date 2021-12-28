@@ -52,10 +52,10 @@ func main() {
 func runNewSimulation(parameters config.ConfigParameters) {
 	rand.Seed(time.Now().UnixNano())
 	f, err := setupLogFile()
-	defer f.Close()
 	if err != nil {
 		return
 	}
+	defer f.Close()
 	healthInfo := health.NewHealthInfo(&parameters)
 
 	// TODO: agentParameters - struct
