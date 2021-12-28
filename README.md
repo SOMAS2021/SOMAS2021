@@ -2,6 +2,18 @@
 
 [![Build and Test](https://github.com/SOMAS2021/SOMAS2021/actions/workflows/main.yaml/badge.svg?branch=main)](https://github.com/SOMAS2021/SOMAS2021/actions/workflows/main.yaml)
 
+## Using Docker Image
+
+You can run your own instance of the platform using our docker image.
+
+Pull Image: `docker pull ghcr.io/somas2021/somas2021/pitt:{VERSION}`
+
+
+Docker Run: `docker run -it -p 9000:9000 {NAME}`
+
+If you wish to build the image from the Dockerfile (we won't ask questions why): `docker build -t {NAME} .`
+
+
 ## Set up
 
 1. Download Go 1.17 from [here](https://go.dev/doc/install).
