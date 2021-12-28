@@ -50,11 +50,12 @@ func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int,
 	}
 	logger := log.WithFields(log.Fields{"agent_id": id, "agent_type": agentType, "reporter": "agent"})
 	return &Base{
-		id:             id,
-		hp:             agentHP,
-		floor:          agentFloor,
-		agentType:      agentType,
-		tower:          tower,
+		id:        id,
+		hp:        agentHP,
+		floor:     agentFloor,
+		agentType: agentType,
+		tower:     tower,
+		//TODO: Check how large to make the inbox channel. Currently set to 15.
 		inbox:          make(chan messages.Message, 15),
 		logger:         *logger,
 		hasEaten:       false,
