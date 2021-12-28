@@ -1,4 +1,4 @@
-package utilfunctions
+package utilFunctions
 
 func Sum(inputList []int) int {
 	totalAgents := 0
