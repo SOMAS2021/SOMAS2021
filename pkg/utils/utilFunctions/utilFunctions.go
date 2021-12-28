@@ -9,9 +9,12 @@ func Sum(inputList []int) int {
 
 }
 
-func MinInt(valueOne, valueTwo int) int {
-	if valueOne > valueTwo {
-		return valueOne
+func MinInt(vars ...int) int {
+	min := vars[0]
+	for _, i := range vars {
+		if min > i {
+			min = i
+		}
 	}
-	return valueTwo
+	return min
 }
