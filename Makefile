@@ -20,13 +20,13 @@ test-coverage: dep ## Run tests with coverage
 	@cat ./bin/cover.out
 
 build: dep ## Build the binary file
-	@go build -o bin/backend ./cmd/backend
+	@go build -o bin/backend .
  
 clean: ## Remove previous build
 	@rm -rf ./bin ./logs
  
 run: ## run simulation
-	@go run cmd/backend/main.go
+	@go run main.go $(ARGS)
 
 help: ## Display this help screen
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
