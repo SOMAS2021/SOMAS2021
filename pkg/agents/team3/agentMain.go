@@ -4,7 +4,6 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 )
 
 type team3Variables struct {
