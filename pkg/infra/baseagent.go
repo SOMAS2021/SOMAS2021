@@ -10,7 +10,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
-	utilfunctions "github.com/SOMAS2021/SOMAS2021/pkg/utils/utilfunctions"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -73,7 +73,7 @@ func (a *Base) Run() {
 }
 
 func (a *Base) HP() int {
-	return utilfunctions.MinInt(a.hp, 100)
+	return utilFunctions.MinInt(a.hp, 100)
 }
 
 // only show the food on the platform if the platform is on the
