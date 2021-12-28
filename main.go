@@ -1,10 +1,8 @@
 package main
 
 import (
-	"embed"
 	"flag"
 	"fmt"
-	"io/fs"
 	"math/rand"
 	"net/http"
 	"os"
@@ -60,18 +58,6 @@ func runNewSimulation(parameters config.ConfigParameters) {
 	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
 	simEnv.Simulate()
 	f.Close()
-}
-
-func getFileSystem(embeddedFiles embed.FS) http.FileSystem {
-	// Get the build subdirectory as the
-	// root directory so that it can be passed
-	// to the http.FileServer
-	fsys, err := fs.Sub(embeddedFiles, "build")
-	if err != nil {
-		fmt.Println("failed to start server: ", err)
-		return nil
-	}
-	return http.FS(fsys)
 }
 
 func setupLogFile() (fp *os.File) {
