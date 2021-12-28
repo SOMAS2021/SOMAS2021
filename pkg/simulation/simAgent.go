@@ -12,6 +12,7 @@ import (
 	team7agent2 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team7/agent2"
 	team7agent3 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team7/agent3"
 	team7agent4 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team7/agent4"
+	team7agent5 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team7/agent5"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
@@ -32,7 +33,7 @@ func (sE *SimEnv) generateInitialAgents(t *infra.Tower) {
 
 func (sE *SimEnv) createNewAgent(tower *infra.Tower, i, floor int) {
 	sE.Log("Creating new agent")
-	abs := []AgentNewFunc{agent1.New, agent2.New, team3.New, team4EvoAgent.New, team5.New, team6.New, randomAgent.New, team7agent1.New, team7agent2.New, team7agent3.New, team7agent4.New}
+	abs := []AgentNewFunc{agent1.New, agent2.New, team3.New, team4EvoAgent.New, team5.New, team6.New, randomAgent.New, team7agent1.New, team7agent2.New, team7agent3.New, team7agent4.New, team7agent5.New}
 	// NOTE(woonmoon): Leaving the line below commented just in case any teams want to run the 2-agent
 	// 				   configuration to see how the message-passing works.
 	// abs := []AgentNewFunc{agent1.New, agent2.New}

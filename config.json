@@ -11,11 +11,13 @@
     "Team7Agent2": 0,
     "Team7Agent3": 0,
     "Team7Agent4": 0,
+    "Team7Agent5": 0,
     "AgentHP": 100,
     "AgentsPerFloor": 1,
     "TicksPerFloor": 10,
     "SimDays": 8,
     "ReshuffleDays": 1,
+
     "maxHP": 100,
     "weakLevel": 10,
     "width": 45,
