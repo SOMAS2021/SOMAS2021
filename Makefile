@@ -23,7 +23,7 @@ build: dep ## Build the binary file
 	@go build -o bin/backend ./cmd/backend
  
 clean: ## Remove previous build
-	@rm -rf ./bin
+	@rm -rf ./bin ./logs
  
 run: ## run simulation
 	@go run cmd/backend/main.go
