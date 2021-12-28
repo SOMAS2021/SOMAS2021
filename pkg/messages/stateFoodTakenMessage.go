@@ -2,7 +2,7 @@ package messages
 
 type StateFoodTakenMessage struct {
 	*BaseMessage
-	food int // Planning to change this to int, see #21
+	food int
 }
 
 func NewStateFoodTakenMessage(senderFloor int, foodTaken int) *StateFoodTakenMessage {

@@ -1,8 +1,5 @@
 package messages
 
-// TODO (woonmoon): HP SHOULD BE AN INT!!!
-// do this by supporting union return types on Statement() in
-// AskMessage interface
 type StateHPMessage struct {
 	*BaseMessage
 	hp int
