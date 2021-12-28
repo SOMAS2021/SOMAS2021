@@ -254,3 +254,68 @@ func (a *CustomAgent5) HandleStateIntendedFoodTaken(msg messages.StateIntendedFo
 	statement := msg.Statement()
 	a.Log("Team 5 agent recieved a StateIntendedFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "statement": statement})
 }
+
+//The message handler functions below are for a fully honest agent
+
+func (a *CustomAgent5) HandleAskHP(msg messages.AskHPMessage) {
+	reply := msg.Reply(a.Floor(), a.HP())
+	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	a.Log("Team 5 agent recieved an askHP message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor()})
+}
+
+func (a *CustomAgent5) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
+	reply := msg.Reply(a.Floor(), int(a.lastMeal))
+	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	a.Log("Team 5 agent recieved an askFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor()})
+}
+
+func (a *CustomAgent5) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
+	amount := 0
+	if a.currentAim == 2 {
+		amount = int(a.foodGain())
+	}
+	if a.currentAim == 1 {
+		amount = int(a.foodMaintain())
+	}
+	reply := msg.Reply(a.Floor(), amount)
+	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	a.Log("Team 5 agent recieved an askIntendedFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor()})
+}
+
+func (a *CustomAgent5) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
+	amount := msg.Request()
+	reply := msg.Reply(a.Floor(), false) //Always set to false for now to prevent deception, needs some calculations to determine whether we will leave the requested amount
+	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	a.Log("Team 5 agent recieved a requestLeaveFood message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "request amount": amount})
+}
+
+func (a *CustomAgent5) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
+	amount := msg.Request()
+	reponse := true
+	if (a.currentAim == 2 && amount > int(a.foodGain())) || (a.currentAim == 1 && amount > int(a.foodMaintain())) {
+		reponse = false
+	}
+	reply := msg.Reply(a.Floor(), reponse)
+	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	a.Log("Team 5 agent recieved a requestTakeFood message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "request amount": amount})
+}
+
+func (a *CustomAgent5) HandleResponse(msg messages.BoolResponseMessage) {
+	response := msg.Response()
+	a.Log("Team 5 agent recieved a Response message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "response": response})
+}
+
+func (a *CustomAgent5) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
+	statement := msg.Statement()
+	a.Log("Team 5 agent recieved a StateFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "statement": statement})
+}
+
+func (a *CustomAgent5) HandleStateHP(msg messages.StateHPMessage) {
+	statement := msg.Statement()
+	a.Log("Team 5 agent recieved a StateHP message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "statement": statement})
+}
+
+func (a *CustomAgent5) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
+	statement := msg.Statement()
+	a.Log("Team 5 agent recieved a StateIntendedFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "statement": statement})
+}
