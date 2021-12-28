@@ -8,3 +8,10 @@ func Sum(inputList []int) int {
 	return totalAgents
 
 }
+
+func MinInt(valueOne, valueTwo int) int {
+	if valueOne > valueTwo {
+		return valueOne
+	}
+	return valueTwo
+}
