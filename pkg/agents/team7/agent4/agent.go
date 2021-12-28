@@ -1,4 +1,4 @@
-package team7agent3
+package team7agent4
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
@@ -21,7 +21,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 }
 
 func (a *CustomAgent1) Run() {
-	a.Log("Team 7 Agent 3 reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP()})
+	a.Log("Team 7 Agent 4 reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP()})
 
 	// UserID := a.ID()
 	// currentHP := a.HP()

@@ -18,7 +18,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 }
 
 func (a *CustomAgent1) Run() {
-	a.Log("Team7Agent1 reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP()})
+	a.Log("Team 7 Agent 1 reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP()})
 
 	//UserID := a.ID()
 	currentHP := a.HP()
