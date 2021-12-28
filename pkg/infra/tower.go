@@ -128,9 +128,11 @@ func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message
 	for _, agent := range t.Agents {
 		agent := agent.BaseAgent()
 		if agent.floor == senderFloor+direction {
-			agent.mx.Lock()
-			agent.inbox.PushBack(msg)
-			agent.mx.Unlock()
+			select {
+			case agent.inbox <- msg:
+			default:
+				t.Log("message send failed")
+			}
 		}
 	}
 }

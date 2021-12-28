@@ -1,10 +1,8 @@
 package infra
 
 import (
-	"container/list"
 	"errors"
 	"math"
-	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -35,9 +33,8 @@ type Base struct {
 	hp             int
 	floor          int
 	agentType      int
-	inbox          *list.List
+	inbox          chan messages.Message
 	tower          *Tower
-	mx             sync.RWMutex
 	logger         log.Entry
 	hasEaten       bool
 	daysAtCritical int
@@ -58,7 +55,7 @@ func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int,
 		floor:          agentFloor,
 		agentType:      agentType,
 		tower:          tower,
-		inbox:          list.New(),
+		inbox:          make(chan messages.Message, 15),
 		logger:         *logger,
 		hasEaten:       false,
 		daysAtCritical: 0,
@@ -158,14 +155,12 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) food.FoodType {
 }
 
 func (a *Base) ReceiveMessage() messages.Message {
-	a.mx.Lock()
-	defer a.mx.Unlock()
-	if a.inbox.Len() > 0 {
-		msg := a.inbox.Front().Value.(messages.Message)
-		(a.inbox).Remove(a.inbox.Front())
+	select {
+	case msg := <-a.inbox:
 		return msg
+	default:
+		return nil
 	}
-	return nil
 }
 
 func (a *Base) SendMessage(direction int, msg messages.Message) {
