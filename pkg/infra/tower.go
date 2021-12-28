@@ -66,7 +66,6 @@ func (t *Tower) Tick() {
 	// Decrease agent HP and reset tower at end of day
 	if t.dayInfo.CurrTick%t.dayInfo.TicksPerDay == 0 {
 		t.endOfDay()
-		// t.hpDecay() // decreases HP and kills if < 0
 		t.ResetTower()
 		t.Log("-----------------END----OF----DAY-----------------", Fields{})
 	}
@@ -99,7 +98,6 @@ func (t *Tower) endOfDay() {
 		agent := agent.BaseAgent()
 		agent.hpDecay(t.healthInfo)
 		agent.increaseAge()
-		// agent.updateTreaties()
 	}
 }
 
