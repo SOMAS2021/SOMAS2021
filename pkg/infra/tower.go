@@ -1,7 +1,6 @@
 package infra
 
 import (
-	"math"
 	"math/rand"
 	"sync"
 
@@ -66,7 +65,7 @@ func (t *Tower) Tick() {
 	}
 	// Decrease agent HP and reset tower at end of day
 	if t.dayInfo.CurrTick%t.dayInfo.TicksPerDay == 0 {
-		t.hpDecay() // decreases HP and kills if < 0
+		t.endOfDay()
 		t.ResetTower()
 		t.Log("-----------------END----OF----DAY-----------------", Fields{})
 	}
@@ -94,33 +93,11 @@ func (t *Tower) Reshuffle() {
 	}
 }
 
-func (t *Tower) hpDecay() {
+func (t *Tower) endOfDay() {
 	for _, agent := range t.Agents {
 		agent := agent.BaseAgent()
-		newHP := 0
-
-		if agent.hp >= t.healthInfo.WeakLevel {
-			newHP = int(math.Min(float64(t.healthInfo.MaxHP), float64(agent.hp)-(float64(t.healthInfo.HPLossBase)+float64(agent.hp-t.healthInfo.WeakLevel)*t.healthInfo.HPLossSlope)))
-		} else {
-			if agent.hp >= t.healthInfo.HPCritical+t.healthInfo.HPReqCToW {
-				newHP = t.healthInfo.WeakLevel
-				agent.daysAtCritical = 0
-			} else {
-				newHP = t.healthInfo.HPCritical
-				agent.daysAtCritical++
-			}
-		}
-
-		if newHP < t.healthInfo.WeakLevel {
-			newHP = t.healthInfo.HPCritical
-		}
-
-		agent.setHasEaten(false)
-		if agent.daysAtCritical >= t.healthInfo.MaxDayCritical {
-			t.Log("Killing agent", Fields{"agent": agent.id})
-			newHP = 0
-		}
-		agent.setHP(newHP)
+		agent.hpDecay(t.healthInfo)
+		agent.increaseAge()
 	}
 }
 

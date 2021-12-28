@@ -2,6 +2,7 @@ package infra
 
 import (
 	"errors"
+	"fmt"
 	"math"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -39,6 +40,7 @@ type Base struct {
 	logger         log.Entry
 	hasEaten       bool
 	daysAtCritical int
+	age            int
 }
 
 func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {
@@ -61,6 +63,7 @@ func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int,
 		logger:         *logger,
 		hasEaten:       false,
 		daysAtCritical: 0,
+		age:            0,
 	}, nil
 }
 
@@ -81,6 +84,14 @@ func (a *Base) Run() {
 
 func (a *Base) HP() int {
 	return utilFunctions.MinInt(a.hp, 100)
+}
+
+func (a *Base) Age() int {
+	return a.age
+}
+
+func (a *Base) increaseAge() {
+	a.age++
 }
 
 // only show the food on the platform if the platform is on the
@@ -130,7 +141,31 @@ func (a *Base) updateHP(foodTaken food.FoodType) {
 	} else {
 		a.hp = int(math.Min(float64(a.tower.healthInfo.HPCritical+a.tower.healthInfo.HPReqCToW), float64(a.hp)+hpChange))
 	}
+}
 
+func (a *Base) hpDecay(healthInfo *health.HealthInfo) {
+	newHP := 0
+	if a.hp >= healthInfo.WeakLevel {
+		newHP = utilFunctions.MinInt(healthInfo.MaxHP, a.hp-(healthInfo.HPLossBase+int(float64(a.hp-healthInfo.WeakLevel)*healthInfo.HPLossSlope)))
+	} else {
+		if a.hp >= healthInfo.HPCritical+healthInfo.HPReqCToW {
+			newHP = healthInfo.WeakLevel
+			a.daysAtCritical = 0
+		} else {
+			newHP = healthInfo.HPCritical
+			a.daysAtCritical++
+		}
+	}
+	if newHP < healthInfo.WeakLevel {
+		newHP = healthInfo.HPCritical
+	}
+	a.setHasEaten(false)
+	if a.daysAtCritical >= healthInfo.MaxDayCritical {
+		a.Log("Killing agent")
+		newHP = 0
+	}
+	a.Log("Setting hp to " + fmt.Sprint(newHP))
+	a.setHP(newHP)
 }
 
 func (a *Base) HasEaten() bool {
