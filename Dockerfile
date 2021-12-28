@@ -29,4 +29,4 @@ COPY --from=FRONTEND /app/frontend/build /app/build
 RUN go mod download
 RUN go build -o main main.go
 EXPOSE 9000
-CMD ["/app/main --mode=serve --port=9000"]
+CMD ["/app/main", "--mode=serve"]
