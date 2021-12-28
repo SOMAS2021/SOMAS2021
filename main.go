@@ -51,22 +51,24 @@ func main() {
 
 func runNewSimulation(parameters config.ConfigParameters) {
 	rand.Seed(time.Now().UnixNano())
-	f := setupLogFile()
+	f, err := setupLogFile()
+	defer f.Close()
+	if err != nil {
+		return
+	}
 	healthInfo := health.NewHealthInfo(&parameters)
 
 	// TODO: agentParameters - struct
 	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
 	simEnv.Simulate()
-	f.Close()
 }
 
-func setupLogFile() (fp *os.File) {
-	// Setup a log file
+func setupLogFile() (fp *os.File, err error) {
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
 		if err != nil {
 			fmt.Println("failed to create logs directory: ", err)
-			return
+			return nil, err
 		}
 	}
 
@@ -74,9 +76,9 @@ func setupLogFile() (fp *os.File) {
 	f, err := os.OpenFile(logfileName, os.O_CREATE|os.O_RDWR, 0666)
 	if err != nil {
 		fmt.Println("error opening file: ", err)
-		return
+		return nil, err
 	}
 	log.SetOutput(f)
 	log.SetFormatter(&log.JSONFormatter{})
-	return f
+	return f, nil
 }
