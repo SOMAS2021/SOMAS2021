@@ -7,7 +7,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilfunctions"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -39,7 +39,7 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Initializing")
 
-	totalAgents := utilfunctions.Sum(sE.AgentCount)
+	totalAgents := utilFunctions.Sum(sE.AgentCount)
 	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, sE.AgentsPerFloor, sE.dayInfo, sE.healthInfo)
 	sE.SetWorld(t)
 
