@@ -10,13 +10,23 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
 	log "github.com/sirupsen/logrus"
 )
 
 type Agent interface {
 	Run()
-	BaseAgent() *Base
 	IsAlive() bool
+	BaseAgent() *Base
+	HandleAskHP(msg messages.AskHPMessage)
+	HandleAskFoodTaken(msg messages.AskFoodTakenMessage)
+	HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)
+	HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage)
+	HandleRequestTakeFood(msg messages.RequestTakeFoodMessage)
+	HandleResponse(msg messages.BoolResponseMessage)
+	HandleStateFoodTaken(msg messages.StateFoodTakenMessage)
+	HandleStateHP(msg messages.StateHPMessage)
+	HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage)
 }
 
 type Fields = log.Fields
@@ -72,7 +82,7 @@ func (a *Base) Run() {
 }
 
 func (a *Base) HP() int {
-	return a.hp
+	return utilFunctions.MinInt(a.hp, 100)
 }
 
 // only show the food on the platform if the platform is on the
@@ -134,6 +144,9 @@ func (a *Base) setHasEaten(newStatus bool) {
 }
 
 func (a *Base) TakeFood(amountOfFood food.FoodType) food.FoodType {
+	if amountOfFood == 0 {
+		return 0
+	}
 	if a.floor == a.tower.currPlatFloor && !a.hasEaten && amountOfFood > 0 {
 		foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood)))
 		a.updateHP(foodTaken)
@@ -142,7 +155,7 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) food.FoodType {
 		a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
 		return foodTaken
 	}
-	return 0
+	return -1
 }
 
 func (a *Base) ReceiveMessage() messages.Message {
@@ -165,3 +178,13 @@ func (a *Base) SendMessage(direction int, msg messages.Message) {
 func (a *Base) HealthInfo() *health.HealthInfo {
 	return a.tower.healthInfo
 }
+
+func (a *Base) HandleAskHP(msg messages.AskHPMessage)                                    {}
+func (a *Base) HandleAskFoodTaken(msg messages.AskFoodTakenMessage)                      {}
+func (a *Base) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)     {}
+func (a *Base) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage)              {}
+func (a *Base) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage)                {}
+func (a *Base) HandleResponse(msg messages.BoolResponseMessage)                          {}
+func (a *Base) HandleStateFoodTaken(msg messages.StateFoodTakenMessage)                  {}
+func (a *Base) HandleStateHP(msg messages.StateHPMessage)                                {}
+func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}

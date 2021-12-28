@@ -1,29 +1,82 @@
 package messages
 
 //Define message types to enable basic protocols, voting systems ...etc
+
+type MessageType int
+
+const (
+	AskFoodTaken MessageType = iota + 1
+	AskHP
+	AskFoodOnPlatform
+	AskIntendedFoodIntake
+	AskIdentity
+	StateFoodTaken
+	StateHP
+	StateFoodOnPlatform
+	StateIntendedFoodIntake
+	StateIdentity
+	StateResponse
+	RequestLeaveFood
+	RequestTakeFood
+	Response
+)
+
+type Agent interface {
+	HandleAskHP(msg AskHPMessage)
+	HandleAskFoodTaken(msg AskFoodTakenMessage)
+	HandleAskIntendedFoodTaken(msg AskIntendedFoodIntakeMessage)
+	HandleRequestLeaveFood(msg RequestLeaveFoodMessage)
+	HandleRequestTakeFood(msg RequestTakeFoodMessage)
+	HandleResponse(msg BoolResponseMessage)
+	HandleStateFoodTaken(msg StateFoodTakenMessage)
+	HandleStateHP(msg StateHPMessage)
+	HandleStateIntendedFoodTaken(msg StateIntendedFoodIntakeMessage)
+}
+
 type Message interface {
-	MessageType() string
+	MessageType() MessageType
+	SenderFloor() int
+	Visit(a Agent)
 }
 
-type baseMessage struct {
-	SenderFloor  int
-	responseType Message
+type AskMessage interface {
+	Message
+	Reply(senderFloor int, food int) StateMessage
 }
 
-func NewBaseMessage(SenderFloor int) *baseMessage {
-	msg := &baseMessage{
-		SenderFloor: SenderFloor,
+type StateMessage interface {
+	Message
+	Statement() int
+}
+
+type RequestMessage interface {
+	Message
+	Request() int
+	Reply(senderFloor int, response bool) ResponseMessage
+}
+
+type ResponseMessage interface {
+	Message
+	Response() bool
+}
+
+type BaseMessage struct {
+	senderFloor int
+	messageType MessageType
+}
+
+func NewBaseMessage(senderFloor int, messageType MessageType) *BaseMessage {
+	msg := &BaseMessage{
+		senderFloor: senderFloor,
+		messageType: messageType,
 	}
 	return msg
 }
-func (msg baseMessage) MessageType() string {
-	return "baseMessage"
+
+func (msg BaseMessage) MessageType() MessageType {
+	return msg.messageType
 }
 
-// func (msg *baseMessage) SenderFloor() uint {
-// 	return msg.senderFloor
-// }
-
-func (msg *baseMessage) ResponseType() string {
-	return msg.responseType.MessageType()
+func (msg BaseMessage) SenderFloor() int {
+	return msg.senderFloor
 }

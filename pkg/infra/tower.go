@@ -23,6 +23,7 @@ type Tower struct {
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
 	mx             sync.RWMutex
+	deadAgents     map[int]int
 }
 
 func (t *Tower) Log(message string, fields ...Fields) {
@@ -48,6 +49,7 @@ func NewTower(maxPlatFood food.FoodType, agentCount,
 		logger:         *log.WithFields(log.Fields{"reporter": "tower"}),
 		dayInfo:        dayInfo,
 		healthInfo:     healthInfo,
+		deadAgents:     make(map[int]int),
 	}
 }
 
@@ -74,22 +76,21 @@ func (t *Tower) AddAgent(agent Agent) {
 	t.Agents[agent.BaseAgent().id] = agent
 }
 
+// This function shuffles the agents by generating a random permutation of agentCount intgers,
+// and maps the integers into floors by dividing each integer by the number of agents per floor.
+// This function does not guarantee that an agent will be moved to a different floor.
 func (t *Tower) Reshuffle() {
-	numOfFloors := t.agentCount / t.agentsPerFloor
-	remainingVacancies := make([]int, numOfFloors)
-	t.Log("Reshuffling alive agents...", Fields{"agents_count": len(t.Agents)})
-	for i := 0; i < numOfFloors; i++ { // adding a max to each floor
-		remainingVacancies[i] = t.agentsPerFloor
-	}
-	// allocating agents to floors randomly
-	// iterate through the uuid strings of each agent
+	t.Log("Shuffling agents")
+	newFloors := rand.Perm(t.agentCount)
+	i := 0
 	for _, agent := range t.Agents {
-		newFloor := rand.Intn(numOfFloors)
-		for remainingVacancies[newFloor] == 0 {
-			newFloor = rand.Intn(numOfFloors)
-		}
-		agent.BaseAgent().setFloor(newFloor + 1)
-		remainingVacancies[newFloor]--
+		agent := agent.BaseAgent()
+		newFloor := newFloors[i]/t.agentsPerFloor + 1
+
+		t.Log("Floor change", Fields{"agent_id": agent.ID(), "old_floor": agent.Floor(), "new_floor": newFloor})
+
+		agent.setFloor(newFloor)
+		i++
 	}
 }
 
@@ -144,4 +145,12 @@ func (t *Tower) TotalAgents() int {
 	t.mx.RLock()
 	defer t.mx.RUnlock()
 	return len(t.Agents)
+}
+
+func (t *Tower) UpdateDeadAgents(agentType int) {
+	t.deadAgents[agentType]++
+}
+
+func (t *Tower) DeadAgents() map[int]int {
+	return t.deadAgents
 }

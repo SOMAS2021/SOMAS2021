@@ -1,11 +1,13 @@
 package simulation
 
 import (
+	"github.com/SOMAS2021/SOMAS2021/pkg/config"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -22,14 +24,14 @@ type SimEnv struct {
 	world          world.World
 }
 
-func NewSimEnv(foodOnPlat food.FoodType, agentCount []int, agentHP, agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *SimEnv {
+func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
 	return &SimEnv{
-		FoodOnPlatform: foodOnPlat,
-		AgentCount:     agentCount,
-		AgentHP:        agentHP,
-		dayInfo:        dayInfo,
+		FoodOnPlatform: parameters.FoodOnPlatform,
+		AgentCount:     parameters.NumOfAgents,
+		AgentHP:        parameters.AgentHP,
+		dayInfo:        parameters.DayInfo,
 		healthInfo:     healthInfo,
-		AgentsPerFloor: agentsPerFloor,
+		AgentsPerFloor: parameters.AgentsPerFloor,
 		logger:         *log.WithFields(log.Fields{"reporter": "simulation"}),
 	}
 }
@@ -37,7 +39,7 @@ func NewSimEnv(foodOnPlat food.FoodType, agentCount []int, agentHP, agentsPerFlo
 func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Initializing")
 
-	totalAgents := Sum(sE.AgentCount)
+	totalAgents := utilFunctions.Sum(sE.AgentCount)
 	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, sE.AgentsPerFloor, sE.dayInfo, sE.healthInfo)
 	sE.SetWorld(t)
 
@@ -46,15 +48,7 @@ func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Started")
 	sE.simulationLoop(t)
 	sE.Log("Simulation Ended")
-}
-
-// TODO: move to a general list of functions
-func Sum(inputList []int) int {
-	totalAgents := 0
-	for _, value := range inputList {
-		totalAgents += value
-	}
-	return totalAgents
+	sE.Log("Summary of dead agents", infra.Fields{"Agent Type and number that died": t.DeadAgents()})
 }
 
 func (s *SimEnv) Log(message string, fields ...Fields) {

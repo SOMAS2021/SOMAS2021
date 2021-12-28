@@ -7,9 +7,9 @@ import (
 type CustomAgent1 struct {
 	*infra.Base
 	// new params
-	prevFloors    []int
-	daysElapsed   int
-	trustOfAgents map[string]int
+	prevFloors []int
+	// daysElapsed   int
+	// trustOfAgents map[string]int
 	// agentTrustLevel int
 }
 
@@ -23,9 +23,9 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 func (a *CustomAgent1) Run() {
 	a.Log("Agent7 reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP()})
 
-	UserID := a.ID()
-	currentHP := a.HP()
-	currentAvailFood := a.CurrPlatFood()
+	// UserID := a.ID()
+	// currentHP := a.HP()
+	// currentAvailFood := a.CurrPlatFood()
 
 	currentFloor := a.Floor()
 	a.prevFloors = append(a.prevFloors, currentFloor)
