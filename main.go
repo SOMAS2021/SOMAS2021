@@ -75,7 +75,7 @@ func main() {
 // Returns the logfile name as it is needed in the HTTP response
 func runNewSimulation(parameters config.ConfigParameters) (logfileName string) {
 	rand.Seed(time.Now().UnixNano())
-	f, err := setupLogFile(parameters)
+	f, err := setupLogFile(parameters.LogFileName)
 	if err != nil {
 		return
 	}
@@ -88,7 +88,7 @@ func runNewSimulation(parameters config.ConfigParameters) (logfileName string) {
 	return f.Name()
 }
 
-func setupLogFile(parameters config.ConfigParameters) (fp *os.File, err error) { //passing parameters just for log file name
+func setupLogFile(parameterLogFileName string) (fp *os.File, err error) {
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
 		if err != nil {
@@ -98,8 +98,8 @@ func setupLogFile(parameters config.ConfigParameters) (fp *os.File, err error) {
 	}
 
 	logfileName := ""
-	// checking if the log file name was set in config
-	if len(parameters.LogFileName) != 0 {
+	// Check if the log file name was set in config
+	if len(parameterLogFileName) != 0 {
 		logfileName = filepath.Join("logs", parameters.LogFileName)
 	} else {
 		logfileName = filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05")+".json")
