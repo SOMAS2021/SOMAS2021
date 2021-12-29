@@ -26,21 +26,19 @@ func main() {
 
 	// check backend mode
 	if *modePtr == "serve" { // HTTP serve mode
-
 		port := ":" + strconv.Itoa(*portPtr)
 		fs := http.FileServer(http.Dir("./build"))
 		http.Handle("/", fs)
 		log.Println("Listening on " + port + "...")
 		http.HandleFunc("/simulate", func(w http.ResponseWriter, r *http.Request) {
-
-			//load the parameters from HTTP
 			parameters, err := config.LoadParamFromHTTPRequest(r)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
 
-			logFileName := runNewSimulation(parameters) //the logFileName is output in HTTP response to be used in dashboard
+			// logFileName returned to be used in dashboard
+			logfileName := runNewSimulation(parameters)
 
 			//generate the http response
 			w.Header().Set("Content-Type", "application/json")
@@ -60,11 +58,9 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-	} else { //
+	} else {
 		fmt.Println("Loading parameters...")
 
-		// load parameters
 		parameters, err := config.LoadParamFromJson(*configPathPtr)
 		if err != nil {
 			fmt.Println(err)
@@ -76,7 +72,8 @@ func main() {
 	}
 }
 
-func runNewSimulation(parameters config.ConfigParameters) (logFileName string) { //returns the log file name as it will be needed in the http response
+// Returns the logfile name as it is needed in the HTTP response
+func runNewSimulation(parameters config.ConfigParameters) (logfileName string) {
 	rand.Seed(time.Now().UnixNano())
 	f, err := setupLogFile(parameters)
 	if err != nil {
@@ -88,7 +85,7 @@ func runNewSimulation(parameters config.ConfigParameters) (logFileName string) {
 	// TODO: agentParameters - struct
 	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
 	simEnv.Simulate()
-	return (f.Name())
+	return f.Name()
 }
 
 func setupLogFile(parameters config.ConfigParameters) (fp *os.File, err error) { //passing parameters just for log file name
@@ -100,8 +97,9 @@ func setupLogFile(parameters config.ConfigParameters) (fp *os.File, err error) {
 		}
 	}
 
-	var logfileName string
-	if len(parameters.LogFileName) != 0 { //checking if the log file name was set in config
+	logfileName := ""
+	// checking if the log file name was set in config
+	if len(parameters.LogFileName) != 0 {
 		logfileName = filepath.Join("logs", parameters.LogFileName)
 	} else {
 		logfileName = filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05")+".json")
