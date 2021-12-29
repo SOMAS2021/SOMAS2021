@@ -21,4 +21,6 @@ bin/
 # Logs
 logs/
 **.log
-simulation.json
+
+# Frontend
+**/build
