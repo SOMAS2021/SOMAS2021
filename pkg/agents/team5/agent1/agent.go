@@ -52,6 +52,11 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 func MaxHP(a *CustomAgent5) int {
 	return a.HealthInfo().MaxHP
 }
+
+func PercentageHP(a *CustomAgent5) float64 {
+	return float64(a.HP()) / float64(MaxHP(a))
+}
+
 // TODO: Requires message passing
 // func (a *CustomAgent5) newMemory(id string) {
 // 	a.memory[id] = Memory{
