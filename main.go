@@ -45,7 +45,7 @@ func main() {
 
 			response := config.Response{
 				Success:     true, // this will depend on timeouts in the future, for now it is hardcoded until i figure out how timeouts work
-				LogFileName: logFileName,
+				LogFileName: logfileName,
 			}
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
@@ -66,7 +66,6 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println(parameters)
 
 		runNewSimulation(parameters)
 	}
@@ -100,7 +99,7 @@ func setupLogFile(parameterLogFileName string) (fp *os.File, err error) {
 	logfileName := ""
 	// Check if the log file name was set in config
 	if len(parameterLogFileName) != 0 {
-		logfileName = filepath.Join("logs", parameters.LogFileName)
+		logfileName = filepath.Join("logs", parameterLogFileName)
 	} else {
 		logfileName = filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05")+".json")
 	}
