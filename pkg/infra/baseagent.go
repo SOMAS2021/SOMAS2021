@@ -185,3 +185,4 @@ func (a *Base) HandleResponse(msg messages.BoolResponseMessage)                 
 func (a *Base) HandleStateFoodTaken(msg messages.StateFoodTakenMessage)                  {}
 func (a *Base) HandleStateHP(msg messages.StateHPMessage)                                {}
 func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}
+func (a *Base) HandleProposeTreaty(msg messages.ProposeTreatyMessage)                    {}
