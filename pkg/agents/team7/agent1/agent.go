@@ -57,7 +57,6 @@ type CustomAgent7 struct {
 	personality team7Personalities
 	greediness  int
 	kindness    int
-	daysAlive   int
 	daysHungry  int
 	prevHP      int
 	prevFloors  []int
