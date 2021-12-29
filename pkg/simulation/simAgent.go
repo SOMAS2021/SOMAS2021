@@ -29,7 +29,7 @@ func (sE *SimEnv) generateInitialAgents(t *infra.Tower) {
 
 func (sE *SimEnv) createNewAgent(tower *infra.Tower, i, floor int) {
 	sE.Log("Creating new agent")
-	abs := []AgentNewFunc{agent1.New, agent2.New, team3.New, team4EvoAgent.New, team5.New, team6.New, randomAgent.New}
+	abs := []AgentNewFunc{agent1.New, agent2.New, team2.New, team3.New, team4EvoAgent.New, team5.New, team6.New, randomAgent.New}
 	// NOTE(woonmoon): Leaving the line below commented just in case any teams want to run the 2-agent
 	// 				   configuration to see how the message-passing works.
 	// abs := []AgentNewFunc{agent1.New, agent2.New}

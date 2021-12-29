@@ -1,6 +1,10 @@
 package team2
 
-import "math/rand"
+import (
+	"math/rand"
+
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+)
 
 func InitActionSpace() actionSpace {
 	//TODO: actionID might be removed in further versions
@@ -12,7 +16,7 @@ func InitActionSpace() actionSpace {
 	for i := 0; i < 3; i++ {
 		initialActionSpace.actionId[i] = i
 	}
-	m := map[int]func(hp int) float64{
+	m := map[int]func(hp int) food.FoodType{
 		//actions based on the current hp level
 		initialActionSpace.actionId[0]: DisFood,
 		initialActionSpace.actionId[1]: Satisfice,
@@ -24,19 +28,20 @@ func InitActionSpace() actionSpace {
 
 //Need to change this func when adding new actions
 
-func DisFood(hp int) float64 {
-	return 0.0
+func DisFood(hp int) food.FoodType {
+	return 0
 }
 
-func Satisfice(hp int) float64 {
+func Satisfice(hp int) food.FoodType {
 	if hp <= 20 { //20 is the daily decay
-		return 20.0
+		return 20
 	} else {
-		return 1.0
+		return 1
 	}
 }
-func Satisfy(hp int) float64 {
-	return 100.0 - float64(hp)
+func Satisfy(hp int) food.FoodType {
+
+	return food.FoodType(100 - hp)
 }
 
 //select action according to the policies
