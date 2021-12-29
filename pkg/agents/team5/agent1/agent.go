@@ -1,8 +1,6 @@
 package team5
 
 import (
-	"math"
-
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -99,13 +97,28 @@ func (a *CustomAgent5) updateSelfishness() {
 }
 
 // This should probably be done inside health.
-func (a *CustomAgent5) foodGain() food.FoodType {
-	return food.FoodType(a.HealthInfo().Tau * 3)
+func (a *CustomAgent5) foodGain() food.FoodType { // this function for simplicity doesn't account for hp loss
+
+	if a.HP() < a.HealthInfo().WeakLevel { // agent is in a critical state and needs to reach weak state
+		return food.FoodType(a.HealthInfo().HPReqCToW - a.HP())
+	}
+	// currently there is no boundry for weak -> strong level so i assume we have only weak and critical levels, this can be changed later on once more levels are implemented
+	// so if the agent is in the weak state it doesn't need to eat since it's the max state for now
+	return food.FoodType(0)
 }
 
 // This should probably be done inside health.
 func (a *CustomAgent5) foodMaintain() food.FoodType {
-	return food.FoodType(a.HealthInfo().Tau * math.Log(1-(float64((a.HP()+30))/(3*a.HealthInfo().Width))) * -1)
+	if a.HP() > a.HealthInfo().WeakLevel { // if in weak state we need to calculate HP loss
+		newHP := a.HP() - (a.HealthInfo().HPLossBase + int(float64(a.HP()-a.HealthInfo().WeakLevel)*a.HealthInfo().HPLossSlope))
+		HPLoss := a.HP() - newHP
+		if newHP >= a.HealthInfo().WeakLevel {
+			return food.FoodType(0) // eating nothin we maintain the food level
+		}
+
+		return food.FoodType(int(float64(HPLoss)/(1.0-a.HealthInfo().Tau) + 1.0)) // we need hploss / (1-tau) but we eat 1 additional unit of food just for safety
+	}
+	return food.FoodType(0) // if in critical state the agent doesn't need to eat at all to maintain it
 }
 
 func (a *CustomAgent5) updateSatisfaction() {
