@@ -4,7 +4,6 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"math/rand"
-	"time"
 )
 
 /*
@@ -54,14 +53,14 @@ type team7Personalities struct {
 
 type CustomAgent7 struct {
 	*infra.Base
-	personality team7Personalities
-	greediness  int
-	kindness    int
-	daysHungry  int
+	personality  team7Personalities
+	greediness   int
+	kindness     int
+	daysHungry   int
 	seenPlatform bool
-	foodEaten int
-	prevHP      int
-	prevFloors  []int
+	foodEaten    food.FoodType
+	prevHP       int
+	prevFloors   []int
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
@@ -74,27 +73,25 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			agreeableness:     rand.Intn(100),
 			neuroticism:       rand.Intn(100),
 		},
-		greediness: 0,
-		kindness:   0,
-		daysHungry: 0,
+		greediness:   0,
+		kindness:     0,
+		daysHungry:   0,
 		seenPlatform: false,
-		foodEaten: 0,
-		prevHP:     100,
-		prevFloors: []int{},
+		foodEaten:    0,
+		prevHP:       100,
+		prevFloors:   []int{},
 	}, nil
 }
 
 func (a *CustomAgent7) Run() {
 
 	//initialise greediness and kindness
-	if a.age() == 0 {
+	if a.Age() == 0 {
 		a.greediness = 100 - a.personality.agreeableness
 		a.kindness = a.personality.agreeableness
 	}
 
 	a.Log("Team7Agent1 reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "greed": a.greediness, "kind": a.kindness, "aggr": a.personality.agreeableness})
-
-	
 
 	//Check if floor has changed
 	if len(a.prevFloors) == 0 || a.prevFloors[len(a.prevFloors)-1] != a.Floor() {
@@ -144,31 +141,27 @@ func (a *CustomAgent7) Run() {
 			a.greediness = 100
 		}
 
-		foodtotake = food.FoodType(100 - a.kindness + a.greediness)
+		foodtotake := food.FoodType(100 - a.kindness + a.greediness)
 
 		//When platform reaches our floor and we haven't tried to eat, then try to eat
 		if a.CurrPlatFood() != -1 && !a.seenPlatform {
 			a.foodEaten = a.TakeFood(foodtotake)
 			if a.foodEaten > 0 {
-				a.Log("Team 7 has seen the platform:", infra.Fields{"foodEaten": a.foodTaken, "health": a.HP()})
+				a.Log("Team 7 has seen the platform:", infra.Fields{"foodEaten": a.foodEaten, "health": a.HP()})
 				a.daysHungry = 0
 			}
 			a.daysHungry++
 			a.seenPlatform = true
 		}
-		
+
 		if (a.CurrPlatFood() == -1 && a.seenPlatform) || a.CurrPlatFood() == 100 {
 			//Get ready for new day
 			a.seenPlatform = false
 			a.prevHP = a.HP()
 		}
 
-
 	}
 
 	//send Message
 
-	
-
 }
-

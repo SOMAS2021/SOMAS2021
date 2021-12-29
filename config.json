@@ -7,12 +7,7 @@
     "Team5Agents": 0,
     "Team6Agents": 0,
     "RandomAgents": 0,
-    "Team7Agent1": 4,
-    "Team7Agent2": 0,
-    "Team7Agent3": 0,
-    "Team7Agent4": 0,
-    "Team7Agent5": 0,
-
+    "Team7Agent1": 10,
     "AgentHP": 100,
     "AgentsPerFloor": 1,
     "TicksPerFloor": 10,
