@@ -63,6 +63,7 @@ type StateMessage interface {
 type RequestMessage interface {
 	Message
 	Request() int
+<<<<<<< HEAD
 	Reply(senderID uuid.UUID, senderFloor int, targetFloor int, response bool) ResponseMessage
 }
 
@@ -70,6 +71,9 @@ type ProposalMessage interface {
 	Message
 	Treaty() Treaty
 	Reply(senderID uuid.UUID, senderFloor int, targetFloor int, response bool) TreatyResponseMessage
+=======
+	Reply(senderFloor int, response bool, uuid string) ResponseMessage
+>>>>>>> fbf85fe... Added UUID's to msgs and extra msg handling
 }
 
 type ResponseMessage interface {
