@@ -46,6 +46,7 @@ type Treatyer interface {
 	SignatureCount() int
 	Duration() int
 	Id() uuid.UUID
+	SignTreaty()
 }
 
 func NewTreaty(condition ConditionType, request RequestType, cop Op, rop Op, duration int) *Treaty {
@@ -89,28 +90,6 @@ func (t *Treaty) Id() uuid.UUID {
 	return t.id
 }
 
-type ProposeTreatyMessage struct {
-	*BaseMessage
-	treaty *Treaty
-}
-
-func NewProposalMessage(senderFloor int, condition ConditionType, request RequestType, cop Op, rop Op, duration int) *ProposeTreatyMessage {
-	msg := &ProposeTreatyMessage{
-		NewBaseMessage(senderFloor, ProposeTreaty),
-		NewTreaty(condition, request, cop, rop, duration),
-	}
-	return msg
-}
-
-func (msg *ProposeTreatyMessage) Treaty() *Treaty {
-	return msg.treaty
-}
-
-func (msg *ProposeTreatyMessage) Visit(a Agent) {
-	a.HandleProposeTreaty(*msg)
-}
-
-func (msg *ProposeTreatyMessage) Reply(senderFloor int, response bool) ResponseMessage {
-	reply := NewResponseMessage(senderFloor, response)
-	return reply
+func (t *Treaty) SignTreaty() {
+	t.signatureCount++
 }
