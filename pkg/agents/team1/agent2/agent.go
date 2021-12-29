@@ -31,31 +31,31 @@ func (a *CustomAgent2) Run() {
 }
 
 func (a *CustomAgent2) HandleAskHP(msg messages.AskHPMessage) {
-	reply := msg.Reply(a.Floor(), a.HP())
+	reply := msg.Reply(a.Floor(), a.HP(), msg.ID())
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
 func (a *CustomAgent2) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
-	reply := msg.Reply(a.Floor(), 10)
+	reply := msg.Reply(a.Floor(), 10, msg.ID())
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I recieved an askFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
 func (a *CustomAgent2) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
-	reply := msg.Reply(a.Floor(), 11)
+	reply := msg.Reply(a.Floor(), 11, msg.ID())
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
 func (a *CustomAgent2) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
-	reply := msg.Reply(a.Floor(), true)
+	reply := msg.Reply(a.Floor(), true, msg.ID())
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I recieved a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
 func (a *CustomAgent2) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
-	reply := msg.Reply(a.Floor(), true)
+	reply := msg.Reply(a.Floor(), true, msg.ID())
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I recieved a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
