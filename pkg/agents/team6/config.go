@@ -97,7 +97,7 @@ func (a *CustomAgent6) Run() {
 	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodAmount, "bType": a.currBehaviour.String()})
 	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
 
-	msg := messages.NewResponseMessage(a.Floor(), true)
+	msg := messages.NewResponseMessage(a.Floor(), true, "")
 	a.SendMessage(1, msg)
 	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
 

@@ -5,9 +5,9 @@ type StateHPMessage struct {
 	hp int
 }
 
-func NewStateHPMessage(senderFloor int, hp int) *StateHPMessage {
+func NewStateHPMessage(senderFloor int, hp int, id string) *StateHPMessage {
 	msg := &StateHPMessage{
-		NewBaseMessage(senderFloor, StateHP),
+		NewBaseMessage(senderFloor, StateHP, id),
 		hp,
 	}
 	return msg

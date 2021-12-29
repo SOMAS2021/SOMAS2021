@@ -5,9 +5,9 @@ type BoolResponseMessage struct {
 	response bool
 }
 
-func NewResponseMessage(senderFloor int, response bool) *BoolResponseMessage {
+func NewResponseMessage(senderFloor int, response bool, id string) *BoolResponseMessage {
 	msg := &BoolResponseMessage{
-		NewBaseMessage(senderFloor, Response),
+		NewBaseMessage(senderFloor, Response, id),
 		response,
 	}
 	return msg
