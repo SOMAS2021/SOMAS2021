@@ -52,9 +52,9 @@ func (a *CustomAgent1) Run() {
 		a.SendMessage(1, msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
 	case 5:
-		msg := messages.NewAskHPMessage(a.Floor())
-		a.SendMessage(1, msg)
-		a.Log("I sent a message", infra.Fields{"message": "Response"})
+		// msg := messages.NewAskHPMessage(a.Floor())
+		// a.SendMessage(1, msg)
+		// a.Log("I sent a message", infra.Fields{"message": "Response"})
 	case 6:
 		msg := messages.NewStateFoodTakenMessage(a.Floor(), 30)
 		a.SendMessage(1, msg)
