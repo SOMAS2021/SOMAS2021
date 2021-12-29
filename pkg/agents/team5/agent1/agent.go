@@ -27,6 +27,7 @@ type CustomAgent5 struct {
 	// TODO: Check difference between this and HasEaten()
 	// If true, then agent will attempt to eat
 	attemptToEat bool
+	rememberAge  int
 	// TODO: Requires message passing
 	// Social network of other agents
 	// memory map[string]Memory
@@ -42,6 +43,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		satisfaction:      0,    //Scale of -3 to 3, with 3 being satisfied and unsatisfied
 		daysAlive:         0,    //Count how many days agent has been alive
 		attemptToEat:      true, //Variable needed to check if we have already attempted to eat on a day
+		rememberAge:       0,    // To check if a day has passed by our age increasing
 		// TODO: Requires message passing
 		// memory:            map[string]Memory{}, // Memory of other agents, key is agent id
 	}, nil
@@ -154,6 +156,7 @@ func (a *CustomAgent5) Run() {
 			attemptFood = a.foodGain()
 		}
 	}
+
 	//When platform reaches our floor and we haven't tried to eat, then try to eat
 	if a.CurrPlatFood() != -1 && a.attemptToEat {
 		a.lastMeal = a.TakeFood(attemptFood)
@@ -164,12 +167,14 @@ func (a *CustomAgent5) Run() {
 		a.updateSatisfaction()
 		a.attemptToEat = false
 	}
-	//When platform has passed our floor, take that as a day passing and update parameters
-	if (a.CurrPlatFood() == -1 && !a.attemptToEat) || a.CurrPlatFood() == 100 {
-		//Check for CurrPlatFood == 100 needed because of rare case when you are on bottom floor then reshuffled to top, the platform never passes you
+
+	if a.Age() > a.rememberAge {
+		//Check for if a day has passed
 		a.dayPassed()
 		a.attemptToEat = true
+		a.rememberAge = a.Age()
 	}
+
 }
 
 //The message handler functions below are for a fully honest agent
