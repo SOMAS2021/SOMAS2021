@@ -83,3 +83,45 @@ func TestBase_CurrPlatFood(t *testing.T) {
 		})
 	}
 }
+
+func TestBase_IsAlive(t *testing.T) {
+	type fields struct {
+		hp int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		{
+			name:   "just dead",
+			fields: fields{hp: 0},
+			want:   false,
+		},
+		{
+			name:   "very dead",
+			fields: fields{hp: -1},
+			want:   false,
+		},
+		{
+			name:   "alive",
+			fields: fields{hp: 1},
+			want:   true,
+		},
+		{
+			name:   "very alive",
+			fields: fields{hp: 100},
+			want:   true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := &Base{
+				hp: tt.fields.hp,
+			}
+			if got := a.IsAlive(); got != tt.want {
+				t.Errorf("Base.IsAlive() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
