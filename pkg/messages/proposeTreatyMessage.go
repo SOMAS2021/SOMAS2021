@@ -22,6 +22,6 @@ func (msg *ProposeTreatyMessage) Visit(a Agent) {
 }
 
 func (msg *ProposeTreatyMessage) Reply(senderFloor int, response bool) ResponseMessage {
-	reply := NewResponseMessage(senderFloor, response)
+	reply := NewTreatyResponseMessage(senderFloor, response, msg.treaty.Id())
 	return reply
 }

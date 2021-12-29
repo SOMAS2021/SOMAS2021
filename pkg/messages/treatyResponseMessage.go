@@ -1,16 +1,18 @@
 package messages
 
+import "github.com/google/uuid"
+
 type TreatyResponseMessage struct {
 	*BaseMessage
 	response bool
-	treaty   *Treaty
+	treatyID uuid.UUID
 }
 
-func NewTreatyResponseMessage(senderFloor int, response bool, treaty *Treaty) *TreatyResponseMessage {
+func NewTreatyResponseMessage(senderFloor int, response bool, treatyID uuid.UUID) *TreatyResponseMessage {
 	msg := &TreatyResponseMessage{
 		NewBaseMessage(senderFloor, Response),
 		response,
-		treaty,
+		treatyID,
 	}
 	return msg
 }
@@ -19,8 +21,8 @@ func (msg *TreatyResponseMessage) Response() bool {
 	return msg.response
 }
 
-func (msg *TreatyResponseMessage) Treaty() *Treaty {
-	return msg.treaty
+func (msg *TreatyResponseMessage) TreatyID() uuid.UUID {
+	return msg.treatyID
 }
 
 func (msg *TreatyResponseMessage) Visit(a Agent) {
