@@ -1,8 +1,9 @@
 package messages
 
-import(
+import (
 	"github.com/google/uuid"
 )
+
 //Define message types to enable basic protocols, voting systems ...etc
 
 type MessageType int
@@ -67,17 +68,17 @@ type ResponseMessage interface {
 type BaseMessage struct {
 	senderFloor int
 	messageType MessageType
-	id string 
+	id          string
 }
 
 func NewBaseMessage(senderFloor int, messageType MessageType, id string) *BaseMessage {
-	if id == "" {
+	if id == "" { //empty string to generate new ids, else use messageID to reply
 		id = uuid.New().String()
 	}
 	msg := &BaseMessage{
 		senderFloor: senderFloor,
 		messageType: messageType,
-		id: id,
+		id:          id,
 	}
 	return msg
 }
