@@ -49,12 +49,8 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	}, nil
 }
 
-func MaxHP(a *CustomAgent5) int {
-	return a.HealthInfo().MaxHP
-}
-
-func PercentageHP(a *CustomAgent5) float64 {
-	return float64(a.HP()) / float64(MaxHP(a))
+func PercentageHP(a *CustomAgent5) int {
+	return int((float64(a.HP()) / float64(a.HealthInfo().MaxHP)) * 100.0)
 }
 
 // TODO: Requires message passing
