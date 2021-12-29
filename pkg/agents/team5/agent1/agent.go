@@ -71,22 +71,22 @@ func (a *CustomAgent5) updateAim() {
 	case a.selfishness >= 3:
 		// If fully selfish always try to gain health
 		a.currentAim = 2
-	case a.HP() > 80 && a.selfishness == 2:
+	case PercentageHP(a) > 0.80 && a.selfishness == 2:
 		// Try to maintain health if near max health if mostly selfish
 		a.currentAim = 1
-	case a.HP() > 80 && a.selfishness < 2:
+	case PercentageHP(a) > 0.80 && a.selfishness < 2:
 		// Willing to lose health near max health if mostly or completely selfless
 		a.currentAim = 0
-	case a.HP() > 50 && a.selfishness == 2:
+	case PercentageHP(a) > 0.50 && a.selfishness == 2:
 		// Try to gain health if mostly selfish when above half health
 		a.currentAim = 2
-	case a.HP() > 50 && a.selfishness == 1:
+	case PercentageHP(a) > 0.50 && a.selfishness == 1:
 		// Try to maintain half health even if being mostly selfless
 		a.currentAim = 1
-	case a.HP() > 50 && a.selfishness == 0:
+	case PercentageHP(a) > 0.50 && a.selfishness == 0:
 		// Willing to lose health if being completely selfless
 		a.currentAim = 0
-	case a.HP() > 10 && a.selfishness >= 1:
+	case PercentageHP(a) > 0.10 && a.selfishness >= 1:
 		// Try to gain health if less than half health and being anything but completely selfless
 		a.currentAim = 2
 	default:
@@ -117,16 +117,16 @@ func (a *CustomAgent5) foodMaintain() food.FoodType {
 }
 
 func (a *CustomAgent5) updateSatisfaction() {
-	if a.HP() > 100 {
+	if PercentageHP(a) >= 1.0 {
 		a.satisfaction = 3
 	}
 	if a.lastMeal == 0 && a.satisfaction > -3 {
 		a.satisfaction--
 	}
-	if a.HP() < 25 && a.satisfaction > -3 {
+	if PercentageHP(a) < 0.25 && a.satisfaction > -3 {
 		a.satisfaction--
 	}
-	if a.HP() > 75 && a.satisfaction < 3 {
+	if PercentageHP(a) > 0.75 && a.satisfaction < 3 {
 		a.satisfaction++
 	}
 }
