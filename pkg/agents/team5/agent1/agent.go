@@ -58,6 +58,15 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 // 	}
 // }
 
+// func (a *CustomAgent5) incrementDaysSinceLastSeen() {
+// 	for id, _ := range a.memory {
+// 		a.memory[id] = Memory{
+// 			trust:             a.memory[id].trust,
+// 			favour:            a.memory[id].favour,
+// 			daysSinceLastSeen: a.memory[id].daysSinceLastSeen + 1,
+// 		}
+// 	}
+// }
 func (a *CustomAgent5) updateAim() {
 	switch {
 	case a.selfishness >= 3:
@@ -137,7 +146,7 @@ func (a *CustomAgent5) GetMessages() {
 func (a *CustomAgent5) dayPassed() {
 	a.daysAlive++
 	a.daysSinceLastMeal++
-	//Also update daySinceLastSeen for memory here
+	// a.incrementDaysSinceLastSeen()
 }
 
 func (a *CustomAgent5) Run() {
