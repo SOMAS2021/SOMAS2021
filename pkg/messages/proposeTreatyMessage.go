@@ -2,10 +2,10 @@ package messages
 
 type ProposeTreatyMessage struct {
 	*BaseMessage
-	treaty *Treaty
+	treaty Treaty
 }
 
-func NewProposalMessage(senderFloor int, treaty *Treaty) *ProposeTreatyMessage {
+func NewProposalMessage(senderFloor int, treaty Treaty) *ProposeTreatyMessage {
 	msg := &ProposeTreatyMessage{
 		NewBaseMessage(senderFloor, ProposeTreaty),
 		treaty,
@@ -13,7 +13,7 @@ func NewProposalMessage(senderFloor int, treaty *Treaty) *ProposeTreatyMessage {
 	return msg
 }
 
-func (msg *ProposeTreatyMessage) Treaty() *Treaty {
+func (msg *ProposeTreatyMessage) Treaty() Treaty {
 	return msg.treaty
 }
 
