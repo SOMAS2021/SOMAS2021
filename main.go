@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"math/rand"
@@ -24,34 +25,60 @@ func main() {
 	flag.Parse()
 
 	// check backend mode
-	if *modePtr == "serve" {
+	if *modePtr == "serve" { // HTTP serve mode
+
 		port := ":" + strconv.Itoa(*portPtr)
 		fs := http.FileServer(http.Dir("./build"))
 		http.Handle("/", fs)
 		log.Println("Listening on " + port + "...")
 		http.HandleFunc("/simulate", func(w http.ResponseWriter, r *http.Request) {
-			// TODO add simulation end-point handling and parsing parameters from body json
-			fmt.Println("Will add simulation endpoint soon!")
+
+			//load the parameters from HTTP
+			parameters, err := config.LoadParamFromHTTPRequest(r)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			logFileName := runNewSimulation(parameters) //the logFileName is output in HTTP response to be used in dashboard
+
+			//generate the http response
+			w.Header().Set("Content-Type", "application/json")
+
+			response := config.Response{
+				Success:     true, // this will depend on timeouts in the future, for now it is hardcoded until i figure out how timeouts work
+				LogFileName: logFileName,
+			}
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 		})
+
 		err := http.ListenAndServe(port, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
+
+	} else { //
 		fmt.Println("Loading parameters...")
+
 		// load parameters
 		parameters, err := config.LoadParamFromJson(*configPathPtr)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		fmt.Println(parameters)
+
 		runNewSimulation(parameters)
 	}
 }
 
-func runNewSimulation(parameters config.ConfigParameters) {
+func runNewSimulation(parameters config.ConfigParameters) (logFileName string) { //returns the log file name as it will be needed in the http response
 	rand.Seed(time.Now().UnixNano())
-	f, err := setupLogFile()
+	f, err := setupLogFile(parameters)
 	if err != nil {
 		return
 	}
@@ -61,9 +88,10 @@ func runNewSimulation(parameters config.ConfigParameters) {
 	// TODO: agentParameters - struct
 	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
 	simEnv.Simulate()
+	return (f.Name())
 }
 
-func setupLogFile() (fp *os.File, err error) {
+func setupLogFile(parameters config.ConfigParameters) (fp *os.File, err error) { //passing parameters just for log file name
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
 		if err != nil {
@@ -72,12 +100,19 @@ func setupLogFile() (fp *os.File, err error) {
 		}
 	}
 
-	logfileName := filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05")+".json")
+	var logfileName string
+	if len(parameters.LogFileName) != 0 { //checking if the log file name was set in config
+		logfileName = filepath.Join("logs", parameters.LogFileName)
+	} else {
+		logfileName = filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05")+".json")
+	}
+
 	f, err := os.OpenFile(logfileName, os.O_CREATE|os.O_RDWR, 0666)
 	if err != nil {
 		fmt.Println("error opening file: ", err)
 		return nil, err
 	}
+
 	log.SetOutput(f)
 	log.SetFormatter(&log.JSONFormatter{})
 	return f, nil
