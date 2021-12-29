@@ -145,7 +145,7 @@ func (a *CustomAgent7) Run() {
 			a.greediness = 100
 		}
 
-		var foodtotake food.FoodType = food.FoodType(100 - a.kindness + a.greediness)
+		foodtotake = food.FoodType(100 - a.kindness + a.greediness)
 
 		if foodtotake > 0 {
 			a.TakeFood(foodtotake)
