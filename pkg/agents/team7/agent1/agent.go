@@ -64,17 +64,22 @@ type CustomAgent7 struct {
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
+	openness := rand.Intn(100)
+	conscientiousness := rand.Intn(100)
+	extraversion := rand.Intn(100)
+	agreeableness := rand.Intn(100)
+	neuroticism := rand.Intn(100)
 	return &CustomAgent7{
 		Base: baseAgent,
 		personality: team7Personalities{
-			openness:          rand.Intn(100),
-			conscientiousness: rand.Intn(100),
-			extraversion:      rand.Intn(100),
-			agreeableness:     rand.Intn(100),
-			neuroticism:       rand.Intn(100),
+			openness:          openness,
+			conscientiousness: conscientiousness,
+			extraversion:      extraversion,
+			agreeableness:     agreeableness,
+			neuroticism:       neuroticism,
 		},
-		greediness:   0,
-		kindness:     0,
+		greediness:   100 - agreeableness,
+		kindness:     agreeableness,
 		daysHungry:   0,
 		seenPlatform: false,
 		foodEaten:    0,
@@ -84,12 +89,6 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 }
 
 func (a *CustomAgent7) Run() {
-
-	//initialise greediness and kindness
-	if a.Age() == 0 {
-		a.greediness = 100 - a.personality.agreeableness
-		a.kindness = a.personality.agreeableness
-	}
 
 	a.Log("Team7Agent1 reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "greed": a.greediness, "kind": a.kindness, "aggr": a.personality.agreeableness})
 
@@ -143,14 +142,15 @@ func (a *CustomAgent7) Run() {
 
 		foodtotake := food.FoodType(100 - a.kindness + a.greediness)
 
-		//When platform reaches our floor and we haven't tried to eat, then try to eat
+		//has the agent seen the platform
 		if a.CurrPlatFood() != -1 && !a.seenPlatform {
 			a.foodEaten = a.TakeFood(foodtotake)
 			if a.foodEaten > 0 {
-				a.Log("Team 7 has seen the platform:", infra.Fields{"foodEaten": a.foodEaten, "health": a.HP()})
 				a.daysHungry = 0
+			} else {
+				a.daysHungry++
 			}
-			a.daysHungry++
+			a.Log("Team 7 has seen the platform:", infra.Fields{"foodEaten": a.foodEaten, "health": a.HP(), "daysHungry": a.daysHungry})
 			a.seenPlatform = true
 		}
 
