@@ -135,11 +135,11 @@ func (a *Base) setHP(newHP int) {
 
 // Modeled as a first order system step answer (see documentation for more information)
 func (a *Base) updateHP(foodTaken food.FoodType) {
-	hpChange := a.tower.healthInfo.Width * (1 - math.Pow(math.E, -float64(foodTaken)/a.tower.healthInfo.Tau))
+	hpChange := int(a.tower.healthInfo.Width * (1 - math.Pow(math.E, -float64(foodTaken)/a.tower.healthInfo.Tau)))
 	if a.hp >= a.tower.healthInfo.WeakLevel {
-		a.hp = a.hp + int(hpChange)
+		a.hp = a.hp + hpChange
 	} else {
-		a.hp = int(math.Min(float64(a.tower.healthInfo.HPCritical+a.tower.healthInfo.HPReqCToW), float64(a.hp)+hpChange))
+		a.hp = utilFunctions.MinInt(a.tower.healthInfo.HPCritical+a.tower.healthInfo.HPReqCToW, a.hp+hpChange)
 	}
 }
 
