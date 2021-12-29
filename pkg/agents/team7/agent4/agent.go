@@ -38,9 +38,6 @@ func (a *CustomAgent1) Run() {
 	}
 
 	currentFloor := a.Floor()
-	// if(a.prevFloors[len(a.prevFloors) - 1] != currentFloor){
-	// 	a.prevFloors = append(a.prevFloors, currentFloor)
-	// }
 	if a.orderPrevFloors[len(a.orderPrevFloors)-1] != currentFloor {
 		a.orderPrevFloors = append(a.orderPrevFloors, currentFloor)
 	}
