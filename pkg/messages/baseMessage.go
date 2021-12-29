@@ -33,6 +33,7 @@ type Agent interface {
 	HandleStateHP(msg StateHPMessage)
 	HandleStateIntendedFoodTaken(msg StateIntendedFoodIntakeMessage)
 	HandleProposeTreaty(msg ProposeTreatyMessage)
+	HandleTreatyResponse(msg TreatyResponseMessage)
 }
 
 type Message interface {

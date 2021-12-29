@@ -26,6 +26,7 @@ type Agent interface {
 	HandleStateHP(msg messages.StateHPMessage)
 	HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage)
 	HandleProposeTreaty(msg messages.ProposeTreatyMessage)
+	HandleTreatyResponse(msg messages.TreatyResponseMessage)
 }
 
 type Fields = log.Fields
@@ -186,3 +187,4 @@ func (a *Base) HandleStateFoodTaken(msg messages.StateFoodTakenMessage)         
 func (a *Base) HandleStateHP(msg messages.StateHPMessage)                                {}
 func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}
 func (a *Base) HandleProposeTreaty(msg messages.ProposeTreatyMessage)                    {}
+func (a *Base) HandleTreatyResponse(msg messages.TreatyResponseMessage)                  {}

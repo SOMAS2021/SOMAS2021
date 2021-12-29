@@ -35,7 +35,7 @@ type Treaty struct {
 	requestOp      Op
 	signatureCount int
 	duration       int
-	id             string
+	id             uuid.UUID
 }
 
 type Treatyer interface {
@@ -45,7 +45,7 @@ type Treatyer interface {
 	RequestOp() Op
 	SignatureCount() int
 	Duration() int
-	Id() string
+	Id() uuid.UUID
 }
 
 func NewTreaty(condition ConditionType, request RequestType, cop Op, rop Op, duration int) *Treaty {
@@ -54,9 +54,9 @@ func NewTreaty(condition ConditionType, request RequestType, cop Op, rop Op, dur
 		request:        request,
 		conditionOp:    cop,
 		requestOp:      rop,
-		signatureCount: 0,
+		signatureCount: 1,
 		duration:       duration,
-		id:             uuid.New().String(),
+		id:             uuid.New(),
 	}
 	return treaty
 }
@@ -85,7 +85,7 @@ func (t *Treaty) Duration() int {
 	return t.duration
 }
 
-func (t *Treaty) Id() string {
+func (t *Treaty) Id() uuid.UUID {
 	return t.id
 }
 
