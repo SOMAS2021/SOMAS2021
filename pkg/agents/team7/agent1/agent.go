@@ -93,7 +93,6 @@ func (a *CustomAgent7) Run() {
 
 	//Check if new day has started
 	if a.HP() < a.prevHP {
-		a.daysAlive++
 		a.prevHP = a.HP()
 
 	}
