@@ -67,6 +67,15 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 // 		}
 // 	}
 // }
+
+// func (a *CustomAgent5) resetDaysSinceLastSeen(id string) {
+// 	a.memory[id] = Memory{
+// 		trust:             a.memory[id].trust,
+// 		favour:            a.memory[id].favour,
+// 		daysSinceLastSeen: 0,
+// 	}
+// }
+
 func (a *CustomAgent5) updateAim() {
 	switch {
 	case a.selfishness >= 3:
