@@ -19,6 +19,7 @@ type ConfigParameters struct {
 	Team4Agents    int           `json:"Team4Agents"`
 	Team5Agents    int           `json:"Team5Agents"`
 	Team6Agents    int           `json:"Team6Agents"`
+	Team7Agent1    int           `json:"Team7Agent1"`
 	RandomAgents   int           `json:"RandomAgents"`
 	AgentHP        int           `json:"AgentHP"`
 	AgentsPerFloor int           `json:"AgentsPerFloor"`
@@ -60,7 +61,7 @@ func LoadParamFromJson(path string) (ConfigParameters, error) {
 		return tempParameters, err
 	}
 	//appending the sizes of the agents to the array
-	tempParameters.NumOfAgents = append(tempParameters.NumOfAgents, tempParameters.Team1Agents, tempParameters.Team2Agents, tempParameters.Team3Agents, tempParameters.Team4Agents, tempParameters.Team5Agents, tempParameters.Team6Agents, tempParameters.RandomAgents)
+	tempParameters.NumOfAgents = append(tempParameters.NumOfAgents, tempParameters.Team1Agents, tempParameters.Team2Agents, tempParameters.Team3Agents, tempParameters.Team4Agents, tempParameters.Team5Agents, tempParameters.Team6Agents, tempParameters.Team7Agent1, tempParameters.RandomAgents)
 
 	//do the calculations for parameters that depend on other parameters
 	tempParameters.NumberOfFloors = utilFunctions.Sum(tempParameters.NumOfAgents) / tempParameters.AgentsPerFloor

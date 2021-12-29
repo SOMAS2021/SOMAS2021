@@ -8,7 +8,6 @@ type BoolResponseMessage struct {
 	*BaseMessage
 	response bool
 	returnId uuid.UUID
-
 }
 
 func NewResponseMessage(senderFloor int, response bool, returnId uuid.UUID) *BoolResponseMessage {
@@ -27,7 +26,6 @@ func (msg *BoolResponseMessage) Response() bool {
 func (msg *BoolResponseMessage) ReturnId() uuid.UUID {
 	return msg.returnId
 }
-
 
 func (msg *BoolResponseMessage) Visit(a Agent) {
 	a.HandleResponse(*msg)
