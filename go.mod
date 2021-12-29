@@ -8,6 +8,7 @@ require (
 	golang.org/x/tools v0.1.8
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 require (
 	golang.org/x/mod v0.5.1 // indirect
@@ -16,3 +17,7 @@ require (
 )
 =======
 >>>>>>> 30f3e3c... feat: added message handlers
+=======
+
+require golang.org/x/sys v0.0.0-20191026070338-33540a1f6037 // indirect
+>>>>>>> 15ed57e... FEAT: Added Handling and Setting up message passing
