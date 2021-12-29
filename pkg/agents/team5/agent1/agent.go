@@ -49,6 +49,9 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	}, nil
 }
 
+func MaxHP(a *CustomAgent5) int {
+	return a.HealthInfo().MaxHP
+}
 // TODO: Requires message passing
 // func (a *CustomAgent5) newMemory(id string) {
 // 	a.memory[id] = Memory{
