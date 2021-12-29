@@ -217,9 +217,11 @@ func (a *CustomAgent4) HandleResponse(msg messages.BoolResponseMessage) {
 	if !response{
 	 	a.globalTrust-= a.globalTrustSubtract * a.coefficients[0] // TODO: adapt for other conditions
 	}else{// Iterating through all messages in agent memory
-		for i:=0; i< len(a.sentMessages.messages); i++{ //TODO: adapt when uuids are implemented so you would have reponse.uuid == sentmessage.uuid
+		for i:=0; i< len(a.sentMessages.messages); i++{
 			if msg.ID() == a.sentMessages.messages[i].ID(){
 				a.Log("Received a message ", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": a.sentMessages.messages[i].ID()})
+				// corresponding_message := a.sentMessages.messages[i]
+				// if corresponding_message.
 			}
 		}
 	}
