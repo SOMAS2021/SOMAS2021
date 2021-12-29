@@ -84,3 +84,7 @@ func (msg BaseMessage) MessageType() MessageType {
 func (msg BaseMessage) SenderFloor() int {
 	return msg.senderFloor
 }
+
+func (msg BaseMessage) SenderID() uuid.UUID {
+	return msg.senderID
+}

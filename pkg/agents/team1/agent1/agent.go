@@ -104,7 +104,7 @@ func (a *CustomAgent1) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 
 func (a *CustomAgent1) HandleResponse(msg messages.BoolResponseMessage) {
 	response := msg.Response()
-	a.Log("I recieved a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": response})
+	a.Log("I recieved a Response message from ", infra.Fields{"senderID": msg.SenderID(), "floor": msg.SenderFloor(), "response": response})
 }
 
 func (a *CustomAgent1) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
