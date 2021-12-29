@@ -7,10 +7,10 @@ import (
 type CustomAgent1 struct {
 	*infra.Base
 	// new params
-	prevFloors      []int
-	daysElapsed     int
-	trustOfAgents   map[string]int
-	agentTrustLevel int
+	// prevFloors      []int
+	// daysElapsed     int
+	// trustOfAgents   map[string]int
+	// agentTrustLevel int
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
@@ -27,7 +27,7 @@ func (a *CustomAgent1) Run() {
 	// currentHP := a.HP()
 	// currentAvailFood := a.CurrPlatFood()
 
-	currentFloor := a.Floor()
-	a.prevFloors = append(a.prevFloors, currentFloor)
+	// currentFloor := a.Floor()
+	// a.prevFloors = append(a.prevFloors, currentFloor)
 
 }
