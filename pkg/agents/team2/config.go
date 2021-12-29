@@ -97,6 +97,9 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 func (a *CustomAgent2) Run() {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> fda77c3f5163849f88e7c8bc209a23d0cba49855
 	//Communication & Observation
 	//communicate before platform arrives to my floor
 
@@ -104,6 +107,7 @@ func (a *CustomAgent2) Run() {
 		msg := *messages.NewBaseMessage(a.Floor())
 		a.SendMessage(1, msg)
 	*/
+<<<<<<< HEAD
 =======
 	//communicate before platform arrives to my floor
 	//Communication & Observation
@@ -117,6 +121,8 @@ func (a *CustomAgent2) Run() {
 		a.SendMessage(1, msg)
 	*/
 >>>>>>> 71a4f43 (1.Changed reward calculation; 2.added comment in main.go 3.Fixed tiny typos)
+=======
+>>>>>>> fda77c3f5163849f88e7c8bc209a23d0cba49855
 
 	//Perform the following only when platform arrives
 	//NOTE: should let infra team add a func to see whether the plaftfrom has arrived or not
@@ -140,6 +146,7 @@ func (a *CustomAgent2) Run() {
 	}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	msg := *messages.NewBaseMessage(a.Floor())
 	a.SendMessage(1, msg)
@@ -147,5 +154,7 @@ func (a *CustomAgent2) Run() {
 >>>>>>> 40c4e3f (1. Added team2 MVP; 2. Added team2 agent to simulation)
 =======
 >>>>>>> 71a4f43 (1.Changed reward calculation; 2.added comment in main.go 3.Fixed tiny typos)
+=======
+>>>>>>> fda77c3f5163849f88e7c8bc209a23d0cba49855
 
 }
