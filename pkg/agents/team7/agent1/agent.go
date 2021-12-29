@@ -58,6 +58,8 @@ type CustomAgent7 struct {
 	greediness  int
 	kindness    int
 	daysHungry  int
+	seenPlatform bool
+	foodEaten int
 	prevHP      int
 	prevFloors  []int
 }
@@ -74,8 +76,9 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		},
 		greediness: 0,
 		kindness:   0,
-		daysAlive:  0,
 		daysHungry: 0,
+		seenPlatform: false,
+		foodEaten: 0,
 		prevHP:     100,
 		prevFloors: []int{},
 	}, nil
@@ -84,18 +87,14 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 func (a *CustomAgent7) Run() {
 
 	//initialise greediness and kindness
-	if a.daysAlive == 0 {
+	if a.age() == 0 {
 		a.greediness = 100 - a.personality.agreeableness
 		a.kindness = a.personality.agreeableness
 	}
 
 	a.Log("Team7Agent1 reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "greed": a.greediness, "kind": a.kindness, "aggr": a.personality.agreeableness})
 
-	//Check if new day has started
-	if a.HP() < a.prevHP {
-		a.prevHP = a.HP()
-
-	}
+	
 
 	//Check if floor has changed
 	if len(a.prevFloors) == 0 || a.prevFloors[len(a.prevFloors)-1] != a.Floor() {
@@ -127,8 +126,8 @@ func (a *CustomAgent7) Run() {
 	//choses random number between -5 and 5
 	if a.CurrPlatFood() != -1 {
 
-		r1 := rand.Intn(11) - 10
-		r2 := rand.Intn(11) - 10
+		r1 := rand.Intn(11) - 5
+		r2 := rand.Intn(11) - 5
 
 		a.kindness += (a.personality.neuroticism * r1) / 50
 		a.greediness += (a.personality.neuroticism * r2) / 50
@@ -147,13 +146,29 @@ func (a *CustomAgent7) Run() {
 
 		foodtotake = food.FoodType(100 - a.kindness + a.greediness)
 
-		if foodtotake > 0 {
-			a.TakeFood(foodtotake)
+		//When platform reaches our floor and we haven't tried to eat, then try to eat
+		if a.CurrPlatFood() != -1 && !a.seenPlatform {
+			a.foodEaten = a.TakeFood(foodtotake)
+			if a.foodEaten > 0 {
+				a.Log("Team 7 has seen the platform:", infra.Fields{"foodEaten": a.foodTaken, "health": a.HP()})
+				a.daysHungry = 0
+			}
+			a.daysHungry++
+			a.seenPlatform = true
 		}
+		
+		if (a.CurrPlatFood() == -1 && a.seenPlatform) || a.CurrPlatFood() == 100 {
+			//Get ready for new day
+			a.seenPlatform = false
+			a.prevHP = a.HP()
+		}
+
 
 	}
 
 	//send Message
+
+	
 
 }
 
