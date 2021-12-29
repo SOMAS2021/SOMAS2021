@@ -3,6 +3,7 @@ package team2
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
 /*
@@ -56,7 +57,7 @@ import (
 type actionSpace struct {
 	//TODO: actionId is redundant and may be removed in further version
 	actionId  []int
-	actionSet map[int]func(hp int) float64
+	actionSet map[int]func(hp int) food.FoodType
 }
 type CustomAgent2 struct {
 	*infra.Base
@@ -76,7 +77,7 @@ func InitTable(numStates int, numActions int) [][]float32 {
 	return table
 }
 
-func New(baseAgent *infra.Base) (agent.Agent, error) {
+func New(baseAgent *infra.Base) (infra.Agent, error) {
 	stateSpace := InitStateSpace(3, 3, 3)
 	actionSpace := InitActionSpace()
 	policies := InitPolicies(27, 3)
