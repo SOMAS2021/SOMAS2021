@@ -5,7 +5,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
-type CustomAgent1 struct {
+type CustomAgent2 struct {
 	*infra.Base
 	// new params
 }
