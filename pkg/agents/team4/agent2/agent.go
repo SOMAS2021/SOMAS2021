@@ -89,37 +89,37 @@ func (a *CustomAgent4) sendingMessage() {
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
 	case 10:
-		msg := messages.NewStateFoodTakenMessage(a.Floor(), int(a.lastFoodTaken), "")
+		msg := messages.NewStateFoodTakenMessage(a.Floor(), int(a.lastFoodTaken))
 		a.SendMessage(1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, 1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateFoodTaken"})
 	case 11:
-		msg := messages.NewStateFoodTakenMessage(a.Floor(), int(a.lastFoodTaken), "")
+		msg := messages.NewStateFoodTakenMessage(a.Floor(), int(a.lastFoodTaken))
 		a.SendMessage(-1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, -1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateFoodTaken"})
 	case 12:
-		msg := messages.NewStateHPMessage(a.Floor(), a.HP(), "")
+		msg := messages.NewStateHPMessage(a.Floor(), a.HP())
 		a.SendMessage(1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, 1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateHP"})
 	case 13:
-		msg := messages.NewStateHPMessage(a.Floor(), a.HP(), "")
+		msg := messages.NewStateHPMessage(a.Floor(), a.HP())
 		a.SendMessage(-1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, -1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateHP"})
 	case 14:
-		msg := messages.NewStateIntendedFoodIntakeMessage(a.Floor(), int(a.IntendedFoodTaken), "")
+		msg := messages.NewStateIntendedFoodIntakeMessage(a.Floor(), int(a.IntendedFoodTaken))
 		a.SendMessage(1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, 1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateIntendedFoodIntake"})
 	case 15:
-		msg := messages.NewStateIntendedFoodIntakeMessage(a.Floor(), int(a.IntendedFoodTaken), "")
+		msg := messages.NewStateIntendedFoodIntakeMessage(a.Floor(), int(a.IntendedFoodTaken))
 		a.SendMessage(-1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, -1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
@@ -180,32 +180,32 @@ func (a *CustomAgent4) Run() {
 }
 
 func (a *CustomAgent4) HandleAskHP(msg messages.AskHPMessage) {
-	reply := msg.Reply(a.Floor(), a.HP(), msg.ID())
+	reply := msg.Reply(a.Floor(), a.HP())
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I received an askHP message from ", infra.Fields{"floor": msg.SenderFloor(), "hp": a.HP()})
 }
 
 func (a *CustomAgent4) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
-	reply := msg.Reply(a.Floor(), int(a.lastFoodTaken), msg.ID())
+	reply := msg.Reply(a.Floor(), int(a.lastFoodTaken))
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I received an askFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": a.lastFoodTaken})
 }
 
 func (a *CustomAgent4) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
-	reply := msg.Reply(a.Floor(), int(a.IntendedFoodTaken), msg.ID())
+	reply := msg.Reply(a.Floor(), int(a.IntendedFoodTaken))
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I received an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": a.IntendedFoodTaken})
 }
 
 func (a *CustomAgent4) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
 	//fmt.Printf(msg.ID())
-	reply := msg.Reply(a.Floor(), true, msg.ID()) // TODO: Change for later dependent on circumstance
+	reply := msg.Reply(a.Floor(), true) // TODO: Change for later dependent on circumstance
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I received a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
 func (a *CustomAgent4) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
-	reply := msg.Reply(a.Floor(), true, msg.ID()) // TODO: Change for later dependent on circumstance
+	reply := msg.Reply(a.Floor(), true) // TODO: Change for later dependent on circumstance
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("I received a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
@@ -216,7 +216,7 @@ func (a *CustomAgent4) HandleResponse(msg messages.BoolResponseMessage) {
 		a.globalTrust -= a.globalTrustSubtract * a.coefficients[0] // TODO: adapt for other conditions
 	} else { // Iterating through all messages in agent memory
 		for i := 0; i < len(a.sentMessages.messages); i++ { //TODO: adapt when uuids are implemented so you would have reponse.uuid == sentmessage.uuid
-			if msg.ID() == a.sentMessages.messages[i].ID() {
+			if msg.ReturnId() == a.sentMessages.messages[i].ID() {
 				a.Log("Received a message ", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": a.sentMessages.messages[i].ID()})
 			}
 		}

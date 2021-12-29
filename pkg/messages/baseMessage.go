@@ -40,7 +40,7 @@ type Agent interface {
 type Message interface {
 	MessageType() MessageType
 	SenderFloor() int
-	ID() string
+	ID() uuid.UUID
 	Visit(a Agent)
 }
 
@@ -57,28 +57,26 @@ type StateMessage interface {
 type RequestMessage interface {
 	Message
 	Request() int
-	Reply(senderFloor int, response bool, uuid string) ResponseMessage
+	Reply(senderFloor int, response bool, returnId uuid.UUID) ResponseMessage
 }
 
 type ResponseMessage interface {
 	Message
 	Response() bool
+	ReturnId() uuid.UUID
 }
 
 type BaseMessage struct {
 	senderFloor int
 	messageType MessageType
-	id          string
+	id          uuid.UUID
 }
 
-func NewBaseMessage(senderFloor int, messageType MessageType, id string) *BaseMessage {
-	if id == "" { //empty string to generate new ids, else use messageID to reply
-		id = uuid.New().String()
-	}
+func NewBaseMessage(senderFloor int, messageType MessageType) *BaseMessage {
 	msg := &BaseMessage{
 		senderFloor: senderFloor,
 		messageType: messageType,
-		id:          id,
+		id:          uuid.New(),
 	}
 	return msg
 }
@@ -91,6 +89,6 @@ func (msg BaseMessage) SenderFloor() int {
 	return msg.senderFloor
 }
 
-func (msg BaseMessage) ID() string {
+func (msg BaseMessage) ID() uuid.UUID {
 	return msg.id
 }

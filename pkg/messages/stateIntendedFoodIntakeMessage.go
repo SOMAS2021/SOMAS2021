@@ -5,9 +5,9 @@ type StateIntendedFoodIntakeMessage struct {
 	intendedFood int
 }
 
-func NewStateIntendedFoodIntakeMessage(SenderFloor int, intendedFood int, id string) *StateIntendedFoodIntakeMessage {
+func NewStateIntendedFoodIntakeMessage(SenderFloor int, intendedFood int) *StateIntendedFoodIntakeMessage {
 	msg := &StateIntendedFoodIntakeMessage{
-		NewBaseMessage(SenderFloor, StateIntendedFoodIntake, id),
+		NewBaseMessage(SenderFloor, StateIntendedFoodIntake),
 		intendedFood,
 	}
 	return msg

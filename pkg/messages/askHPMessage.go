@@ -6,13 +6,13 @@ type AskHPMessage struct {
 
 func NewAskHPMessage(senderFloor int) *AskHPMessage {
 	msg := &AskHPMessage{
-		NewBaseMessage(senderFloor, AskHP, ""),
+		NewBaseMessage(senderFloor, AskHP),
 	}
 	return msg
 }
 
-func (msg *AskHPMessage) Reply(senderFloor int, hp int, id string) StateMessage {
-	reply := NewStateHPMessage(senderFloor, hp, id)
+func (msg *AskHPMessage) Reply(senderFloor int, hp int) StateMessage {
+	reply := NewStateHPMessage(senderFloor, hp)
 	return reply
 }
 

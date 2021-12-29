@@ -7,7 +7,7 @@ type RequestLeaveFoodMessage struct {
 
 func NewRequestLeaveFoodMessage(SenderFloor int, food int) *RequestLeaveFoodMessage {
 	msg := &RequestLeaveFoodMessage{
-		NewBaseMessage(SenderFloor, RequestLeaveFood, ""),
+		NewBaseMessage(SenderFloor, RequestLeaveFood),
 		food,
 	}
 	return msg
@@ -17,8 +17,8 @@ func (msg *RequestLeaveFoodMessage) Request() int {
 	return msg.food
 }
 
-func (msg *RequestLeaveFoodMessage) Reply(senderFloor int, response bool, id string) ResponseMessage {
-	reply := NewResponseMessage(senderFloor, response, id)
+func (msg *RequestLeaveFoodMessage) Reply(senderFloor int, response bool) ResponseMessage {
+	reply := NewResponseMessage(senderFloor, response, msg.ID())
 	return reply
 }
 

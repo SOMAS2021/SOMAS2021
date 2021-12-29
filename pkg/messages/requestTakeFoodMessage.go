@@ -7,7 +7,7 @@ type RequestTakeFoodMessage struct {
 
 func NewRequestTakeFoodMessage(SenderFloor int, food int) *RequestTakeFoodMessage {
 	msg := &RequestTakeFoodMessage{
-		NewBaseMessage(SenderFloor, RequestTakeFood, ""),
+		NewBaseMessage(SenderFloor, RequestTakeFood),
 		food,
 	}
 	return msg
@@ -15,10 +15,11 @@ func NewRequestTakeFoodMessage(SenderFloor int, food int) *RequestTakeFoodMessag
 
 func (msg *RequestTakeFoodMessage) Request() int {
 	return msg.food
+
 }
 
-func (msg *RequestTakeFoodMessage) Reply(senderFloor int, response bool, id string) ResponseMessage {
-	reply := NewResponseMessage(senderFloor, response, id)
+func (msg *RequestTakeFoodMessage) Reply(senderFloor int, response bool) ResponseMessage {
+	reply := NewResponseMessage(senderFloor, response, msg.ID())
 	return reply
 }
 

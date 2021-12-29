@@ -6,13 +6,13 @@ type AskFoodTakenMessage struct {
 
 func NewAskFoodTakenMessage(SenderFloor int) *AskFoodTakenMessage {
 	msg := &AskFoodTakenMessage{
-		NewBaseMessage(SenderFloor, AskFoodTaken, ""),
+		NewBaseMessage(SenderFloor, AskFoodTaken),
 	}
 	return msg
 }
 
-func (msg *AskFoodTakenMessage) Reply(senderFloor int, food int, id string) StateMessage {
-	reply := NewStateFoodTakenMessage(senderFloor, food, id)
+func (msg *AskFoodTakenMessage) Reply(senderFloor int, food int) StateMessage {
+	reply := NewStateFoodTakenMessage(senderFloor, food)
 	return reply
 }
 
