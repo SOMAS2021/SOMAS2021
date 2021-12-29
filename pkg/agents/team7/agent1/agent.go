@@ -86,7 +86,6 @@ func (a *CustomAgent7) Run() {
 
 	//initialise greediness and kindness
 	if a.daysAlive == 0 {
-		rand.Seed(time.Now().UTC().UnixNano())
 		a.greediness = 100 - a.personality.agreeableness
 		a.kindness = a.personality.agreeableness
 	}
