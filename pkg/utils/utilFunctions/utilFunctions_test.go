@@ -68,7 +68,7 @@ func TestSum(t *testing.T) {
 			want: 53,
 		},
 		{
-			name: "empty",
+			name: "triangular",
 			args: args{inputList: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}},
 			want: 55,
 		},
