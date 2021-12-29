@@ -2,7 +2,6 @@ package team2
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
@@ -123,8 +122,5 @@ func (a *CustomAgent2) Run() {
 		a.updateQTable(oldState, action)
 		a.updataPolicies(oldState)
 	}
-	msg := *messages.NewBaseMessage(a.Floor())
-	a.SendMessage(1, msg)
-	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
 
 }
