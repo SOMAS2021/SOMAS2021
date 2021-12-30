@@ -92,7 +92,7 @@ func (a *CustomAgent5) addToSocialFavour(id string, change int) {
 
 // Increments all daysSinceLastSeen by 1
 func (a *CustomAgent5) incrementDaysSinceLastSeen() {
-	for id, _ := range a.socialMemory {
+	for id := range a.socialMemory {
 		a.socialMemory[id] = Memory{
 			trust:             a.socialMemory[id].trust,
 			favour:            a.socialMemory[id].favour,
