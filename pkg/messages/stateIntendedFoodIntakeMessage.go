@@ -1,13 +1,15 @@
 package messages
 
+import "github.com/google/uuid"
+
 type StateIntendedFoodIntakeMessage struct {
 	*BaseMessage
 	intendedFood int
 }
 
-func NewStateIntendedFoodIntakeMessage(SenderFloor int, intendedFood int) *StateIntendedFoodIntakeMessage {
+func NewStateIntendedFoodIntakeMessage(senderID uuid.UUID, senderFloor int, intendedFood int) *StateIntendedFoodIntakeMessage {
 	msg := &StateIntendedFoodIntakeMessage{
-		NewBaseMessage(SenderFloor, StateIntendedFoodIntake),
+		NewBaseMessage(senderID, senderFloor, StateIntendedFoodIntake),
 		intendedFood,
 	}
 	return msg
