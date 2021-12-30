@@ -57,13 +57,13 @@ type StateMessage interface {
 type RequestMessage interface {
 	Message
 	Request() int
-	Reply(senderFloor int, response bool, returnId uuid.UUID) ResponseMessage
+	Reply(senderFloor int, response bool) ResponseMessage
 }
 
 type ResponseMessage interface {
 	Message
 	Response() bool
-	ReturnId() uuid.UUID
+	RequestId() uuid.UUID
 }
 
 type BaseMessage struct {

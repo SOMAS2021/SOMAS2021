@@ -6,15 +6,15 @@ import (
 
 type BoolResponseMessage struct {
 	*BaseMessage
-	response bool
-	returnId uuid.UUID
+	response  bool
+	requestId uuid.UUID
 }
 
-func NewResponseMessage(senderFloor int, response bool, returnId uuid.UUID) *BoolResponseMessage {
+func NewResponseMessage(senderFloor int, response bool, requestId uuid.UUID) *BoolResponseMessage {
 	msg := &BoolResponseMessage{
 		NewBaseMessage(senderFloor, Response),
 		response,
-		returnId,
+		requestId,
 	}
 	return msg
 }
@@ -23,8 +23,8 @@ func (msg *BoolResponseMessage) Response() bool {
 	return msg.response
 }
 
-func (msg *BoolResponseMessage) ReturnId() uuid.UUID {
-	return msg.returnId
+func (msg *BoolResponseMessage) RequestId() uuid.UUID {
+	return msg.requestId
 }
 
 func (msg *BoolResponseMessage) Visit(a Agent) {

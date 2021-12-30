@@ -29,7 +29,7 @@ func (a *CustomAgent1) Run() {
 		a.Log("I got no thing")
 	}
 
-	r := rand.Intn(9)
+	r := rand.Intn(8)
 	switch r {
 	case 0:
 		msg := messages.NewAskFoodTakenMessage(a.Floor())
@@ -52,18 +52,14 @@ func (a *CustomAgent1) Run() {
 		a.SendMessage(1, msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
 	case 5:
-		// msg := messages.NewAskHPMessage(a.Floor())
-		// a.SendMessage(1, msg)
-		// a.Log("I sent a message", infra.Fields{"message": "Response"})
-	case 6:
 		msg := messages.NewStateFoodTakenMessage(a.Floor(), 30)
 		a.SendMessage(1, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateFoodTaken"})
-	case 7:
+	case 6:
 		msg := messages.NewStateHPMessage(a.Floor(), 40)
 		a.SendMessage(1, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateHP"})
-	case 8:
+	case 7:
 		msg := messages.NewStateIntendedFoodIntakeMessage(a.Floor(), 50)
 		a.SendMessage(1, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateIntendedFoodIntake"})
