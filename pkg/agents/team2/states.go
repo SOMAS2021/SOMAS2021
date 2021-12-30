@@ -1,7 +1,7 @@
 package team2
 
 func InitStateSpace(dim1 int, dim2 int, dim3 int) [][][]int {
-	var stateSpace = make([][][]int, dim1) // x axis
+	stateSpace := make([][][]int, dim1)
 	stateNum := 0
 	for i := 0; i < dim1; i++ {
 		stateSpace[i] = make([][]int, dim2)

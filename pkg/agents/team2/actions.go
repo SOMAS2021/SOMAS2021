@@ -29,18 +29,19 @@ func InitActionSpace() actionSpace {
 //Need to change this func when adding new actions
 
 func DisFood(hp int) food.FoodType {
+	//TODO: implement the logic of this function based on health level
 	return 0
 }
 
 func Satisfice(hp int) food.FoodType {
-	if hp <= 20 { //20 is the daily decay
+	//TODO: implement the logic of this function based on health level
+	if hp <= 20 {
 		return 20
-	} else {
-		return 1
 	}
+	return 1
 }
-func Satisfy(hp int) food.FoodType {
 
+func Satisfy(hp int) food.FoodType {
 	return food.FoodType(100 - hp)
 }
 

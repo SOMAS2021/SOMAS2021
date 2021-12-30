@@ -120,7 +120,7 @@ func (a *CustomAgent2) Run() {
 		hpInc := a.HP() - oldHP
 		a.updateRTable(hpInc, oldState, action)
 		a.updateQTable(oldState, action)
-		a.updataPolicies(oldState)
+		a.updatePolicies(oldState)
 	}
 
 }

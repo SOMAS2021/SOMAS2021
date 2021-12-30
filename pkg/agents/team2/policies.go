@@ -1,7 +1,7 @@
 package team2
 
 func InitPolicies(numStates int, numActions int) [][]float32 {
-	var policies = make([][]float32, numStates)
+	policies := make([][]float32, numStates)
 	uniformProb := 1.0 / float32(numActions)
 	for i := 0; i < numStates; i++ {
 		policies[i] = make([]float32, numActions)
@@ -12,7 +12,7 @@ func InitPolicies(numStates int, numActions int) [][]float32 {
 	return policies
 }
 
-func (a *CustomAgent2) updataPolicies(state int) {
+func (a *CustomAgent2) updatePolicies(state int) {
 	Delta := float32(0.1) / float32(len(a.actionSpace.actionId)-1)
 	bestAction := a.getMaxQ(state).bestAction
 	sum := float32(0.0)

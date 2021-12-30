@@ -14,11 +14,9 @@ func calcReward(hp int, hpInc int) float32 {
 	oldHP := float32(hp - hpInc)
 	incRate := float32(hpInc) / oldHP
 	if incRate > 1.0 {
-		ret += 1.0
-	} else {
-		ret -= 1.0
+		return ret + 1.0
 	}
-	return ret
+	return ret - 1.0
 	//TODO: we encourage agent to save other agent
 	// if actionTaken == 0 => ret+= 1 * num_of_saved_agent
 }
