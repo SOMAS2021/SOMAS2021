@@ -36,6 +36,7 @@ type Treaty struct {
 	signatureCount int
 	duration       int
 	id             uuid.UUID
+	proposerID     uuid.UUID
 }
 
 type Treatyer interface {
@@ -44,6 +45,7 @@ type Treatyer interface {
 	ConditionOp() Op
 	RequestOp() Op
 	SignatureCount() int
+	ProposerID() uuid.UUID
 	Duration() int
 	Id() uuid.UUID
 	SignTreaty()
@@ -72,6 +74,10 @@ func (t *Treaty) Request() RequestType {
 
 func (t *Treaty) ConditionOp() Op {
 	return t.conditionOp
+}
+
+func (t *Treaty) ProposerID() uuid.UUID {
+	return t.proposerID
 }
 
 func (t *Treaty) RequestOp() Op {
