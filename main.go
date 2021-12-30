@@ -49,7 +49,7 @@ func main() {
 			}
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
-				fmt.Println(err)
+				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
 		})
