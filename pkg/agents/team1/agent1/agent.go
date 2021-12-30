@@ -1,7 +1,7 @@
 package agent1
 
 import (
-	"math/rand"
+	//"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -29,7 +29,7 @@ func (a *CustomAgent1) Run() {
 		a.Log("I got no thing")
 	}
 
-	r := rand.Intn(9)
+	r := 0//rand.Intn(9)
 	switch r {
 	case 0:
 		msg := messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), a.Floor()-2)
