@@ -209,6 +209,37 @@ func (a *CustomAgent5) Run() {
 		}
 	}
 
+	// placeholder for memory functions
+	agentAbove := "agentAbove" // random name
+	agentBelow := "agentBelow" // random name
+	if !a.memoryIdExists(agentAbove) {
+		a.newMemory(agentAbove)
+	}
+
+	// placeholder for memory functions
+	expectedFood := 55    // random number
+	if expectedFood > 0 { // if we have an expectation
+		a.resetDaysSinceLastSeen(agentAbove)
+		trustChange := (int(a.CurrPlatFood()) - expectedFood + 20) / 5
+		a.addToSocialTrust(agentAbove, trustChange)
+	}
+
+	// placeholder for memory functions
+	if a.CurrPlatFood() != -1 {
+		// rage is high when platform has little food compared to what agent wants
+		rageToAgentAbove := 3 * int((float64(attemptFood)/float64(a.CurrPlatFood()))-2.5)
+		a.addToSocialFavour(agentAbove, rageToAgentAbove)
+
+		agentBelowRequestedFood := 30 // random number
+		// e.g. if agent below requested food
+		if agentBelowRequestedFood > 0 {
+			a.resetDaysSinceLastSeen(agentBelow)
+			// rage is low when agent below requests less food than food on platform minus our agent's required food
+			rageToAgentBelow := 3 * int((float64(agentBelowRequestedFood)/float64(a.CurrPlatFood()-attemptFood))-1.5)
+			a.addToSocialFavour(agentBelow, rageToAgentBelow)
+		}
+	}
+
 	//When platform reaches our floor and we haven't tried to eat, then try to eat
 	if a.CurrPlatFood() != -1 && a.attemptToEat {
 		a.lastMeal = a.TakeFood(attemptFood)
