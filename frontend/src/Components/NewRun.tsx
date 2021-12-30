@@ -1,11 +1,7 @@
-import { Button, FormGroup, InputGroup, NumericInput } from "@blueprintjs/core";
-import InitiateSimConfig from "./Simconfig";
-import initiateSimConfig, { simConfig } from "./Simconfig";
+import { Button, FormGroup, NumericInput } from "@blueprintjs/core";
+import InitiateSimConfig, { simConfig } from "./Simconfig";
 import { showToast } from "./Toaster";
 
-export interface test{
-  FoodOnPlatform: number
-}
 
 function request(configJSON: string){
   const requestOptions = {
@@ -21,10 +17,12 @@ export default function NewRun() {
 
   const [config, setConfig] = InitiateSimConfig()
   
-  const configHandler = <Key extends keyof simConfig>(value: number, parameter: Key) => {
+  const configHandler = <Key extends keyof simConfig>(value: number, keyString: any) => {
+    var key:Key = keyString // converting keyString to type Key
     var c = config;
-    c[parameter]=value;
+    c[key]=value;
     setConfig(c)
+    console.log(c)
     
   }
   const submitSimulation = () => {
@@ -56,7 +54,7 @@ export default function NewRun() {
               labelFor="text-input"
               labelInfo="(required)"
           >
-              <NumericInput placeholder="10" onValueChange={(value, SimDays:any) => configHandler(value, SimDays)} />
+              <NumericInput placeholder="10" onValueChange={(value) => configHandler(value, "SimDays")} />
           </FormGroup>
           </div>
           <div className="modal-footer">
