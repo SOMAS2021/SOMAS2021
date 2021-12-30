@@ -4,21 +4,27 @@ import "github.com/google/uuid"
 
 type TreatyResponseMessage struct {
 	*BaseMessage
-	response bool
-	treatyID uuid.UUID
+	response  bool
+	treatyID  uuid.UUID
+	requestID uuid.UUID
 }
 
-func NewTreatyResponseMessage(senderFloor int, response bool, treatyID uuid.UUID) *TreatyResponseMessage {
+func NewTreatyResponseMessage(senderID uuid.UUID, senderFloor int, response bool, treatyID uuid.UUID, requestID uuid.UUID) *TreatyResponseMessage {
 	msg := &TreatyResponseMessage{
-		NewBaseMessage(senderFloor, Response),
+		NewBaseMessage(senderID, senderFloor, Response),
 		response,
 		treatyID,
+		requestID,
 	}
 	return msg
 }
 
 func (msg *TreatyResponseMessage) Response() bool {
 	return msg.response
+}
+
+func (msg *TreatyResponseMessage) RequestID() uuid.UUID {
+	return msg.requestID
 }
 
 func (msg *TreatyResponseMessage) TreatyID() uuid.UUID {
