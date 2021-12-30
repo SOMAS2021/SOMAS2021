@@ -24,7 +24,7 @@ ticks_per_day = int(number_of_agents) * ticks_per_floor
 agents = {}
 for i in logs:
     try:
-        if i['agent_id'] not in agents:
+        if i['agent_id'] not in agents and i['msg'] == "team4EvoAgent reporting status:":
             agents[i['agent_id']] = []
         if i['msg'] == "team4EvoAgent reporting status:":
             agents[i['agent_id']].append(i)
@@ -34,8 +34,8 @@ for i in logs:
 # get agentid we want to create a population with
 agent = agents[list(agents.keys())[0]]
 
-# get coefficients for the agent
-coefficients = (agent[0]["currentFloorScore"], agent[0]["currentHpScore"])
+# get values for the agent
+values = (agent[0]["FoodToEat"], agent[0]["DaysToWait"])
 
 # get avg number of days lived by the different instantiated agents (all have the same coeffs)
 counts = []

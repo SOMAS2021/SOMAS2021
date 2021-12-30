@@ -11,13 +11,13 @@ agentLifeExpectenciesFile="pkg/agents/team4/agent1/agentLifeExpectencies.json"
 rm $agentConfigFile $bestAgentsFile
 touch $agentConfigFile $bestAgentsFile
 
-degreeOfEquations=3
+numberOfHealthLevels=4
 numberOfBestAgents=4
-numberOfAgentsPerSim=20
+numberOfAgentsPerSim=10
 numberOfIterations=20
 
 # Generate set of agents with 0 parameters
-python3 pkg/agents/team4/agent1/initaliseConfig.py $agentConfigFile $bestAgentsFile $degreeOfEquations $numberOfBestAgents
+python3 pkg/agents/team4/agent1/initaliseConfig.py $agentConfigFile $bestAgentsFile $numberOfHealthLevels $numberOfBestAgents
 
 for i in $( eval echo {0..$numberOfIterations} )
 do
@@ -37,7 +37,7 @@ do
     printf -v joined '%s,' ${arr[*]}
     echo "[${joined%,}]" > $agentLifeExpectenciesFile
     # generate new set of best agents generated from previous perfomance 
-    python3 pkg/agents/team4/agent1/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectenciesFile $degreeOfEquations
+    python3 pkg/agents/team4/agent1/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectenciesFile $numberOfHealthLevels
 done
 
 # Initialise set of agents
