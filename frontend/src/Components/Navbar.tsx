@@ -1,6 +1,4 @@
-import { Navbar, Alignment, Button, Classes } from "@blueprintjs/core";
-import { Popover2 } from "@blueprintjs/popover2";
-import React from "react";
+import { Navbar, Alignment, Button } from "@blueprintjs/core";
 import logo from "../assets/experiment.png";
 export default function Nav() {
   return (

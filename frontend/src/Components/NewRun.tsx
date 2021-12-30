@@ -14,29 +14,12 @@ export default function NewRun() {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="bp3-heading">New Run Configuration</h5>
-            <Button
-              className="bp3-minimal close"
-              icon="cross"
-              text=""
-              data-dismiss="modal"
-              aria-label="Close"
-            />
+            <Button className="bp3-minimal close" icon="cross" text="" data-dismiss="modal" aria-label="Close" />
           </div>
           <div className="modal-body">Form should go here</div>
           <div className="modal-footer">
-            <Button
-              intent="danger"
-              className="close"
-              icon="cross"
-              text="Cancel"
-              data-dismiss="modal"
-            />
-            <Button
-              intent="success"
-              icon="build"
-              text="Submit job to backend"
-              data-dismiss="modal"
-            />
+            <Button intent="danger" className="close" icon="cross" text="Cancel" data-dismiss="modal" />
+            <Button intent="success" icon="build" text="Submit job to backend" data-dismiss="modal" />
           </div>
         </div>
       </div>
