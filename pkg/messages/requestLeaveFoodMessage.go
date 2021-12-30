@@ -20,7 +20,7 @@ func (msg *RequestLeaveFoodMessage) Request() int {
 }
 
 func (msg *RequestLeaveFoodMessage) Reply(senderID uuid.UUID, senderFloor int, response bool) ResponseMessage {
-	reply := NewResponseMessage(senderID, senderFloor, response)
+	reply := NewResponseMessage(senderID, senderFloor, response, msg.ID())
 	return reply
 }
 
