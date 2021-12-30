@@ -1,8 +1,6 @@
 package messages
 
-import (
-	"github.com/google/uuid"
-)
+import "github.com/google/uuid"
 
 type BoolResponseMessage struct {
 	*BaseMessage
@@ -10,9 +8,9 @@ type BoolResponseMessage struct {
 	requestId uuid.UUID
 }
 
-func NewResponseMessage(senderFloor int, response bool, requestId uuid.UUID) *BoolResponseMessage {
+func NewResponseMessage(senderID uuid.UUID, senderFloor int, response bool, requestId uuid.UUID) *BoolResponseMessage {
 	msg := &BoolResponseMessage{
-		NewBaseMessage(senderFloor, Response),
+		NewBaseMessage(senderID, senderFloor, Response),
 		response,
 		requestId,
 	}

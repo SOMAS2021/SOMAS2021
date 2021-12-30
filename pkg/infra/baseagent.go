@@ -10,6 +10,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -31,7 +32,7 @@ type Agent interface {
 type Fields = log.Fields
 
 type Base struct {
-	id             string
+	id             uuid.UUID
 	hp             int
 	floor          int
 	agentType      int
@@ -43,7 +44,7 @@ type Base struct {
 	age            int
 }
 
-func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {
+func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
 	if world == nil {
 		return nil, errors.New("agent needs a world defined to operate")
 	}
@@ -109,7 +110,7 @@ func (a *Base) Floor() int {
 	return a.floor
 }
 
-func (a *Base) ID() string {
+func (a *Base) ID() uuid.UUID {
 	return a.id
 }
 
@@ -135,11 +136,11 @@ func (a *Base) setHP(newHP int) {
 
 // Modeled as a first order system step answer (see documentation for more information)
 func (a *Base) updateHP(foodTaken food.FoodType) {
-	hpChange := a.tower.healthInfo.Width * (1 - math.Pow(math.E, -float64(foodTaken)/a.tower.healthInfo.Tau))
+	hpChange := int(a.tower.healthInfo.Width * (1 - math.Pow(math.E, -float64(foodTaken)/a.tower.healthInfo.Tau)))
 	if a.hp >= a.tower.healthInfo.WeakLevel {
-		a.hp = a.hp + int(hpChange)
+		a.hp = a.hp + hpChange
 	} else {
-		a.hp = int(math.Min(float64(a.tower.healthInfo.HPCritical+a.tower.healthInfo.HPReqCToW), float64(a.hp)+hpChange))
+		a.hp = utilFunctions.MinInt(a.tower.healthInfo.HPCritical+a.tower.healthInfo.HPReqCToW, a.hp+hpChange)
 	}
 }
 
