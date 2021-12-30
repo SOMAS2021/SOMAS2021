@@ -151,6 +151,10 @@ random_mutation_agent["DaysToWait"] = [random.randint(0, 7)
 
 new_best_agents = [agent_1, agent_1_slight_mutations_1, agent_mix_1,
                    agent_mix_2, random_mutation_agent]
+
+for best_agent in new_best_agents:
+    best_agent["FoodToEat"][0] = -1
+
 best_agents_file = open(best_agents_file_name, 'w')
 best_agents_file.write(json.dumps(new_best_agents, indent=4))
 best_agents_file.close()
