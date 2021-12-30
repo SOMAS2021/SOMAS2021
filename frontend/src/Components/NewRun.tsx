@@ -1,4 +1,5 @@
 import { Button } from "@blueprintjs/core";
+import { showToast } from "./Toaster";
 
 export default function NewRun() {
   return (
@@ -19,7 +20,7 @@ export default function NewRun() {
           <div className="modal-body">Form should go here</div>
           <div className="modal-footer">
             <Button intent="danger" className="close" icon="cross" text="Cancel" data-dismiss="modal" />
-            <Button intent="success" icon="build" text="Submit job to backend" data-dismiss="modal" />
+            <Button intent="success" icon="build" text="Submit job to backend" data-dismiss="modal" onClick={() => showToast("Job submitted successfully to backend!", "success")}/>
           </div>
         </div>
       </div>
