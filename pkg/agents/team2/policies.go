@@ -13,9 +13,9 @@ func InitPolicies(numStates int, numActions int) [][]float64 {
 }
 
 func (a *CustomAgent2) updatePolicies(state int) {
-	Delta := float64(0.1) / float64(len(a.actionSpace.actionId)-1)
+	Delta := 0.1 / float64(len(a.actionSpace.actionId)-1)
 	bestAction := a.getMaxQ(state).bestAction
-	sum := float64(0.0)
+	sum := 0.0
 	for _, action := range a.actionSpace.actionId {
 		if action != bestAction {
 			a.policies[state][action] -= Delta
@@ -32,7 +32,7 @@ func (a *CustomAgent2) updatePolicies(state int) {
 //fix small errors caused during policy update
 func (a *CustomAgent2) adjustPolicies() {
 	for _, policy := range a.policies {
-		sum := float64(0.0)
+		sum := 0.0
 		for _, prob := range policy {
 			sum += prob
 		}

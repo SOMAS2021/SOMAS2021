@@ -2,7 +2,7 @@ package team2
 
 func calcReward(hp int, hpInc int) float64 {
 	//TODO: reward should be redone later according to new healthInfo
-	ret := float64(0.0)
+	ret := 0.0
 
 	//we encourage agent to survive
 	if hp > 20 {

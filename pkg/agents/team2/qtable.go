@@ -29,10 +29,10 @@ func (a *CustomAgent2) updateQTable(state int, action int) {
 	// Gamma is the discount factor (0≤γ≤1). It determines how much importance we want to give to future
 	// rewards. A high value for the discount factor (close to 1) captures the long-term effective award, whereas,
 	// a discount factor of 0 makes our agent consider only immediate reward, hence making it greedy.
-	Gamma := float64(0.6)
+	Gamma := 0.6
 
 	// Alpha is the learning rate (0<α≤1). Alpha is the extent to which our Q-values are being updated in every iteration.
-	Alpha := float64(0.1)
+	Alpha := 0.1
 	a.qTable[state][action] = (1-Alpha)*a.qTable[state][action] +
 		Alpha*(a.rTable[state][action]+Gamma*a.getMaxQ(a.CheckState()).maxQ)
 }

@@ -69,7 +69,7 @@ type CustomAgent2 struct {
 }
 
 func InitTable(numStates int, numActions int) [][]float64 {
-	var table = make([][]float64, numStates)
+	table := make([][]float64, numStates)
 	for i := 0; i < numStates; i++ {
 		table[i] = make([]float64, numActions)
 	}
