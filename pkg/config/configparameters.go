@@ -69,7 +69,7 @@ func LoadParamFromJson(path string) (ConfigParameters, error) {
 		return tempParameters, err
 	}
 
-	err = CalculateDependantParameters(&tempParameters)
+	err = CalculateDependentParameters(&tempParameters)
 	if err != nil {
 		return tempParameters, err
 	}
@@ -87,7 +87,7 @@ func LoadParamFromHTTPRequest(r *http.Request) (ConfigParameters, error) {
 		return tempParameters, err
 	}
 
-	err = CalculateDependantParameters(&tempParameters)
+	err = CalculateDependentParameters(&tempParameters)
 	if err != nil {
 		return tempParameters, err
 	}
@@ -96,7 +96,7 @@ func LoadParamFromHTTPRequest(r *http.Request) (ConfigParameters, error) {
 }
 
 //Some parameters depend directly on other parameters. This function calculates them and updates the original struct
-func CalculateDependantParameters(parameters *ConfigParameters) error {
+func CalculateDependentParameters(parameters *ConfigParameters) error {
 
 	//appending the sizes of the agents to the array
 	parameters.NumOfAgents = append(parameters.NumOfAgents, parameters.Team1Agents, parameters.Team2Agents, parameters.Team3Agents, parameters.Team4Agents, parameters.Team5Agents, parameters.Team6Agents, parameters.Team7Agent1, parameters.RandomAgents)
