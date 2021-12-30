@@ -37,26 +37,12 @@ func (sE *SimEnv) createNewAgent(tower *infra.Tower, agentType agent.AgentType, 
 =======
 func (sE *SimEnv) createNewAgent(tower *infra.Tower, i, floor int) {
 	sE.Log("Creating new agent")
-<<<<<<< HEAD
-<<<<<<< HEAD
-	abs := []AgentNewFunc{agent1.New, agent2.New, team3.New, team4EvoAgent.New, team5.New, team6.New, team7agent1.New, randomAgent.New}
-=======
-	abs := []AgentNewFunc{agent1.New, agent2.New, team3.New, team4EvoAgent.New, agentTrust.New, team5.New, team6.New, randomAgent.New}
->>>>>>> d28870d... FEAT: Added Handling and Setting up message passing
+	abs := []AgentNewFunc{agent1.New, agent2.New, team3.New, agentTrust.New, team5.New, team6.New, team7agent1.New, randomAgent.New}
 	// NOTE(woonmoon): Leaving the line below commented just in case any teams want to run the 2-agent
 	// 				   configuration to see how the message-passing works.
 	// abs := []AgentNewFunc{agent1.New, agent2.New}
 >>>>>>> 15ed57e... FEAT: Added Handling and Setting up message passing
 	uuid := uuid.New()
-=======
-	abs := []AgentNewFunc{agent1.New, agent2.New, team3.New, agentTrust.New, team5.New, team6.New, randomAgent.New}
-	// NOTE(woonmoon): Leaving the line below commented just in case any teams want to run the 2-agent
-	// 				   configuration to see how the message-passing works.
-	// abs := []AgentNewFunc{agent1.New, agent2.New}
-	// abs := []AgentNewFunc{agentTrust.New}
-
->>>>>>> 9f53cc4... Added UUID's to msgs and extra msg handling
-	uuid := uuid.New().String()
 
 	bAgent, err := infra.NewBaseAgent(sE.world, agentType, sE.AgentHP, floor, uuid)
 	if err != nil {

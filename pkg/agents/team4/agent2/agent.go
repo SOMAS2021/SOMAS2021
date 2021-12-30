@@ -5,6 +5,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"math/rand"
+
 )
 
 type CustomAgent4 struct {
@@ -29,97 +30,97 @@ type MessageMemory struct {
 func (a *CustomAgent4) sendingMessage() {
 	switch a.MessageToSend % 15 {
 	case 0:
-		msg := messages.NewAskFoodTakenMessage(a.Floor())
+		msg := messages.NewAskFoodTakenMessage(a.ID(), a.Floor())
 		a.SendMessage(1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, 1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "AskFoodTaken"})
 	case 1:
-		msg := messages.NewAskFoodTakenMessage(a.Floor())
+		msg := messages.NewAskFoodTakenMessage(a.ID(), a.Floor())
 		a.SendMessage(-1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, -1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "AskFoodTaken"})
 	case 2:
-		msg := messages.NewAskHPMessage(a.Floor())
+		msg := messages.NewAskHPMessage(a.ID(), a.Floor())
 		a.SendMessage(1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, 1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "AskHP"})
 	case 3:
-		msg := messages.NewAskHPMessage(a.Floor())
+		msg := messages.NewAskHPMessage(a.ID(), a.Floor())
 		a.SendMessage(-1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, -1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "AskHP"})
 	case 4:
-		msg := messages.NewAskIntendedFoodIntakeMessage(a.Floor())
+		msg := messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor())
 		a.SendMessage(1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, 1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "AskIntendedFoodIntake"})
 	case 5:
-		msg := messages.NewAskIntendedFoodIntakeMessage(a.Floor())
+		msg := messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor())
 		a.SendMessage(-1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, -1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "AskIntendedFoodIntake"})
 	case 6:
-		msg := messages.NewRequestLeaveFoodMessage(a.Floor(), 10) //need to change how much to request to leave
+		msg := messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), 10) //need to change how much to request to leave
 		a.SendMessage(1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, 1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
 	case 7:
-		msg := messages.NewRequestLeaveFoodMessage(a.Floor(), 10) //need to change how much to request to leave
+		msg := messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), 10) //need to change how much to request to leave
 		a.SendMessage(-1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, -1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
 	case 8:
-		msg := messages.NewRequestTakeFoodMessage(a.Floor(), 20) //need to change how much to request to take
+		msg := messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), 20) //need to change how much to request to take
 		a.SendMessage(1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, 1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
 	case 9:
-		msg := messages.NewRequestTakeFoodMessage(a.Floor(), 20) //need to change how much to request to take
+		msg := messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), 20) //need to change how much to request to take
 		a.SendMessage(-1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, -1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
 	case 10:
-		msg := messages.NewStateFoodTakenMessage(a.Floor(), int(a.lastFoodTaken))
+		msg := messages.NewStateFoodTakenMessage(a.ID(), a.Floor(), int(a.lastFoodTaken))
 		a.SendMessage(1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, 1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateFoodTaken"})
 	case 11:
-		msg := messages.NewStateFoodTakenMessage(a.Floor(), int(a.lastFoodTaken))
+		msg := messages.NewStateFoodTakenMessage(a.ID(), a.Floor(), int(a.lastFoodTaken))
 		a.SendMessage(-1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, -1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateFoodTaken"})
 	case 12:
-		msg := messages.NewStateHPMessage(a.Floor(), a.HP())
+		msg := messages.NewStateHPMessage(a.ID(), a.Floor(), a.HP())
 		a.SendMessage(1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, 1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateHP"})
 	case 13:
-		msg := messages.NewStateHPMessage(a.Floor(), a.HP())
+		msg := messages.NewStateHPMessage(a.ID(), a.Floor(), a.HP())
 		a.SendMessage(-1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, -1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateHP"})
 	case 14:
-		msg := messages.NewStateIntendedFoodIntakeMessage(a.Floor(), int(a.IntendedFoodTaken))
+		msg := messages.NewStateIntendedFoodIntakeMessage(a.ID(), a.Floor(), int(a.IntendedFoodTaken))
 		a.SendMessage(1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, 1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateIntendedFoodIntake"})
 	case 15:
-		msg := messages.NewStateIntendedFoodIntakeMessage(a.Floor(), int(a.IntendedFoodTaken))
+		msg := messages.NewStateIntendedFoodIntakeMessage(a.ID(), a.Floor(), int(a.IntendedFoodTaken))
 		a.SendMessage(-1, msg)
 		a.sentMessages.direction = append(a.sentMessages.direction, -1)
 		a.sentMessages.messages = append(a.sentMessages.messages, msg)
@@ -134,7 +135,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		globalTrust:         0.0,            // TODO: Amend values for correct agent behaviour
 		globalTrustAdd:      9.0,            // TODO: Amend values for correct agent behaviour
 		globalTrustSubtract: -9.0,           // TODO: Amend values for correct agent behaviour
-		coefficients:        []float32{0.1}, // TODO: Amend values for correct agent behaviour
+		coefficients:        []float32{0.1, 0.2, 0.4}, // TODO: Amend values for correct agent behaviour
 
 		// Initialise the amount of food our agent intends to eat.
 		IntendedFoodTaken: 0,
@@ -162,7 +163,7 @@ func (a *CustomAgent4) Run() {
 	}
 	//TODO: Define a threshold limit for other agents to respond to our sent message.
 	a.sendingMessage()
-	// msg := messages.NewRequestLeaveFoodMessage(a.Floor(), 10) //need to change how much to request to leave
+	// msg := messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), 10) //need to change how much to request to leave
 	// a.SendMessage(-1, msg)
 	// a.sentMessages.direction = append(a.sentMessages.direction, -1)
 	// a.sentMessages.messages = append(a.sentMessages.messages, msg)
@@ -180,44 +181,56 @@ func (a *CustomAgent4) Run() {
 }
 
 func (a *CustomAgent4) HandleAskHP(msg messages.AskHPMessage) {
-	reply := msg.Reply(a.Floor(), a.HP())
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	reply := msg.Reply(a.ID(), a.Floor(), a.HP())
+	a.SendMessage(msg.SenderFloor()- a.Floor(), reply)
 	a.Log("I received an askHP message from ", infra.Fields{"floor": msg.SenderFloor(), "hp": a.HP()})
 }
 
 func (a *CustomAgent4) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
-	reply := msg.Reply(a.Floor(), int(a.lastFoodTaken))
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	reply := msg.Reply(a.ID(), a.Floor(), int(a.lastFoodTaken))
+	a.SendMessage(msg.SenderFloor()- a.Floor(), reply)
 	a.Log("I received an askFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": a.lastFoodTaken})
 }
 
 func (a *CustomAgent4) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
-	reply := msg.Reply(a.Floor(), int(a.IntendedFoodTaken))
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	reply := msg.Reply(a.ID(), a.Floor(), int(a.IntendedFoodTaken))
+	a.SendMessage(msg.SenderFloor()- a.Floor(), reply)
 	a.Log("I received an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": a.IntendedFoodTaken})
 }
 
 func (a *CustomAgent4) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
 	//fmt.Printf(msg.ID())
-	reply := msg.Reply(a.Floor(), true) // TODO: Change for later dependent on circumstance
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	reply := msg.Reply(a.ID(), a.Floor(), true) // TODO: Change for later dependent on circumstance
+	a.SendMessage(msg.SenderFloor()- a.Floor(), reply)
 	a.Log("I received a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
 func (a *CustomAgent4) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
-	reply := msg.Reply(a.Floor(), true) // TODO: Change for later dependent on circumstance
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	reply := msg.Reply(a.ID(), a.Floor(), true) // TODO: Change for later dependent on circumstance
+	a.SendMessage(msg.SenderFloor()- a.Floor(), reply)
 	a.Log("I received a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
 func (a *CustomAgent4) HandleResponse(msg messages.BoolResponseMessage) {
 	response := msg.Response() // TODO: Change for later dependent on circumstance
 	if !response {
-		a.globalTrust -= a.globalTrustSubtract * a.coefficients[0] // TODO: adapt for other conditions
-	} else { // Iterating through all messages in agent memory
-		for i := 0; i < len(a.sentMessages.messages); i++ { //TODO: adapt when uuids are implemented so you would have reponse.uuid == sentmessage.uuid
-			if msg.ReturnId() == a.sentMessages.messages[i].ID() {
+		a.globalTrust += a.globalTrustSubtract * a.coefficients[0] // TODO: adapt for other conditions
+	}else { // Iterating through all messages in agent memory
+		for i := 0; i < len(a.sentMessages.messages); i++ { 
+			if msg.RequestId() == a.sentMessages.messages[i].ID() {
 				a.Log("Received a message ", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": a.sentMessages.messages[i].ID()})
+				sentMessage := a.sentMessages.messages[i]
+				// fooType := reflect.TypeOf(sentMessage)
+				// 	for j := 0; j < fooType.NumMethod(); j++ {
+    			// 		method := fooType.Method(j)
+    			// 		fmt.Println(method.Name)
+				
+				//12 is RequestLeaveFoodMessage.MessageType(), 13 is RequestTakeFoodMessage.MessageType()
+				if sentMessage.MessageType() == 12 && a.sentMessages.direction[i] == 1 && sentMessage.Request() <= a.CurrPlatFood(){   
+					a.globalTrust += a.globalTrustAdd * a.coefficients[1]
+				} else if sentMessage.MessageType() == 12 && a.sentMessages.direction[i] == 1 && sentMessage.Request()>= a.CurrPlatFood(){
+					a.globalTrust += a.globalTrustSubtract * a.coefficients[2]
+				}  
 			}
 		}
 	}
@@ -241,7 +254,7 @@ func (a *CustomAgent4) HandleStateIntendedFoodTaken(msg messages.StateIntendedFo
 }
 
 // func (a *CustomAgent4) Run() {
-// 	a.Log("Reporting agent state", infra.Fields{"health": a.HP(), "floor": a.Floor()})
+// 	a.Log("Reporting agent state", infra.Fields{"health": a.HP(), "floor": a.ID(), a.Floor()})
 
 // 		receivedMsg := a.Base.ReceiveMessage()
 // 		switch receivedMsg.MessageType() {
@@ -253,13 +266,13 @@ func (a *CustomAgent4) HandleStateIntendedFoodTaken(msg messages.StateIntendedFo
 // 		// case "foodOnPlatMessage":
 // 		// 	if receivedMsg.food == a.CurrPlatFood() && a.CurrPlatFood() != -1
 // 	 	 case "LeaveFoodMessage":
-// 			if receivedMsg.food == a.currPlatFood() && receivedMsg.senderFloor - a.Floor() == -1 && a.CurrPlatFood() != -1{ // on the floor above you
+// 			if receivedMsg.food == a.currPlatFood() && receivedMsg.senderFloor - a.ID(), a.Floor() == -1 && a.CurrPlatFood() != -1{ // on the floor above you
 // 				a.globalTrust+= a.globalTrustAdd //
 // 				if a.globalTrust > 100.0{
 // 					a.globalTrust = 100.0
 // 				}
 
-// 			} else if receivedMsg.food != a.currPlatFood() && receivedMsg.senderFloor -a.Floor() == 1 && a.CurrPlatFood() != -1{ // on the floor below you
+// 			} else if receivedMsg.food != a.currPlatFood() && receivedMsg.senderFloor - a.Floor() == 1 && a.CurrPlatFood() != -1{ // on the floor below you
 
 // 			}
 
