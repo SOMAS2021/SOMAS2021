@@ -3,10 +3,6 @@ export default function Sidebar() {
     <div className="absolute dark:bg-gray-800 bg-gray-100">
       <div className="flex flex-col sm:flex-row sm:justify-around">
         <div className="w-72">
-          {/* <div className="flex items-center justify-start mx-6 mt-10">
-            <img className="h-10" src="/assets/experiment.png" alt="logo" />
-            <span className="text-gray-600 dark:text-gray-300 ml-4 text-2xl font-bold">Platform Dashboard</span>
-          </div> */}
           <nav className="mt-10 px-6 scroll">
             {[...range(1, 100)].map((i) => (
               <SidebarElement title={`File no ${i}`} link={`/${i}`} />

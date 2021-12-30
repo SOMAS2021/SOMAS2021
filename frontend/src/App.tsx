@@ -1,8 +1,10 @@
 import "./App.css";
+import Navbar from "./Components/Navbar";
 import Sidebar from "./Components/Sidebar";
 function App() {
   return (
-    <div style={{left: 0, bottom: 0}}>
+    <div>
+      <Navbar />
       <Sidebar />
     </div>
   );
