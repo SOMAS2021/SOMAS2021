@@ -11,14 +11,15 @@ func calcReward(hp int, hpInc int) float64 {
 		ret -= 0.5
 	}
 	// Use slop instead of hard threshold?
-	threshold := float64(20)
-	hpT := float64(hp)
-	if hpT > threshold {
-		ret += 1.0*(1.0/(100.0-threshold))*hpT - threshold/(100.0-threshold)
-	} else {
-		ret -= 0.5 * ((-1.0/(threshold))*hpT + 1)
-	}
-
+	/*
+		threshold := float64(20)
+		hpT := float64(hp)
+		if hpT > threshold {
+			ret += 1.0*(1.0/(100.0-threshold))*hpT - threshold/(100.0-threshold)
+		} else {
+			ret -= 0.5 * ((-1.0/(threshold))*hpT + 1)
+		}
+	*/
 	//we encourage ageny to eat less when hp level is high
 	oldHP := float64(hp - hpInc)
 	incRate := float64(hpInc) / oldHP
