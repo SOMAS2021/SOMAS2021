@@ -11,7 +11,7 @@ type TreatyResponseMessage struct {
 
 func NewTreatyResponseMessage(senderID uuid.UUID, senderFloor int, response bool, treatyID uuid.UUID, requestID uuid.UUID) *TreatyResponseMessage {
 	msg := &TreatyResponseMessage{
-		NewBaseMessage(senderID, senderFloor, Response),
+		NewBaseMessage(senderID, senderFloor, TreatyResponse),
 		response,
 		treatyID,
 		requestID,

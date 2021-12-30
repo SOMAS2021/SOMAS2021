@@ -22,6 +22,7 @@ const (
 	RequestLeaveFood
 	RequestTakeFood
 	Response
+	TreatyResponse
 )
 
 type Agent interface {
@@ -64,7 +65,7 @@ type RequestMessage interface {
 type ProposalMessage interface {
 	Message
 	Treaty() Treaty
-	Reply(senderFloor int, response bool) ResponseMessage
+	Reply(senderID uuid.UUID, senderFloor int, response bool) TreatyResponseMessage
 }
 
 type ResponseMessage interface {
