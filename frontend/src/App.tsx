@@ -1,9 +1,9 @@
-import './App.css';
-
+import "./App.css";
+import Sidebar from "./Components/Sidebar";
 function App() {
   return (
-    <div>
-        hi
+    <div style={{left: 0, bottom: 0}}>
+      <Sidebar />
     </div>
   );
 }
