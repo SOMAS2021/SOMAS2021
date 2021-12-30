@@ -57,6 +57,7 @@ type CustomAgentEvoParams struct {
 	foodToEat    []int
 	daysToWait   []int
 	ageLastEaten int
+	lockedWait   int
 	// below params updated based in previous experience of floors
 	trustscore float64
 	morality   float64
@@ -83,6 +84,8 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 	var data1 LoadedData
 	_ = json.Unmarshal(file, &data1) //parse the config json file to get the coeffs for floor and HP equations
 
+	data1.FoodToEat[0] = baseAgent.HealthInfo().HPReqCToW
+
 	return CustomAgentEvoParams{ //initialise the parameters of the agent
 		// scalingEquation: Equation{
 		// 	coefficients: []float64{1, 1, 1, 1},
@@ -91,6 +94,7 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 		// currentHpScore:    currentHpScoreEquation,
 		foodToEat:    data1.FoodToEat,
 		daysToWait:   data1.DaysToWait,
+		lockedWait:   data1.DaysToWait[3],
 		ageLastEaten: 0,
 		trustscore:   100 * rand.Float64(), //random for now
 		morality:     100 * rand.Float64(), //random for now
