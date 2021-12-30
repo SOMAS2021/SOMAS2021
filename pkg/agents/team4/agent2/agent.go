@@ -1,10 +1,11 @@
 package agentTrust
 
 import (
+	"math/rand"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
-	"math/rand"
 )
 
 type CustomAgent4 struct {
@@ -218,18 +219,28 @@ func (a *CustomAgent4) HandleResponse(msg messages.BoolResponseMessage) {
 		for i := 0; i < len(a.sentMessages.messages); i++ {
 			if msg.RequestId() == a.sentMessages.messages[i].ID() {
 				a.Log("Received a message ", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": a.sentMessages.messages[i].ID()})
-				//sentMessage := a.sentMessages.messages[i]
+				sentMessage := a.sentMessages.messages[i]
 				// fooType := reflect.TypeOf(sentMessage)
 				// 	for j := 0; j < fooType.NumMethod(); j++ {
 				// 		method := fooType.Method(j)
 				// 		fmt.Println(method.Name)
 
 				//12 is RequestLeaveFoodMessage.MessageType(), 13 is RequestTakeFoodMessage.MessageType()
-				// if sentMessage.MessageType() == 12 && a.sentMessages.direction[i] == 1 && sentMessage.Request() <= a.CurrPlatFood(){
+
+				if sentMessage.MessageType() == 12 && a.sentMessages.direction[i] == 1 {
+					reqMessage := sentMessage.(messages.RequestMessage)
+					if food.FoodType(reqMessage.Request()) <= a.CurrPlatFood() {
+						a.globalTrust += a.globalTrustAdd * a.coefficients[1]
+					} else if food.FoodType(reqMessage.Request()) > a.CurrPlatFood() {
+						a.globalTrust += a.globalTrustSubtract * a.coefficients[2]
+					}
+				}
+
+				// if sentMessage.MessageType() == 12 && a.sentMessages.direction[i] == 1 && food.FoodType(sentMessage.(messages.RequestMessage).Request()) <= a.CurrPlatFood() {
 				// 	a.globalTrust += a.globalTrustAdd * a.coefficients[1]
-				// } else if sentMessage.MessageType() == 12 && a.sentMessages.direction[i] == 1 && sentMessage.Request() > a.CurrPlatFood(){
+				// } else if sentMessage.MessageType() == 12 && a.sentMessages.direction[i] == 1 && food.FoodType(sentMessage.(messages.RequestMessage).Request()) >= a.CurrPlatFood() {
 				// 	a.globalTrust += a.globalTrustSubtract * a.coefficients[2]
-				// } //else if sentMessage.MessageType() == 13 && a.sentMessages.direction[i] == -1 && sentMessage.Request()
+				// }
 			}
 		}
 	}
