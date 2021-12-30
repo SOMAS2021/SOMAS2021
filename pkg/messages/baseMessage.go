@@ -65,6 +65,7 @@ type RequestMessage interface {
 	Request() int
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	Reply(senderID uuid.UUID, senderFloor int, targetFloor int, response bool) ResponseMessage
 }
 
@@ -78,6 +79,9 @@ type ProposalMessage interface {
 =======
 	Reply(senderFloor int, response bool) ResponseMessage
 >>>>>>> 421e9d0... fix: latest code
+=======
+	Reply(senderID uuid.UUID, senderFloor int, response bool) ResponseMessage
+>>>>>>> 315ae03... fix: fixed message type request issue
 }
 
 type ResponseMessage interface {
