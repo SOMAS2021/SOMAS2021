@@ -1,4 +1,4 @@
-import { Button, Card, Elevation } from "@blueprintjs/core";
+import { Card, Elevation, H5 } from "@blueprintjs/core";
 
 export default function Results() {
   return (
@@ -39,9 +39,7 @@ export default function Results() {
 function CardExample() {
   return (
     <Card interactive={true} elevation={Elevation.TWO} style={{ marginTop: 20 }}>
-      <h5>
-        <a href="#">100%</a>
-      </h5>
+      <H5>100%</H5>
       <p>Description</p>
     </Card>
   );
