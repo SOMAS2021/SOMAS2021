@@ -1,7 +1,39 @@
-import { Button } from "@blueprintjs/core";
+import { Button, FormGroup, InputGroup, NumericInput } from "@blueprintjs/core";
+import InitiateSimConfig from "./Simconfig";
+import initiateSimConfig, { simConfig } from "./Simconfig";
 import { showToast } from "./Toaster";
 
+export interface test{
+  FoodOnPlatform: number
+}
+
+function request(configJSON: string){
+  const requestOptions = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: configJSON
+  };
+  var host = window.location.protocol + "//" + window.location.host;
+  fetch(`${host}/simulate`, requestOptions)
+}
+
 export default function NewRun() {
+
+  const [config, setConfig] = InitiateSimConfig()
+  
+  const configHandler = <Key extends keyof simConfig>(value: number, parameter: Key) => {
+    var c = config;
+    c[parameter]=value;
+    setConfig(c)
+    
+  }
+  const submitSimulation = () => {
+    const configJSON = JSON.stringify(config);
+    console.log(configJSON)
+    request(configJSON)
+    showToast("Job submitted successfully to backend!", "success")
+  }
+
   return (
     <div
       className="modal custom fade"
@@ -17,7 +49,16 @@ export default function NewRun() {
             <h5 className="bp3-heading">New Run Configuration</h5>
             <Button className="bp3-minimal close" icon="cross" text="" data-dismiss="modal" aria-label="Close" />
           </div>
-          <div className="modal-body">Form should go here</div>
+          <div className="modal-body">
+          <FormGroup
+              helperText="Length of Simulation in days..."
+              label="Simulation Length"
+              labelFor="text-input"
+              labelInfo="(required)"
+          >
+              <NumericInput placeholder="10" onValueChange={(value, SimDays:any) => configHandler(value, SimDays)} />
+          </FormGroup>
+          </div>
           <div className="modal-footer">
             <Button intent="danger" className="close" icon="cross" text="Cancel" data-dismiss="modal" />
             <Button
@@ -25,7 +66,7 @@ export default function NewRun() {
               icon="build"
               text="Submit job to backend"
               data-dismiss="modal"
-              onClick={() => showToast("Job submitted successfully to backend!", "success")}
+              onClick={() => submitSimulation()}
             />
           </div>
         </div>
