@@ -47,6 +47,16 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	}, nil
 }
 
+// force number to be in range because min and max only takes float64
+func restrictToRange(lowerBound, upperBound, nr int) int {
+	if nr < lowerBound {
+		return lowerBound
+	} else if nr > upperBound {
+		return upperBound
+	}
+	return nr
+}
+
 // Checks if agent id exists in socialMemory.
 func (a *CustomAgent5) memoryIdExists(id string) bool {
 	_, exists := a.socialMemory[id]
