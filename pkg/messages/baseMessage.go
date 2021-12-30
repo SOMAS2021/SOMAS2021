@@ -47,7 +47,7 @@ type Message interface {
 
 type AskMessage interface {
 	Message
-	Reply(senderFloor int, food int) StateMessage
+	Reply(senderID uuid.UUID, senderFloor int, food int) StateMessage
 }
 
 type StateMessage interface {
@@ -58,7 +58,7 @@ type StateMessage interface {
 type RequestMessage interface {
 	Message
 	Request() int
-	Reply(senderFloor int, response bool) ResponseMessage
+	Reply(senderID uuid.UUID, senderFloor int, response bool) ResponseMessage
 }
 
 type ProposalMessage interface {
@@ -70,7 +70,7 @@ type ProposalMessage interface {
 type ResponseMessage interface {
 	Message
 	Response() bool
-	RequestId() uuid.UUID
+	RequestID() uuid.UUID
 }
 
 type BaseMessage struct {

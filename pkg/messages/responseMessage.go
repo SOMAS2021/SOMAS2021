@@ -8,11 +8,11 @@ type BoolResponseMessage struct {
 	requestId uuid.UUID
 }
 
-func NewResponseMessage(senderID uuid.UUID, senderFloor int, response bool, requestId uuid.UUID) *BoolResponseMessage {
+func NewResponseMessage(senderID uuid.UUID, senderFloor int, response bool, requestID uuid.UUID) *BoolResponseMessage {
 	msg := &BoolResponseMessage{
 		NewBaseMessage(senderID, senderFloor, Response),
 		response,
-		requestId,
+		requestID,
 	}
 	return msg
 }
@@ -21,7 +21,7 @@ func (msg *BoolResponseMessage) Response() bool {
 	return msg.response
 }
 
-func (msg *BoolResponseMessage) RequestId() uuid.UUID {
+func (msg *BoolResponseMessage) RequestID() uuid.UUID {
 	return msg.requestId
 }
 
