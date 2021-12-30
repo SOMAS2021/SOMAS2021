@@ -50,13 +50,13 @@ func (a *CustomAgent2) SelectAction() int {
 	//probability density function
 	pdf := a.policies[a.CheckState()]
 	//convert to cumulative distribution function
-	cdf := make([]float32, len(pdf))
+	cdf := make([]float64, len(pdf))
 	cdf[0] = pdf[0]
 	for i := 1; i < len(cdf); i++ {
 		cdf[i] = cdf[i-1] + pdf[i]
 	}
 	//select action with given cdf
-	r := rand.Float32()
+	r := rand.Float64()
 	action := 0
 	for r > cdf[action] {
 		action++

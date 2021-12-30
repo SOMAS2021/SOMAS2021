@@ -62,16 +62,16 @@ type CustomAgent2 struct {
 	*infra.Base
 	stateSpace    [][][]int
 	actionSpace   actionSpace
-	policies      [][]float32
-	rTable        [][]float32
-	qTable        [][]float32
+	policies      [][]float64
+	rTable        [][]float64
+	qTable        [][]float64
 	isPlatArrived bool
 }
 
-func InitTable(numStates int, numActions int) [][]float32 {
-	var table = make([][]float32, numStates)
+func InitTable(numStates int, numActions int) [][]float64 {
+	var table = make([][]float64, numStates)
 	for i := 0; i < numStates; i++ {
-		table[i] = make([]float32, numActions)
+		table[i] = make([]float64, numActions)
 	}
 	return table
 }

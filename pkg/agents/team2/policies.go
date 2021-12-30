@@ -1,10 +1,10 @@
 package team2
 
-func InitPolicies(numStates int, numActions int) [][]float32 {
-	policies := make([][]float32, numStates)
-	uniformProb := 1.0 / float32(numActions)
+func InitPolicies(numStates int, numActions int) [][]float64 {
+	policies := make([][]float64, numStates)
+	uniformProb := 1.0 / float64(numActions)
 	for i := 0; i < numStates; i++ {
-		policies[i] = make([]float32, numActions)
+		policies[i] = make([]float64, numActions)
 		for j := 0; j < 3; j++ {
 			policies[i][j] = uniformProb
 		}
@@ -13,9 +13,9 @@ func InitPolicies(numStates int, numActions int) [][]float32 {
 }
 
 func (a *CustomAgent2) updatePolicies(state int) {
-	Delta := float32(0.1) / float32(len(a.actionSpace.actionId)-1)
+	Delta := float64(0.1) / float64(len(a.actionSpace.actionId)-1)
 	bestAction := a.getMaxQ(state).bestAction
-	sum := float32(0.0)
+	sum := float64(0.0)
 	for _, action := range a.actionSpace.actionId {
 		if action != bestAction {
 			a.policies[state][action] -= Delta
@@ -32,7 +32,7 @@ func (a *CustomAgent2) updatePolicies(state int) {
 //fix small errors caused during policy update
 func (a *CustomAgent2) adjustPolicies() {
 	for _, policy := range a.policies {
-		sum := float32(0.0)
+		sum := float64(0.0)
 		for _, prob := range policy {
 			sum += prob
 		}

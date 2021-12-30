@@ -14,7 +14,8 @@ import (
 
 type ConfigParameters struct {
 	FoodOnPlatform food.FoodType `json:"FoodOnPlatform"`
-	Team1Agents    int           `json:"Team1Agents"`
+	Team1AgtOne    int           `json:"Team1AgtOne"`
+	Team1AgtTwo    int           `json:"Team2AgtTwo"`
 	Team2Agents    int           `json:"Team2Agents"`
 	Team3Agents    int           `json:"Team3Agents"`
 	Team4Agents    int           `json:"Team4Agents"`
@@ -92,7 +93,7 @@ func LoadParamFromHTTPRequest(r *http.Request) (ConfigParameters, error) {
 func CalculateDependantParameters(parameters *ConfigParameters) {
 
 	//appending the sizes of the agents to the array
-	parameters.NumOfAgents = append(parameters.NumOfAgents, parameters.Team1Agents, parameters.Team2Agents, parameters.Team3Agents, parameters.Team4Agents, parameters.Team5Agents, parameters.Team6Agents, parameters.Team7Agent1, parameters.RandomAgents)
+	parameters.NumOfAgents = append(parameters.NumOfAgents, parameters.Team1AgtOne, parameters.Team1AgtTwo, parameters.Team2Agents, parameters.Team3Agents, parameters.Team4Agents, parameters.Team5Agents, parameters.Team6Agents, parameters.Team7Agent1, parameters.RandomAgents)
 
 	//do the calculations for parameters that depend on other parameters
 	parameters.NumberOfFloors = utilFunctions.Sum(parameters.NumOfAgents) / parameters.AgentsPerFloor

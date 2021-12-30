@@ -1,8 +1,8 @@
 package team2
 
-func calcReward(hp int, hpInc int) float32 {
+func calcReward(hp int, hpInc int) float64 {
 	//TODO: reward should be redone later according to new healthInfo
-	ret := float32(0.0)
+	ret := float64(0.0)
 
 	//we encourage agent to survive
 	if hp > 20 {
@@ -11,8 +11,8 @@ func calcReward(hp int, hpInc int) float32 {
 		ret -= 0.5
 	}
 	//we encourage ageny to eat less when hp level is high
-	oldHP := float32(hp - hpInc)
-	incRate := float32(hpInc) / oldHP
+	oldHP := float64(hp - hpInc)
+	incRate := float64(hpInc) / oldHP
 	if incRate > 1.0 {
 		return ret + 1.0
 	}

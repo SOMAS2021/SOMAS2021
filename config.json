@@ -1,6 +1,7 @@
 {
     "FoodOnPlatform": 100,
-    "Team1Agents": 2,
+    "Team1AgtOne": 2,
+    "Team1AgtTwo": 2,
     "Team2Agents": 2,
     "Team3Agents": 2,
     "Team4Agents": 2,
