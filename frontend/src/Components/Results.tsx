@@ -39,7 +39,7 @@ export default function Results() {
 function CardExample() {
   return (
     <Card interactive={true} elevation={Elevation.TWO} style={{ marginTop: 20 }}>
-      <H5 style={{color: "#1F4B99"}}>100%</H5>
+      <H5 style={{ color: "#1F4B99" }}>100%</H5>
       <p>Description</p>
     </Card>
   );

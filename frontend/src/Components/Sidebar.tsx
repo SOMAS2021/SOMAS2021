@@ -1,4 +1,4 @@
-import { Menu, MenuItem } from "@blueprintjs/core";
+import { Menu, MenuDivider, MenuItem } from "@blueprintjs/core";
 import { useState } from "react";
 
 export default function Sidebar() {
@@ -11,18 +11,22 @@ export default function Sidebar() {
         height: "95vh",
         textAlign: "left",
         padding: "10px 0px",
+        // backgroundColor: "#EBF1F5",
       }}
     >
       <Menu>
         {[...range(1, 100)].map((i) => (
-          <MenuItem
-            icon="document"
-            onClick={() => {
-              setLog(i);
-            }}
-            text={`This is log ${i}`}
-            active={log === i}
-          />
+          <>
+            <MenuItem
+              icon="document"
+              onClick={() => {
+                setLog(i);
+              }}
+              text={`This is log ${i}`}
+              active={log === i}
+            />
+            <MenuDivider />
+          </>
         ))}
       </Menu>
     </div>
