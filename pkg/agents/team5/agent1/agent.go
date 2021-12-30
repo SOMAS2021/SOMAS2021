@@ -72,6 +72,24 @@ func (a *CustomAgent5) newMemory(id string) {
 	}
 }
 
+// Changes trust in socialMemory, change can be negative
+func (a *CustomAgent5) addToSocialTrust(id string, change int) {
+	a.socialMemory[id] = Memory{
+		trust:             restrictToRange(-5, 5, a.socialMemory[id].trust+change),
+		favour:            a.socialMemory[id].favour,
+		daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
+	}
+}
+
+// Changes favour in socialMemory, change can be negative
+func (a *CustomAgent5) addToSocialFavour(id string, change int) {
+	a.socialMemory[id] = Memory{
+		trust:             a.socialMemory[id].trust,
+		favour:            restrictToRange(-5, 5, a.socialMemory[id].favour+change),
+		daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
+	}
+}
+
 // Increments all daysSinceLastSeen by 1
 func (a *CustomAgent5) incrementDaysSinceLastSeen() {
 	for id, _ := range a.socialMemory {
