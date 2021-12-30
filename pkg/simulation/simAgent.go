@@ -33,7 +33,7 @@ func (sE *SimEnv) createNewAgent(tower *infra.Tower, i, floor int) {
 	// NOTE(woonmoon): Leaving the line below commented just in case any teams want to run the 2-agent
 	// 				   configuration to see how the message-passing works.
 	// abs := []AgentNewFunc{agent1.New, agent2.New}
-	uuid := uuid.New().String()
+	uuid := uuid.New()
 
 	bAgent, err := infra.NewBaseAgent(sE.world, i, sE.AgentHP, floor, uuid)
 	if err != nil {
