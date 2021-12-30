@@ -47,6 +47,12 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	}, nil
 }
 
+// Checks if agent id exists in socialMemory.
+func (a *CustomAgent5) memoryIdExists(id string) bool {
+	_, exists := a.socialMemory[id]
+	return exists
+}
+
 // Initialises memory of new agent
 func (a *CustomAgent5) newMemory(id string) {
 	a.socialMemory[id] = Memory{
