@@ -1,7 +1,6 @@
 package team6
 
 import (
-	"math"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -58,9 +57,9 @@ func (a *CustomAgent6) foodIntake() food.FoodType {
 		case currentHP >= levels.strongLevel:
 			return food.FoodType(0)
 		case currentHP >= levels.healthyLevel:
-			return foodRequired(currentHP, currentHP, healthInfo)
+			return health.FoodRequired(int(currentHP), int(currentHP), healthInfo)
 		default:
-			return foodRequired(currentHP, levels.healthyLevel, healthInfo)
+			return health.FoodRequired(int(currentHP), int(levels.healthyLevel), healthInfo)
 		}
 
 	case "Narcissist": // Eat max intake (Possible TODO: Stay in strong instead?)
@@ -69,11 +68,6 @@ func (a *CustomAgent6) foodIntake() food.FoodType {
 	default:
 		return food.FoodType(0)
 	}
-}
-
-func foodRequired(currentHP, goalHP float64, healthInfo *health.HealthInfo) food.FoodType {
-	denom := healthInfo.Width - goalHP + (1-healthInfo.HPLossSlope)*currentHP - float64(healthInfo.HPLossBase) + healthInfo.HPLossSlope*float64(healthInfo.WeakLevel)
-	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
 }
 
 // func foodRequiredToStay(currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {

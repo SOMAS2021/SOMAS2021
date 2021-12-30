@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/config"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
 type HealthInfo struct {
@@ -40,13 +41,7 @@ func NewHealthInfo(parameters *config.ConfigParameters) *HealthInfo {
 	}
 }
 
-func reachHP(currentHP float64, goalHP float64, healthInfo *HealthInfo) int { // this function is from team6 strategies just made public so everyone can use it
-	denom := healthInfo.Width - goalHP + (1-healthInfo.HPLossSlope)*currentHP - float64(healthInfo.HPLossBase) + healthInfo.HPLossSlope*float64(healthInfo.WeakLevel)
-	return int(healthInfo.Tau * math.Log(healthInfo.Width/denom))
-}
-
-func maintainHP(currentHP float64, healthInfo *HealthInfo) int { // this function is a modified verion of the function from team6 strategies just made public so everyone can use it
-	goalHP := float64(currentHP)
-	denom := healthInfo.Width - goalHP + (1-healthInfo.HPLossSlope)*currentHP - float64(healthInfo.HPLossBase) + healthInfo.HPLossSlope*float64(healthInfo.WeakLevel)
-	return int(healthInfo.Tau * math.Log(healthInfo.Width/denom))
+func FoodRequired(currentHP int, goalHP int, healthInfo *HealthInfo) food.FoodType {
+	denom := healthInfo.Width - float64(goalHP) + (1-healthInfo.HPLossSlope)*float64(currentHP) - float64(healthInfo.HPLossBase) + healthInfo.HPLossSlope*float64(healthInfo.WeakLevel)
+	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
 }
