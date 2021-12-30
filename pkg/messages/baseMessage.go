@@ -64,6 +64,7 @@ type RequestMessage interface {
 	Message
 	Request() int
 <<<<<<< HEAD
+<<<<<<< HEAD
 	Reply(senderID uuid.UUID, senderFloor int, targetFloor int, response bool) ResponseMessage
 }
 
@@ -74,6 +75,9 @@ type ProposalMessage interface {
 =======
 	Reply(senderFloor int, response bool, uuid string) ResponseMessage
 >>>>>>> fbf85fe... Added UUID's to msgs and extra msg handling
+=======
+	Reply(senderFloor int, response bool) ResponseMessage
+>>>>>>> 421e9d0... fix: latest code
 }
 
 type ResponseMessage interface {
