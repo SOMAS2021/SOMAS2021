@@ -3,18 +3,17 @@ import { Button } from "@blueprintjs/core";
 export default function NewRun() {
   return (
     <div
-      className="modal fade"
+      className="modal custom fade"
       id="exampleModal"
-      data-backdrop="static"
-      data-keyboard="false"
-      tabIndex={1}
+      data-backdrop="false"
+      tabIndex={-1}
       aria-labelledby="staticBackdropLabel"
       aria-hidden="true"
     >
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="bp3-heading">H5 heading</h5>
+            <h5 className="bp3-heading">New Run Configuration</h5>
             <Button
               className="bp3-minimal close"
               icon="cross"
