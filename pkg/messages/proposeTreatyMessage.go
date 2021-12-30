@@ -23,7 +23,7 @@ func (msg *ProposeTreatyMessage) Visit(a Agent) {
 	a.HandleProposeTreaty(*msg)
 }
 
-func (msg *ProposeTreatyMessage) Reply(senderID uuid.UUID, senderFloor int, response bool) ResponseMessage {
-	reply := NewTreatyResponseMessage(senderID, senderFloor, response, msg.treaty.Id(), msg.ID())
+func (msg *ProposeTreatyMessage) Reply(senderID uuid.UUID, senderFloor int, response bool) TreatyResponseMessage {
+	reply := *NewTreatyResponseMessage(senderID, senderFloor, response, msg.treaty.Id(), msg.ID())
 	return reply
 }
