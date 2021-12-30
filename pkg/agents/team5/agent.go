@@ -184,13 +184,13 @@ func (a *CustomAgent5) Run() {
 //The message handler functions below are for a fully honest agent
 
 func (a *CustomAgent5) HandleAskHP(msg messages.AskHPMessage) {
-	reply := msg.Reply(a.Floor(), a.HP())
+	reply := msg.Reply(a.ID(), a.Floor(), a.HP())
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("Team 5 agent recieved an askHP message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor()})
 }
 
 func (a *CustomAgent5) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
-	reply := msg.Reply(a.Floor(), int(a.lastMeal))
+	reply := msg.Reply(a.ID(), a.Floor(), int(a.lastMeal))
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("Team 5 agent recieved an askFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor()})
 }
@@ -203,14 +203,14 @@ func (a *CustomAgent5) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 	if a.currentAim == 1 {
 		amount = int(a.foodMaintain())
 	}
-	reply := msg.Reply(a.Floor(), amount)
+	reply := msg.Reply(a.ID(), a.Floor(), amount)
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("Team 5 agent recieved an askIntendedFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor()})
 }
 
 func (a *CustomAgent5) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
 	amount := msg.Request()
-	reply := msg.Reply(a.Floor(), false) //Always set to false for now to prevent deception, needs some calculations to determine whether we will leave the requested amount
+	reply := msg.Reply(a.ID(), a.Floor(), false) //Always set to false for now to prevent deception, needs some calculations to determine whether we will leave the requested amount
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("Team 5 agent recieved a requestLeaveFood message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "request amount": amount})
 }
@@ -221,7 +221,7 @@ func (a *CustomAgent5) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 	if (a.currentAim == 2 && amount > int(a.foodGain())) || (a.currentAim == 1 && amount > int(a.foodMaintain())) {
 		reponse = false
 	}
-	reply := msg.Reply(a.Floor(), reponse)
+	reply := msg.Reply(a.ID(), a.Floor(), reponse)
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("Team 5 agent recieved a requestTakeFood message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "request amount": amount})
 }
