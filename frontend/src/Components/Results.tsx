@@ -38,7 +38,11 @@ export default function Results() {
 
 function CardExample() {
   return (
-    <Card interactive={true} elevation={Elevation.TWO} style={{marginTop: 20}}>
+    <Card
+      interactive={true}
+      elevation={Elevation.TWO}
+      style={{ marginTop: 20 }}
+    >
       <h5>
         <a href="#">100%</a>
       </h5>

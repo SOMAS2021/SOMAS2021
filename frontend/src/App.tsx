@@ -1,5 +1,6 @@
 import "./App.css";
 import Navbar from "./Components/Navbar";
+import NewRun from "./Components/NewRun";
 import Results from "./Components/Results";
 import Sidebar from "./Components/Sidebar";
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Results />
         </div>
       </div>
+      <NewRun />
     </div>
   );
 }

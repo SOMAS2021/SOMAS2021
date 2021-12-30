@@ -4,7 +4,15 @@ import { useState } from "react";
 export default function Sidebar() {
   const [log, setLog] = useState(0);
   return (
-    <div style={{ overflowY: "scroll", overflowX: "hidden", height: "95vh", textAlign: "left", padding: "10px 0px"}}>
+    <div
+      style={{
+        overflowY: "scroll",
+        overflowX: "hidden",
+        height: "95vh",
+        textAlign: "left",
+        padding: "10px 0px",
+      }}
+    >
       <Menu>
         {[...range(1, 100)].map((i) => (
           <MenuItem
