@@ -1,13 +1,15 @@
 package messages
 
+import "github.com/google/uuid"
+
 type BoolResponseMessage struct {
 	*BaseMessage
 	response bool
 }
 
-func NewResponseMessage(senderFloor int, response bool) *BoolResponseMessage {
+func NewResponseMessage(senderID uuid.UUID, senderFloor int, response bool) *BoolResponseMessage {
 	msg := &BoolResponseMessage{
-		NewBaseMessage(senderFloor, Response),
+		NewBaseMessage(senderID, senderFloor, Response),
 		response,
 	}
 	return msg

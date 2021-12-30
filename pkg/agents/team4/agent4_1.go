@@ -28,7 +28,7 @@ func (a *CustomAgent4) Run() {
 	}
 
 	if (a.myNumber)%2 == 0 {
-		msg := messages.NewResponseMessage(a.Floor(), true)
+		msg := messages.NewResponseMessage(a.ID(), a.Floor(), true)
 		a.SendMessage(1, msg)
 		a.Log("I sent a message", infra.Fields{"message": msg.MessageType()})
 	} else {

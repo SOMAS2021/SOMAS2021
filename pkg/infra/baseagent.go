@@ -10,6 +10,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -33,7 +34,7 @@ type Agent interface {
 type Fields = log.Fields
 
 type Base struct {
-	id             string
+	id             uuid.UUID
 	hp             int
 	floor          int
 	agentType      int
@@ -45,7 +46,7 @@ type Base struct {
 	age            int
 }
 
-func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {
+func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
 	if world == nil {
 		return nil, errors.New("agent needs a world defined to operate")
 	}
@@ -111,7 +112,7 @@ func (a *Base) Floor() int {
 	return a.floor
 }
 
-func (a *Base) ID() string {
+func (a *Base) ID() uuid.UUID {
 	return a.id
 }
 

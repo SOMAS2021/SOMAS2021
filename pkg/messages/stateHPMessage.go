@@ -1,13 +1,15 @@
 package messages
 
+import "github.com/google/uuid"
+
 type StateHPMessage struct {
 	*BaseMessage
 	hp int
 }
 
-func NewStateHPMessage(senderFloor int, hp int) *StateHPMessage {
+func NewStateHPMessage(senderID uuid.UUID, senderFloor int, hp int) *StateHPMessage {
 	msg := &StateHPMessage{
-		NewBaseMessage(senderFloor, StateHP),
+		NewBaseMessage(senderID, senderFloor, StateHP),
 		hp,
 	}
 	return msg

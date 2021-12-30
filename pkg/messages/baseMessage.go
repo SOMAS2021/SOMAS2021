@@ -1,5 +1,7 @@
 package messages
 
+import "github.com/google/uuid"
+
 //Define message types to enable basic protocols, voting systems ...etc
 
 type MessageType int
@@ -70,12 +72,14 @@ type ResponseMessage interface {
 }
 
 type BaseMessage struct {
+	senderID    uuid.UUID
 	senderFloor int
 	messageType MessageType
 }
 
-func NewBaseMessage(senderFloor int, messageType MessageType) *BaseMessage {
+func NewBaseMessage(senderID uuid.UUID, senderFloor int, messageType MessageType) *BaseMessage {
 	msg := &BaseMessage{
+		senderID:    senderID,
 		senderFloor: senderFloor,
 		messageType: messageType,
 	}
@@ -88,4 +92,8 @@ func (msg BaseMessage) MessageType() MessageType {
 
 func (msg BaseMessage) SenderFloor() int {
 	return msg.senderFloor
+}
+
+func (msg BaseMessage) SenderID() uuid.UUID {
+	return msg.senderID
 }
