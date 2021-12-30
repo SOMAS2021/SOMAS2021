@@ -18,9 +18,11 @@ const (
 	StateIntendedFoodIntake
 	StateIdentity
 	StateResponse
+	ProposeTreaty
 	RequestLeaveFood
 	RequestTakeFood
 	Response
+	TreatyResponse
 )
 
 type Agent interface {
@@ -33,6 +35,8 @@ type Agent interface {
 	HandleStateFoodTaken(msg StateFoodTakenMessage)
 	HandleStateHP(msg StateHPMessage)
 	HandleStateIntendedFoodTaken(msg StateIntendedFoodIntakeMessage)
+	HandleProposeTreaty(msg ProposeTreatyMessage)
+	HandleTreatyResponse(msg TreatyResponseMessage)
 }
 
 type Message interface {
@@ -56,6 +60,12 @@ type RequestMessage interface {
 	Message
 	Request() int
 	Reply(senderID uuid.UUID, senderFloor int, response bool) ResponseMessage
+}
+
+type ProposalMessage interface {
+	Message
+	Treaty() Treaty
+	Reply(senderID uuid.UUID, senderFloor int, response bool) TreatyResponseMessage
 }
 
 type ResponseMessage interface {
