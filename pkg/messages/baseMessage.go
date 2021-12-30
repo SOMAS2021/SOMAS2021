@@ -1,5 +1,7 @@
 package messages
 
+import "github.com/google/uuid"
+
 //Define message types to enable basic protocols, voting systems ...etc
 
 type MessageType int
@@ -36,12 +38,13 @@ type Agent interface {
 type Message interface {
 	MessageType() MessageType
 	SenderFloor() int
+	ID() uuid.UUID
 	Visit(a Agent)
 }
 
 type AskMessage interface {
 	Message
-	Reply(senderFloor int, food int) StateMessage
+	Reply(senderID uuid.UUID, senderFloor int, food int) StateMessage
 }
 
 type StateMessage interface {
@@ -52,23 +55,28 @@ type StateMessage interface {
 type RequestMessage interface {
 	Message
 	Request() int
-	Reply(senderFloor int, response bool) ResponseMessage
+	Reply(senderID uuid.UUID, senderFloor int, response bool) ResponseMessage
 }
 
 type ResponseMessage interface {
 	Message
 	Response() bool
+	RequestID() uuid.UUID
 }
 
 type BaseMessage struct {
+	senderID    uuid.UUID
 	senderFloor int
 	messageType MessageType
+	id          uuid.UUID
 }
 
-func NewBaseMessage(senderFloor int, messageType MessageType) *BaseMessage {
+func NewBaseMessage(senderID uuid.UUID, senderFloor int, messageType MessageType) *BaseMessage {
 	msg := &BaseMessage{
+		senderID:    senderID,
 		senderFloor: senderFloor,
 		messageType: messageType,
+		id:          uuid.New(),
 	}
 	return msg
 }
@@ -79,4 +87,11 @@ func (msg BaseMessage) MessageType() MessageType {
 
 func (msg BaseMessage) SenderFloor() int {
 	return msg.senderFloor
+}
+
+func (msg BaseMessage) ID() uuid.UUID {
+	return msg.id
+}
+func (msg BaseMessage) SenderID() uuid.UUID {
+	return msg.senderID
 }

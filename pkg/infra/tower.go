@@ -2,12 +2,12 @@ package infra
 
 import (
 	"math/rand"
-	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -16,12 +16,11 @@ type Tower struct {
 	maxPlatFood    food.FoodType
 	currPlatFloor  int
 	agentCount     int
-	Agents         map[string]Agent
+	Agents         map[uuid.UUID]Agent
 	agentsPerFloor int
 	logger         log.Entry
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
-	mx             sync.RWMutex
 	deadAgents     map[int]int
 }
 
@@ -43,7 +42,7 @@ func NewTower(maxPlatFood food.FoodType, agentCount,
 		maxPlatFood:    maxPlatFood,
 		currPlatFloor:  1,
 		agentCount:     agentCount,
-		Agents:         make(map[string]Agent),
+		Agents:         make(map[uuid.UUID]Agent),
 		agentsPerFloor: agentsPerFloor,
 		logger:         *log.WithFields(log.Fields{"reporter": "tower"}),
 		dayInfo:        dayInfo,
@@ -121,8 +120,6 @@ func (t *Tower) ResetTower() {
 }
 
 func (t *Tower) TotalAgents() int {
-	t.mx.RLock()
-	defer t.mx.RUnlock()
 	return len(t.Agents)
 }
 
