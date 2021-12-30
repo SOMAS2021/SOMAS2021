@@ -235,7 +235,7 @@ func (a *CustomAgent4) HandleResponse(msg messages.BoolResponseMessage) {
 						a.globalTrust += a.globalTrustSubtract * a.coefficients[2]
 					}
 				}
-
+				
 				// if sentMessage.MessageType() == 12 && a.sentMessages.direction[i] == 1 && food.FoodType(sentMessage.(messages.RequestMessage).Request()) <= a.CurrPlatFood() {
 				// 	a.globalTrust += a.globalTrustAdd * a.coefficients[1]
 				// } else if sentMessage.MessageType() == 12 && a.sentMessages.direction[i] == 1 && food.FoodType(sentMessage.(messages.RequestMessage).Request()) >= a.CurrPlatFood() {
