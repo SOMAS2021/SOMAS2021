@@ -59,8 +59,15 @@ func (a *CustomAgent3) Run() {
 	//receive Message
 
 	//eat
-	a.TakeFood(takeFoodCalculation(a))
-
+	_, err := a.TakeFood(takeFoodCalculation(a))
+	if err != nil {
+		switch err.(type) {
+		case *infra.FloorError:
+		case *infra.NegFoodError:
+		case *infra.AlreadyEatenError:
+		default:
+		}
+	}
 	//send Message
 
 }
