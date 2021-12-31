@@ -39,6 +39,7 @@ type SimEnv struct {
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
+	stateLog := logging.NewLogState(parameters.LogFileName, parameters.LogMain)
 	return &SimEnv{
 		FoodOnPlatform: parameters.FoodOnPlatform,
 		AgentCount:     parameters.NumOfAgents,
@@ -46,8 +47,8 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 		dayInfo:        parameters.DayInfo,
 		healthInfo:     healthInfo,
 		AgentsPerFloor: parameters.AgentsPerFloor,
-		logger:         *log.WithFields(log.Fields{"reporter": "simulation"}),
-		stateLog:       logging.NewLogState(parameters.LogFileName),
+		logger:         *stateLog.Logmanager.GetLogger("main").WithFields(log.Fields{"reporter": "simulation"}),
+		stateLog:       stateLog,
 		agentNewFuncs: map[agent.AgentType]AgentNewFunc{
 			agent.Team1Agent1: agent1.New,
 			agent.Team1Agent2: agent2.New,

@@ -28,12 +28,14 @@ func (L *LogManager) AddLogger(key string, logpath string) (logger *log.Logger, 
 	if exists {
 		return nil, os.ErrExist
 	}
-	file, err := os.OpenFile(filepath.Join(L.folderPath, logpath), os.O_CREATE|os.O_RDWR, 0666)
-	if err != nil {
-		return nil, err
+	if logpath != "" {
+		file, err := os.OpenFile(filepath.Join(L.folderPath, logpath), os.O_CREATE|os.O_RDWR, 0666)
+		if err != nil {
+			return nil, err
+		}
+		Logger.SetOutput(file)
+		Logger.SetFormatter(&log.JSONFormatter{})
 	}
-	Logger.SetOutput(file)
-	Logger.SetFormatter(&log.JSONFormatter{})
 	L.loggers[key] = Logger
 	return Logger, err
 }

@@ -8,10 +8,11 @@ import (
 )
 
 type StateLog struct {
-	logmanager *LogManager
+	Logmanager *LogManager
 	// Loggers
 	foodLogger  *log.Logger
 	deathLogger *log.Logger
+	mainLogger  *log.Logger
 	// Death state
 	deathCount int
 }
@@ -22,20 +23,29 @@ func handleNewLoggerErr(err error) {
 	}
 }
 
-func NewLogState(folderpath string) *StateLog {
+func NewLogState(folderpath string, saveMainLog bool) *StateLog {
 	// init manager
 	l := NewLogger(folderpath)
+
+	// save main log
+	mainLogName := "main.json"
+	if !saveMainLog {
+		mainLogName = ""
+	}
 
 	// new loggers
 	foodLogger, err := l.AddLogger("food", "food.json")
 	handleNewLoggerErr(err)
 	deathLogger, err := l.AddLogger("death", "death.json")
 	handleNewLoggerErr(err)
+	mainLogger, err := l.AddLogger("main", mainLogName)
+	handleNewLoggerErr(err)
 
 	return &StateLog{
-		logmanager:  &l,
+		Logmanager:  &l,
 		foodLogger:  foodLogger,
 		deathLogger: deathLogger,
+		mainLogger:  mainLogger,
 		deathCount:  0,
 	}
 }
