@@ -3,6 +3,7 @@ package logging
 import (
 	"fmt"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -39,9 +40,9 @@ func NewLogState(folderpath string) *StateLog {
 	}
 }
 
-func (ls *StateLog) LogAgentDeath(day int, tick int, agentType int) {
+func (ls *StateLog) LogAgentDeath(day int, tick int, agentType agent.AgentType) {
 	ls.deathCount++
-	ls.deathLogger.WithFields(log.Fields{"day": day, "tick": tick, "agent_type": agentType, "cumulativeDeaths": ls.deathCount}).Info("")
+	ls.deathLogger.WithFields(log.Fields{"day": day, "tick": tick, "agent_type": agentType.String(), "cumulativeDeaths": ls.deathCount}).Info("")
 }
 
 func (ls *StateLog) LogPlatFoodState(day int, tick int, food int) {

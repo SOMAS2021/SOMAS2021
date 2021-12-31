@@ -1,8 +1,10 @@
 package utilFunctions
 
-func Sum(inputList []int) int {
+import "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
+
+func Sum(input map[agent.AgentType]int) int {
 	totalAgents := 0
-	for _, value := range inputList {
+	for _, value := range input {
 		totalAgents += value
 	}
 	return totalAgents

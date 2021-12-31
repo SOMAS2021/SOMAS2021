@@ -4,6 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
@@ -23,7 +24,7 @@ type Tower struct {
 	stateLog       logging.StateLog
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
-	deadAgents     map[int]int
+	deadAgents     map[agent.AgentType]int
 }
 
 func (t *Tower) Log(message string, fields ...Fields) {
@@ -51,7 +52,7 @@ func NewTower(maxPlatFood food.FoodType, agentCount,
 		stateLog:       *stateLog,
 		dayInfo:        dayInfo,
 		healthInfo:     healthInfo,
-		deadAgents:     make(map[int]int),
+		deadAgents:     make(map[agent.AgentType]int),
 	}
 }
 
@@ -126,10 +127,10 @@ func (t *Tower) TotalAgents() int {
 	return len(t.Agents)
 }
 
-func (t *Tower) UpdateDeadAgents(agentType int) {
+func (t *Tower) UpdateDeadAgents(agentType agent.AgentType) {
 	t.deadAgents[agentType]++
 }
 
-func (t *Tower) DeadAgents() map[int]int {
+func (t *Tower) DeadAgents() map[agent.AgentType]int {
 	return t.deadAgents
 }

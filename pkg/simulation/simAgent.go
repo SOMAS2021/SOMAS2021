@@ -1,47 +1,34 @@
 package simulation
 
 import (
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/randomAgent"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team2"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team3"
-	team4EvoAgent "github.com/SOMAS2021/SOMAS2021/pkg/agents/team4/agent1"
-	team5 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team5/agent1"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
-	team7agent1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team7/agent1"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
-type AgentNewFunc func(base *infra.Base) (infra.Agent, error)
-
 func (sE *SimEnv) generateInitialAgents(t *infra.Tower) {
-	agentIndex := 1
-	for i := 0; i < len(sE.AgentCount); i++ {
-		for j := 0; j < sE.AgentCount[i]; j++ {
-			sE.createNewAgent(t, i, agentIndex)
-			agentIndex++
+	floor := 1
+	for agentType, agentCount := range sE.AgentCount {
+		for i := 0; i < agentCount; i++ {
+			sE.createNewAgent(t, agentType, floor)
+			floor++
 		}
 	}
-	sE.Log("", Fields{"Number of new agents created: ": agentIndex - 1})
+	sE.Log("", Fields{"Number of new agents created: ": floor - 1})
 }
 
-func (sE *SimEnv) createNewAgent(tower *infra.Tower, i, floor int) {
-	sE.Log("Creating new agent")
-	abs := []AgentNewFunc{agent1.New, agent2.New, team2.New, team3.New, team4EvoAgent.New, team5.New, team6.New, team7agent1.New, randomAgent.New}
-	// NOTE(woonmoon): Leaving the line below commented just in case any teams want to run the 2-agent
-	// 				   configuration to see how the message-passing works.
-	// abs := []AgentNewFunc{agent1.New, agent2.New}
+func (sE *SimEnv) createNewAgent(tower *infra.Tower, agentType agent.AgentType, floor int) {
+	sE.Log("Creating new agent", Fields{"type": agentType.String()})
+
 	uuid := uuid.New()
 
-	bAgent, err := infra.NewBaseAgent(sE.world, i, sE.AgentHP, floor, uuid)
+	bAgent, err := infra.NewBaseAgent(sE.world, agentType, sE.AgentHP, floor, uuid)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	custAgent, err := abs[i](bAgent)
+	custAgent, err := sE.agentNewFuncs[agentType](bAgent)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -54,7 +41,7 @@ func (sE *SimEnv) replaceAgents(t *infra.Tower) {
 		if !agent.IsAlive() {
 			delete(t.Agents, uuid)
 			sE.stateLog.LogAgentDeath(sE.dayInfo.CurrDay, sE.dayInfo.CurrTick, agent.AgentType())
-			sE.Log("An Agent has died", infra.Fields{"agent_type": agent.AgentType()})
+			sE.Log("An Agent has died", infra.Fields{"agent_type": agent.AgentType().String()})
 			t.UpdateDeadAgents(agent.AgentType())
 			sE.createNewAgent(t, agent.AgentType(), agent.Floor())
 		}
