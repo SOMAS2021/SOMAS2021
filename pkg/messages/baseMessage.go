@@ -6,6 +6,7 @@ import "github.com/google/uuid"
 
 type MessageType int
 
+//go:generate stringer -type=MessageType
 const (
 	AskFoodTaken MessageType = iota + 1
 	AskHP
@@ -16,7 +17,6 @@ const (
 	StateHP
 	StateFoodOnPlatform
 	StateIntendedFoodIntake
-	StateIdentity
 	StateResponse
 	ProposeTreaty
 	RequestLeaveFood
@@ -24,41 +24,6 @@ const (
 	Response
 	TreatyResponse
 )
-
-func (m MessageType) String() string {
-	switch m {
-	case AskFoodTaken:
-		return "AskFoodTaken"
-	case AskHP:
-		return "AskHP"
-	case AskFoodOnPlatform:
-		return "AskFoodOnPlatform"
-	case AskIntendedFoodIntake:
-		return "AskIntendedFoodIntake"
-	case AskIdentity:
-		return "AskIdentity"
-	case StateFoodTaken:
-		return "StateFoodTaken"
-	case StateHP:
-		return "StateHP"
-	case StateFoodOnPlatform:
-		return "StateFoodOnPlatform"
-	case StateIntendedFoodIntake:
-		return "StateIntendedFoodIntake"
-	case StateIdentity:
-		return "StateIdentity"
-	case StateResponse:
-		return "StateResponse"
-	case RequestLeaveFood:
-		return "RequestLeaveFood"
-	case RequestTakeFood:
-		return "RequestTakeFood"
-	case Response:
-		return "Response"
-	default:
-		return "UNKNOWN"
-	}
-}
 
 type Agent interface {
 	HandleAskHP(msg AskHPMessage)
