@@ -1,4 +1,4 @@
-name: Lint, Test, Build, Run
+name: CI-CD
 
 on:
   push:
@@ -75,3 +75,25 @@ jobs:
 
       - name: Build
         run: make run
+
+  build_test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@master
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: |
+          cd frontend && npm install && cd ..
+
+      - name: Build
+        run: |
+          cd frontend && npm run build --prod

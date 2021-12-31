@@ -4,6 +4,7 @@ import NewRun from "./Components/NewRun";
 import Results from "./Components/Results";
 import Sidebar from "./Components/Sidebar";
 function App() {
+  var a = 3
   return (
     <div>
       <Navbar />
