@@ -1,5 +1,7 @@
 {
+    "UseFoodPerAgentRatio": false,
     "FoodOnPlatform": 100,
+    "FoodPerAgentRatio": 0,
     "Team1AgtOne": 2,
     "Team1AgtTwo": 2,
     "Team2Agents": 2,
