@@ -15,7 +15,7 @@ import (
 type ConfigParameters struct {
 	FoodOnPlatform food.FoodType `json:"FoodOnPlatform"`
 	Team1AgtOne    int           `json:"Team1AgtOne"`
-	Team1AgtTwo    int           `json:"Team2AgtTwo"`
+	Team1AgtTwo    int           `json:"Team1AgtTwo"`
 	Team2Agents    int           `json:"Team2Agents"`
 	Team3Agents    int           `json:"Team3Agents"`
 	Team4Agents    int           `json:"Team4Agents"`
@@ -38,6 +38,7 @@ type ConfigParameters struct {
 	HPLossBase     int           `json:"HPLossBase"`
 	HPLossSlope    float64       `json:"HPLossSlope"`
 	LogFileName    string        `json:"LogFileName"`
+	LogMain        bool          `json:"LogMain"`
 	NumOfAgents    []int
 	NumberOfFloors int
 	TicksPerDay    int
