@@ -48,8 +48,12 @@ type ConfigParameters struct {
 	DayInfo              *day.DayInfo
 }
 
-type Response struct { // used for HTTP response
+type SimulateResponse struct { // used for HTTP response on /simulate
 	LogFileName string `json:"LogFileName"`
+}
+
+type DirectoryResponse struct { // used for HTTP response on /directory
+	FolderNames []string `json:"FolderNames"`
 }
 
 func LoadParamFromJson(path string) (ConfigParameters, error) {

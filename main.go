@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
@@ -61,9 +62,35 @@ func main() {
 			//generate the http response
 			w.Header().Set("Content-Type", "application/json")
 
-			response := config.Response{
+			response := config.SimulateResponse{
 				LogFileName: logFileName,
 			}
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		})
+		http.HandleFunc("/directory", func(w http.ResponseWriter, r *http.Request) {
+			//read directory
+			files, err := ioutil.ReadDir("./logs")
+			if err != nil {
+				http.Error(w, "Unable to open logs folder. There might not be any logs created yet", http.StatusInternalServerError)
+				return
+			}
+			for _, f := range files {
+				fmt.Println(f.Name())
+			}
+
+			//put them all in a struct
+			var response config.DirectoryResponse
+
+			for _, f := range files {
+				response.FolderNames = append(response.FolderNames, f.Name())
+			}
+
+			//convert struct to json and return the response
+
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
