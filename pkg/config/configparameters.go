@@ -41,6 +41,7 @@ type ConfigParameters struct {
 	HPLossSlope          float64       `json:"HPLossSlope"`
 	LogFileName          string        `json:"LogFileName"`
 	LogMain              bool          `json:"LogMain"`
+	SimTimeoutSeconds    int           `json:"SimTimeoutSeconds"`
 	NumOfAgents          []int
 	NumberOfFloors       int
 	TicksPerDay          int
@@ -48,9 +49,7 @@ type ConfigParameters struct {
 }
 
 type Response struct { // used for HTTP response
-	Success     bool   `json:"Success"`
 	LogFileName string `json:"LogFileName"`
-	Error       string `json:"Error"`
 }
 
 func LoadParamFromJson(path string) (ConfigParameters, error) {
@@ -197,5 +196,10 @@ func CheckParametersAreValid(parameters *ConfigParameters) error {
 	if parameters.HPLossSlope == 0 {
 		return errors.New("hpLossSlope not initialised or set to 0")
 	}
+
+	if parameters.SimTimeoutSeconds == 0 {
+		return errors.New("SimTimeoutSeconds not initialised or set to 0")
+	}
+
 	return nil
 }
