@@ -6,7 +6,8 @@ import "github.com/google/uuid"
 
 type MessageType int
 
-//go:generate stringer -type=MessageType
+//go:generate go run golang.org/x/tools/cmd/stringer -type=MessageType
+
 const (
 	AskFoodTaken MessageType = iota + 1
 	AskHP
