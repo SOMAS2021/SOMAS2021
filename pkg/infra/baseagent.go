@@ -6,9 +6,11 @@ import (
 	"math"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
@@ -37,7 +39,7 @@ type Base struct {
 	id             uuid.UUID
 	hp             int
 	floor          int
-	agentType      int
+	agentType      agent.AgentType
 	inbox          chan messages.Message
 	tower          *Tower
 	logger         log.Entry
@@ -46,7 +48,7 @@ type Base struct {
 	age            int
 }
 
-func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
+func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
 	if world == nil {
 		return nil, errors.New("agent needs a world defined to operate")
 	}
@@ -54,7 +56,7 @@ func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int,
 	if !ok {
 		return nil, errors.New("agent needs a tower world to operate")
 	}
-	logger := log.WithFields(log.Fields{"agent_id": id, "agent_type": agentType, "reporter": "agent"})
+	logger := log.WithFields(log.Fields{"agent_id": id, "agent_type": agentType.String(), "reporter": "agent"})
 	return &Base{
 		id:        id,
 		hp:        agentHP,
@@ -120,7 +122,7 @@ func (a *Base) IsAlive() bool {
 	return a.hp > 0
 }
 
-func (a *Base) AgentType() int {
+func (a *Base) AgentType() agent.AgentType {
 	return a.agentType
 }
 

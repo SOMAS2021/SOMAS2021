@@ -2,6 +2,8 @@ package utilFunctions
 
 import (
 	"testing"
+
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 )
 
 func TestMinInt(t *testing.T) {
@@ -50,7 +52,7 @@ func TestMinInt(t *testing.T) {
 
 func TestSum(t *testing.T) {
 	type args struct {
-		inputList []int
+		input map[agent.AgentType]int
 	}
 	tests := []struct {
 		name string
@@ -59,33 +61,82 @@ func TestSum(t *testing.T) {
 	}{
 		{
 			name: "empty",
-			args: args{inputList: []int{}},
+			args: args{input: make(map[agent.AgentType]int)},
+			want: 0,
+		},
+		{
+			name: "zero",
+			args: args{
+				input: map[agent.AgentType]int{
+					agent.Team1Agent1: 0,
+				},
+			},
 			want: 0,
 		},
 		{
 			name: "single",
-			args: args{inputList: []int{53}},
+			args: args{
+				input: map[agent.AgentType]int{
+					agent.Team1Agent1: 53,
+				},
+			},
 			want: 53,
 		},
 		{
 			name: "triangular",
-			args: args{inputList: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}},
-			want: 55,
+			args: args{
+				input: map[agent.AgentType]int{
+					agent.Team1Agent1: 1,
+					agent.Team1Agent2: 2,
+					agent.Team2:       3,
+					agent.Team3:       4,
+					agent.Team4:       5,
+					agent.Team5:       6,
+					agent.Team6:       7,
+					agent.Team7:       8,
+					agent.RandomAgent: 9,
+				},
+			},
+			want: 45,
 		},
 		{
 			name: "negatives",
-			args: args{inputList: []int{-1, -2, -3, -4, -5, -6, -7, -8, -9, -10}},
-			want: -55,
+			args: args{
+				input: map[agent.AgentType]int{
+					agent.Team1Agent1: -1,
+					agent.Team1Agent2: -2,
+					agent.Team2:       -3,
+					agent.Team3:       -4,
+					agent.Team4:       -5,
+					agent.Team5:       -6,
+					agent.Team6:       -7,
+					agent.Team7:       -8,
+					agent.RandomAgent: -9,
+				},
+			},
+			want: -45,
 		},
 		{
 			name: "pos and neg",
-			args: args{inputList: []int{-1, 2, -3, 4, -5, 6, -7, 8, -9, 10}},
-			want: 5,
+			args: args{
+				input: map[agent.AgentType]int{
+					agent.Team1Agent1: -1,
+					agent.Team1Agent2: 2,
+					agent.Team2:       -3,
+					agent.Team3:       4,
+					agent.Team4:       -5,
+					agent.Team5:       6,
+					agent.Team6:       -7,
+					agent.Team7:       8,
+					agent.RandomAgent: -9,
+				},
+			},
+			want: -5,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Sum(tt.args.inputList); got != tt.want {
+			if got := Sum(tt.args.input); got != tt.want {
 				t.Errorf("Sum() = %v, want %v", got, tt.want)
 			}
 		})

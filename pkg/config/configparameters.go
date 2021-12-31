@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
@@ -42,7 +43,7 @@ type ConfigParameters struct {
 	LogFileName          string        `json:"LogFileName"`
 	LogMain              bool          `json:"LogMain"`
 	SimTimeoutSeconds    int           `json:"SimTimeoutSeconds"`
-	NumOfAgents          []int
+	NumOfAgents          map[agent.AgentType]int
 	NumberOfFloors       int
 	TicksPerDay          int
 	DayInfo              *day.DayInfo
@@ -102,7 +103,17 @@ func LoadParamFromHTTPRequest(r *http.Request) (ConfigParameters, error) {
 func CalculateDependentParameters(parameters *ConfigParameters) error {
 
 	//appending the sizes of the agents to the array
-	parameters.NumOfAgents = append(parameters.NumOfAgents, parameters.Team1AgtOne, parameters.Team1AgtTwo, parameters.Team2Agents, parameters.Team3Agents, parameters.Team4Agents, parameters.Team5Agents, parameters.Team6Agents, parameters.Team7Agent1, parameters.RandomAgents)
+	parameters.NumOfAgents = map[agent.AgentType]int{
+		agent.Team1Agent1: parameters.Team1AgtOne,
+		agent.Team1Agent2: parameters.Team1AgtTwo,
+		agent.Team2:       parameters.Team2Agents,
+		agent.Team3:       parameters.Team3Agents,
+		agent.Team4:       parameters.Team4Agents,
+		agent.Team5:       parameters.Team5Agents,
+		agent.Team6:       parameters.Team6Agents,
+		agent.Team7:       parameters.Team7Agent1,
+		agent.RandomAgent: parameters.RandomAgents,
+	}
 
 	err := CheckParametersAreValid(parameters)
 	if err != nil {
