@@ -67,7 +67,7 @@ func main() {
 			}
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 		})
@@ -93,7 +93,7 @@ func main() {
 
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 		})
