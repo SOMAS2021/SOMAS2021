@@ -17,12 +17,12 @@ type StateLog struct {
 
 func handleNewLoggerErr(err error) {
 	if err != nil {
-		fmt.Printf(err.Error())
+		fmt.Println("error creating new logger: ", err)
 	}
 }
 
 func NewLogState(folderpath string) *StateLog {
-	// Add loggers we want for the state
+	// init manager
 	l := NewLogger(folderpath)
 
 	// new loggers

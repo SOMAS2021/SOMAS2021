@@ -1,6 +1,7 @@
 {
     "FoodOnPlatform": 100,
-    "Team1Agents": 2,
+    "Team1AgtOne": 2,
+    "Team1AgtTwo": 2,
     "Team2Agents": 2,
     "Team3Agents": 2,
     "Team4Agents": 2,
@@ -11,7 +12,7 @@
     "AgentHP": 100,
     "AgentsPerFloor": 1,
     "TicksPerFloor": 10,
-    "SimDays": 1,
+    "SimDays": 8,
     "ReshuffleDays": 1,
     "maxHP": 100,
     "weakLevel": 10,
@@ -21,6 +22,5 @@
     "hpCritical": 5,
     "maxDayCritical": 3,
     "HPLossBase": 10,
-    "HPLossSlope": 0.25,
-    "LogMain": true
+    "HPLossSlope": 0.25
 }
