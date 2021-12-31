@@ -27,6 +27,7 @@ const (
 )
 
 type Agent interface {
+	Floor() int
 	HandleAskHP(msg AskHPMessage)
 	HandleAskFoodTaken(msg AskFoodTakenMessage)
 	HandleAskIntendedFoodTaken(msg AskIntendedFoodIntakeMessage)
@@ -38,11 +39,13 @@ type Agent interface {
 	HandleStateIntendedFoodTaken(msg StateIntendedFoodIntakeMessage)
 	HandleProposeTreaty(msg ProposeTreatyMessage)
 	HandleTreatyResponse(msg TreatyResponseMessage)
+	HandlePropogate(msg Message)
 }
 
 type Message interface {
 	MessageType() MessageType
 	SenderFloor() int
+	TargetFloor() int
 	ID() uuid.UUID
 	Visit(a Agent)
 }
@@ -94,17 +97,21 @@ func NewBaseMessage(senderID uuid.UUID, senderFloor int, targetFloor int, messag
 	return msg
 }
 
-func (msg BaseMessage) MessageType() MessageType {
+func (msg *BaseMessage) MessageType() MessageType {
 	return msg.messageType
 }
 
-func (msg BaseMessage) SenderFloor() int {
+func (msg *BaseMessage) SenderFloor() int {
 	return msg.senderFloor
 }
 
-func (msg BaseMessage) ID() uuid.UUID {
+func (msg *BaseMessage) TargetFloor() int {
+	return msg.targetFloor
+}
+
+func (msg *BaseMessage) ID() uuid.UUID {
 	return msg.id
 }
-func (msg BaseMessage) SenderID() uuid.UUID {
+func (msg *BaseMessage) SenderID() uuid.UUID {
 	return msg.senderID
 }

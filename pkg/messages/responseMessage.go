@@ -26,5 +26,9 @@ func (msg *BoolResponseMessage) RequestID() uuid.UUID {
 }
 
 func (msg *BoolResponseMessage) Visit(a Agent) {
-	a.HandleResponse(*msg)
+	if msg.TargetFloor() != a.Floor() {
+		a.HandlePropogate(msg)
+	} else {
+		a.HandleResponse(*msg)
+	}
 }

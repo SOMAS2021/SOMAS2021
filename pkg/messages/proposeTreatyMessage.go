@@ -20,7 +20,11 @@ func (msg *ProposeTreatyMessage) Treaty() Treaty {
 }
 
 func (msg *ProposeTreatyMessage) Visit(a Agent) {
-	a.HandleProposeTreaty(*msg)
+	if msg.TargetFloor() != a.Floor() {
+		a.HandlePropogate(msg)
+	} else {
+		a.HandleProposeTreaty(*msg)
+	}
 }
 
 func (msg *ProposeTreatyMessage) Reply(senderID uuid.UUID, senderFloor int, targetFloor int, response bool) TreatyResponseMessage {

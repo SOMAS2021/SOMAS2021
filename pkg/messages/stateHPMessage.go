@@ -20,5 +20,9 @@ func (msg *StateHPMessage) Statement() int {
 }
 
 func (msg *StateHPMessage) Visit(a Agent) {
-	a.HandleStateHP(*msg)
+	if msg.TargetFloor() != a.Floor() {
+		a.HandlePropogate(msg)
+	} else {
+		a.HandleStateHP(*msg)
+	}
 }

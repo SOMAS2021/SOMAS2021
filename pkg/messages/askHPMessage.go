@@ -19,5 +19,9 @@ func (msg *AskHPMessage) Reply(senderID uuid.UUID, senderFloor int, targetFloor 
 }
 
 func (msg *AskHPMessage) Visit(a Agent) {
-	a.HandleAskHP(*msg)
+	if msg.TargetFloor() != a.Floor() {
+		a.HandlePropogate(msg)
+	} else {
+		a.HandleAskHP(*msg)
+	}
 }

@@ -25,5 +25,9 @@ func (msg *RequestLeaveFoodMessage) Reply(senderID uuid.UUID, senderFloor int, t
 }
 
 func (msg *RequestLeaveFoodMessage) Visit(a Agent) {
-	a.HandleRequestLeaveFood(*msg)
+	if msg.TargetFloor() != a.Floor() {
+		a.HandlePropogate(msg)
+	} else {
+		a.HandleRequestLeaveFood(*msg)
+	}
 }

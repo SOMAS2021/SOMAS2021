@@ -20,5 +20,9 @@ func (msg *StateFoodTakenMessage) Statement() int {
 }
 
 func (msg *StateFoodTakenMessage) Visit(a Agent) {
-	a.HandleStateFoodTaken(*msg)
+	if msg.TargetFloor() != a.Floor() {
+		a.HandlePropogate(msg)
+	} else {
+		a.HandleStateFoodTaken(*msg)
+	}
 }

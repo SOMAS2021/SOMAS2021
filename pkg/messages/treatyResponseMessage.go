@@ -32,5 +32,9 @@ func (msg *TreatyResponseMessage) TreatyID() uuid.UUID {
 }
 
 func (msg *TreatyResponseMessage) Visit(a Agent) {
-	a.HandleTreatyResponse(*msg)
+	if msg.TargetFloor() != a.Floor() {
+		a.HandlePropogate(msg)
+	} else {
+		a.HandleTreatyResponse(*msg)
+	}
 }

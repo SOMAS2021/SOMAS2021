@@ -19,6 +19,7 @@ import (
 type Agent interface {
 	Run()
 	IsAlive() bool
+	Floor() int
 	BaseAgent() *Base
 	HandleAskHP(msg messages.AskHPMessage)
 	HandleAskFoodTaken(msg messages.AskFoodTakenMessage)
@@ -234,3 +235,12 @@ func (a *Base) HandleStateHP(msg messages.StateHPMessage)                       
 func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}
 func (a *Base) HandleProposeTreaty(msg messages.ProposeTreatyMessage)                    {}
 func (a *Base) HandleTreatyResponse(msg messages.TreatyResponseMessage)                  {}
+
+func (a *Base) HandlePropogate(msg messages.Message) {
+	direction := 1
+	if a.Floor() > msg.TargetFloor() {
+		direction = -1
+	}
+	a.Log("Propogating", Fields{"floor": a.floor})
+	a.SendMessage(direction, msg)
+}
