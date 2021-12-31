@@ -20,7 +20,15 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 
 func (a *CustomAgent2) Run() {
 	a.Log("Custom agent reporting status without using fields")
-	a.TakeFood(15)
+	_, err := a.TakeFood(15)
+	if err != nil {
+		switch err.(type) {
+		case *infra.FloorError:
+		case *infra.NegFoodError:
+		case *infra.AlreadyEatenError:
+		default:
+		}
+	}
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)

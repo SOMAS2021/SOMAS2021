@@ -20,5 +20,13 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 
 func (a *CustomAgentRandom) Run() {
 	a.Log("Random agent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP()})
-	a.TakeFood(food.FoodType(rand.Intn(100)))
+	_, err := a.TakeFood(food.FoodType(rand.Intn(100)))
+	if err != nil {
+		switch err.(type) {
+		case *infra.FloorError:
+		case *infra.NegFoodError:
+		case *infra.AlreadyEatenError:
+		default:
+		}
+	}
 }
