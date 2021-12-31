@@ -23,27 +23,30 @@ type CustomAgent5 struct {
 	// TODO: Change this to an enum
 	currentAim   int
 	satisfaction int
-	daysAlive    int
 	// TODO: Check difference between this and HasEaten()
 	// If true, then agent will attempt to eat
-	attemptToEat bool
-	rememberAge  int
+	attemptToEat     bool
+	rememberAge      int
+	rememberFloor    int
+	messagingCounter int
 	// Social network of other agents
-	socialMemory map[uuid.UUID]Memory
+	socialMemory      map[uuid.UUID]Memory
+	surroundingAgents map[int]uuid.UUID
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgent5{
 		Base:              baseAgent,
-		selfishness:       3,                      // of 0 to 3, with 3 being completely selfish, 0 being completely selfless
-		lastMeal:          0,                      //Stores value of the last amount of food taken
-		daysSinceLastMeal: 0,                      //Count of how many days since last eating
-		currentAim:        0,                      //Scale of 0 to 2, 0 being willing to lose health, 1 being maintaining health, 2 being gaining health
-		satisfaction:      0,                      //Scale of -3 to 3, with 3 being satisfied and unsatisfied
-		daysAlive:         0,                      //Count how many days agent has been alive
-		attemptToEat:      true,                   //Variable needed to check if we have already attempted to eat on a day
-		rememberAge:       0,                      // To check if a day has passed by our age increasing
-		socialMemory:      map[uuid.UUID]Memory{}, // Memory of other agents, key is agent id
+		selfishness:       3,                       // of 0 to 3, with 3 being completely selfish, 0 being completely selfless
+		lastMeal:          0,                       //Stores value of the last amount of food taken
+		daysSinceLastMeal: 0,                       //Count of how many days since last eating
+		currentAim:        0,                       //Scale of 0 to 2, 0 being willing to lose health, 1 being maintaining health, 2 being gaining health
+		satisfaction:      0,                       //Scale of -3 to 3, with 3 being satisfied and unsatisfied
+		daysAlive:         0,                       //Count how many days agent has been alive
+		attemptToEat:      true,                    //Variable needed to check if we have already attempted to eat on a day
+		rememberAge:       0,                       // To check if a day has passed by our age increasing
+		socialMemory:      map[uuid.UUID]Memory{},  // Memory of other agents, key is agent id
+		surroundingAgents: make(map[int]uuid.UUID), //Map agent id's of surrounding floors relative to current floor
 	}, nil
 }
 
@@ -196,6 +199,7 @@ func (a *CustomAgent5) GetMessages() {
 			a.newMemory(receivedMsg.ID().String())
 		}
 		a.resetDaysSinceLastSeen(receivedMsg.ID().String())
+		a.surroundingAgents[receivedMsg.SenderFloor()-a.Floor()] = receivedMsg.ID().String()
 		receivedMsg.Visit(a)
 	}
 }
@@ -204,15 +208,67 @@ func (a *CustomAgent5) GetMessages() {
 // 	//function that will send all messages we need to the other agents
 // }
 
+func (a *CustomAgent5) DailyMessages() {
+	sendingToFloor := 0
+	switch a.messagingCounter {
+	case 0:
+		msg := messages.NewAskHPMessage(a.ID(), a.Floor())
+		sendingToFloor = 1
+		a.Log("Team 5 agent is sending an Ask HP Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
+		a.SendMessage(sendingToFloor, msg)
+		a.messagingCounter++
+	case 1:
+		msg := messages.NewAskFoodTakenMessage(a.ID(), a.Floor())
+		sendingToFloor = 1
+		a.Log("Team 5 agent is sending an Ask Food Taken Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
+		a.SendMessage(sendingToFloor, msg)
+		a.messagingCounter++
+	case 2:
+		msg := messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor())
+		sendingToFloor = 1
+		a.Log("Team 5 agent is sending an Ask Intention Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
+		a.SendMessage(sendingToFloor, msg)
+		a.messagingCounter++
+	case 3:
+		msg := messages.NewAskHPMessage(a.ID(), a.Floor())
+		sendingToFloor = -1
+		a.Log("Team 5 agent is sending an Ask HP Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
+		a.SendMessage(sendingToFloor, msg)
+		a.messagingCounter++
+	case 4:
+		msg := messages.NewAskFoodTakenMessage(a.ID(), a.Floor())
+		sendingToFloor = -1
+		a.Log("Team 5 agent is sending an Ask Food Taken Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
+		a.SendMessage(sendingToFloor, msg)
+		a.messagingCounter++
+	case 5:
+		msg := messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor())
+		sendingToFloor = -1
+		a.Log("Team 5 agent is sending an Ask Intention Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
+		a.SendMessage(sendingToFloor, msg)
+		a.messagingCounter++
+	}
+}
+
+func (a *CustomAgent5) ResetSurroundingAgents() {
+	a.surroundingAgents = make(map[int]uuid.UUID)
+}
+
 func (a *CustomAgent5) dayPassed() {
-	a.daysAlive++
 	a.daysSinceLastMeal++
 	a.incrementDaysSinceLastSeen()
+	if a.rememberFloor != a.Floor() {
+		a.ResetSurroundingAgents()
+		a.rememberFloor = a.Floor()
+	}
+	//Also update daySinceLastSeen for memory here
+	a.messagingCounter = 0
 }
 
 func (a *CustomAgent5) Run() {
 	a.Log("Reporting agent state of team 5 agent", infra.Fields{"health": a.HP(), "floor": a.Floor()})
 	a.GetMessages()
+	a.DailyMessages()
 	a.updateSelfishness()
 	a.updateAim()
 	attemptFood := food.FoodType(0)
