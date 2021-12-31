@@ -76,7 +76,7 @@ jobs:
       - name: Build
         run: make run
 
-  build_test:
+  Frontend:
     runs-on: ubuntu-latest
     strategy:
       matrix:
