@@ -229,13 +229,11 @@ func (a *Base) ActiveTreaties() map[uuid.UUID]messages.Treaty {
 }
 
 func (a *Base) AddToActiveTreaties(treaty messages.Treaty) {
-	treatyID := treaty.Id()
-	a.activeTreaties[treatyID] = treaty
+	a.activeTreaties[treaty.ID()] = treaty
 }
 
 func (a *Base) DeleteFromActiveTreaties(treaty messages.Treaty) {
-	treatyID := treaty.Id()
-	delete(a.activeTreaties, treatyID)
+	delete(a.activeTreaties, treaty.ID())
 }
 
 func (a *Base) RespondToTreaty(msg messages.ProposeTreatyMessage, senderFloor int, response bool) messages.TreatyResponseMessage {

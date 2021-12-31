@@ -47,7 +47,7 @@ type Treatyer interface {
 	SignatureCount() int
 	ProposerID() uuid.UUID
 	Duration() int
-	Id() uuid.UUID
+	ID() uuid.UUID
 	SignTreaty()
 }
 
@@ -93,7 +93,7 @@ func (t *Treaty) Duration() int {
 	return t.duration
 }
 
-func (t *Treaty) Id() uuid.UUID {
+func (t *Treaty) ID() uuid.UUID {
 	return t.id
 }
 
