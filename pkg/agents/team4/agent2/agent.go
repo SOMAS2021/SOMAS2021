@@ -5,6 +5,8 @@ import (
 
 	"fmt"
 
+	"fmt"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -104,7 +106,6 @@ func (a *CustomAgent4) Run() {
 	// if food.FoodType(a.CurrPlatFood()) != a.lastPlatFood{
 	// 	neighbourfoodamteaten = curr - last
 	// }
-
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
