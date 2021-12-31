@@ -1,12 +1,12 @@
 {
     "FoodOnPlatform": 100,
     "Team1Agents": 2,
-    "Team2Agents": 0,
-    "Team3Agents": 0,
-    "Team4Agents": 0,
-    "Team5Agents": 0,
-    "Team6Agents": 0,
-    "Team7Agent1": 0,
+    "Team2Agents": 2,
+    "Team3Agents": 2,
+    "Team4Agents": 2,
+    "Team5Agents": 2,
+    "Team6Agents": 2,
+    "Team7Agent1": 2,
     "RandomAgents": 2,
     "AgentHP": 100,
     "AgentsPerFloor": 1,
@@ -22,6 +22,5 @@
     "maxDayCritical": 3,
     "HPLossBase": 10,
     "HPLossSlope": 0.25,
-    "LogFileName": "sim3",
-    "LogMain": false
+    "LogMain": true
 }

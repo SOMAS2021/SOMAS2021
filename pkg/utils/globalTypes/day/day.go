@@ -8,6 +8,7 @@ type DayInfo struct {
 	TicksPerReshuffle int
 	TotalTicks        int
 	CurrTick          int
+	CurrDay           int
 }
 
 func NewDayInfo(TicksPerFloor, TicksPerDay, SimulationDays, DaysPerReshuffle int) *DayInfo {
@@ -19,5 +20,6 @@ func NewDayInfo(TicksPerFloor, TicksPerDay, SimulationDays, DaysPerReshuffle int
 		TicksPerReshuffle: TicksPerDay * DaysPerReshuffle,
 		TotalTicks:        TicksPerDay * SimulationDays,
 		CurrTick:          1,
+		CurrDay:           1,
 	}
 }

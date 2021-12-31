@@ -7,7 +7,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
-	logmanager "github.com/SOMAS2021/SOMAS2021/pkg/utils/logging"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/logging"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
 	log "github.com/sirupsen/logrus"
 )
@@ -23,7 +23,7 @@ type SimEnv struct {
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
 	world          world.World
-	logStates      logmanager.LogManager
+	stateLog       *logging.StateLog
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
@@ -35,7 +35,7 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 		healthInfo:     healthInfo,
 		AgentsPerFloor: parameters.AgentsPerFloor,
 		logger:         *log.WithFields(log.Fields{"reporter": "simulation"}),
-		logStates:      logmanager.NewLogger(""),
+		stateLog:       logging.NewLogState(parameters.LogFileName),
 	}
 }
 
@@ -43,7 +43,7 @@ func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Initializing")
 
 	totalAgents := utilFunctions.Sum(sE.AgentCount)
-	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, sE.AgentsPerFloor, sE.dayInfo, sE.healthInfo)
+	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, sE.AgentsPerFloor, sE.dayInfo, sE.healthInfo, sE.stateLog)
 	sE.SetWorld(t)
 
 	sE.generateInitialAgents(t)
