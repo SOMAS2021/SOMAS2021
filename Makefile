@@ -19,7 +19,6 @@ test-coverage: dep ## Run tests with coverage
 	@go test -coverprofile ./bin/cover.out -covermode=atomic ./...
 
 build: dep ## Build the binary file
-	@go install golang.org/x/tools/cmd/stringer
 	@go generate ./...
 	@go build -o bin/backend .
  
@@ -27,7 +26,6 @@ clean: ## Remove previous build
 	@rm -rf ./bin ./logs
  
 run: ## run simulation
-	@go install golang.org/x/tools/cmd/stringer
 	@go generate ./...
 	@go run main.go $(ARGS)
 
