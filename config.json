@@ -22,5 +22,6 @@
     "hpCritical": 5,
     "maxDayCritical": 3,
     "HPLossBase": 10,
-    "HPLossSlope": 0.25
+    "HPLossSlope": 0.25,
+    "LogMain": true
 }
