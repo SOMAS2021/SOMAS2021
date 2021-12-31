@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Build
-        run: make build
+        run: go install && make build
     
   run:
     name: Run
