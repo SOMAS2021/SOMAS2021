@@ -99,6 +99,6 @@ func (a *CustomAgent6) Run() {
 
 	msg := messages.NewAskHPMessage(a.ID(), a.Floor())
 	a.SendMessage(1, msg)
-	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
+	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType().String()})
 
 }
