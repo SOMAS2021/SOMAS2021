@@ -157,7 +157,16 @@ func (a *CustomAgent5) Run() {
 	}
 	//When platform reaches our floor and we haven't tried to eat, then try to eat
 	if a.CurrPlatFood() != -1 && a.attemptToEat {
-		a.lastMeal = a.TakeFood(attemptFood)
+		lastMeal, err := a.TakeFood(attemptFood)
+		if err != nil {
+			switch err.(type) {
+			case *infra.FloorError:
+			case *infra.NegFoodError:
+			case *infra.AlreadyEatenError:
+			default:
+			}
+		}
+		a.lastMeal = lastMeal
 		if a.lastMeal > 0 {
 			a.Log("Team 5 agent has taken food", infra.Fields{"amount": a.lastMeal})
 			a.daysSinceLastMeal = 0

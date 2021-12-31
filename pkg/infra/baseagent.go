@@ -179,19 +179,26 @@ func (a *Base) setHasEaten(newStatus bool) {
 	a.hasEaten = newStatus
 }
 
-func (a *Base) TakeFood(amountOfFood food.FoodType) food.FoodType {
-	if amountOfFood == 0 {
-		return 0
+func (a *Base) PlatformOnFloor() bool {
+	return a.floor == a.tower.currPlatFloor
+}
+
+func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
+	if a.floor != a.tower.currPlatFloor {
+		return 0, &FloorError{}
 	}
-	if a.floor == a.tower.currPlatFloor && !a.hasEaten && amountOfFood > 0 {
-		foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood)))
-		a.updateHP(foodTaken)
-		a.tower.currPlatFood -= foodTaken
-		a.setHasEaten(foodTaken > 0)
-		a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
-		return foodTaken
+	if a.hasEaten {
+		return 0, &AlreadyEatenError{}
 	}
-	return -1
+	if amountOfFood < 0 {
+		return 0, &NegFoodError{}
+	}
+	foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood)))
+	a.updateHP(foodTaken)
+	a.tower.currPlatFood -= foodTaken
+	a.setHasEaten(foodTaken > 0)
+	a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
+	return foodTaken, nil
 }
 
 func (a *Base) ReceiveMessage() messages.Message {

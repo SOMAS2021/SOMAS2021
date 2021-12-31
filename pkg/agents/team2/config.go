@@ -114,7 +114,15 @@ func (a *CustomAgent2) Run() {
 		oldHP := a.HP()
 		a.Log("Agent team2 before action:", infra.Fields{"floor": a.Floor(), "hp": oldHP, "food": a.CurrPlatFood(), "state": oldState})
 		action := a.SelectAction()
-		a.TakeFood(a.actionSpace.actionSet[action](oldHP)) //perform selected action
+		_, err := a.TakeFood(a.actionSpace.actionSet[action](oldHP)) //perform selected action
+		if err != nil {
+			switch err.(type) {
+			case *infra.FloorError:
+			case *infra.NegFoodError:
+			case *infra.AlreadyEatenError:
+			default:
+			}
+		}
 		a.Log("Agent team2:", infra.Fields{"selected and performed action": action})
 		a.Log("Agent team2 after action:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
 		hpInc := a.HP() - oldHP
