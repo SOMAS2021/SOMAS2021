@@ -241,6 +241,5 @@ func (a *Base) HandlePropogate(msg messages.Message) {
 	if a.Floor() > msg.TargetFloor() {
 		direction = -1
 	}
-	a.Log("Propogating", Fields{"floor": a.floor})
 	a.SendMessage(direction, msg)
 }
