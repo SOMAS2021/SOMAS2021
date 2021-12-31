@@ -70,7 +70,6 @@ func (t *Tower) Tick() {
 		t.ResetTower()
 		t.Log("-----------------END----OF----DAY-----------------", Fields{})
 	}
-
 }
 
 func (t *Tower) AddAgent(agent Agent) {
