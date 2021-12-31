@@ -224,6 +224,31 @@ func (a *Base) HealthInfo() *health.HealthInfo {
 	return a.tower.healthInfo
 }
 
+func (a *Base) ActiveTreaties() map[uuid.UUID]messages.Treaty {
+	return a.activeTreaties
+}
+
+func (a *Base) AddToActiveTreaties(treaty messages.Treaty) {
+	treatyID := treaty.Id()
+	a.activeTreaties[treatyID] = treaty
+}
+
+func (a *Base) DeleteFromActiveTreaties(treaty messages.Treaty) {
+	treatyID := treaty.Id()
+	delete(a.activeTreaties, treatyID)
+}
+
+func (a *Base) RespondToTreaty(msg messages.ProposeTreatyMessage, senderFloor int, response bool) messages.TreatyResponseMessage {
+	treatyToReview := msg.Treaty()
+	if response {
+		treatyToReview.SignTreaty()
+		a.AddToActiveTreaties(treatyToReview)
+	}
+	reply := msg.Reply(a.ID(), senderFloor, response)
+
+	return reply
+}
+
 func (a *Base) HandleAskHP(msg messages.AskHPMessage)                                    {}
 func (a *Base) HandleAskFoodTaken(msg messages.AskFoodTakenMessage)                      {}
 func (a *Base) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)     {}
