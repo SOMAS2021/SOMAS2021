@@ -9,9 +9,9 @@ type TreatyResponseMessage struct {
 	requestID uuid.UUID
 }
 
-func NewTreatyResponseMessage(senderID uuid.UUID, senderFloor int, response bool, treatyID uuid.UUID, requestID uuid.UUID) *TreatyResponseMessage {
+func NewTreatyResponseMessage(senderID uuid.UUID, senderFloor int, targetFloor int, response bool, treatyID uuid.UUID, requestID uuid.UUID) *TreatyResponseMessage {
 	msg := &TreatyResponseMessage{
-		NewBaseMessage(senderID, senderFloor, TreatyResponse),
+		NewBaseMessage(senderID, senderFloor, targetFloor, TreatyResponse),
 		response,
 		treatyID,
 		requestID,

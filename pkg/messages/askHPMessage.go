@@ -6,15 +6,15 @@ type AskHPMessage struct {
 	*BaseMessage
 }
 
-func NewAskHPMessage(senderID uuid.UUID, senderFloor int) *AskHPMessage {
+func NewAskHPMessage(senderID uuid.UUID, senderFloor int, targetFloor int) *AskHPMessage {
 	msg := &AskHPMessage{
-		NewBaseMessage(senderID, senderFloor, AskHP),
+		NewBaseMessage(senderID, senderFloor, targetFloor, AskHP),
 	}
 	return msg
 }
 
-func (msg *AskHPMessage) Reply(senderID uuid.UUID, senderFloor int, hp int) StateMessage {
-	reply := NewStateHPMessage(senderID, senderFloor, hp)
+func (msg *AskHPMessage) Reply(senderID uuid.UUID, senderFloor int, targetFloor int, hp int) StateMessage {
+	reply := NewStateHPMessage(senderID, senderFloor, targetFloor, hp)
 	return reply
 }
 

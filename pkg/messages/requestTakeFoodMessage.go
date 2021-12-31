@@ -7,9 +7,9 @@ type RequestTakeFoodMessage struct {
 	food int
 }
 
-func NewRequestTakeFoodMessage(senderID uuid.UUID, senderFloor int, food int) *RequestTakeFoodMessage {
+func NewRequestTakeFoodMessage(senderID uuid.UUID, senderFloor int, targetFloor int, food int) *RequestTakeFoodMessage {
 	msg := &RequestTakeFoodMessage{
-		NewBaseMessage(senderID, senderFloor, RequestTakeFood),
+		NewBaseMessage(senderID, senderFloor, targetFloor, RequestTakeFood),
 		food,
 	}
 	return msg
@@ -20,8 +20,8 @@ func (msg *RequestTakeFoodMessage) Request() int {
 
 }
 
-func (msg *RequestTakeFoodMessage) Reply(senderID uuid.UUID, senderFloor int, response bool) ResponseMessage {
-	reply := NewResponseMessage(senderID, senderFloor, response, msg.ID())
+func (msg *RequestTakeFoodMessage) Reply(senderID uuid.UUID, senderFloor int, targetFloor int, response bool) ResponseMessage {
+	reply := NewResponseMessage(senderID, senderFloor, targetFloor, response, msg.ID())
 	return reply
 }
 

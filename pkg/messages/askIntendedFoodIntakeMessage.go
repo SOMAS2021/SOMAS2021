@@ -6,15 +6,15 @@ type AskIntendedFoodIntakeMessage struct {
 	*BaseMessage
 }
 
-func NewAskIntendedFoodIntakeMessage(senderID uuid.UUID, senderFloor int) *AskIntendedFoodIntakeMessage {
+func NewAskIntendedFoodIntakeMessage(senderID uuid.UUID, senderFloor int, targetFloor int) *AskIntendedFoodIntakeMessage {
 	msg := &AskIntendedFoodIntakeMessage{
-		NewBaseMessage(senderID, senderFloor, AskIntendedFoodIntake),
+		NewBaseMessage(senderID, senderFloor, targetFloor, AskIntendedFoodIntake),
 	}
 	return msg
 }
 
-func (msg *AskIntendedFoodIntakeMessage) Reply(senderID uuid.UUID, senderFloor int, food int) StateMessage {
-	reply := NewStateIntendedFoodIntakeMessage(senderID, senderFloor, food)
+func (msg *AskIntendedFoodIntakeMessage) Reply(senderID uuid.UUID, senderFloor int, targetFloor int, food int) StateMessage {
+	reply := NewStateIntendedFoodIntakeMessage(senderID, senderFloor, targetFloor, food)
 	return reply
 }
 

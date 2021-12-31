@@ -31,6 +31,7 @@ type Agent interface {
 	HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage)
 	HandleProposeTreaty(msg messages.ProposeTreatyMessage)
 	HandleTreatyResponse(msg messages.TreatyResponseMessage)
+	HandlePropogate(msg messages.Message)
 }
 
 type Fields = log.Fields

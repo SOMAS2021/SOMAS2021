@@ -78,14 +78,16 @@ type ResponseMessage interface {
 type BaseMessage struct {
 	senderID    uuid.UUID
 	senderFloor int
+	targetFloor int
 	messageType MessageType
 	id          uuid.UUID
 }
 
-func NewBaseMessage(senderID uuid.UUID, senderFloor int, messageType MessageType) *BaseMessage {
+func NewBaseMessage(senderID uuid.UUID, senderFloor int, targetFloor int, messageType MessageType) *BaseMessage {
 	msg := &BaseMessage{
 		senderID:    senderID,
 		senderFloor: senderFloor,
+		targetFloor: targetFloor,
 		messageType: messageType,
 		id:          uuid.New(),
 	}
