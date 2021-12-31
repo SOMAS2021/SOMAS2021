@@ -7,6 +7,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
+	logmanager "github.com/SOMAS2021/SOMAS2021/pkg/utils/logging"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
 	log "github.com/sirupsen/logrus"
 )
@@ -22,6 +23,7 @@ type SimEnv struct {
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
 	world          world.World
+	logStates      logmanager.LogManager
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
@@ -33,6 +35,7 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 		healthInfo:     healthInfo,
 		AgentsPerFloor: parameters.AgentsPerFloor,
 		logger:         *log.WithFields(log.Fields{"reporter": "simulation"}),
+		logStates:      logmanager.NewLogger(""),
 	}
 }
 

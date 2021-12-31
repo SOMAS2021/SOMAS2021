@@ -14,6 +14,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/config"
 	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
+	logmanager "github.com/SOMAS2021/SOMAS2021/pkg/utils/logging"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -72,45 +73,71 @@ func main() {
 }
 
 // Returns the logfile name as it is needed in the HTTP response
-func runNewSimulation(parameters config.ConfigParameters) (logfileName string) {
+func runNewSimulation(parameters config.ConfigParameters) (logFolderName string) {
 	rand.Seed(time.Now().UnixNano())
-	f, err := setupLogFile(parameters.LogFileName)
+	f, logFolderName, err := setupLogFile(parameters.LogFileName, parameters.LogMain)
 	if err != nil {
 		return
 	}
-	defer f.Close()
+	if f != nil {
+		defer f.Close()
+	}
 	healthInfo := health.NewHealthInfo(&parameters)
 
 	// TODO: agentParameters - struct
 	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
 	simEnv.Simulate()
-	return f.Name()
+	return logFolderName
 }
 
-func setupLogFile(parameterLogFileName string) (fp *os.File, err error) {
+func setupLogFile(parameterLogFileName string, saveMainLog bool) (fp *os.File, folderName string, err error) {
+	// setup logs folder if never created
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
 		if err != nil {
 			fmt.Println("failed to create logs directory: ", err)
-			return nil, err
+			return nil, "", err
 		}
 	}
 
-	logfileName := ""
-	// Check if the log file name was set in config
+	// setup simulation run folder for logs
+	logFolderName := ""
+	// Check if the log folder name was set in config
 	if len(parameterLogFileName) != 0 {
-		logfileName = filepath.Join("logs", parameterLogFileName)
+		logFolderName = filepath.Join("logs", parameterLogFileName)
 	} else {
-		logfileName = filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05")+".json")
+		logFolderName = filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05"))
+	}
+	if _, err := os.Stat(logFolderName); os.IsNotExist(err) {
+		err := os.Mkdir(logFolderName, 0755)
+		if err != nil {
+			fmt.Println("failed to create custom folder directory: ", err)
+			return nil, "", err
+		}
 	}
 
-	f, err := os.OpenFile(logfileName, os.O_CREATE|os.O_RDWR, 0666)
-	if err != nil {
-		fmt.Println("error opening file: ", err)
-		return nil, err
+	// open main log file if asked
+	var f *os.File = nil
+	if saveMainLog {
+		logFileName := filepath.Join(logFolderName, "main.json")
+		f, err = os.OpenFile(logFileName, os.O_CREATE|os.O_RDWR, 0666)
+		if err != nil {
+			fmt.Println("error opening file: ", err)
+			return nil, logFolderName, err
+		}
+		log.SetOutput(f)
+		log.SetFormatter(&log.JSONFormatter{})
 	}
 
-	log.SetOutput(f)
-	log.SetFormatter(&log.JSONFormatter{})
-	return f, nil
+	l := logmanager.NewLogger(logFolderName)
+	healthLogger, err := l.AddLogger("health", "healthLogs.json")
+	deathLogger, err := l.AddLogger("death", "death.json")
+	foodLogger, err := l.AddLogger("food", "food.json")
+	messagesLogger, err := l.AddLogger("messages", "messages.json")
+
+	healthLogger.Info("some health logs")
+	deathLogger.Info("some death logs")
+	foodLogger.Info("some food logs")
+	messagesLogger.Infof("some messages logs")
+	return f, logFolderName, nil
 }

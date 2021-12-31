@@ -38,6 +38,7 @@ type ConfigParameters struct {
 	HPLossBase     int           `json:"HPLossBase"`
 	HPLossSlope    float64       `json:"HPLossSlope"`
 	LogFileName    string        `json:"LogFileName"`
+	LogMain        bool          `json:"LogMain"`
 	NumOfAgents    []int
 	NumberOfFloors int
 	TicksPerDay    int
