@@ -109,4 +109,13 @@ func (a *CustomAgent6) Run() {
 	a.SendMessage(msg)
 	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType().String()})
 
+	// fmt.Println(a.ActiveTreaties())
+
+	// treaty := messages.NewTreaty(1, 1, 1, 1, 5, a.ID())
+	// treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
+
+	// treatyMsg.Visit(a)
+
+	// fmt.Println(a.ActiveTreaties())
+
 }
