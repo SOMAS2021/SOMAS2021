@@ -38,7 +38,7 @@ func main() {
 			}
 
 			// logFileName returned to be used in dashboard
-			var logFileName string
+			logFileName := ""
 
 			//channel and goroutine used for timeouts
 			c1 := make(chan string, 1)
