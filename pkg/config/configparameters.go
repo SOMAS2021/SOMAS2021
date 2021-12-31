@@ -13,35 +13,37 @@ import (
 )
 
 type ConfigParameters struct {
-	FoodOnPlatform food.FoodType `json:"FoodOnPlatform"`
-	Team1AgtOne    int           `json:"Team1AgtOne"`
-	Team1AgtTwo    int           `json:"Team2AgtTwo"`
-	Team2Agents    int           `json:"Team2Agents"`
-	Team3Agents    int           `json:"Team3Agents"`
-	Team4Agents    int           `json:"Team4Agents"`
-	Team5Agents    int           `json:"Team5Agents"`
-	Team6Agents    int           `json:"Team6Agents"`
-	Team7Agent1    int           `json:"Team7Agent1"`
-	RandomAgents   int           `json:"RandomAgents"`
-	AgentHP        int           `json:"AgentHP"`
-	AgentsPerFloor int           `json:"AgentsPerFloor"`
-	TicksPerFloor  int           `json:"TicksPerFloor"`
-	SimDays        int           `json:"SimDays"`
-	ReshuffleDays  int           `json:"ReshuffleDays"`
-	MaxHP          int           `json:"maxHP"`
-	WeakLevel      int           `json:"weakLevel"`
-	Width          float64       `json:"width"`
-	Tau            float64       `json:"tau"`
-	HpReqCToW      int           `json:"hpReqCToW"`
-	HpCritical     int           `json:"hpCritical"`
-	MaxDayCritical int           `json:"maxDayCritical"`
-	HPLossBase     int           `json:"HPLossBase"`
-	HPLossSlope    float64       `json:"HPLossSlope"`
-	LogFileName    string        `json:"LogFileName"`
-	NumOfAgents    []int
-	NumberOfFloors int
-	TicksPerDay    int
-	DayInfo        *day.DayInfo
+	FoodOnPlatform       food.FoodType `json:"FoodOnPlatform"`
+	FoodPerAgentRatio    int           `json:"FoodPerAgentRatio"`
+	UseFoodPerAgentRatio bool          `json:"UseFoodPerAgentRatio"`
+	Team1AgtOne          int           `json:"Team1AgtOne"`
+	Team1AgtTwo          int           `json:"Team2AgtTwo"`
+	Team2Agents          int           `json:"Team2Agents"`
+	Team3Agents          int           `json:"Team3Agents"`
+	Team4Agents          int           `json:"Team4Agents"`
+	Team5Agents          int           `json:"Team5Agents"`
+	Team6Agents          int           `json:"Team6Agents"`
+	Team7Agent1          int           `json:"Team7Agent1"`
+	RandomAgents         int           `json:"RandomAgents"`
+	AgentHP              int           `json:"AgentHP"`
+	AgentsPerFloor       int           `json:"AgentsPerFloor"`
+	TicksPerFloor        int           `json:"TicksPerFloor"`
+	SimDays              int           `json:"SimDays"`
+	ReshuffleDays        int           `json:"ReshuffleDays"`
+	MaxHP                int           `json:"maxHP"`
+	WeakLevel            int           `json:"weakLevel"`
+	Width                float64       `json:"width"`
+	Tau                  float64       `json:"tau"`
+	HpReqCToW            int           `json:"hpReqCToW"`
+	HpCritical           int           `json:"hpCritical"`
+	MaxDayCritical       int           `json:"maxDayCritical"`
+	HPLossBase           int           `json:"HPLossBase"`
+	HPLossSlope          float64       `json:"HPLossSlope"`
+	LogFileName          string        `json:"LogFileName"`
+	NumOfAgents          []int
+	NumberOfFloors       int
+	TicksPerDay          int
+	DayInfo              *day.DayInfo
 }
 
 type Response struct { // used for HTTP response
@@ -107,6 +109,10 @@ func CalculateDependentParameters(parameters *ConfigParameters) error {
 		return err
 	}
 
+	if parameters.UseFoodPerAgentRatio {
+		parameters.FoodOnPlatform = food.FoodType(parameters.FoodPerAgentRatio * utilFunctions.Sum(parameters.NumOfAgents))
+	}
+
 	//do the calculations for parameters that depend on other parameters
 	parameters.NumberOfFloors = utilFunctions.Sum(parameters.NumOfAgents) / parameters.AgentsPerFloor
 	parameters.TicksPerDay = parameters.NumberOfFloors * parameters.TicksPerFloor
@@ -119,8 +125,16 @@ func CalculateDependentParameters(parameters *ConfigParameters) error {
 //This can happen if they are missing from the json config / http request, as they'd all be initialised to 0 / nil
 func CheckParametersAreValid(parameters *ConfigParameters) error {
 
-	if parameters.FoodOnPlatform == 0 {
-		return errors.New("foodOnPlatform not initialised or set to 0")
+	//Checking that Food amount is valid
+
+	if parameters.UseFoodPerAgentRatio {
+		if parameters.FoodPerAgentRatio == 0 {
+			return errors.New("foodPerAgentRatio not initialised or set to 0")
+		}
+	} else {
+		if parameters.FoodOnPlatform == 0 {
+			return errors.New("foodOnPlatform not initialised or set to 0")
+		}
 	}
 
 	if utilFunctions.Sum(parameters.NumOfAgents) == 0 {
