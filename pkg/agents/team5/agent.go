@@ -195,11 +195,6 @@ func (a *CustomAgent5) resetDaysSinceLastSeen(id string) {
 func (a *CustomAgent5) GetMessages() {
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
-		if a.memoryIdExists(receivedMsg.ID().String()) {
-			a.newMemory(receivedMsg.ID().String())
-		}
-		a.resetDaysSinceLastSeen(receivedMsg.ID().String())
-		a.surroundingAgents[receivedMsg.SenderFloor()-a.Floor()] = receivedMsg.ID().String()
 		receivedMsg.Visit(a)
 	}
 }
@@ -349,12 +344,22 @@ func (a *CustomAgent5) HandleAskHP(msg messages.AskHPMessage) {
 	reply := msg.Reply(a.ID(), a.Floor(), a.HP())
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("Team 5 agent recieved an askHP message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor()})
+	if a.memoryIdExists(msg.SenderID().String()) {
+		a.newMemory(msg.SenderID().String())
+	}
+	a.resetDaysSinceLastSeen(msg.SenderID().String())
+	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID().String()
 }
 
 func (a *CustomAgent5) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 	reply := msg.Reply(a.ID(), a.Floor(), int(a.lastMeal))
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("Team 5 agent recieved an askFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor()})
+	if a.memoryIdExists(msg.SenderID().String()) {
+		a.newMemory(msg.SenderID().String())
+	}
+	a.resetDaysSinceLastSeen(msg.SenderID().String())
+	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID().String()
 }
 
 func (a *CustomAgent5) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
@@ -368,6 +373,11 @@ func (a *CustomAgent5) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 	reply := msg.Reply(a.ID(), a.Floor(), amount)
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("Team 5 agent recieved an askIntendedFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor()})
+	if a.memoryIdExists(msg.SenderID().String()) {
+		a.newMemory(msg.SenderID().String())
+	}
+	a.resetDaysSinceLastSeen(msg.SenderID().String())
+	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID().String()
 }
 
 func (a *CustomAgent5) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
@@ -375,6 +385,11 @@ func (a *CustomAgent5) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 	reply := msg.Reply(a.ID(), a.Floor(), false) //Always set to false for now to prevent deception, needs some calculations to determine whether we will leave the requested amount
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("Team 5 agent recieved a requestLeaveFood message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "request amount": amount})
+	if a.memoryIdExists(msg.SenderID().String()) {
+		a.newMemory(msg.SenderID().String())
+	}
+	a.resetDaysSinceLastSeen(msg.SenderID().String())
+	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID().String()
 }
 
 func (a *CustomAgent5) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
@@ -386,24 +401,49 @@ func (a *CustomAgent5) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 	reply := msg.Reply(a.ID(), a.Floor(), reponse)
 	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.Log("Team 5 agent recieved a requestTakeFood message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "request amount": amount})
+	if a.memoryIdExists(msg.SenderID().String()) {
+		a.newMemory(msg.SenderID().String())
+	}
+	a.resetDaysSinceLastSeen(msg.SenderID().String())
+	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID().String()
 }
 
 func (a *CustomAgent5) HandleResponse(msg messages.BoolResponseMessage) {
 	response := msg.Response()
 	a.Log("Team 5 agent recieved a Response message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "response": response})
+	if a.memoryIdExists(msg.SenderID().String()) {
+		a.newMemory(msg.SenderID().String())
+	}
+	a.resetDaysSinceLastSeen(msg.SenderID().String())
+	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID().String()
 }
 
 func (a *CustomAgent5) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
 	statement := msg.Statement()
 	a.Log("Team 5 agent recieved a StateFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "statement": statement})
+	if a.memoryIdExists(msg.SenderID().String()) {
+		a.newMemory(msg.SenderID().String())
+	}
+	a.resetDaysSinceLastSeen(msg.SenderID().String())
+	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID().String()
 }
 
 func (a *CustomAgent5) HandleStateHP(msg messages.StateHPMessage) {
 	statement := msg.Statement()
 	a.Log("Team 5 agent recieved a StateHP message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "statement": statement})
+	if a.memoryIdExists(msg.SenderID().String()) {
+		a.newMemory(msg.SenderID().String())
+	}
+	a.resetDaysSinceLastSeen(msg.SenderID().String())
+	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID().String()
 }
 
 func (a *CustomAgent5) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
 	statement := msg.Statement()
 	a.Log("Team 5 agent recieved a StateIntendedFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "reciever floor": a.Floor(), "statement": statement})
+	if a.memoryIdExists(msg.SenderID().String()) {
+		a.newMemory(msg.SenderID().String())
+	}
+	a.resetDaysSinceLastSeen(msg.SenderID().String())
+	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID().String()
 }
