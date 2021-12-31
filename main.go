@@ -14,7 +14,6 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/config"
 	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
-	logmanager "github.com/SOMAS2021/SOMAS2021/pkg/utils/logging"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -83,7 +82,7 @@ func runNewSimulation(parameters config.ConfigParameters) (logFolderName string)
 		defer f.Close()
 	}
 	healthInfo := health.NewHealthInfo(&parameters)
-
+	parameters.LogFileName = logFolderName
 	// TODO: agentParameters - struct
 	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
 	simEnv.Simulate()
@@ -128,16 +127,5 @@ func setupLogFile(parameterLogFileName string, saveMainLog bool) (fp *os.File, f
 		log.SetOutput(f)
 		log.SetFormatter(&log.JSONFormatter{})
 	}
-
-	l := logmanager.NewLogger(logFolderName)
-	healthLogger, err := l.AddLogger("health", "healthLogs.json")
-	deathLogger, err := l.AddLogger("death", "death.json")
-	foodLogger, err := l.AddLogger("food", "food.json")
-	messagesLogger, err := l.AddLogger("messages", "messages.json")
-
-	healthLogger.Info("some health logs")
-	deathLogger.Info("some death logs")
-	foodLogger.Info("some food logs")
-	messagesLogger.Infof("some messages logs")
 	return f, logFolderName, nil
 }

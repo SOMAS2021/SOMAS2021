@@ -1,7 +1,4 @@
-// logmanager package supports a logmanager struct which encapsulates IDed subloggers
-// these can be passed to e.g. agents who can log independently to a shared file
-
-package logmanager
+package logging
 
 import (
 	"os"
