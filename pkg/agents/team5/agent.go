@@ -180,9 +180,22 @@ func (a *CustomAgent5) updateSatisfaction() {
 	}
 }
 
+// Sets daysSinceLastSeen to 0 of given agent id
+func (a *CustomAgent5) resetDaysSinceLastSeen(id string) {
+	a.socialMemory[id] = Memory{
+		trust:             a.socialMemory[id].trust,
+		favour:            a.socialMemory[id].favour,
+		daysSinceLastSeen: 0,
+	}
+}
+
 func (a *CustomAgent5) GetMessages() {
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
+		if a.memoryIdExists(receivedMsg.ID().String()) {
+			a.newMemory(receivedMsg.ID().String())
+		}
+		a.resetDaysSinceLastSeen(receivedMsg.ID().String())
 		receivedMsg.Visit(a)
 	}
 }
