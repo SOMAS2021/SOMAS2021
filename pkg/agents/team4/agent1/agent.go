@@ -92,7 +92,15 @@ func (a *CustomAgentEvo) Run() {
 	scaledHpScore := a.params.currentHpScore.EvaluateEquation(a.HP()) / a.params.scalingEquation.EvaluateEquation(a.HP())
 	foodToEat := food.FoodType(math.Max(0.0, 50*scaledFloorScore+50*scaledHpScore))
 
-	foodEaten := a.TakeFood(foodToEat)
+	foodEaten, err := a.TakeFood(foodToEat)
+	if err != nil {
+		switch err.(type) {
+		case *infra.FloorError:
+		case *infra.NegFoodError:
+		case *infra.AlreadyEatenError:
+		default:
+		}
+	}
 
 	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "foodToEat": foodToEat, "foodEaten": foodEaten, "currentFloorScore": a.params.currentFloorScore.coefficients, "currentHpScore": a.params.currentHpScore.coefficients})
 

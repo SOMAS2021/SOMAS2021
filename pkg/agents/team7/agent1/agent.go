@@ -1,9 +1,10 @@
 package team7agent1
 
 import (
+	"math/rand"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
-	"math/rand"
 )
 
 /*
@@ -144,7 +145,16 @@ func (a *CustomAgent7) Run() {
 
 		//has the agent seen the platform
 		if a.CurrPlatFood() != -1 && !a.seenPlatform {
-			a.foodEaten = a.TakeFood(foodtotake)
+			foodEaten, err := a.TakeFood(foodtotake)
+			if err != nil {
+				switch err.(type) {
+				case *infra.FloorError:
+				case *infra.NegFoodError:
+				case *infra.AlreadyEatenError:
+				default:
+				}
+			}
+			a.foodEaten = foodEaten
 			if a.foodEaten > 0 {
 				a.daysHungry = 0
 			} else {
