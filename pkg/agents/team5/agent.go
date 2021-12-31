@@ -6,6 +6,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+	"github.com/google/uuid"
 )
 
 type Memory struct {
@@ -28,21 +29,21 @@ type CustomAgent5 struct {
 	attemptToEat bool
 	rememberAge  int
 	// Social network of other agents
-	socialMemory map[string]Memory
+	socialMemory map[uuid.UUID]Memory
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgent5{
 		Base:              baseAgent,
-		selfishness:       3,                   // of 0 to 3, with 3 being completely selfish, 0 being completely selfless
-		lastMeal:          0,                   //Stores value of the last amount of food taken
-		daysSinceLastMeal: 0,                   //Count of how many days since last eating
-		currentAim:        0,                   //Scale of 0 to 2, 0 being willing to lose health, 1 being maintaining health, 2 being gaining health
-		satisfaction:      0,                   //Scale of -3 to 3, with 3 being satisfied and unsatisfied
-		daysAlive:         0,                   //Count how many days agent has been alive
-		attemptToEat:      true,                //Variable needed to check if we have already attempted to eat on a day
-		rememberAge:       0,                   // To check if a day has passed by our age increasing
-		socialMemory:      map[string]Memory{}, // Memory of other agents, key is agent id
+		selfishness:       3,                      // of 0 to 3, with 3 being completely selfish, 0 being completely selfless
+		lastMeal:          0,                      //Stores value of the last amount of food taken
+		daysSinceLastMeal: 0,                      //Count of how many days since last eating
+		currentAim:        0,                      //Scale of 0 to 2, 0 being willing to lose health, 1 being maintaining health, 2 being gaining health
+		satisfaction:      0,                      //Scale of -3 to 3, with 3 being satisfied and unsatisfied
+		daysAlive:         0,                      //Count how many days agent has been alive
+		attemptToEat:      true,                   //Variable needed to check if we have already attempted to eat on a day
+		rememberAge:       0,                      // To check if a day has passed by our age increasing
+		socialMemory:      map[uuid.UUID]Memory{}, // Memory of other agents, key is agent id
 	}, nil
 }
 
@@ -51,23 +52,24 @@ func PercentageHP(a *CustomAgent5) int {
 }
 
 // force number to be in range because min and max only takes float64
-func restrictToRange(lowerBound, upperBound, nr int) int {
-	if nr < lowerBound {
+func restrictToRange(lowerBound, upperBound, num int) int {
+	if num < lowerBound {
 		return lowerBound
-	} else if nr > upperBound {
+	}
+	if num > upperBound {
 		return upperBound
 	}
-	return nr
+	return num
 }
 
 // Checks if agent id exists in socialMemory.
-func (a *CustomAgent5) memoryIdExists(id string) bool {
+func (a *CustomAgent5) memoryIdExists(id uuid.UUID) bool {
 	_, exists := a.socialMemory[id]
 	return exists
 }
 
 // Initialises memory of new agent
-func (a *CustomAgent5) newMemory(id string) {
+func (a *CustomAgent5) newMemory(id uuid.UUID) {
 	a.socialMemory[id] = Memory{
 		trust:             0,
 		favour:            0,
@@ -76,7 +78,7 @@ func (a *CustomAgent5) newMemory(id string) {
 }
 
 // Changes trust in socialMemory, change can be negative
-func (a *CustomAgent5) addToSocialTrust(id string, change int) {
+func (a *CustomAgent5) addToSocialTrust(id uuid.UUID, change int) {
 	a.socialMemory[id] = Memory{
 		trust:             restrictToRange(-5, 5, a.socialMemory[id].trust+change),
 		favour:            a.socialMemory[id].favour,
@@ -85,7 +87,7 @@ func (a *CustomAgent5) addToSocialTrust(id string, change int) {
 }
 
 // Changes favour in socialMemory, change can be negative
-func (a *CustomAgent5) addToSocialFavour(id string, change int) {
+func (a *CustomAgent5) addToSocialFavour(id uuid.UUID, change int) {
 	a.socialMemory[id] = Memory{
 		trust:             a.socialMemory[id].trust,
 		favour:            restrictToRange(-5, 5, a.socialMemory[id].favour+change),
@@ -105,7 +107,7 @@ func (a *CustomAgent5) incrementDaysSinceLastSeen() {
 }
 
 // Sets daysSinceLastSeen to 0 of given agent id
-func (a *CustomAgent5) resetDaysSinceLastSeen(id string) {
+func (a *CustomAgent5) resetDaysSinceLastSeen(id uuid.UUID) {
 	a.socialMemory[id] = Memory{
 		trust:             a.socialMemory[id].trust,
 		favour:            a.socialMemory[id].favour,
@@ -213,8 +215,8 @@ func (a *CustomAgent5) Run() {
 	}
 
 	// placeholder for memory functions
-	agentAbove := "agentAbove" // random name
-	agentBelow := "agentBelow" // random name
+	agentAbove := uuid.New() // random name
+	agentBelow := uuid.New() // random name
 	if !a.memoryIdExists(agentAbove) {
 		a.newMemory(agentAbove)
 	}
