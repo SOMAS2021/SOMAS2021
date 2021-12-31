@@ -51,7 +51,7 @@ type Treatyer interface {
 	SignTreaty()
 }
 
-func NewTreaty(condition ConditionType, request RequestType, cop Op, rop Op, duration int) *Treaty {
+func NewTreaty(condition ConditionType, request RequestType, cop Op, rop Op, duration int, proposerID uuid.UUID) *Treaty {
 	treaty := &Treaty{
 		condition:      condition,
 		request:        request,
@@ -60,6 +60,7 @@ func NewTreaty(condition ConditionType, request RequestType, cop Op, rop Op, dur
 		signatureCount: 1,
 		duration:       duration,
 		id:             uuid.New(),
+		proposerID:     proposerID,
 	}
 	return treaty
 }

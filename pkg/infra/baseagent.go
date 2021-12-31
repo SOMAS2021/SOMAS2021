@@ -48,6 +48,7 @@ type Base struct {
 	hasEaten       bool
 	daysAtCritical int
 	age            int
+	activeTreaties map[uuid.UUID]messages.Treaty
 }
 
 func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
@@ -70,6 +71,7 @@ func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, age
 		hasEaten:       false,
 		daysAtCritical: 0,
 		age:            0,
+		activeTreaties: make(map[uuid.UUID]messages.Treaty),
 	}, nil
 }
 
