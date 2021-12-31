@@ -13,42 +13,41 @@ import (
 )
 
 type ConfigParameters struct {
-	FoodOnPlatform food.FoodType `json:"FoodOnPlatform"`
-	Team1AgtOne    int           `json:"Team1AgtOne"`
-	Team1AgtTwo    int           `json:"Team1AgtTwo"`
-	Team2Agents    int           `json:"Team2Agents"`
-	Team3Agents    int           `json:"Team3Agents"`
-	Team4Agents    int           `json:"Team4Agents"`
-	Team5Agents    int           `json:"Team5Agents"`
-	Team6Agents    int           `json:"Team6Agents"`
-	Team7Agent1    int           `json:"Team7Agent1"`
-	RandomAgents   int           `json:"RandomAgents"`
-	AgentHP        int           `json:"AgentHP"`
-	AgentsPerFloor int           `json:"AgentsPerFloor"`
-	TicksPerFloor  int           `json:"TicksPerFloor"`
-	SimDays        int           `json:"SimDays"`
-	ReshuffleDays  int           `json:"ReshuffleDays"`
-	MaxHP          int           `json:"maxHP"`
-	WeakLevel      int           `json:"weakLevel"`
-	Width          float64       `json:"width"`
-	Tau            float64       `json:"tau"`
-	HpReqCToW      int           `json:"hpReqCToW"`
-	HpCritical     int           `json:"hpCritical"`
-	MaxDayCritical int           `json:"maxDayCritical"`
-	HPLossBase     int           `json:"HPLossBase"`
-	HPLossSlope    float64       `json:"HPLossSlope"`
-	LogFileName    string        `json:"LogFileName"`
-	LogMain        bool          `json:"LogMain"`
-	NumOfAgents    []int
-	NumberOfFloors int
-	TicksPerDay    int
-	DayInfo        *day.DayInfo
+	FoodOnPlatform    food.FoodType `json:"FoodOnPlatform"`
+	Team1AgtOne       int           `json:"Team1AgtOne"`
+	Team1AgtTwo       int           `json:"Team1AgtTwo"`
+	Team2Agents       int           `json:"Team2Agents"`
+	Team3Agents       int           `json:"Team3Agents"`
+	Team4Agents       int           `json:"Team4Agents"`
+	Team5Agents       int           `json:"Team5Agents"`
+	Team6Agents       int           `json:"Team6Agents"`
+	Team7Agent1       int           `json:"Team7Agent1"`
+	RandomAgents      int           `json:"RandomAgents"`
+	AgentHP           int           `json:"AgentHP"`
+	AgentsPerFloor    int           `json:"AgentsPerFloor"`
+	TicksPerFloor     int           `json:"TicksPerFloor"`
+	SimDays           int           `json:"SimDays"`
+	ReshuffleDays     int           `json:"ReshuffleDays"`
+	MaxHP             int           `json:"maxHP"`
+	WeakLevel         int           `json:"weakLevel"`
+	Width             float64       `json:"width"`
+	Tau               float64       `json:"tau"`
+	HpReqCToW         int           `json:"hpReqCToW"`
+	HpCritical        int           `json:"hpCritical"`
+	MaxDayCritical    int           `json:"maxDayCritical"`
+	HPLossBase        int           `json:"HPLossBase"`
+	HPLossSlope       float64       `json:"HPLossSlope"`
+	LogFileName       string        `json:"LogFileName"`
+	LogMain           bool          `json:"LogMain"`
+	SimTimeoutSeconds int           `json:"SimTimeoutSeconds"`
+	NumOfAgents       []int
+	NumberOfFloors    int
+	TicksPerDay       int
+	DayInfo           *day.DayInfo
 }
 
 type Response struct { // used for HTTP response
-	Success     bool   `json:"Success"`
 	LogFileName string `json:"LogFileName"`
-	Error       string `json:"Error"`
 }
 
 func LoadParamFromJson(path string) (ConfigParameters, error) {
@@ -183,5 +182,10 @@ func CheckParametersAreValid(parameters *ConfigParameters) error {
 	if parameters.HPLossSlope == 0 {
 		return errors.New("hpLossSlope not initialised or set to 0")
 	}
+
+	if parameters.SimTimeoutSeconds == 0 {
+		return errors.New("SimTimeoutSeconds not initialised or set to 0")
+	}
+
 	return nil
 }

@@ -38,14 +38,31 @@ func main() {
 			}
 
 			// logFileName returned to be used in dashboard
-			logfileName := runNewSimulation(parameters)
+			var logFileName string
+
+			//channel and goroutine used for timeouts
+			c1 := make(chan string, 1)
+
+			go func() {
+				filenametemp := runNewSimulation(parameters)
+				c1 <- filenametemp
+			}()
+
+			// Listen on our channel AND a timeout channel - which ever happens first.
+			select {
+			case res := <-c1:
+				logFileName = res
+			case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
+
+				http.Error(w, "Simulation Timeout", http.StatusInternalServerError)
+				return
+			}
 
 			//generate the http response
 			w.Header().Set("Content-Type", "application/json")
 
 			response := config.Response{
-				Success:     true, // this will depend on timeouts in the future, for now it is hardcoded until i figure out how timeouts work
-				LogFileName: logfileName,
+				LogFileName: logFileName,
 			}
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
@@ -67,7 +84,22 @@ func main() {
 			return
 		}
 
-		runNewSimulation(parameters)
+		//channel and goroutine used for timeout
+		c1 := make(chan string, 1)
+
+		go func() {
+			filenametemp := runNewSimulation(parameters)
+			c1 <- filenametemp
+		}()
+
+		// Listen on our channel AND a timeout channel - which ever happens first.
+		select {
+		case <-c1:
+			fmt.Println("Simulation Finished Successfully")
+		case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
+			fmt.Println("Simulation Timeout")
+			log.Fatal("Simulation Timeout")
+		}
 	}
 }
 
