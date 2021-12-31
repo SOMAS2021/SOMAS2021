@@ -6,14 +6,14 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+	"github.com/google/uuid"
 )
 
-// TODO: Requires message passing
-// type Memory struct {
-// 	trust             float64 // scale of -5 to 5, with -5 being least trustworthy and 5 being most trustworthy, 0 is neutral
-// 	favour            float64 // e.g. generosity; scale of -5 to 5, with -5 being least favoured and 5 being most favoured, 0 is neutral
-// 	daysSinceLastSeen int     // days since last interaction
-// }
+type Memory struct {
+	trust             int // scale of -5 to 5, with -5 being least trustworthy and 5 being most trustworthy, 0 is neutral
+	favour            int // e.g. generosity; scale of -5 to 5, with -5 being least favoured and 5 being most favoured, 0 is neutral
+	daysSinceLastSeen int // days since last interaction
+}
 
 type CustomAgent5 struct {
 	*infra.Base
@@ -28,24 +28,22 @@ type CustomAgent5 struct {
 	// If true, then agent will attempt to eat
 	attemptToEat bool
 	rememberAge  int
-	// TODO: Requires message passing
 	// Social network of other agents
-	// memory map[string]Memory
+	socialMemory map[uuid.UUID]Memory
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgent5{
 		Base:              baseAgent,
-		selfishness:       3,    // of 0 to 3, with 3 being completely selfish, 0 being completely selfless
-		lastMeal:          0,    //Stores value of the last amount of food taken
-		daysSinceLastMeal: 0,    //Count of how many days since last eating
-		currentAim:        0,    //Scale of 0 to 2, 0 being willing to lose health, 1 being maintaining health, 2 being gaining health
-		satisfaction:      0,    //Scale of -3 to 3, with 3 being satisfied and unsatisfied
-		daysAlive:         0,    //Count how many days agent has been alive
-		attemptToEat:      true, //Variable needed to check if we have already attempted to eat on a day
-		rememberAge:       0,    // To check if a day has passed by our age increasing
-		// TODO: Requires message passing
-		// memory:            map[string]Memory{}, // Memory of other agents, key is agent id
+		selfishness:       3,                      // of 0 to 3, with 3 being completely selfish, 0 being completely selfless
+		lastMeal:          0,                      //Stores value of the last amount of food taken
+		daysSinceLastMeal: 0,                      //Count of how many days since last eating
+		currentAim:        0,                      //Scale of 0 to 2, 0 being willing to lose health, 1 being maintaining health, 2 being gaining health
+		satisfaction:      0,                      //Scale of -3 to 3, with 3 being satisfied and unsatisfied
+		daysAlive:         0,                      //Count how many days agent has been alive
+		attemptToEat:      true,                   //Variable needed to check if we have already attempted to eat on a day
+		rememberAge:       0,                      // To check if a day has passed by our age increasing
+		socialMemory:      map[uuid.UUID]Memory{}, // Memory of other agents, key is agent id
 	}, nil
 }
 
@@ -53,14 +51,69 @@ func PercentageHP(a *CustomAgent5) int {
 	return int((float64(a.HP()) / float64(a.HealthInfo().MaxHP)) * 100.0)
 }
 
-// TODO: Requires message passing
-// func (a *CustomAgent5) newMemory(id string) {
-// 	a.memory[id] = Memory{
-// 		trust:             0,
-// 		favour:            0,
-// 		daysSinceLastSeen: 0,
-// 	}
-// }
+// force number to be in range because min and max only takes float64
+func restrictToRange(lowerBound, upperBound, num int) int {
+	if num < lowerBound {
+		return lowerBound
+	}
+	if num > upperBound {
+		return upperBound
+	}
+	return num
+}
+
+// Checks if agent id exists in socialMemory.
+func (a *CustomAgent5) memoryIdExists(id uuid.UUID) bool {
+	_, exists := a.socialMemory[id]
+	return exists
+}
+
+// Initialises memory of new agent
+func (a *CustomAgent5) newMemory(id uuid.UUID) {
+	a.socialMemory[id] = Memory{
+		trust:             0,
+		favour:            0,
+		daysSinceLastSeen: 0,
+	}
+}
+
+// Changes trust in socialMemory, change can be negative
+func (a *CustomAgent5) addToSocialTrust(id uuid.UUID, change int) {
+	a.socialMemory[id] = Memory{
+		trust:             restrictToRange(-5, 5, a.socialMemory[id].trust+change),
+		favour:            a.socialMemory[id].favour,
+		daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
+	}
+}
+
+// Changes favour in socialMemory, change can be negative
+func (a *CustomAgent5) addToSocialFavour(id uuid.UUID, change int) {
+	a.socialMemory[id] = Memory{
+		trust:             a.socialMemory[id].trust,
+		favour:            restrictToRange(-5, 5, a.socialMemory[id].favour+change),
+		daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
+	}
+}
+
+// Increments all daysSinceLastSeen by 1
+func (a *CustomAgent5) incrementDaysSinceLastSeen() {
+	for id := range a.socialMemory {
+		a.socialMemory[id] = Memory{
+			trust:             a.socialMemory[id].trust,
+			favour:            a.socialMemory[id].favour,
+			daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen + 1,
+		}
+	}
+}
+
+// Sets daysSinceLastSeen to 0 of given agent id
+func (a *CustomAgent5) resetDaysSinceLastSeen(id uuid.UUID) {
+	a.socialMemory[id] = Memory{
+		trust:             a.socialMemory[id].trust,
+		favour:            a.socialMemory[id].favour,
+		daysSinceLastSeen: 0,
+	}
+}
 
 func (a *CustomAgent5) updateAim() {
 	switch {
@@ -141,7 +194,7 @@ func (a *CustomAgent5) GetMessages() {
 func (a *CustomAgent5) dayPassed() {
 	a.daysAlive++
 	a.daysSinceLastMeal++
-	//Also update daySinceLastSeen for memory here
+	a.incrementDaysSinceLastSeen()
 }
 
 func (a *CustomAgent5) Run() {
@@ -158,6 +211,37 @@ func (a *CustomAgent5) Run() {
 			attemptFood = a.foodMaintain()
 		} else if a.currentAim == 2 {
 			attemptFood = a.foodGain()
+		}
+	}
+
+	// placeholder for memory functions
+	agentAbove := uuid.New() // random name
+	agentBelow := uuid.New() // random name
+	if !a.memoryIdExists(agentAbove) {
+		a.newMemory(agentAbove)
+	}
+
+	// placeholder for memory functions
+	expectedFood := 55    // random number
+	if expectedFood > 0 { // if we have an expectation
+		a.resetDaysSinceLastSeen(agentAbove)
+		trustChange := (int(a.CurrPlatFood()) - expectedFood + 20) / 5
+		a.addToSocialTrust(agentAbove, trustChange)
+	}
+
+	// placeholder for memory functions
+	if a.CurrPlatFood() != -1 {
+		// rage is high when platform has little food compared to what agent wants
+		rageToAgentAbove := 3 * int((float64(attemptFood)/float64(a.CurrPlatFood()))-2.5)
+		a.addToSocialFavour(agentAbove, rageToAgentAbove)
+
+		agentBelowRequestedFood := 30 // random number
+		// e.g. if agent below requested food
+		if agentBelowRequestedFood > 0 {
+			a.resetDaysSinceLastSeen(agentBelow)
+			// rage is low when agent below requests less food than food on platform minus our agent's required food
+			rageToAgentBelow := 3 * int((float64(agentBelowRequestedFood)/float64(a.CurrPlatFood()-attemptFood))-1.5)
+			a.addToSocialFavour(agentBelow, rageToAgentBelow)
 		}
 	}
 
