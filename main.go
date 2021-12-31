@@ -133,12 +133,9 @@ func main() {
 // Returns the logfile name as it is needed in the HTTP response
 func runNewSimulation(parameters config.ConfigParameters) (logFolderName string) {
 	rand.Seed(time.Now().UnixNano())
-	f, logFolderName, err := setupLogFile(parameters.LogFileName, parameters.LogMain)
+	logFolderName, err := setupLogFile(parameters.LogFileName, parameters.LogMain)
 	if err != nil {
 		return
-	}
-	if f != nil {
-		defer f.Close()
 	}
 	healthInfo := health.NewHealthInfo(&parameters)
 	parameters.LogFileName = logFolderName
@@ -148,13 +145,13 @@ func runNewSimulation(parameters config.ConfigParameters) (logFolderName string)
 	return logFolderName
 }
 
-func setupLogFile(parameterLogFileName string, saveMainLog bool) (fp *os.File, folderName string, err error) {
+func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName string, err error) {
 	// setup logs folder if never created
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
 		if err != nil {
 			fmt.Println("failed to create logs directory: ", err)
-			return nil, "", err
+			return "", err
 		}
 	}
 
@@ -170,21 +167,8 @@ func setupLogFile(parameterLogFileName string, saveMainLog bool) (fp *os.File, f
 		err := os.Mkdir(logFolderName, 0755)
 		if err != nil {
 			fmt.Println("failed to create custom folder directory: ", err)
-			return nil, "", err
+			return "", err
 		}
 	}
-
-	// open main log file if asked
-	var f *os.File = nil
-	if saveMainLog {
-		logFileName := filepath.Join(logFolderName, "main.json")
-		f, err = os.OpenFile(logFileName, os.O_CREATE|os.O_RDWR, 0666)
-		if err != nil {
-			fmt.Println("error opening file: ", err)
-			return nil, logFolderName, err
-		}
-		log.SetOutput(f)
-		log.SetFormatter(&log.JSONFormatter{})
-	}
-	return f, logFolderName, nil
+	return logFolderName, nil
 }

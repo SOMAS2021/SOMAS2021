@@ -56,7 +56,6 @@ func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, age
 	if !ok {
 		return nil, errors.New("agent needs a tower world to operate")
 	}
-	logger := log.WithFields(log.Fields{"agent_id": id, "agent_type": agentType.String(), "reporter": "agent"})
 	return &Base{
 		id:        id,
 		hp:        agentHP,
@@ -65,7 +64,7 @@ func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, age
 		tower:     tower,
 		//TODO: Check how large to make the inbox channel. Currently set to 15.
 		inbox:          make(chan messages.Message, 15),
-		logger:         *logger,
+		logger:         *tower.stateLog.Logmanager.GetLogger("main").WithFields(log.Fields{"agent_id": id, "agent_type": agentType.String(), "reporter": "agent"}),
 		hasEaten:       false,
 		daysAtCritical: 0,
 		age:            0,
