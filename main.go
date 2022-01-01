@@ -127,11 +127,11 @@ func main() {
 
 			logFileName := filepath.Join("logs", logParams.LogFileName, logParams.LogType)
 			file, err := os.Open(logFileName + ".json")
-			defer file.Close()
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
+			defer file.Close()
 			var response config.ReadLogResponse
 			scanner := bufio.NewScanner(file)
 			for scanner.Scan() {
