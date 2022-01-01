@@ -10,8 +10,11 @@ import (
 )
 
 type Memory struct {
-	trust             int // scale of -5 to 5, with -5 being least trustworthy and 5 being most trustworthy, 0 is neutral
-	favour            int // e.g. generosity; scale of -5 to 5, with -5 being least favoured and 5 being most favoured, 0 is neutral
+	//trust             int // scale of -5 to 5, with -5 being least trustworthy and 5 being most trustworthy, 0 is neutral
+	foodTaken         int //Store last known value of foodTaken by agent
+	agentHP           int //Store last known value of HP of agent
+	intentionFood     int //Store the last known value of the amount of food intended to take
+	favour            int // e.g. generosity; scale of 0 to 10, with 0 being least favoured and 10 being most favoured
 	daysSinceLastSeen int // days since last interaction
 }
 
@@ -73,16 +76,52 @@ func (a *CustomAgent5) memoryIdExists(id uuid.UUID) bool {
 // Initialises memory of new agent
 func (a *CustomAgent5) newMemory(id uuid.UUID) {
 	a.socialMemory[id] = Memory{
-		trust:             0,
+		//trust:             0,
+		foodTaken:         100,
+		agentHP:           a.HealthInfo().MaxHP,
+		intentionFood:     100,
 		favour:            0,
 		daysSinceLastSeen: 0,
 	}
 }
 
 // Changes trust in socialMemory, change can be negative
-func (a *CustomAgent5) addToSocialTrust(id uuid.UUID, change int) {
+// func (a *CustomAgent5) addToSocialTrust(id uuid.UUID, change int) {
+// 	a.socialMemory[id] = Memory{
+// 		//trust:             restrictToRange(-5, 5, a.socialMemory[id].trust+change),
+// 		favour:            a.socialMemory[id].favour,
+// 		daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
+// 	}
+// }
+
+func (a *CustomAgent5) updateFoodTakenMemory(id uuid.UUID, foodTaken int) {
 	a.socialMemory[id] = Memory{
-		trust:             restrictToRange(-5, 5, a.socialMemory[id].trust+change),
+		//trust:             a.socialMemory[id].trust,
+		foodTaken:         foodTaken,
+		agentHP:           a.socialMemory[id].agentHP,
+		intentionFood:     a.socialMemory[id].intentionFood,
+		favour:            a.socialMemory[id].favour,
+		daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
+	}
+}
+
+func (a *CustomAgent5) updateAgentHPMemory(id uuid.UUID, agentHP int) {
+	a.socialMemory[id] = Memory{
+		//trust:             a.socialMemory[id].trust,
+		foodTaken:         a.socialMemory[id].foodTaken,
+		agentHP:           agentHP,
+		intentionFood:     a.socialMemory[id].intentionFood,
+		favour:            a.socialMemory[id].favour,
+		daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
+	}
+}
+
+func (a *CustomAgent5) updateIntentionFoodMemory(id uuid.UUID, intentionFood int) {
+	a.socialMemory[id] = Memory{
+		//trust:             a.socialMemory[id].trust,
+		foodTaken:         a.socialMemory[id].foodTaken,
+		agentHP:           a.socialMemory[id].agentHP,
+		intentionFood:     intentionFood,
 		favour:            a.socialMemory[id].favour,
 		daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
 	}
@@ -91,7 +130,10 @@ func (a *CustomAgent5) addToSocialTrust(id uuid.UUID, change int) {
 // Changes favour in socialMemory, change can be negative
 func (a *CustomAgent5) addToSocialFavour(id uuid.UUID, change int) {
 	a.socialMemory[id] = Memory{
-		trust:             a.socialMemory[id].trust,
+		//trust:             a.socialMemory[id].trust,
+		foodTaken:         a.socialMemory[id].foodTaken,
+		agentHP:           a.socialMemory[id].agentHP,
+		intentionFood:     a.socialMemory[id].intentionFood,
 		favour:            restrictToRange(-5, 5, a.socialMemory[id].favour+change),
 		daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
 	}
@@ -101,7 +143,10 @@ func (a *CustomAgent5) addToSocialFavour(id uuid.UUID, change int) {
 func (a *CustomAgent5) incrementDaysSinceLastSeen() {
 	for id := range a.socialMemory {
 		a.socialMemory[id] = Memory{
-			trust:             a.socialMemory[id].trust,
+			//trust:             a.socialMemory[id].trust,
+			foodTaken:         a.socialMemory[id].foodTaken,
+			agentHP:           a.socialMemory[id].agentHP,
+			intentionFood:     a.socialMemory[id].intentionFood,
 			favour:            a.socialMemory[id].favour,
 			daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen + 1,
 		}
@@ -111,7 +156,10 @@ func (a *CustomAgent5) incrementDaysSinceLastSeen() {
 // Sets daysSinceLastSeen to 0 of given agent id
 func (a *CustomAgent5) resetDaysSinceLastSeen(id uuid.UUID) {
 	a.socialMemory[id] = Memory{
-		trust:             a.socialMemory[id].trust,
+		//trust:             a.socialMemory[id].trust,
+		foodTaken:         a.socialMemory[id].foodTaken,
+		agentHP:           a.socialMemory[id].agentHP,
+		intentionFood:     a.socialMemory[id].intentionFood,
 		favour:            a.socialMemory[id].favour,
 		daysSinceLastSeen: 0,
 	}
@@ -276,12 +324,12 @@ func (a *CustomAgent5) Run() {
 	}
 
 	// placeholder for memory functions
-	expectedFood := 55    // random number
-	if expectedFood > 0 { // if we have an expectation
-		a.resetDaysSinceLastSeen(agentAbove)
-		trustChange := (int(a.CurrPlatFood()) - expectedFood + 20) / 5
-		a.addToSocialTrust(agentAbove, trustChange)
-	}
+	// expectedFood := 55    // random number
+	// if expectedFood > 0 { // if we have an expectation
+	// 	a.resetDaysSinceLastSeen(agentAbove)
+	// 	trustChange := (int(a.CurrPlatFood()) - expectedFood + 20) / 5
+	// 	a.addToSocialTrust(agentAbove, trustChange)
+	// }
 
 	// placeholder for memory functions
 	if a.CurrPlatFood() != -1 {
@@ -416,6 +464,7 @@ func (a *CustomAgent5) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) 
 	}
 	a.resetDaysSinceLastSeen(msg.SenderID())
 	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID()
+	a.updateFoodTakenMemory(msg.SenderID(), statement)
 }
 
 func (a *CustomAgent5) HandleStateHP(msg messages.StateHPMessage) {
@@ -426,6 +475,7 @@ func (a *CustomAgent5) HandleStateHP(msg messages.StateHPMessage) {
 	}
 	a.resetDaysSinceLastSeen(msg.SenderID())
 	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID()
+	a.updateAgentHPMemory(msg.SenderID(), statement)
 }
 
 func (a *CustomAgent5) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
@@ -436,4 +486,5 @@ func (a *CustomAgent5) HandleStateIntendedFoodTaken(msg messages.StateIntendedFo
 	}
 	a.resetDaysSinceLastSeen(msg.SenderID())
 	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID()
+	a.updateIntentionFoodMemory(msg.SenderID(), statement)
 }
