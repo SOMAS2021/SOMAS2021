@@ -6,6 +6,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/google/uuid"
 )
 
@@ -134,7 +135,7 @@ func (a *CustomAgent5) addToSocialFavour(id uuid.UUID, change int) {
 		foodTaken:         a.socialMemory[id].foodTaken,
 		agentHP:           a.socialMemory[id].agentHP,
 		intentionFood:     a.socialMemory[id].intentionFood,
-		favour:            restrictToRange(-5, 5, a.socialMemory[id].favour+change),
+		favour:            restrictToRange(0, 10, a.socialMemory[id].favour+change),
 		daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
 	}
 }
@@ -150,6 +151,17 @@ func (a *CustomAgent5) incrementDaysSinceLastSeen() {
 			favour:            a.socialMemory[id].favour,
 			daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen + 1,
 		}
+	}
+}
+
+func (a *CustomAgent5) resetSocialKnowledge(id uuid.UUID) {
+	a.socialMemory[id] = Memory{
+		//trust:             a.socialMemory[id].trust,
+		foodTaken:         100,
+		agentHP:           a.HealthInfo().MaxHP,
+		intentionFood:     100,
+		favour:            a.socialMemory[id].favour,
+		daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
 	}
 }
 
@@ -287,6 +299,24 @@ func (a *CustomAgent5) ResetSurroundingAgents() {
 	a.surroundingAgents = make(map[int]uuid.UUID)
 }
 
+func (a *CustomAgent5) updateFavour() {
+	for id := range a.socialMemory {
+		if a.socialMemory[id].daysSinceLastSeen < 2 {
+			judgement := (a.HP() - a.socialMemory[id].agentHP) + (int(a.lastMeal) - a.socialMemory[id].foodTaken) + (int(a.calculateAttemptFood()) - a.socialMemory[id].intentionFood)
+			if judgement > 0 {
+				a.addToSocialFavour(id, 1)
+			}
+			if judgement < 0 {
+				a.addToSocialFavour(id, int(math.Max(float64(judgement)/20, -3)))
+			}
+		}
+		if a.socialMemory[id].daysSinceLastSeen > 5 {
+			a.resetSocialKnowledge(id)
+		}
+
+	}
+}
+
 func (a *CustomAgent5) dayPassed() {
 	a.daysSinceLastMeal++
 	a.incrementDaysSinceLastSeen()
@@ -296,6 +326,14 @@ func (a *CustomAgent5) dayPassed() {
 	}
 	//Also update daySinceLastSeen for memory here
 	a.messagingCounter = 0
+	a.updateFavour()
+}
+
+func (a *CustomAgent5) calculateAttemptFood() food.FoodType {
+	if a.HP() < a.HealthInfo().WeakLevel {
+		return food.FoodType(2)
+	}
+	return food.FoodType(math.Min(a.HealthInfo().Tau*3, float64(health.FoodRequired(a.HP(), a.currentAim, a.HealthInfo()))))
 }
 
 func (a *CustomAgent5) Run() {
