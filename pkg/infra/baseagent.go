@@ -165,7 +165,8 @@ func (a *Base) hpDecay(healthInfo *health.HealthInfo) {
 	}
 	a.setHasEaten(false)
 	if a.daysAtCritical >= healthInfo.MaxDayCritical {
-		a.Log("Killing agent", Fields{"daysLived": a.Age()})
+		a.Log("Killing agent", Fields{"daysLived": a.Age(), "agentType": a.agentType})
+		a.tower.stateLog.LogAgentDeath(a.tower.dayInfo.CurrDay, a.tower.dayInfo.CurrTick, a.agentType)
 		newHP = 0
 	}
 	a.Log("Setting hp to " + fmt.Sprint(newHP))
