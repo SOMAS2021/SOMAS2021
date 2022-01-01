@@ -23,6 +23,7 @@ func main() {
 	configPathPtr := flag.String("configpath", "config.json", "path for parameter configuration json file")
 	modePtr := flag.String("mode", "sim", "Execution mode. Either 'sim' for running a simulation and exiting, or 'serve' to serve a simulation endpoint")
 	portPtr := flag.Int("port", 9000, "Port to run the server on if mode='serve'")
+	devmodePtr := flag.Bool("devmode", false, "If true, disable Access Origin Control for cross-domain requests")
 	flag.Parse()
 
 	// check backend mode
@@ -30,8 +31,14 @@ func main() {
 		port := ":" + strconv.Itoa(*portPtr)
 		fs := http.FileServer(http.Dir("./build"))
 		http.Handle("/", fs)
-		log.Println("Listening on " + port + "...")
+		log.Info("Listening on " + port + "...")
+		if *devmodePtr {
+			log.Info("DEV MODE ACTIVE")
+		}
 		http.HandleFunc("/simulate", func(w http.ResponseWriter, r *http.Request) {
+			if *devmodePtr {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			}
 			parameters, err := config.LoadParamFromHTTPRequest(r)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
@@ -72,6 +79,9 @@ func main() {
 			}
 		})
 		http.HandleFunc("/directory", func(w http.ResponseWriter, r *http.Request) {
+			if *devmodePtr {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			}
 			//read directory
 			files, err := ioutil.ReadDir("./logs")
 			if err != nil {
