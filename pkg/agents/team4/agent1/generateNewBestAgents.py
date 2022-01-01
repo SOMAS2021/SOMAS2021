@@ -95,9 +95,9 @@ for i in attribute:
     for j in range(number_of_health_levels):
         temp_val = 0
         rand = random.random()
-        if (rand < 0.33):
+        if (rand < 0.66):
             temp_val = agent_1[i][j]
-        elif (rand < 0.66):
+        elif (rand < 0.90):
             temp_val = agent_2[i][j]
         else:
             temp_val = agent_3[i][j]
@@ -111,9 +111,9 @@ for i in attribute:
     for j in range(number_of_health_levels):
         temp_val = 0.0
         rand = random.random()
-        if (rand < 0.33):
+        if (rand < 0.66):
             temp_val = agent_1[i][j]
-        elif (rand < 0.66):
+        elif (rand < 0.90):
             temp_val = agent_2[i][j]
         else:
             temp_val = agent_3[i][j]
