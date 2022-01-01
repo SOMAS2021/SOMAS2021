@@ -30,7 +30,7 @@ export default function AdvancedSettingsMenu(state: any) {
     >
       <div className="modal-dialog">
         <div className="modal-content">
-        <div className="modal-body">
+          <div className="modal-body">
             {params.map((i) => (
               <FormGroup {...i}>
                 <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} />
@@ -51,7 +51,7 @@ export default function AdvancedSettingsMenu(state: any) {
               data-dismiss="modal"
               onClick={() => SubmitState()}
             />
-            </div>
+          </div>
         </div>
         <div className="modal-footer"></div>
       </div>
