@@ -1,8 +1,8 @@
 import "./App.css";
 import Navbar from "./Components/Navbar";
-import NewRun from "./Components/NewRun";
 import Results from "./Components/Results";
 import Sidebar from "./Components/Sidebar";
+import NewRunState from "./Components/NewRunConfig/NewRunState";
 function App() {
   return (
     <div>
@@ -16,7 +16,7 @@ function App() {
           <Results />
         </div>
       </div>
-      <NewRun />
+      <NewRunState/>
     </div>
   );
 }
