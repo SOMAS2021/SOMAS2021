@@ -1,7 +1,10 @@
 package health
 
 import (
+	"math"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/config"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
 type HealthInfo struct {
@@ -36,4 +39,9 @@ func NewHealthInfo(parameters *config.ConfigParameters) *HealthInfo {
 		HPLossBase:     parameters.HPLossBase,
 		HPLossSlope:    parameters.HPLossSlope,
 	}
+}
+
+func FoodRequired(currentHP int, goalHP int, healthInfo *HealthInfo) food.FoodType {
+	denom := healthInfo.Width - float64(goalHP) + (1-healthInfo.HPLossSlope)*float64(currentHP) - float64(healthInfo.HPLossBase) + healthInfo.HPLossSlope*float64(healthInfo.WeakLevel)
+	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
 }

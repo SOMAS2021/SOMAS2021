@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
@@ -38,18 +39,61 @@ func main() {
 			}
 
 			// logFileName returned to be used in dashboard
-			logfileName := runNewSimulation(parameters)
+			logFileName := ""
+
+			//channel and goroutine used for timeouts
+			c1 := make(chan string, 1)
+
+			go func() {
+				filenametemp := runNewSimulation(parameters)
+				c1 <- filenametemp
+			}()
+
+			// Listen on our channel AND a timeout channel - which ever happens first.
+			select {
+			case res := <-c1:
+				logFileName = res
+			case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
+
+				http.Error(w, "Simulation Timeout", http.StatusInternalServerError)
+				return
+			}
 
 			//generate the http response
 			w.Header().Set("Content-Type", "application/json")
 
-			response := config.Response{
-				Success:     true, // this will depend on timeouts in the future, for now it is hardcoded until i figure out how timeouts work
-				LogFileName: logfileName,
+			response := config.SimulateResponse{
+				LogFileName: logFileName,
 			}
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
-				fmt.Println(err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		})
+		http.HandleFunc("/directory", func(w http.ResponseWriter, r *http.Request) {
+			//read directory
+			files, err := ioutil.ReadDir("./logs")
+			if err != nil {
+				http.Error(w, "Unable to open logs folder. There might not be any logs created yet", http.StatusInternalServerError)
+				return
+			}
+			for _, f := range files {
+				fmt.Println(f.Name())
+			}
+
+			//put them all in a struct
+			var response config.DirectoryResponse
+
+			for _, f := range files {
+				response.FolderNames = append(response.FolderNames, f.Name())
+			}
+
+			//convert struct to json and return the response
+
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 		})
@@ -67,50 +111,64 @@ func main() {
 			return
 		}
 
-		runNewSimulation(parameters)
+		//channel and goroutine used for timeout
+		c1 := make(chan string, 1)
+
+		go func() {
+			filenametemp := runNewSimulation(parameters)
+			c1 <- filenametemp
+		}()
+
+		// Listen on our channel AND a timeout channel - which ever happens first.
+		select {
+		case <-c1:
+			fmt.Println("Simulation Finished Successfully")
+		case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
+			fmt.Println("Simulation Timeout")
+			log.Fatal("Simulation Timeout")
+		}
 	}
 }
 
 // Returns the logfile name as it is needed in the HTTP response
-func runNewSimulation(parameters config.ConfigParameters) (logfileName string) {
+func runNewSimulation(parameters config.ConfigParameters) (logFolderName string) {
 	rand.Seed(time.Now().UnixNano())
-	f, err := setupLogFile(parameters.LogFileName)
+	logFolderName, err := setupLogFile(parameters.LogFileName, parameters.LogMain)
 	if err != nil {
 		return
 	}
-	defer f.Close()
 	healthInfo := health.NewHealthInfo(&parameters)
-
+	parameters.LogFileName = logFolderName
 	// TODO: agentParameters - struct
 	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
 	simEnv.Simulate()
-	return f.Name()
+	return logFolderName
 }
 
-func setupLogFile(parameterLogFileName string) (fp *os.File, err error) {
+func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName string, err error) {
+	// setup logs folder if never created
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
 		if err != nil {
 			fmt.Println("failed to create logs directory: ", err)
-			return nil, err
+			return "", err
 		}
 	}
 
-	logfileName := ""
-	// Check if the log file name was set in config
+	// setup simulation run folder for logs
+	logFolderName := ""
+	// Check if the log folder name was set in config
 	if len(parameterLogFileName) != 0 {
-		logfileName = filepath.Join("logs", parameterLogFileName)
+		logFolderName = filepath.Join("logs", parameterLogFileName)
 	} else {
-		logfileName = filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05")+".json")
+		logFolderName = filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05"))
 	}
-
-	f, err := os.OpenFile(logfileName, os.O_CREATE|os.O_RDWR, 0666)
-	if err != nil {
-		fmt.Println("error opening file: ", err)
-		return nil, err
+	if _, err := os.Stat(logFolderName); os.IsNotExist(err) {
+		err := os.Mkdir(logFolderName, 0755)
+		if err != nil {
+			fmt.Println("failed to create custom folder directory: ", err)
+			return "", err
+		}
 	}
-
-	log.SetOutput(f)
-	log.SetFormatter(&log.JSONFormatter{})
-	return f, nil
+	return logFolderName, nil
 }

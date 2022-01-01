@@ -23,9 +23,10 @@ func (sE *SimEnv) simulationLoop(t *infra.Tower) {
 	for sE.dayInfo.CurrTick <= sE.dayInfo.TotalTicks {
 		sE.Log("", Fields{"Current Simulation Tick": sE.dayInfo.CurrTick})
 		t.TowerStateLog(" start of tick")
-		sE.replaceAgents(t)
 		sE.AgentsRun(t)
 		sE.TowerTick()
+		sE.replaceAgents(t)
+		t.TowerStateLog(" end of tick")
 		sE.dayInfo.CurrTick++
 	}
 }

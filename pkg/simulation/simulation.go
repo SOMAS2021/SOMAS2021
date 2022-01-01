@@ -1,30 +1,45 @@
 package simulation
 
 import (
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/randomAgent"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team2"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team3"
+	team4EvoAgent "github.com/SOMAS2021/SOMAS2021/pkg/agents/team4/agent1"
+	team5 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team5/agent1"
+	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
+	team7agent1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team7/agent1"
 	"github.com/SOMAS2021/SOMAS2021/pkg/config"
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/logging"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
 	log "github.com/sirupsen/logrus"
 )
 
 type Fields = log.Fields
+type AgentNewFunc func(base *infra.Base) (infra.Agent, error)
 
 type SimEnv struct {
 	FoodOnPlatform food.FoodType
-	AgentCount     []int
+	AgentCount     map[agent.AgentType]int
 	AgentHP        int
 	AgentsPerFloor int
 	logger         log.Entry
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
 	world          world.World
+	stateLog       *logging.StateLog
+	agentNewFuncs  map[agent.AgentType]AgentNewFunc
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
+	stateLog := logging.NewLogState(parameters.LogFileName, parameters.LogMain)
 	return &SimEnv{
 		FoodOnPlatform: parameters.FoodOnPlatform,
 		AgentCount:     parameters.NumOfAgents,
@@ -32,7 +47,19 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 		dayInfo:        parameters.DayInfo,
 		healthInfo:     healthInfo,
 		AgentsPerFloor: parameters.AgentsPerFloor,
-		logger:         *log.WithFields(log.Fields{"reporter": "simulation"}),
+		logger:         *stateLog.Logmanager.GetLogger("main").WithFields(log.Fields{"reporter": "simulation"}),
+		stateLog:       stateLog,
+		agentNewFuncs: map[agent.AgentType]AgentNewFunc{
+			agent.Team1Agent1: agent1.New,
+			agent.Team1Agent2: agent2.New,
+			agent.Team2:       team2.New,
+			agent.Team3:       team3.New,
+			agent.Team4:       team4EvoAgent.New,
+			agent.Team5:       team5.New,
+			agent.Team6:       team6.New,
+			agent.Team7:       team7agent1.New,
+			agent.RandomAgent: randomAgent.New,
+		},
 	}
 }
 
@@ -40,7 +67,7 @@ func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Initializing")
 
 	totalAgents := utilFunctions.Sum(sE.AgentCount)
-	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, sE.AgentsPerFloor, sE.dayInfo, sE.healthInfo)
+	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, sE.AgentsPerFloor, sE.dayInfo, sE.healthInfo, sE.stateLog)
 	sE.SetWorld(t)
 
 	sE.generateInitialAgents(t)

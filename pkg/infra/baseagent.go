@@ -6,9 +6,11 @@ import (
 	"math"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
@@ -27,6 +29,8 @@ type Agent interface {
 	HandleStateFoodTaken(msg messages.StateFoodTakenMessage)
 	HandleStateHP(msg messages.StateHPMessage)
 	HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage)
+	HandleProposeTreaty(msg messages.ProposeTreatyMessage)
+	HandleTreatyResponse(msg messages.TreatyResponseMessage)
 }
 
 type Fields = log.Fields
@@ -35,7 +39,7 @@ type Base struct {
 	id             uuid.UUID
 	hp             int
 	floor          int
-	agentType      int
+	agentType      agent.AgentType
 	inbox          chan messages.Message
 	tower          *Tower
 	logger         log.Entry
@@ -44,7 +48,7 @@ type Base struct {
 	age            int
 }
 
-func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
+func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
 	if world == nil {
 		return nil, errors.New("agent needs a world defined to operate")
 	}
@@ -52,7 +56,6 @@ func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int,
 	if !ok {
 		return nil, errors.New("agent needs a tower world to operate")
 	}
-	logger := log.WithFields(log.Fields{"agent_id": id, "agent_type": agentType, "reporter": "agent"})
 	return &Base{
 		id:        id,
 		hp:        agentHP,
@@ -61,7 +64,7 @@ func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int,
 		tower:     tower,
 		//TODO: Check how large to make the inbox channel. Currently set to 15.
 		inbox:          make(chan messages.Message, 15),
-		logger:         *logger,
+		logger:         *tower.stateLog.Logmanager.GetLogger("main").WithFields(log.Fields{"agent_id": id, "agent_type": agentType.String(), "reporter": "agent"}),
 		hasEaten:       false,
 		daysAtCritical: 0,
 		age:            0,
@@ -118,7 +121,7 @@ func (a *Base) IsAlive() bool {
 	return a.hp > 0
 }
 
-func (a *Base) AgentType() int {
+func (a *Base) AgentType() agent.AgentType {
 	return a.agentType
 }
 
@@ -177,19 +180,26 @@ func (a *Base) setHasEaten(newStatus bool) {
 	a.hasEaten = newStatus
 }
 
-func (a *Base) TakeFood(amountOfFood food.FoodType) food.FoodType {
-	if amountOfFood == 0 {
-		return 0
+func (a *Base) PlatformOnFloor() bool {
+	return a.floor == a.tower.currPlatFloor
+}
+
+func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
+	if a.floor != a.tower.currPlatFloor {
+		return 0, &FloorError{}
 	}
-	if a.floor == a.tower.currPlatFloor && !a.hasEaten && amountOfFood > 0 {
-		foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood)))
-		a.updateHP(foodTaken)
-		a.tower.currPlatFood -= foodTaken
-		a.setHasEaten(foodTaken > 0)
-		a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
-		return foodTaken
+	if a.hasEaten {
+		return 0, &AlreadyEatenError{}
 	}
-	return -1
+	if amountOfFood < 0 {
+		return 0, &NegFoodError{}
+	}
+	foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood)))
+	a.updateHP(foodTaken)
+	a.tower.currPlatFood -= foodTaken
+	a.setHasEaten(foodTaken > 0)
+	a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
+	return foodTaken, nil
 }
 
 func (a *Base) ReceiveMessage() messages.Message {
@@ -220,3 +230,5 @@ func (a *Base) HandleResponse(msg messages.BoolResponseMessage)                 
 func (a *Base) HandleStateFoodTaken(msg messages.StateFoodTakenMessage)                  {}
 func (a *Base) HandleStateHP(msg messages.StateHPMessage)                                {}
 func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}
+func (a *Base) HandleProposeTreaty(msg messages.ProposeTreatyMessage)                    {}
+func (a *Base) HandleTreatyResponse(msg messages.TreatyResponseMessage)                  {}

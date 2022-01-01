@@ -6,6 +6,8 @@ import "github.com/google/uuid"
 
 type MessageType int
 
+//go:generate go run golang.org/x/tools/cmd/stringer -type=MessageType
+
 const (
 	AskFoodTaken MessageType = iota + 1
 	AskHP
@@ -16,11 +18,12 @@ const (
 	StateHP
 	StateFoodOnPlatform
 	StateIntendedFoodIntake
-	StateIdentity
 	StateResponse
+	ProposeTreaty
 	RequestLeaveFood
 	RequestTakeFood
 	Response
+	TreatyResponse
 )
 
 type Agent interface {
@@ -33,6 +36,8 @@ type Agent interface {
 	HandleStateFoodTaken(msg StateFoodTakenMessage)
 	HandleStateHP(msg StateHPMessage)
 	HandleStateIntendedFoodTaken(msg StateIntendedFoodIntakeMessage)
+	HandleProposeTreaty(msg ProposeTreatyMessage)
+	HandleTreatyResponse(msg TreatyResponseMessage)
 }
 
 type Message interface {
@@ -44,7 +49,7 @@ type Message interface {
 
 type AskMessage interface {
 	Message
-	Reply(senderFloor int, food int) StateMessage
+	Reply(senderID uuid.UUID, senderFloor int, food int) StateMessage
 }
 
 type StateMessage interface {
@@ -55,13 +60,19 @@ type StateMessage interface {
 type RequestMessage interface {
 	Message
 	Request() int
-	Reply(senderFloor int, response bool) ResponseMessage
+	Reply(senderID uuid.UUID, senderFloor int, response bool) ResponseMessage
+}
+
+type ProposalMessage interface {
+	Message
+	Treaty() Treaty
+	Reply(senderID uuid.UUID, senderFloor int, response bool) TreatyResponseMessage
 }
 
 type ResponseMessage interface {
 	Message
 	Response() bool
-	RequestId() uuid.UUID
+	RequestID() uuid.UUID
 }
 
 type BaseMessage struct {

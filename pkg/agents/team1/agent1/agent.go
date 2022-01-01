@@ -65,7 +65,15 @@ func (a *CustomAgent1) Run() {
 		a.Log("I sent a message", infra.Fields{"message": "StateIntendedFoodIntake"})
 	}
 	a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
-	a.TakeFood(16)
+	_, err := a.TakeFood(16)
+	if err != nil {
+		switch err.(type) {
+		case *infra.FloorError:
+		case *infra.NegFoodError:
+		case *infra.AlreadyEatenError:
+		default:
+		}
+	}
 }
 
 func (a *CustomAgent1) HandleAskHP(msg messages.AskHPMessage) {
