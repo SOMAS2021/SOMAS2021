@@ -9,9 +9,9 @@ type TreatyResponseMessage struct {
 	requestID uuid.UUID
 }
 
-func NewTreatyResponseMessage(senderID uuid.UUID, senderFloor int, response bool, treatyID uuid.UUID, requestID uuid.UUID) *TreatyResponseMessage {
+func NewTreatyResponseMessage(senderID uuid.UUID, senderFloor int, targetFloor int, response bool, treatyID uuid.UUID, requestID uuid.UUID) *TreatyResponseMessage {
 	msg := &TreatyResponseMessage{
-		NewBaseMessage(senderID, senderFloor, TreatyResponse),
+		NewBaseMessage(senderID, senderFloor, targetFloor, TreatyResponse),
 		response,
 		treatyID,
 		requestID,
@@ -32,5 +32,9 @@ func (msg *TreatyResponseMessage) TreatyID() uuid.UUID {
 }
 
 func (msg *TreatyResponseMessage) Visit(a Agent) {
-	a.HandleTreatyResponse(*msg)
+	if msg.TargetFloor() != a.Floor() {
+		a.HandlePropogate(msg)
+	} else {
+		a.HandleTreatyResponse(*msg)
+	}
 }

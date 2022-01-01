@@ -7,9 +7,9 @@ type StateHPMessage struct {
 	hp int
 }
 
-func NewStateHPMessage(senderID uuid.UUID, senderFloor int, hp int) *StateHPMessage {
+func NewStateHPMessage(senderID uuid.UUID, senderFloor int, targetFloor int, hp int) *StateHPMessage {
 	msg := &StateHPMessage{
-		NewBaseMessage(senderID, senderFloor, StateHP),
+		NewBaseMessage(senderID, senderFloor, targetFloor, StateHP),
 		hp,
 	}
 	return msg
@@ -20,5 +20,9 @@ func (msg *StateHPMessage) Statement() int {
 }
 
 func (msg *StateHPMessage) Visit(a Agent) {
-	a.HandleStateHP(*msg)
+	if msg.TargetFloor() != a.Floor() {
+		a.HandlePropogate(msg)
+	} else {
+		a.HandleStateHP(*msg)
+	}
 }
