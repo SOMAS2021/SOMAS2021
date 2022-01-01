@@ -1,4 +1,4 @@
-import { Button, Card, Elevation, FormGroup, NumericInput } from "@blueprintjs/core";
+import { Button, FormGroup, NumericInput } from "@blueprintjs/core";
 import { SubmitSimulation } from "../NewRunState";
 import { advancedParams, params } from "../ParameterLabels";
 import { SimConfig } from "../../../Helpers/SimConfig";
