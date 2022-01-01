@@ -1,7 +1,6 @@
 package team5
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
@@ -12,12 +11,11 @@ import (
 )
 
 type Memory struct {
-	//trust             int // scale of -5 to 5, with -5 being least trustworthy and 5 being most trustworthy, 0 is neutral
-	foodTaken         int //Store last known value of foodTaken by agent
-	agentHP           int //Store last known value of HP of agent
-	intentionFood     int //Store the last known value of the amount of food intended to take
-	favour            int // e.g. generosity; scale of 0 to 10, with 0 being least favoured and 10 being most favoured
-	daysSinceLastSeen int // days since last interaction
+	foodTaken         food.FoodType //Store last known value of foodTaken by agent
+	agentHP           int           //Store last known value of HP of agent
+	intentionFood     food.FoodType //Store the last known value of the amount of food intended to take
+	favour            int           // e.g. generosity; scale of 0 to 10, with 0 being least favoured and 10 being most favoured
+	daysSinceLastSeen int           // days since last interaction
 }
 
 type CustomAgent5 struct {
@@ -25,15 +23,13 @@ type CustomAgent5 struct {
 	selfishness       int
 	lastMeal          food.FoodType
 	daysSinceLastMeal int
-	// TODO: Change this to an enum
-	currentAimHP int
-	satisfaction int
-	// TODO: Check difference between this and HasEaten()
-	// If true, then agent will attempt to eat
-	attemptToEat     bool
-	rememberAge      int
-	rememberFloor    int
-	messagingCounter int
+	hpAfterEating     int
+	currentAimHP      int
+	attemptFood       food.FoodType
+	satisfaction      int
+	rememberAge       int
+	rememberFloor     int
+	messagingCounter  int
 	// Social network of other agents
 	socialMemory      map[uuid.UUID]Memory
 	surroundingAgents map[int]uuid.UUID
@@ -41,14 +37,16 @@ type CustomAgent5 struct {
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgent5{
-		Base:              baseAgent,
-		selfishness:       10,                      // of 0 to 10, with 10 being completely selfish, 0 being completely selfless
-		lastMeal:          0,                       //Stores value of the last amount of food taken
-		daysSinceLastMeal: 0,                       //Count of how many days since last eating
-		currentAimHP:      100,                     //Scale of 0 to 2, 0 being willing to lose health, 1 being maintaining health, 2 being gaining health
+		Base:        baseAgent,
+		selfishness: 10, // of 0 to 10, with 10 being completely selfish, 0 being completely selfless
+		lastMeal:    0,  //Stores value of the last amount of food taken
+		// TODO: PARAMETRISE TO MAXHP
+		hpAfterEating:     100,
+		daysSinceLastMeal: 0,   //Count of how many days since last eating
+		currentAimHP:      100, //Scale of 0 to 2, 0 being willing to lose health, 1 being maintaining health, 2 being gaining health
+		attemptFood:       0,
 		satisfaction:      0,                       //Scale of -3 to 3, with 3 being satisfied and unsatisfied
-		attemptToEat:      true,                    //Variable needed to check if we have already attempted to eat on a day
-		rememberAge:       0,                       // To check if a day has passed by our age increasing
+		rememberAge:       -1,                      // To check if a day has passed by our age increasing
 		socialMemory:      map[uuid.UUID]Memory{},  // Memory of other agents, key is agent id
 		surroundingAgents: make(map[int]uuid.UUID), //Map agent id's of surrounding floors relative to current floor
 	}, nil
@@ -58,7 +56,6 @@ func PercentageHP(a *CustomAgent5) int {
 	return int((float64(a.HP()) / float64(a.HealthInfo().MaxHP)) * 100.0)
 }
 
-// force number to be in range because min and max only takes float64
 func (a *CustomAgent5) restrictToRange(lowerBound, upperBound, num int) int {
 	if num < lowerBound {
 		return lowerBound
@@ -69,16 +66,13 @@ func (a *CustomAgent5) restrictToRange(lowerBound, upperBound, num int) int {
 	return num
 }
 
-// Checks if agent id exists in socialMemory.
 func (a *CustomAgent5) memoryIdExists(id uuid.UUID) bool {
 	_, exists := a.socialMemory[id]
 	return exists
 }
 
-// Initialises memory of new agent
 func (a *CustomAgent5) newMemory(id uuid.UUID) {
 	a.socialMemory[id] = Memory{
-		//trust:             0,
 		foodTaken:         100,
 		agentHP:           a.HealthInfo().MaxHP,
 		intentionFood:     100,
@@ -87,16 +81,7 @@ func (a *CustomAgent5) newMemory(id uuid.UUID) {
 	}
 }
 
-// Changes trust in socialMemory, change can be negative
-// func (a *CustomAgent5) addToSocialTrust(id uuid.UUID, change int) {
-// 	a.socialMemory[id] = Memory{
-// 		//trust:             restrictToRange(-5, 5, a.socialMemory[id].trust+change),
-// 		favour:            a.socialMemory[id].favour,
-// 		daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
-// 	}
-// }
-
-func (a *CustomAgent5) updateFoodTakenMemory(id uuid.UUID, foodTaken int) {
+func (a *CustomAgent5) updateFoodTakenMemory(id uuid.UUID, foodTaken food.FoodType) {
 	mem := a.socialMemory[id]
 	mem.foodTaken = foodTaken
 	a.socialMemory[id] = mem
@@ -108,14 +93,12 @@ func (a *CustomAgent5) updateAgentHPMemory(id uuid.UUID, agentHP int) {
 	a.socialMemory[id] = mem
 }
 
-func (a *CustomAgent5) updateIntentionFoodMemory(id uuid.UUID, intentionFood int) {
+func (a *CustomAgent5) updateIntentionFoodMemory(id uuid.UUID, intentionFood food.FoodType) {
 	mem := a.socialMemory[id]
 	mem.intentionFood = intentionFood
-	// fmt.Println("mem.intentionFood ", mem.intentionFood)
 	a.socialMemory[id] = mem
 }
 
-// Changes favour in socialMemory, change can be negative
 func (a *CustomAgent5) addToSocialFavour(id uuid.UUID, change int) {
 	mem := a.socialMemory[id]
 	mem.favour = a.restrictToRange(0, 10, mem.favour+change)
@@ -130,8 +113,6 @@ func (a *CustomAgent5) addToSocialFavour(id uuid.UUID, change int) {
 	// }
 }
 
-//TODO: MAKE SURE THIS INCREMENTS AND SAVES PROPERLY
-// Increments all daysSinceLastSeen by 1
 func (a *CustomAgent5) incrementDaysSinceLastSeen() {
 	for _, mem := range a.socialMemory {
 		// mem := a.socialMemory[id]
@@ -148,7 +129,6 @@ func (a *CustomAgent5) resetSocialKnowledge(id uuid.UUID) {
 	a.socialMemory[id] = mem
 }
 
-// Sets daysSinceLastSeen to 0 of given agent id
 func (a *CustomAgent5) resetDaysSinceLastSeen(id uuid.UUID) {
 	mem := a.socialMemory[id]
 	mem.daysSinceLastSeen = 0
@@ -160,15 +140,6 @@ func (a *CustomAgent5) updateAimHP() {
 }
 
 func (a *CustomAgent5) updateSelfishness() {
-	// if a.satisfaction == 3 {
-	// 	a.selfishness = 3
-	// }
-	// if a.satisfaction < 0 || a.daysSinceLastMeal > 2 {
-	// 	a.selfishness++
-	// }
-	//The above is a basic implementation for now while messaging is not functional
-	//Once messages are implemented this function will be dependent on our social network and treaties etc
-
 	a.selfishness = 10 - a.calculateAverageFavour()
 }
 
@@ -194,10 +165,6 @@ func (a *CustomAgent5) GetMessages() {
 	}
 }
 
-// func (a *CustomAgent5) SendMessages() {
-// 	//function that will send all messages we need to the other agents
-// }
-
 func (a *CustomAgent5) DailyMessages() {
 	sendingToFloor := 0
 	switch a.messagingCounter {
@@ -206,38 +173,34 @@ func (a *CustomAgent5) DailyMessages() {
 		sendingToFloor = 1
 		a.Log("Team 5 agent is sending an Ask HP Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
 		a.SendMessage(sendingToFloor, msg)
-		a.messagingCounter++
 	case 1:
 		msg := messages.NewAskFoodTakenMessage(a.ID(), a.Floor())
 		sendingToFloor = 1
 		a.Log("Team 5 agent is sending an Ask Food Taken Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
 		a.SendMessage(sendingToFloor, msg)
-		a.messagingCounter++
 	case 2:
 		msg := messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor())
 		sendingToFloor = 1
 		a.Log("Team 5 agent is sending an Ask Intention Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
 		a.SendMessage(sendingToFloor, msg)
-		a.messagingCounter++
 	case 3:
 		msg := messages.NewAskHPMessage(a.ID(), a.Floor())
 		sendingToFloor = -1
 		a.Log("Team 5 agent is sending an Ask HP Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
 		a.SendMessage(sendingToFloor, msg)
-		a.messagingCounter++
 	case 4:
 		msg := messages.NewAskFoodTakenMessage(a.ID(), a.Floor())
 		sendingToFloor = -1
 		a.Log("Team 5 agent is sending an Ask Food Taken Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
 		a.SendMessage(sendingToFloor, msg)
-		a.messagingCounter++
 	case 5:
 		msg := messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor())
 		sendingToFloor = -1
 		a.Log("Team 5 agent is sending an Ask Intention Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
 		a.SendMessage(sendingToFloor, msg)
-		a.messagingCounter++
+	default:
 	}
+	a.messagingCounter++
 }
 
 func (a *CustomAgent5) ResetSurroundingAgents() {
@@ -250,7 +213,7 @@ func (a *CustomAgent5) calculateAverageFavour() int {
 	sum := 0
 	count := 0
 	for floor := range a.surroundingAgents {
-		sum = sum + a.socialMemory[a.surroundingAgents[floor]].favour
+		sum += a.socialMemory[a.surroundingAgents[floor]].favour
 		count++
 	}
 	if count == 0 {
@@ -262,8 +225,8 @@ func (a *CustomAgent5) calculateAverageFavour() int {
 func (a *CustomAgent5) updateFavour() {
 	for id, mem := range a.socialMemory {
 		if mem.daysSinceLastSeen < 2 {
-			judgement := (a.HP() - mem.agentHP) + (int(a.lastMeal) - mem.foodTaken) + (int(a.calculateAttemptFood()) - mem.intentionFood)
-			a.Log("I have judged an agent", infra.Fields{"judgement": judgement})
+			judgement := (a.hpAfterEating - mem.agentHP) + int(a.lastMeal-mem.foodTaken) + int(a.calculateAttemptFood()-mem.intentionFood)
+			// a.Log("I have judged an agent", infra.Fields{"judgement": judgement})
 			if judgement > 0 {
 				a.addToSocialFavour(id, 1)
 			}
@@ -281,12 +244,14 @@ func (a *CustomAgent5) dayPassed() {
 	a.updateFavour()
 	a.updateSelfishness()
 	a.updateAimHP()
-	for id := range a.socialMemory {
-		a.Log("Memory at end of day", infra.Fields{"favour": a.socialMemory[id].favour, "agentHP": a.socialMemory[id].agentHP, "foodTaken": a.socialMemory[id].foodTaken, "intent": a.socialMemory[id].intentionFood})
-	}
-	a.Log("Selfishness at end of day", infra.Fields{"selfishness": a.selfishness})
-	a.Log("Aim HP at end of day", infra.Fields{"aim HP": a.currentAimHP})
-	a.Log("Surrounding Agent Knowledge at end of day", infra.Fields{"agent map": a.surroundingAgents})
+	a.attemptFood = a.calculateAttemptFood()
+
+	// for id := range a.socialMemory {
+	// 	a.Log("Memory at end of day", infra.Fields{"favour": a.socialMemory[id].favour, "agentHP": a.socialMemory[id].agentHP, "foodTaken": a.socialMemory[id].foodTaken, "intent": a.socialMemory[id].intentionFood})
+	// }
+	// a.Log("Selfishness at end of day", infra.Fields{"selfishness": a.selfishness})
+	// a.Log("Aim HP at end of day", infra.Fields{"aim HP": a.currentAimHP})
+	// a.Log("Surrounding Agent Knowledge at end of day", infra.Fields{"agent map": a.surroundingAgents})
 	a.daysSinceLastMeal++
 	a.incrementDaysSinceLastSeen()
 	if a.rememberFloor != a.Floor() {
@@ -298,19 +263,28 @@ func (a *CustomAgent5) dayPassed() {
 
 func (a *CustomAgent5) calculateAttemptFood() food.FoodType {
 	if a.HP() < a.HealthInfo().WeakLevel {
-		return food.FoodType(2)
+		// TODO: UPDATE THIS VALUE TO A PARAMETER
+		return food.FoodType(3)
 	}
-	return food.FoodType(math.Min(a.HealthInfo().Tau*3, float64(health.FoodRequired(a.HP(), a.currentAimHP, a.HealthInfo()))))
+	foodAttempt := health.FoodRequired(a.HP(), a.currentAimHP, a.HealthInfo())
+	return food.FoodType(math.Min(a.HealthInfo().Tau*3, float64(foodAttempt)))
 }
 
 func (a *CustomAgent5) Run() {
 	a.Log("Reporting agent state of team 5 agent", infra.Fields{"health": a.HP(), "floor": a.Floor()})
+
+	//Check if a day has passed
+	if a.Age() > a.rememberAge {
+		a.dayPassed()
+		a.rememberAge = a.Age()
+	}
+
 	a.GetMessages()
 	a.DailyMessages()
-	attemptFood := a.calculateAttemptFood()
+
 	//When platform reaches our floor and we haven't tried to eat, then try to eat
-	if a.CurrPlatFood() != -1 && a.attemptToEat {
-		lastMeal, err := a.TakeFood(attemptFood)
+	if a.CurrPlatFood() != -1 && !a.HasEaten() {
+		lastMeal, err := a.TakeFood(a.attemptFood)
 		if err != nil {
 			switch err.(type) {
 			case *infra.FloorError:
@@ -321,25 +295,11 @@ func (a *CustomAgent5) Run() {
 		}
 		a.lastMeal = lastMeal
 		if a.lastMeal > 0 {
-			a.Log("Team 5 agent has taken food", infra.Fields{"amount": a.lastMeal})
 			a.daysSinceLastMeal = 0
 		}
 		a.updateSatisfaction()
-		a.attemptToEat = false
-	}
-
-	if a.Age() > a.rememberAge {
-		//Check for if a day has passed
-		a.dayPassed()
-		a.attemptToEat = true
-		a.rememberAge = a.Age()
-	}
-	for id, mem := range a.socialMemory {
-		if mem.intentionFood == 0 {
-			fmt.Println("intention food is 0")
-		}
-		// fmt.Println("agentMemID", id, "intent", mem.intentionFood)
-		a.Log("Memory at end of tick", infra.Fields{"agentMemId": id, "favour": mem.favour, "agentHP": mem.agentHP, "foodTaken": mem.foodTaken, "intent": mem.intentionFood})
+		a.hpAfterEating = a.HP()
+		a.messagingCounter = 0
 	}
 }
 
@@ -392,9 +352,9 @@ func (a *CustomAgent5) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 }
 
 func (a *CustomAgent5) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
-	amount := msg.Request()
+	amount := food.FoodType(msg.Request())
 	reponse := true
-	if a.calculateAttemptFood() > food.FoodType(amount) {
+	if a.calculateAttemptFood() > amount {
 		reponse = false
 	}
 	reply := msg.Reply(a.ID(), a.Floor(), reponse)
@@ -418,7 +378,7 @@ func (a *CustomAgent5) HandleResponse(msg messages.BoolResponseMessage) {
 }
 
 func (a *CustomAgent5) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
-	statement := msg.Statement()
+	statement := food.FoodType(msg.Statement())
 	a.Log("Team 5 agent received a StateFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "receiver floor": a.Floor(), "statement": statement})
 	if !a.memoryIdExists(msg.SenderID()) {
 		a.newMemory(msg.SenderID())
@@ -442,7 +402,7 @@ func (a *CustomAgent5) HandleStateHP(msg messages.StateHPMessage) {
 }
 
 func (a *CustomAgent5) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
-	statement := msg.Statement()
+	statement := food.FoodType(msg.Statement())
 	a.Log("Team 5 agent received a StateIntendedFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "receiver floor": a.Floor(), "statement": statement})
 	if !a.memoryIdExists(msg.SenderID()) {
 		a.newMemory(msg.SenderID())
