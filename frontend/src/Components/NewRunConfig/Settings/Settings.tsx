@@ -1,7 +1,7 @@
 import { Button, FormGroup, NumericInput } from "@blueprintjs/core";
 import { SubmitSimulation } from "../NewRunState";
 import { displayParams } from "../ParameterLabels";
-import { SimConfig } from "../SimConfig";
+import { SimConfig } from "../../../Helpers/SimConfig";
 import "./Settings.css";
 
 export default function NewRun(state: any) {

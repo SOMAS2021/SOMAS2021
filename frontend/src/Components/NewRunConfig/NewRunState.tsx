@@ -1,7 +1,7 @@
 import { showToast } from "../Toaster";
 import AdvancedSettingsMenu from "./AdvancedSettings/AdvancedSettings";
 import NewRun from "./Settings/Settings";
-import InitConfigState from "./SimConfig";
+import InitConfigState from "../../Helpers/SimConfig";
 
 function request(configJSON: string) {
   const requestOptions = {

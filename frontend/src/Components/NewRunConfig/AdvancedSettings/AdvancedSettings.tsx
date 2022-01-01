@@ -1,7 +1,7 @@
 import { Button, Card, Elevation, FormGroup, NumericInput } from "@blueprintjs/core";
 import { SubmitSimulation } from "../NewRunState";
 import { displayParams } from "../ParameterLabels";
-import { SimConfig } from "../SimConfig";
+import { SimConfig } from "../../../Helpers/SimConfig";
 import "./AdvancedSettings.css";
 
 export default function AdvancedSettingsMenu(state: any) {
