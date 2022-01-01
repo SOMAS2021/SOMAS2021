@@ -5,8 +5,8 @@ const AppToaster = Toaster.create({
   position: Position.TOP,
 });
 
-export const showToast = (message: string, intent: Intent) => {
+export const showToast = (message: string, intent: Intent, timeout: number = 2500) => {
   // create toasts in response to interactions.
   // in most cases, it's enough to simply create and forget (thanks to timeout).
-  AppToaster.show({ message: message, intent: intent });
+  AppToaster.show({ message: message, intent: intent, timeout: timeout });
 };
