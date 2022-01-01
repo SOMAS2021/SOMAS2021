@@ -16,7 +16,7 @@ function App() {
           <Results />
         </div>
       </div>
-      <NewRunState/>
+      <NewRunState />
     </div>
   );
 }
