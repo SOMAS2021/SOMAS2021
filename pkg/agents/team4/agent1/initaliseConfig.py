@@ -20,10 +20,12 @@ for _ in range(number_of_agents):
         "DaysToWait": [],
     }
 
-    agent_config["FoodToEat"] = [random.randint(0, 100)
+    # random.randint(0, 100)
+    agent_config["FoodToEat"] = [0.0
                                  for _ in range(int(number_of_health_levels))]
 
-    agent_config["DaysToWait"] = [random.randint(0, 7)
+    # random.randint(0, 7)
+    agent_config["DaysToWait"] = [0.0
                                   for _ in range(int(number_of_health_levels))]
 
     best_agents.append(agent_config)
