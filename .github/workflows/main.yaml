@@ -78,21 +78,21 @@ jobs:
 
   Frontend:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x]
-
     steps:
       - uses: actions/checkout@v2
 
       - name: Setup node
         uses: actions/setup-node@master
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 14.x
 
       - name: Install dependencies
         run: |
           cd frontend && npm install && cd ..
+
+      - name: Lint
+        run: |
+          cd frontend && npm run lint && cd ..
 
       - name: Build
         run: |
