@@ -214,10 +214,8 @@ func (a *Base) ReceiveMessage() messages.Message {
 	}
 }
 
-func (a *Base) SendMessage(direction int, msg messages.Message) {
-	if (direction == -1) || (direction == 1) {
-		a.tower.SendMessage(direction, a.floor, msg)
-	}
+func (a *Base) SendMessage(msg messages.Message) {
+	a.tower.SendMessage(a.floor, msg)
 }
 
 func (a *Base) HealthInfo() *health.HealthInfo {
@@ -237,9 +235,5 @@ func (a *Base) HandleProposeTreaty(msg messages.ProposeTreatyMessage)           
 func (a *Base) HandleTreatyResponse(msg messages.TreatyResponseMessage)                  {}
 
 func (a *Base) HandlePropogate(msg messages.Message) {
-	direction := 1
-	if a.Floor() > msg.TargetFloor() {
-		direction = -1
-	}
-	a.SendMessage(direction, msg)
+	a.SendMessage(msg)
 }
