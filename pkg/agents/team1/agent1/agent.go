@@ -20,13 +20,13 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 }
 
 func (a *CustomAgent1) Run() {
-	a.Log("Reporting agent state", infra.Fields{"health": a.HP(), "floor": a.Floor()})
+	// a.Log("Reporting agent state", infra.Fields{"health": a.HP(), "floor": a.Floor()})
 
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
 	} else {
-		a.Log("I got no thing")
+		// a.Log("I got no thing")
 	}
 
 	r := rand.Intn(9)
@@ -69,7 +69,7 @@ func (a *CustomAgent1) Run() {
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "ProposeTreatyMessage", "floor": a.Floor()})
 	}
-	a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
+	// // a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
 	_, err := a.TakeFood(16)
 	if err != nil {
 		switch err.(type) {

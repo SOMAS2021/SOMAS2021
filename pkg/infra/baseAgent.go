@@ -91,7 +91,8 @@ func (a *Base) Run() {
 }
 
 func (a *Base) HP() int {
-	return utilFunctions.MinInt(a.hp, 100)
+	return a.hp
+	// return utilFunctions.MinInt(a.hp, 100)
 }
 
 func (a *Base) Age() int {
