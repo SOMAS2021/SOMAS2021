@@ -19,6 +19,7 @@ import (
 type Agent interface {
 	Run()
 	IsAlive() bool
+	Floor() int
 	BaseAgent() *Base
 	HandleAskHP(msg messages.AskHPMessage)
 	HandleAskFoodTaken(msg messages.AskFoodTakenMessage)
@@ -31,6 +32,7 @@ type Agent interface {
 	HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage)
 	HandleProposeTreaty(msg messages.ProposeTreatyMessage)
 	HandleTreatyResponse(msg messages.TreatyResponseMessage)
+	HandlePropogate(msg messages.Message)
 }
 
 type Fields = log.Fields
@@ -212,10 +214,8 @@ func (a *Base) ReceiveMessage() messages.Message {
 	}
 }
 
-func (a *Base) SendMessage(direction int, msg messages.Message) {
-	if (direction == -1) || (direction == 1) {
-		a.tower.SendMessage(direction, a.floor, msg)
-	}
+func (a *Base) SendMessage(msg messages.Message) {
+	a.tower.SendMessage(a.floor, msg)
 }
 
 func (a *Base) HealthInfo() *health.HealthInfo {
@@ -233,3 +233,7 @@ func (a *Base) HandleStateHP(msg messages.StateHPMessage)                       
 func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}
 func (a *Base) HandleProposeTreaty(msg messages.ProposeTreatyMessage)                    {}
 func (a *Base) HandleTreatyResponse(msg messages.TreatyResponseMessage)                  {}
+
+func (a *Base) HandlePropogate(msg messages.Message) {
+	a.SendMessage(msg)
+}

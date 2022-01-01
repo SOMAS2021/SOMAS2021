@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -23,6 +24,7 @@ func main() {
 	configPathPtr := flag.String("configpath", "config.json", "path for parameter configuration json file")
 	modePtr := flag.String("mode", "sim", "Execution mode. Either 'sim' for running a simulation and exiting, or 'serve' to serve a simulation endpoint")
 	portPtr := flag.Int("port", 9000, "Port to run the server on if mode='serve'")
+	devmodePtr := flag.Bool("devmode", false, "If true, disable Access Origin Control for cross-domain requests")
 	flag.Parse()
 
 	// check backend mode
@@ -30,8 +32,16 @@ func main() {
 		port := ":" + strconv.Itoa(*portPtr)
 		fs := http.FileServer(http.Dir("./build"))
 		http.Handle("/", fs)
-		log.Println("Listening on " + port + "...")
+		log.Info("Listening on " + port + "...")
+		if *devmodePtr {
+			log.Info("DEV MODE ACTIVE")
+		}
+
+		// Simulation endpoint
 		http.HandleFunc("/simulate", func(w http.ResponseWriter, r *http.Request) {
+			if *devmodePtr {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			}
 			parameters, err := config.LoadParamFromHTTPRequest(r)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
@@ -71,7 +81,12 @@ func main() {
 				return
 			}
 		})
+
+		// Directory fetch endpoint
 		http.HandleFunc("/directory", func(w http.ResponseWriter, r *http.Request) {
+			if *devmodePtr {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			}
 			//read directory
 			files, err := ioutil.ReadDir("./logs")
 			if err != nil {
@@ -91,6 +106,37 @@ func main() {
 
 			//convert struct to json and return the response
 
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		})
+
+		// File fetch endpoint
+		http.HandleFunc("/read", func(w http.ResponseWriter, r *http.Request) {
+			if *devmodePtr {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			}
+
+			logParams, err := config.LoadReadLogParamFromHTTPRequest(r)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			logFileName := filepath.Join("logs", logParams.LogFileName, logParams.LogType)
+			file, err := os.Open(logFileName + ".json")
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			defer file.Close()
+			var response config.ReadLogResponse
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				response.Log = append(response.Log, scanner.Text())
+			}
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
