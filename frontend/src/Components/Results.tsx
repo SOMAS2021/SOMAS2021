@@ -1,7 +1,8 @@
-import { Card, Elevation, H3, H1, H6, Divider, Spinner } from "@blueprintjs/core";
+import { H3, H6, Divider, Spinner } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
 import { GetResult } from "../Helpers/API";
 import { Result } from "../Helpers/Result";
+import ReportCard from "./Results/ReportCard";
 
 interface ResultsProps {
   logName: string;
@@ -45,7 +46,7 @@ function ResultDisplay(props: ResultDisplayProps) {
   const { result } = props;
   return (
     <>
-      <H3>{result!.title}</H3>
+      <H3>{result.title}</H3>
       <Divider></Divider>
       <div className="row">
         <div className="col-lg-2">
@@ -53,20 +54,5 @@ function ResultDisplay(props: ResultDisplayProps) {
         </div>
       </div>
     </>
-  );
-}
-
-interface ReportCardProps {
-  title: string;
-  description: string;
-}
-
-function ReportCard(props: ReportCardProps) {
-  const { title, description } = props;
-  return (
-    <Card interactive={true} elevation={Elevation.TWO} style={{ marginTop: 20 }}>
-      <H1 style={{ color: "#1F4B99" }}>{title}</H1>
-      <p>{description}</p>
-    </Card>
   );
 }
