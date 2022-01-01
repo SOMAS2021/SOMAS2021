@@ -1,6 +1,6 @@
 import { Button, Card, Elevation, FormGroup, NumericInput } from "@blueprintjs/core";
 import { SubmitSimulation } from "../NewRunState";
-import { displayParams } from "../ParameterLabels";
+import { advancedParams, params } from "../ParameterLabels";
 import { SimConfig } from "../../../Helpers/SimConfig";
 import "./AdvancedSettings.css";
 
@@ -30,12 +30,19 @@ export default function AdvancedSettingsMenu(state: any) {
     >
       <div className="modal-dialog">
         <div className="modal-content">
-          <Card interactive={true} elevation={Elevation.TWO}>
-            {displayParams.map((i) => (
+        <div className="modal-body">
+            {params.map((i) => (
               <FormGroup {...i}>
                 <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} />
               </FormGroup>
             ))}
+            {advancedParams.map((i) => (
+              <FormGroup {...i}>
+                <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} />
+              </FormGroup>
+            ))}
+          </div>
+          <div className="modal-footer">
             <Button intent="danger" className="close" icon="cross" text="Cancel" data-dismiss="modal" />
             <Button
               intent="success"
@@ -44,7 +51,7 @@ export default function AdvancedSettingsMenu(state: any) {
               data-dismiss="modal"
               onClick={() => SubmitState()}
             />
-          </Card>
+            </div>
         </div>
         <div className="modal-footer"></div>
       </div>

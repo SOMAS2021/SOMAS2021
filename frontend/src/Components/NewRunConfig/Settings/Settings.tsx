@@ -1,6 +1,6 @@
 import { Button, FormGroup, NumericInput } from "@blueprintjs/core";
 import { SubmitSimulation } from "../NewRunState";
-import { displayParams } from "../ParameterLabels";
+import { params } from "../ParameterLabels";
 import { SimConfig } from "../../../Helpers/SimConfig";
 import "./Settings.css";
 
@@ -35,19 +35,11 @@ export default function NewRun(state: any) {
             <Button className="bp3-minimal close" icon="cross" text="" data-dismiss="modal" aria-label="Close" />
           </div>
           <div className="modal-body">
-            {displayParams.slice(0, 11).map((i) => (
+            {params.map((i) => (
               <FormGroup {...i}>
                 <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} />
               </FormGroup>
             ))}
-            <Button
-              className="bp3-minimal"
-              icon="cog"
-              text="Advanced Settings"
-              data-toggle="modal"
-              data-target="#testModal"
-              data-dismiss="modal"
-            />
           </div>
           <div className="modal-footer">
             <Button intent="danger" className="close" icon="cross" text="Cancel" data-dismiss="modal" />
