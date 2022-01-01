@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -35,6 +36,8 @@ func main() {
 		if *devmodePtr {
 			log.Info("DEV MODE ACTIVE")
 		}
+
+		// Simulation endpoint
 		http.HandleFunc("/simulate", func(w http.ResponseWriter, r *http.Request) {
 			if *devmodePtr {
 				w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -78,6 +81,8 @@ func main() {
 				return
 			}
 		})
+
+		// Directory fetch endpoint
 		http.HandleFunc("/directory", func(w http.ResponseWriter, r *http.Request) {
 			if *devmodePtr {
 				w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -101,6 +106,37 @@ func main() {
 
 			//convert struct to json and return the response
 
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		})
+
+		// File fetch endpoint
+		http.HandleFunc("/read", func(w http.ResponseWriter, r *http.Request) {
+			if *devmodePtr {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			}
+
+			logParams, err := config.LoadReadLogParamFromHTTPRequest(r)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			logFileName := filepath.Join("logs", logParams.LogFileName, logParams.LogType)
+			file, err := os.Open(logFileName + ".json")
+			defer file.Close()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			var response config.ReadLogResponse
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				response.Log = append(response.Log, scanner.Text())
+			}
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
