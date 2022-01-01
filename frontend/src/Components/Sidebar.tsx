@@ -2,8 +2,13 @@ import { Menu, MenuDivider, MenuItem, Spinner } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
 import { showToast } from "./Toaster";
 
-export default function Sidebar() {
-  const [activeLog, setActiveLog] = useState("");
+interface SideBarProps {
+  activeLog: string;
+  setActiveLog: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export default function Sidebar(props: SideBarProps) {
+  const { activeLog, setActiveLog } = props;
   const [loading, setLoading] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
 
@@ -12,7 +17,7 @@ export default function Sidebar() {
     setLoading(true);
     fetch("http://localhost:9000/directory")
       .then(async (res) => {
-        if(res.status != 200){
+        if (res.status !== 200) {
           showToast(`Loading logs failed. (${res.status}) ${await res.text()}`, "danger", 5000);
           setLoading(false);
         }
@@ -20,11 +25,11 @@ export default function Sidebar() {
           setLogs(res["FolderNames"]);
           showToast("Loading logs completed", "success");
           setLoading(false);
-        })
+        });
       })
       .catch((err) => {
         showToast(`Loading logs: failed. ${err}`, "danger", 5000);
-        setLoading(false)
+        setLoading(false);
       });
   }, []);
   return (
