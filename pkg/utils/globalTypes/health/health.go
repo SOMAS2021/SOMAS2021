@@ -46,6 +46,7 @@ func NewHealthInfo(parameters *config.ConfigParameters) *HealthInfo {
 // This function takes in an initial HP and a goal HP, and returns how much food you should eat to
 // achieve the goal HP, while taking into account HP decay.
 // This function should be called only for HP values above WeakLevel.
+// If the difference between currentHP and goalHP is too large, returns the maximum food value
 func FoodRequired(currentHP int, goalHP int, healthInfo *HealthInfo) food.FoodType {
 	slope := healthInfo.HPLossSlope
 	base := healthInfo.HPLossBase
