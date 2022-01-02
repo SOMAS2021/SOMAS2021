@@ -69,7 +69,7 @@ func (a *CustomAgent1) Run() {
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "ProposeTreatyMessage", "floor": a.Floor()})
 	}
-	a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
+	// a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
 	_, err := a.TakeFood(16)
 	if err != nil {
 		switch err.(type) {
