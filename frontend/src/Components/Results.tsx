@@ -33,7 +33,7 @@ export default function Results(props: ResultsProps) {
           <ResultDisplay result={result} />
         ) : (
           <H6>
-            <i>Select an exsiting simulation result to view results</i>
+            <i>Select an existing simulation result to view results</i>
           </H6>
         ))}
     </div>

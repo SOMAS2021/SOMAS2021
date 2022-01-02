@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -35,6 +36,8 @@ func (L *LogManager) AddLogger(key string, logpath string) (logger *log.Logger, 
 		}
 		Logger.SetOutput(file)
 		Logger.SetFormatter(&log.JSONFormatter{})
+	} else {
+		Logger.SetOutput(ioutil.Discard)
 	}
 	L.loggers[key] = Logger
 	return Logger, err
