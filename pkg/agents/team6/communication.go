@@ -97,3 +97,23 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 	}
 
 }
+
+func (a *CustomAgent6) HandleAskHP(msg messages.AskHPMessage) {
+	if a.currBehaviour.String() != "Narcissist" {
+		reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
+		a.SendMessage(reply)
+		a.Log("I recieved an askHP message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
+	}
+}
+
+func (a *CustomAgent6) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.lastFoodTaken))
+	a.SendMessage(reply)
+	a.Log("I recieved an askFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
+}
+
+func (a *CustomAgent6) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.intendedFoodIntake()))
+	a.SendMessage(reply)
+	a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
+}

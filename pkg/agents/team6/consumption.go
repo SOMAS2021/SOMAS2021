@@ -19,7 +19,8 @@ type levelsData struct { // tiers of HP
 	critLevel    int
 }
 
-func (a *CustomAgent6) foodIntake() food.FoodType {
+// desired food intake without any constraint coming from messages/treaties
+func (a *CustomAgent6) desiredFoodIntake() food.FoodType {
 	healthInfo := a.HealthInfo()
 
 	thresholds := thresholdData{
@@ -74,6 +75,14 @@ func (a *CustomAgent6) foodIntake() food.FoodType {
 func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food.FoodType {
 	denom := healthInfo.Width - float64(goalHP) + (1-healthInfo.HPLossSlope)*float64(currentHP) - float64(healthInfo.HPLossBase) + healthInfo.HPLossSlope*float64(healthInfo.WeakLevel)
 	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
+}
+
+func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
+	intendedFoodIntake := a.desiredFoodIntake()
+	if a.reqLeaveFoodAmount != -1 {
+		intendedFoodIntake = food.FoodType(a.reqLeaveFoodAmount)
+	}
+	return intendedFoodIntake
 }
 
 // func foodRequiredToStay(currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {

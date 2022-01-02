@@ -39,6 +39,7 @@ type CustomAgent6 struct {
 	currBehaviour      behaviour
 	foodTakeDay        int
 	reqLeaveFoodAmount int
+	lastFoodTaken      food.FoodType
 }
 
 type thresholdBehaviourPair struct {
@@ -70,6 +71,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		maxFloorGuess:      baseAgent.Floor() + 2,
 		foodTakeDay:        0,
 		reqLeaveFoodAmount: -1,
+		lastFoodTaken:      0,
 	}, nil
 }
 
@@ -106,12 +108,7 @@ func (a *CustomAgent6) Run() {
 
 	// a.Log("Custom agent 6 after update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
 
-	foodAmount := a.foodIntake()
-	if a.reqLeaveFoodAmount != -1 {
-		foodAmount = food.FoodType(a.reqLeaveFoodAmount)
-	}
-
-	_, err := a.TakeFood(foodAmount)
+	foodTaken, err := a.TakeFood(a.intendedFoodIntake())
 	if err != nil {
 		switch err.(type) {
 		case *infra.FloorError:
@@ -119,8 +116,11 @@ func (a *CustomAgent6) Run() {
 		case *infra.AlreadyEatenError:
 		default:
 		}
+	} else {
+		a.lastFoodTaken = foodTaken
 	}
-	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodAmount, "bType": a.currBehaviour.String()})
+
+	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
 	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
 
 	// fmt.Println(a.ActiveTreaties())
