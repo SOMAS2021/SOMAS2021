@@ -207,58 +207,6 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 	return foodTaken, nil
 }
 
-func (a *Base) ReceiveMessage() messages.Message {
-	select {
-	case msg := <-a.inbox:
-		return msg
-	default:
-		return nil
-	}
-}
-
-func (a *Base) SendMessage(msg messages.Message) {
-	a.tower.SendMessage(a.floor, msg)
-}
-
 func (a *Base) HealthInfo() *health.HealthInfo {
 	return a.tower.healthInfo
-}
-
-func (a *Base) ActiveTreaties() map[uuid.UUID]messages.Treaty {
-	return a.activeTreaties
-}
-
-func (a *Base) AddToActiveTreaties(treaty messages.Treaty) {
-	a.activeTreaties[treaty.ID()] = treaty
-}
-
-func (a *Base) DeleteFromActiveTreaties(treaty messages.Treaty) {
-	delete(a.activeTreaties, treaty.ID())
-}
-
-func (a *Base) RespondToTreaty(msg messages.ProposeTreatyMessage, senderFloor int, response bool) messages.TreatyResponseMessage {
-	treatyToReview := msg.Treaty()
-	if response {
-		treatyToReview.SignTreaty()
-		a.AddToActiveTreaties(treatyToReview)
-	}
-	reply := msg.Reply(a.ID(), senderFloor, response)
-
-	return reply
-}
-
-func (a *Base) HandleAskHP(msg messages.AskHPMessage)                                    {}
-func (a *Base) HandleAskFoodTaken(msg messages.AskFoodTakenMessage)                      {}
-func (a *Base) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)     {}
-func (a *Base) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage)              {}
-func (a *Base) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage)                {}
-func (a *Base) HandleResponse(msg messages.BoolResponseMessage)                          {}
-func (a *Base) HandleStateFoodTaken(msg messages.StateFoodTakenMessage)                  {}
-func (a *Base) HandleStateHP(msg messages.StateHPMessage)                                {}
-func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}
-func (a *Base) HandleProposeTreaty(msg messages.ProposeTreatyMessage)                    {}
-func (a *Base) HandleTreatyResponse(msg messages.TreatyResponseMessage)                  {}
-
-func (a *Base) HandlePropogate(msg messages.Message) {
-	a.SendMessage(msg)
 }
