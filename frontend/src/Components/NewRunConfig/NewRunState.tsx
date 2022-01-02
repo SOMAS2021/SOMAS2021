@@ -6,10 +6,9 @@ import InitConfigState from "../../Helpers/SimConfig";
 function request(configJSON: string) {
   const requestOptions = {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: configJSON,
   };
-  var host = window.location.protocol + "//" + window.location.host;
+  var host = "http://localhost:9000";
   fetch(`${host}/simulate`, requestOptions)
     .then(function (response) {
       return response.json();
