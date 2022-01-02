@@ -27,6 +27,9 @@ for i in logs:
     except:
         continue
 
-totalAgentDeaths = logs[-1]['cumulativeDeaths']
-
+try:
+    totalAgentDeaths = logs[-1]['cumulativeDeaths']
+except:
+    totalAgentDeaths = 0
+    
 print(ourAgentDeaths)

@@ -54,13 +54,14 @@ type CustomAgentEvoParams struct {
 	// scalingEquation   Equation
 	// currentFloorScore Equation
 	// currentHpScore    Equation
+	previousAge  int
 	foodToEat    []int
 	daysToWait   []int
 	ageLastEaten int
 	// below params updated based in previous experience of floors
-	trustscore float64
-	morality   float64
-	trauma     float64
+	trustscore        float64
+	morality          float64
+	traumaScaleFactor float64
 }
 
 type CustomAgentEvo struct {
@@ -91,12 +92,13 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 		// },
 		// currentFloorScore: currentFloorScoreEquation,
 		// currentHpScore:    currentHpScoreEquation,
-		foodToEat:    data1.FoodToEat,
-		daysToWait:   data1.DaysToWait,
-		ageLastEaten: 0,
-		trustscore:   100 * rand.Float64(), //random for now
-		morality:     100 * rand.Float64(), //random for now
-		trauma:       0,                    //0 for now
+		previousAge:       0,
+		foodToEat:         data1.FoodToEat,
+		daysToWait:        data1.DaysToWait,
+		ageLastEaten:      0,
+		trustscore:        100 * rand.Float64(), //random for now
+		morality:          100 * rand.Float64(), //random for now
+		traumaScaleFactor: 1,                    //0 for now
 	}
 }
 
@@ -111,23 +113,42 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 
 func (a *CustomAgentEvo) Run() {
 
+	dayPass := false
+	if a.Age() != a.params.previousAge {
+		a.params.previousAge = a.Age()
+		dayPass = true
+	}
+	dayPass = dayPass
 	var healthStatus int
 	var healthLevelSeparation = int(0.33 * float64(a.HealthInfo().MaxHP-a.HealthInfo().WeakLevel))
 
 	if a.HP() <= a.HealthInfo().WeakLevel { //critical
 		healthStatus = 0
+		// if dayPass {
+		// 	a.params.traumaScaleFactor = math.Min(200, a.params.traumaScaleFactor+0.03)
+		// }
 	} else if a.HP() <= a.HealthInfo().WeakLevel+healthLevelSeparation { //weak
 		healthStatus = 1
+		// if dayPass {
+		// 	a.params.traumaScaleFactor = math.Min(200, a.params.traumaScaleFactor+0.02)
+		// }
 	} else if a.HP() <= a.HealthInfo().WeakLevel+2*healthLevelSeparation { //normal
 		healthStatus = 2
+		// if dayPass {
+		// 	a.params.traumaScaleFactor = math.Max(0, a.params.traumaScaleFactor-0.02)
+		// }
 	} else { //strong
 		healthStatus = 3
+		// if dayPass {
+		// 	a.params.traumaScaleFactor = math.Max(0, a.params.traumaScaleFactor-0.03)
+		// }
 	}
 
 	var foodEaten food.FoodType
 	var err error
 	if (a.Age() - a.params.ageLastEaten) >= a.params.daysToWait[healthStatus] {
-		foodEaten, err = a.TakeFood(food.FoodType(int(a.params.foodToEat[healthStatus])))
+		calculatedAmountToEat := a.params.traumaScaleFactor * float64(a.params.foodToEat[healthStatus])
+		foodEaten, err = a.TakeFood(food.FoodType(calculatedAmountToEat))
 		a.params.ageLastEaten = a.Age()
 		if err != nil {
 			switch err.(type) {

@@ -14,7 +14,7 @@ touch $agentConfigFile $bestAgentsFile
 
 numberOfHealthLevels=4
 numberOfBestAgents=5
-numberOfAgentsPerSim=16
+numberOfAgentsPerSim=5
 numberOfIterations=3
 numberOfRuns=3
 

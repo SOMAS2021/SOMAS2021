@@ -10,7 +10,7 @@ number_of_best_agents = sys.argv[4]
 agent_config_file = open(agent_config_file_name, 'r+')
 best_agents_file = open(best_agent_file_name, 'r+')
 
-number_of_agents = int(number_of_best_agents) + 1
+number_of_agents = int(number_of_best_agents)
 
 # Initialising all configuration files to 0 values
 best_agents = []
