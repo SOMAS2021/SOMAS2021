@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"flag"
 	"io/ioutil"
@@ -55,18 +56,24 @@ func main() {
 				log.Error("Unable to setup log file: " + err.Error())
 			}
 
-			//channel and goroutine used for timeouts
-			c1 := make(chan string, 1)
+			//Timeout related stuff
+			//don't touch, don't ask me how it works
+			//https://stackoverflow.com/a/50579561
+
+			//context and channel are passed all the way down to simulation loop to check every tick if there was a timeout
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
+			ch := make(chan string, 1)
 
 			go func() {
 				log.Info("Simulation " + logFolderName + " started")
-				runNewSimulation(parameters, logFolderName)
-				c1 <- "Simulation Finished"
+				runNewSimulation(parameters, logFolderName, ctx, ch)
 			}()
 
 			// Listen on our channel AND a timeout channel - which ever happens first.
 			select {
-			case <-c1:
+			case <-ch:
 				log.Info("Simulation " + logFolderName + " finished successfully")
 			case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
 				http.Error(w, "Simulation Timeout", http.StatusInternalServerError)
@@ -176,17 +183,24 @@ func main() {
 			return
 		}
 
-		//channel and goroutine used for timeout
-		c1 := make(chan string, 1)
+		//Timeout related stuff
+		//don't touch, don't ask me how it works
+		//https://stackoverflow.com/a/50579561
+
+		//context and channel are passed all the way down to simulation loop to check every tick if there was a timeout
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		ch := make(chan string, 1)
 
 		go func() {
-			runNewSimulation(parameters, logFolderName)
-			c1 <- "Simulation Finished"
+			log.Info("Simulation started")
+			runNewSimulation(parameters, logFolderName, ctx, ch)
 		}()
 
 		// Listen on our channel AND a timeout channel - which ever happens first.
 		select {
-		case <-c1:
+		case <-ch:
 			log.Info("Simulation Finished Successfully")
 		case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
 			log.Fatal("Simulation Timeout")
@@ -195,12 +209,12 @@ func main() {
 }
 
 // Returns the logfile name as it is needed in the HTTP response
-func runNewSimulation(parameters config.ConfigParameters, logFolderName string) {
+func runNewSimulation(parameters config.ConfigParameters, logFolderName string, ctx context.Context, ch chan<- string) {
 	healthInfo := health.NewHealthInfo(&parameters)
 	parameters.LogFolderName = logFolderName
 	// TODO: agentParameters - struct
 	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
-	simEnv.Simulate()
+	simEnv.Simulate(ctx, ch)
 }
 
 func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName string, err error) {
