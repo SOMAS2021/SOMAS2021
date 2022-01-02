@@ -48,6 +48,7 @@ type Base struct {
 	hasEaten       bool
 	daysAtCritical int
 	age            int
+	activeTreaties map[uuid.UUID]messages.Treaty
 }
 
 func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
@@ -70,6 +71,7 @@ func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, age
 		hasEaten:       false,
 		daysAtCritical: 0,
 		age:            0,
+		activeTreaties: make(map[uuid.UUID]messages.Treaty),
 	}, nil
 }
 
@@ -98,6 +100,15 @@ func (a *Base) Age() int {
 
 func (a *Base) increaseAge() {
 	a.age++
+}
+
+func (a *Base) updateTreaties() {
+	for _, treaty := range a.activeTreaties {
+		treaty.DecrementDuration()
+		if treaty.Duration() == 0 {
+			delete(a.activeTreaties, treaty.ID())
+		}
+	}
 }
 
 // only show the food on the platform if the platform is on the
@@ -205,35 +216,6 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 	return foodTaken, nil
 }
 
-func (a *Base) ReceiveMessage() messages.Message {
-	select {
-	case msg := <-a.inbox:
-		return msg
-	default:
-		return nil
-	}
-}
-
-func (a *Base) SendMessage(msg messages.Message) {
-	a.tower.SendMessage(a.floor, msg)
-}
-
 func (a *Base) HealthInfo() *health.HealthInfo {
 	return a.tower.healthInfo
-}
-
-func (a *Base) HandleAskHP(msg messages.AskHPMessage)                                    {}
-func (a *Base) HandleAskFoodTaken(msg messages.AskFoodTakenMessage)                      {}
-func (a *Base) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)     {}
-func (a *Base) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage)              {}
-func (a *Base) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage)                {}
-func (a *Base) HandleResponse(msg messages.BoolResponseMessage)                          {}
-func (a *Base) HandleStateFoodTaken(msg messages.StateFoodTakenMessage)                  {}
-func (a *Base) HandleStateHP(msg messages.StateHPMessage)                                {}
-func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}
-func (a *Base) HandleProposeTreaty(msg messages.ProposeTreatyMessage)                    {}
-func (a *Base) HandleTreatyResponse(msg messages.TreatyResponseMessage)                  {}
-
-func (a *Base) HandlePropogate(msg messages.Message) {
-	a.SendMessage(msg)
 }
