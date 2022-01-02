@@ -30,6 +30,7 @@ export default function AdvancedSettingsMenu(state: any) {
     >
       <div className="modal-dialog">
         <div className="modal-content">
+          <div className="modal-header">Advanced Settings</div>
           <div className="modal-body">
             {params.map((i) => (
               <FormGroup {...i}>

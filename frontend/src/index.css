@@ -8,3 +8,8 @@ body {
   overflow: hidden;
   scroll-behavior: smooth;
 }
+
+.modal-body {
+  columns: 2 auto;
+  column-gap: 10%;
+}

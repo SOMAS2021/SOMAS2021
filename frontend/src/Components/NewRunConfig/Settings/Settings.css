@@ -10,3 +10,10 @@
     width: 0;
     margin: 0 auto;
 }
+
+@media (min-width: 576px){
+  #exampleModal .modal-dialog {
+    max-width: 600px;
+    margin: 1.75rem auto;
+    }
+}
