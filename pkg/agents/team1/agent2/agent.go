@@ -20,7 +20,21 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 
 func (a *CustomAgent2) Run() {
 	a.Log("Custom agent reporting status without using fields")
-	a.TakeFood(15)
+	_, err := a.TakeFood(15)
+	if err != nil {
+		switch err.(type) {
+		case *infra.FloorError:
+		case *infra.NegFoodError:
+		case *infra.AlreadyEatenError:
+		default:
+		}
+	}
+
+	if len(a.ActiveTreaties()) == 0 {
+		a.Log("I no longer have treaties")
+	} else {
+		a.Log("I have treaties")
+	}
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
@@ -31,33 +45,33 @@ func (a *CustomAgent2) Run() {
 }
 
 func (a *CustomAgent2) HandleAskHP(msg messages.AskHPMessage) {
-	reply := msg.Reply(a.Floor(), a.HP())
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
-	a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
+	a.SendMessage(reply)
+	a.Log("I recieved an askHP message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 }
 
 func (a *CustomAgent2) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
-	reply := msg.Reply(a.Floor(), 10)
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
-	a.Log("I recieved an askFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), 10)
+	a.SendMessage(reply)
+	a.Log("I recieved an askFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 }
 
 func (a *CustomAgent2) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
-	reply := msg.Reply(a.Floor(), 11)
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
-	a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), 11)
+	a.SendMessage(reply)
+	a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 }
 
 func (a *CustomAgent2) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
-	reply := msg.Reply(a.Floor(), true)
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
-	a.Log("I recieved a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
+	a.SendMessage(reply)
+	a.Log("I recieved a requestLeaveFood message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 }
 
 func (a *CustomAgent2) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
-	reply := msg.Reply(a.Floor(), true)
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
-	a.Log("I recieved a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
+	a.SendMessage(reply)
+	a.Log("I recieved a requestTakeFood message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 }
 
 func (a *CustomAgent2) HandleResponse(msg messages.BoolResponseMessage) {

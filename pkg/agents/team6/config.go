@@ -93,12 +93,29 @@ func (a *CustomAgent6) Run() {
 	// a.Log("Custom agent 6 after update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
 
 	foodAmount := a.foodIntake()
-	a.TakeFood(foodAmount)
+	_, err := a.TakeFood(foodAmount)
+	if err != nil {
+		switch err.(type) {
+		case *infra.FloorError:
+		case *infra.NegFoodError:
+		case *infra.AlreadyEatenError:
+		default:
+		}
+	}
 	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodAmount, "bType": a.currBehaviour.String()})
 	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
 
-	msg := messages.NewResponseMessage(a.Floor(), true)
-	a.SendMessage(1, msg)
-	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType()})
+	msg := messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()+1)
+	a.SendMessage(msg)
+	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType().String()})
+
+	// fmt.Println(a.ActiveTreaties())
+
+	// treaty := messages.NewTreaty(1, 1, 1, 1, 5, a.ID())
+	// treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
+
+	// treatyMsg.Visit(a)
+
+	// fmt.Println(a.ActiveTreaties())
 
 }

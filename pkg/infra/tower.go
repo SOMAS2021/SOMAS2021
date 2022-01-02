@@ -2,12 +2,14 @@ package infra
 
 import (
 	"math/rand"
-	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/logging"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -16,13 +18,13 @@ type Tower struct {
 	maxPlatFood    food.FoodType
 	currPlatFloor  int
 	agentCount     int
-	Agents         map[string]Agent
+	Agents         map[uuid.UUID]Agent
 	agentsPerFloor int
 	logger         log.Entry
+	stateLog       logging.StateLog
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
-	mx             sync.RWMutex
-	deadAgents     map[int]int
+	deadAgents     map[agent.AgentType]int
 }
 
 func (t *Tower) Log(message string, fields ...Fields) {
@@ -34,27 +36,27 @@ func (t *Tower) Log(message string, fields ...Fields) {
 
 func (t *Tower) TowerStateLog(timeOfTick string) {
 	t.Log("Reporting platform status"+timeOfTick, Fields{"food_left": t.currPlatFood, "floor": t.currPlatFloor})
+	t.stateLog.LogPlatFoodState(t.dayInfo.CurrDay, t.dayInfo.CurrTick, int(t.currPlatFood))
 }
 
 func NewTower(maxPlatFood food.FoodType, agentCount,
-	agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo) *Tower {
+	agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo, stateLog *logging.StateLog) *Tower {
 	return &Tower{
 		currPlatFood:   maxPlatFood,
 		maxPlatFood:    maxPlatFood,
 		currPlatFloor:  1,
 		agentCount:     agentCount,
-		Agents:         make(map[string]Agent),
+		Agents:         make(map[uuid.UUID]Agent),
 		agentsPerFloor: agentsPerFloor,
-		logger:         *log.WithFields(log.Fields{"reporter": "tower"}),
+		logger:         *stateLog.Logmanager.GetLogger("main").WithFields(log.Fields{"reporter": "tower"}),
+		stateLog:       *stateLog,
 		dayInfo:        dayInfo,
 		healthInfo:     healthInfo,
-		deadAgents:     make(map[int]int),
+		deadAgents:     make(map[agent.AgentType]int),
 	}
 }
 
 func (t *Tower) Tick() {
-	t.TowerStateLog(" end of tick")
-
 	// Shuffle the agents
 	if t.dayInfo.CurrTick%t.dayInfo.TicksPerReshuffle == 0 {
 		t.Reshuffle()
@@ -94,14 +96,20 @@ func (t *Tower) Reshuffle() {
 }
 
 func (t *Tower) endOfDay() {
+	t.dayInfo.CurrDay += 1
 	for _, agent := range t.Agents {
 		agent := agent.BaseAgent()
 		agent.hpDecay(t.healthInfo)
 		agent.increaseAge()
+		agent.updateTreaties()
 	}
 }
 
-func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message) {
+func (t *Tower) SendMessage(senderFloor int, msg messages.Message) {
+	direction := 1
+	if msg.SenderFloor() > msg.TargetFloor() {
+		direction = -1
+	}
 	for _, agent := range t.Agents {
 		agent := agent.BaseAgent()
 		if agent.floor == senderFloor+direction {
@@ -121,15 +129,13 @@ func (t *Tower) ResetTower() {
 }
 
 func (t *Tower) TotalAgents() int {
-	t.mx.RLock()
-	defer t.mx.RUnlock()
 	return len(t.Agents)
 }
 
-func (t *Tower) UpdateDeadAgents(agentType int) {
+func (t *Tower) UpdateDeadAgents(agentType agent.AgentType) {
 	t.deadAgents[agentType]++
 }
 
-func (t *Tower) DeadAgents() map[int]int {
+func (t *Tower) DeadAgents() map[agent.AgentType]int {
 	return t.deadAgents
 }

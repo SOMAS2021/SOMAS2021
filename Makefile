@@ -17,15 +17,16 @@ test: dep ## Run unittests
 
 test-coverage: dep ## Run tests with coverage
 	@go test -coverprofile ./bin/cover.out -covermode=atomic ./...
-	@cat ./bin/cover.out
 
 build: dep ## Build the binary file
+	@go generate ./...
 	@go build -o bin/backend .
  
 clean: ## Remove previous build
 	@rm -rf ./bin ./logs
  
 run: ## run simulation
+	@go generate ./...
 	@go run main.go $(ARGS)
 
 help: ## Display this help screen

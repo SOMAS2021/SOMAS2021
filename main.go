@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
+	"encoding/json"
 	"flag"
-	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
@@ -21,64 +23,207 @@ func main() {
 	configPathPtr := flag.String("configpath", "config.json", "path for parameter configuration json file")
 	modePtr := flag.String("mode", "sim", "Execution mode. Either 'sim' for running a simulation and exiting, or 'serve' to serve a simulation endpoint")
 	portPtr := flag.Int("port", 9000, "Port to run the server on if mode='serve'")
+	devmodePtr := flag.Bool("devmode", false, "If true, disable Access Origin Control for cross-domain requests")
 	flag.Parse()
 
 	// check backend mode
-	if *modePtr == "serve" {
+	if *modePtr == "serve" { // HTTP serve mode
 		port := ":" + strconv.Itoa(*portPtr)
 		fs := http.FileServer(http.Dir("./build"))
 		http.Handle("/", fs)
-		log.Println("Listening on " + port + "...")
+		log.Info("Listening on " + port + "...")
+		if *devmodePtr {
+			log.Info("DEV MODE ACTIVE")
+		}
+
+		// Simulation endpoint
 		http.HandleFunc("/simulate", func(w http.ResponseWriter, r *http.Request) {
-			// TODO add simulation end-point handling and parsing parameters from body json
-			fmt.Println("Will add simulation endpoint soon!")
+			if *devmodePtr {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			}
+			parameters, err := config.LoadParamFromHTTPRequest(r)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				log.Error("Unable to load parameters from the Simulation Request: " + err.Error())
+				return
+			}
+
+			rand.Seed(time.Now().UnixNano())
+			logFolderName, err := setupLogFile(parameters.LogFolderName, parameters.LogMain)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Error("Unable to setup log file: " + err.Error())
+			}
+
+			//channel and goroutine used for timeouts
+			c1 := make(chan string, 1)
+
+			go func() {
+				log.Info("Simulation " + logFolderName + " started")
+				runNewSimulation(parameters, logFolderName)
+				c1 <- "Simulation Finished"
+			}()
+
+			// Listen on our channel AND a timeout channel - which ever happens first.
+			select {
+			case <-c1:
+				log.Info("Simulation " + logFolderName + " finished successfully")
+			case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
+				http.Error(w, "Simulation Timeout", http.StatusInternalServerError)
+				log.Error("Simulation " + logFolderName + " timed out")
+				return
+			}
+
+			//generate the http response
+			w.Header().Set("Content-Type", "application/json")
+
+			response := config.SimulateResponse{
+				LogFolderName: logFolderName,
+			}
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Error("Error while encoding the response of simulation "+logFolderName+": ", err.Error())
+				return
+			}
 		})
+
+		// Directory fetch endpoint
+		http.HandleFunc("/directory", func(w http.ResponseWriter, r *http.Request) {
+			if *devmodePtr {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			}
+			//read directory
+			files, err := ioutil.ReadDir("./logs")
+			if err != nil {
+				http.Error(w, "Unable to open logs folder. There might not be any logs created yet", http.StatusInternalServerError)
+				log.Error("Unable to open logs folder. There might not be any logs created yet")
+				return
+			}
+
+			//put them all in a struct
+			var response config.DirectoryResponse
+
+			//this initialises the array to empty, as otherwise if there are no folders it is null
+			response.FolderNames = []string{}
+
+			for _, f := range files {
+				response.FolderNames = append(response.FolderNames, f.Name())
+			}
+
+			//convert struct to json and return the response
+
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Error("Error while encoding the response of directory HTTP request: " + err.Error())
+				return
+			}
+		})
+
+		// File fetch endpoint
+		http.HandleFunc("/read", func(w http.ResponseWriter, r *http.Request) {
+			if *devmodePtr {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			}
+
+			logParams, err := config.LoadReadLogParamFromHTTPRequest(r)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				log.Error("Unable to load parameters from the File Read Request: " + err.Error())
+				return
+			}
+
+			logFileName := filepath.Join("logs", logParams.LogFileName, logParams.LogType)
+			file, err := os.Open(logFileName + ".json")
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				log.Error("Unable to open the file " + logFileName + ".json: " + err.Error())
+				return
+			}
+			defer file.Close()
+			var response config.ReadLogResponse
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				response.Log = append(response.Log, scanner.Text())
+			}
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Error("Error while encoding the response of read HTTP request: " + err.Error())
+				return
+			}
+		})
+
 		err := http.ListenAndServe(port, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else {
-		fmt.Println("Loading parameters...")
-		// load parameters
+		log.Info("Loading parameters...")
+
 		parameters, err := config.LoadParamFromJson(*configPathPtr)
 		if err != nil {
-			fmt.Println(err)
+			log.Fatal("Unable to load parameters: " + err.Error())
 			return
 		}
-		runNewSimulation(parameters)
+
+		rand.Seed(time.Now().UnixNano())
+		logFolderName, err := setupLogFile(parameters.LogFolderName, parameters.LogMain)
+		if err != nil {
+			log.Fatal("Unable to setup log file: " + err.Error())
+			return
+		}
+
+		//channel and goroutine used for timeout
+		c1 := make(chan string, 1)
+
+		go func() {
+			runNewSimulation(parameters, logFolderName)
+			c1 <- "Simulation Finished"
+		}()
+
+		// Listen on our channel AND a timeout channel - which ever happens first.
+		select {
+		case <-c1:
+			log.Info("Simulation Finished Successfully")
+		case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
+			log.Fatal("Simulation Timeout")
+		}
 	}
 }
 
-func runNewSimulation(parameters config.ConfigParameters) {
-	rand.Seed(time.Now().UnixNano())
-	f, err := setupLogFile()
-	if err != nil {
-		return
-	}
-	defer f.Close()
+// Returns the logfile name as it is needed in the HTTP response
+func runNewSimulation(parameters config.ConfigParameters, logFolderName string) {
 	healthInfo := health.NewHealthInfo(&parameters)
-
+	parameters.LogFolderName = logFolderName
 	// TODO: agentParameters - struct
 	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
 	simEnv.Simulate()
 }
 
-func setupLogFile() (fp *os.File, err error) {
+func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName string, err error) {
+	// setup logs folder if never created
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
 		if err != nil {
-			fmt.Println("failed to create logs directory: ", err)
-			return nil, err
+			return "", err
 		}
 	}
 
-	logfileName := filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05")+".json")
-	f, err := os.OpenFile(logfileName, os.O_CREATE|os.O_RDWR, 0666)
-	if err != nil {
-		fmt.Println("error opening file: ", err)
-		return nil, err
+	// setup simulation run folder for logs
+	logFolderName := ""
+	// Check if the log folder name was set in config
+	if len(parameterLogFileName) != 0 {
+		logFolderName = filepath.Join("logs", parameterLogFileName)
+	} else {
+		logFolderName = filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05"))
 	}
-	log.SetOutput(f)
-	log.SetFormatter(&log.JSONFormatter{})
-	return f, nil
+	if _, err := os.Stat(logFolderName); os.IsNotExist(err) {
+		err := os.Mkdir(logFolderName, 0755)
+		if err != nil {
+			return "", err
+		}
+	}
+	return logFolderName, nil
 }

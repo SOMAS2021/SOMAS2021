@@ -1,7 +1,10 @@
 package health
 
 import (
+	"math"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/config"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
 type HealthInfo struct {
@@ -22,6 +25,7 @@ type HealthInfo struct {
 	HPLossBase int
 	// HP loss slope w.r.t currentHP - weakLevel
 	HPLossSlope float64
+	maxPlatFood food.FoodType
 }
 
 func NewHealthInfo(parameters *config.ConfigParameters) *HealthInfo {
@@ -35,5 +39,25 @@ func NewHealthInfo(parameters *config.ConfigParameters) *HealthInfo {
 		MaxDayCritical: parameters.MaxDayCritical,
 		HPLossBase:     parameters.HPLossBase,
 		HPLossSlope:    parameters.HPLossSlope,
+		maxPlatFood:    parameters.FoodOnPlatform,
 	}
+}
+
+// This function takes in an initial HP and a goal HP, and returns how much food you should eat to
+// achieve the goal HP, while taking into account HP decay.
+// This function should be called only for HP values above WeakLevel.
+// If the difference between currentHP and goalHP is too large, returns the maximum food value
+func FoodRequired(currentHP int, goalHP int, healthInfo *HealthInfo) food.FoodType {
+	slope := healthInfo.HPLossSlope
+	base := healthInfo.HPLossBase
+	numer := float64(goalHP) - (1-slope)*float64(currentHP) + float64(base) - slope*float64(healthInfo.WeakLevel)
+	denom := healthInfo.Width * (1 - slope)
+	food := food.FoodType(-1 * healthInfo.Tau * math.Log(1-numer/denom))
+	if food < 0 {
+		if goalHP < currentHP {
+			return 0
+		}
+		return healthInfo.maxPlatFood
+	}
+	return food
 }

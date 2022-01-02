@@ -1,24 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-
+import { useState } from "react";
+import "./App.css";
+import Navbar from "./Components/Navbar";
+import NewRun from "./Components/NewRun";
+import Results from "./Components/Results";
+import Sidebar from "./Components/Sidebar";
 function App() {
+  const [activeLog, setActiveLog] = useState<string>("");
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Navbar />
+      <div style={{ height: 50 }}></div>
+      <div className="row">
+        <div className="col-lg-2">
+          <Sidebar activeLog={activeLog} setActiveLog={setActiveLog} />
+        </div>
+        <div className="col-lg-10">
+          <Results logName={activeLog} />
+        </div>
+      </div>
+      <NewRun />
     </div>
   );
 }

@@ -6,13 +6,31 @@
 
 You can run your own instance of the platform using our docker image.
 
-Pull Image: `docker pull ghcr.io/somas2021/somas2021/pitt:{VERSION}`
+Pull Image:
 
+```sh
+docker pull ghcr.io/somas2021/somas2021/pitt:latest
+```
 
-Docker Run: `docker run -it -p 9000:9000 {NAME}`
+Run Instance:
 
-If you wish to build the image from the Dockerfile (we won't ask questions why): `docker build -t {NAME} .`
+```sh
+docker run -it -p 9000:9000 ghcr.io/somas2021/somas2021/pitt:latest
+```
 
+### Building locally
+
+Build Image (from project root):
+
+```sh
+docker build -t $NAME .
+```
+
+Run Instance:
+
+```sh
+docker run -it -p 9000:9000 $NAME
+```
 
 ## Set up
 

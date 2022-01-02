@@ -13,10 +13,10 @@ type thresholdData struct {
 }
 
 type levelsData struct { // tiers of HP
-	strongLevel  float64
-	healthyLevel float64
-	weakLevel    float64
-	critLevel    float64
+	strongLevel  int
+	healthyLevel int
+	weakLevel    int
+	critLevel    int
 }
 
 func (a *CustomAgent6) foodIntake() food.FoodType {
@@ -27,13 +27,13 @@ func (a *CustomAgent6) foodIntake() food.FoodType {
 	}
 
 	levels := levelsData{
-		strongLevel:  0.6 * float64(healthInfo.MaxHP),
-		healthyLevel: 0.3 * float64(healthInfo.MaxHP),
-		weakLevel:    0.1 * float64(healthInfo.MaxHP),
-		critLevel:    0.0,
+		strongLevel:  healthInfo.MaxHP * 3 / 5,
+		healthyLevel: healthInfo.MaxHP * 3 / 10,
+		weakLevel:    healthInfo.MaxHP * 1 / 10,
+		critLevel:    0,
 	}
 
-	currentHP := float64(a.HP())
+	currentHP := a.HP()
 
 	switch a.currBehaviour.String() {
 	case "Altruist": // Never eat
@@ -58,9 +58,9 @@ func (a *CustomAgent6) foodIntake() food.FoodType {
 		case currentHP >= levels.strongLevel:
 			return food.FoodType(0)
 		case currentHP >= levels.healthyLevel:
-			return foodRequired(currentHP, currentHP, healthInfo)
+			return FoodRequired(currentHP, currentHP, healthInfo)
 		default:
-			return foodRequired(currentHP, levels.healthyLevel, healthInfo)
+			return FoodRequired(currentHP, levels.healthyLevel, healthInfo)
 		}
 
 	case "Narcissist": // Eat max intake (Possible TODO: Stay in strong instead?)
@@ -71,8 +71,8 @@ func (a *CustomAgent6) foodIntake() food.FoodType {
 	}
 }
 
-func foodRequired(currentHP, goalHP float64, healthInfo *health.HealthInfo) food.FoodType {
-	denom := healthInfo.Width - goalHP + (1-healthInfo.HPLossSlope)*currentHP - float64(healthInfo.HPLossBase) + healthInfo.HPLossSlope*float64(healthInfo.WeakLevel)
+func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food.FoodType {
+	denom := healthInfo.Width - float64(goalHP) + (1-healthInfo.HPLossSlope)*float64(currentHP) - float64(healthInfo.HPLossBase) + healthInfo.HPLossSlope*float64(healthInfo.WeakLevel)
 	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
 }
 

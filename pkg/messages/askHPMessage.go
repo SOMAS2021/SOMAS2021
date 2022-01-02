@@ -1,21 +1,27 @@
 package messages
 
+import "github.com/google/uuid"
+
 type AskHPMessage struct {
 	*BaseMessage
 }
 
-func NewAskHPMessage(senderFloor int) *AskHPMessage {
+func NewAskHPMessage(senderID uuid.UUID, senderFloor int, targetFloor int) *AskHPMessage {
 	msg := &AskHPMessage{
-		NewBaseMessage(senderFloor, AskHP),
+		NewBaseMessage(senderID, senderFloor, targetFloor, AskHP),
 	}
 	return msg
 }
 
-func (msg *AskHPMessage) Reply(senderFloor int, hp int) StateMessage {
-	reply := NewStateHPMessage(senderFloor, hp)
+func (msg *AskHPMessage) Reply(senderID uuid.UUID, senderFloor int, targetFloor int, hp int) StateMessage {
+	reply := NewStateHPMessage(senderID, senderFloor, targetFloor, hp)
 	return reply
 }
 
 func (msg *AskHPMessage) Visit(a Agent) {
-	a.HandleAskHP(*msg)
+	if msg.TargetFloor() != a.Floor() {
+		a.HandlePropogate(msg)
+	} else {
+		a.HandleAskHP(*msg)
+	}
 }

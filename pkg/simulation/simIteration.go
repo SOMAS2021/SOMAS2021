@@ -5,6 +5,7 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
+	"github.com/google/uuid"
 )
 
 func (sE *SimEnv) SetWorld(w world.World) {
@@ -22,9 +23,10 @@ func (sE *SimEnv) simulationLoop(t *infra.Tower) {
 	for sE.dayInfo.CurrTick <= sE.dayInfo.TotalTicks {
 		sE.Log("", Fields{"Current Simulation Tick": sE.dayInfo.CurrTick})
 		t.TowerStateLog(" start of tick")
-		sE.replaceAgents(t)
 		sE.AgentsRun(t)
 		sE.TowerTick()
+		sE.replaceAgents(t)
+		t.TowerStateLog(" end of tick")
 		sE.dayInfo.CurrTick++
 	}
 }
@@ -37,14 +39,14 @@ func (sE *SimEnv) TowerTick() {
 
 func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 	var wg sync.WaitGroup
-	for uuid, custAgent := range t.Agents {
+	for id, custAgent := range t.Agents {
 		wg.Add(1)
-		go func(wg *sync.WaitGroup, custAgent infra.Agent, uuid string) {
+		go func(wg *sync.WaitGroup, custAgent infra.Agent, id uuid.UUID) {
 			if custAgent.IsAlive() {
 				custAgent.Run()
 			}
 			wg.Done()
-		}(&wg, custAgent, uuid)
+		}(&wg, custAgent, id)
 	}
 	wg.Wait()
 }

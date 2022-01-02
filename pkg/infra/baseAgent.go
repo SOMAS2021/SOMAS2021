@@ -6,16 +6,20 @@ import (
 	"math"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
 type Agent interface {
 	Run()
 	IsAlive() bool
+	Floor() int
 	BaseAgent() *Base
 	HandleAskHP(msg messages.AskHPMessage)
 	HandleAskFoodTaken(msg messages.AskFoodTakenMessage)
@@ -26,24 +30,28 @@ type Agent interface {
 	HandleStateFoodTaken(msg messages.StateFoodTakenMessage)
 	HandleStateHP(msg messages.StateHPMessage)
 	HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage)
+	HandleProposeTreaty(msg messages.ProposeTreatyMessage)
+	HandleTreatyResponse(msg messages.TreatyResponseMessage)
+	HandlePropogate(msg messages.Message)
 }
 
 type Fields = log.Fields
 
 type Base struct {
-	id             string
+	id             uuid.UUID
 	hp             int
 	floor          int
-	agentType      int
+	agentType      agent.AgentType
 	inbox          chan messages.Message
 	tower          *Tower
 	logger         log.Entry
 	hasEaten       bool
 	daysAtCritical int
 	age            int
+	activeTreaties map[uuid.UUID]messages.Treaty
 }
 
-func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int, id string) (*Base, error) {
+func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
 	if world == nil {
 		return nil, errors.New("agent needs a world defined to operate")
 	}
@@ -51,7 +59,6 @@ func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int,
 	if !ok {
 		return nil, errors.New("agent needs a tower world to operate")
 	}
-	logger := log.WithFields(log.Fields{"agent_id": id, "agent_type": agentType, "reporter": "agent"})
 	return &Base{
 		id:        id,
 		hp:        agentHP,
@@ -60,10 +67,11 @@ func NewBaseAgent(world world.World, agentType int, agentHP int, agentFloor int,
 		tower:     tower,
 		//TODO: Check how large to make the inbox channel. Currently set to 15.
 		inbox:          make(chan messages.Message, 15),
-		logger:         *logger,
+		logger:         *tower.stateLog.Logmanager.GetLogger("main").WithFields(log.Fields{"agent_id": id, "agent_type": agentType.String(), "reporter": "agent"}),
 		hasEaten:       false,
 		daysAtCritical: 0,
 		age:            0,
+		activeTreaties: make(map[uuid.UUID]messages.Treaty),
 	}, nil
 }
 
@@ -94,6 +102,15 @@ func (a *Base) increaseAge() {
 	a.age++
 }
 
+func (a *Base) updateTreaties() {
+	for _, treaty := range a.activeTreaties {
+		treaty.DecrementDuration()
+		if treaty.Duration() == 0 {
+			delete(a.activeTreaties, treaty.ID())
+		}
+	}
+}
+
 // only show the food on the platform if the platform is on the
 // same floor as the agent or directly below
 func (a *Base) CurrPlatFood() food.FoodType {
@@ -109,7 +126,7 @@ func (a *Base) Floor() int {
 	return a.floor
 }
 
-func (a *Base) ID() string {
+func (a *Base) ID() uuid.UUID {
 	return a.id
 }
 
@@ -117,7 +134,7 @@ func (a *Base) IsAlive() bool {
 	return a.hp > 0
 }
 
-func (a *Base) AgentType() int {
+func (a *Base) AgentType() agent.AgentType {
 	return a.agentType
 }
 
@@ -135,11 +152,11 @@ func (a *Base) setHP(newHP int) {
 
 // Modeled as a first order system step answer (see documentation for more information)
 func (a *Base) updateHP(foodTaken food.FoodType) {
-	hpChange := a.tower.healthInfo.Width * (1 - math.Pow(math.E, -float64(foodTaken)/a.tower.healthInfo.Tau))
+	hpChange := int(a.tower.healthInfo.Width * (1 - math.Pow(math.E, -float64(foodTaken)/a.tower.healthInfo.Tau)))
 	if a.hp >= a.tower.healthInfo.WeakLevel {
-		a.hp = a.hp + int(hpChange)
+		a.hp = a.hp + hpChange
 	} else {
-		a.hp = int(math.Min(float64(a.tower.healthInfo.HPCritical+a.tower.healthInfo.HPReqCToW), float64(a.hp)+hpChange))
+		a.hp = utilFunctions.MinInt(a.tower.healthInfo.HPCritical+a.tower.healthInfo.HPReqCToW, a.hp+hpChange)
 	}
 }
 
@@ -161,7 +178,8 @@ func (a *Base) hpDecay(healthInfo *health.HealthInfo) {
 	}
 	a.setHasEaten(false)
 	if a.daysAtCritical >= healthInfo.MaxDayCritical {
-		a.Log("Killing agent")
+		a.Log("Killing agent", Fields{"daysLived": a.Age(), "agentType": a.agentType})
+		a.tower.stateLog.LogAgentDeath(a.tower.dayInfo.CurrDay, a.tower.dayInfo.CurrTick, a.agentType)
 		newHP = 0
 	}
 	a.Log("Setting hp to " + fmt.Sprint(newHP))
@@ -176,46 +194,28 @@ func (a *Base) setHasEaten(newStatus bool) {
 	a.hasEaten = newStatus
 }
 
-func (a *Base) TakeFood(amountOfFood food.FoodType) food.FoodType {
-	if amountOfFood == 0 {
-		return 0
-	}
-	if a.floor == a.tower.currPlatFloor && !a.hasEaten && amountOfFood > 0 {
-		foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood)))
-		a.updateHP(foodTaken)
-		a.tower.currPlatFood -= foodTaken
-		a.setHasEaten(foodTaken > 0)
-		a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
-		return foodTaken
-	}
-	return -1
+func (a *Base) PlatformOnFloor() bool {
+	return a.floor == a.tower.currPlatFloor
 }
 
-func (a *Base) ReceiveMessage() messages.Message {
-	select {
-	case msg := <-a.inbox:
-		return msg
-	default:
-		return nil
+func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
+	if a.floor != a.tower.currPlatFloor {
+		return 0, &FloorError{}
 	}
-}
-
-func (a *Base) SendMessage(direction int, msg messages.Message) {
-	if (direction == -1) || (direction == 1) {
-		a.tower.SendMessage(direction, a.floor, msg)
+	if a.hasEaten {
+		return 0, &AlreadyEatenError{}
 	}
+	if amountOfFood < 0 {
+		return 0, &NegFoodError{}
+	}
+	foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood)))
+	a.updateHP(foodTaken)
+	a.tower.currPlatFood -= foodTaken
+	a.setHasEaten(foodTaken > 0)
+	a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
+	return foodTaken, nil
 }
 
 func (a *Base) HealthInfo() *health.HealthInfo {
 	return a.tower.healthInfo
 }
-
-func (a *Base) HandleAskHP(msg messages.AskHPMessage)                                    {}
-func (a *Base) HandleAskFoodTaken(msg messages.AskFoodTakenMessage)                      {}
-func (a *Base) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)     {}
-func (a *Base) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage)              {}
-func (a *Base) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage)                {}
-func (a *Base) HandleResponse(msg messages.BoolResponseMessage)                          {}
-func (a *Base) HandleStateFoodTaken(msg messages.StateFoodTakenMessage)                  {}
-func (a *Base) HandleStateHP(msg messages.StateHPMessage)                                {}
-func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}

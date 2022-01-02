@@ -1,8 +1,12 @@
 package messages
 
+import "github.com/google/uuid"
+
 //Define message types to enable basic protocols, voting systems ...etc
 
 type MessageType int
+
+//go:generate go run golang.org/x/tools/cmd/stringer -type=MessageType
 
 const (
 	AskFoodTaken MessageType = iota + 1
@@ -14,14 +18,16 @@ const (
 	StateHP
 	StateFoodOnPlatform
 	StateIntendedFoodIntake
-	StateIdentity
 	StateResponse
+	ProposeTreaty
 	RequestLeaveFood
 	RequestTakeFood
 	Response
+	TreatyResponse
 )
 
 type Agent interface {
+	Floor() int
 	HandleAskHP(msg AskHPMessage)
 	HandleAskFoodTaken(msg AskFoodTakenMessage)
 	HandleAskIntendedFoodTaken(msg AskIntendedFoodIntakeMessage)
@@ -31,17 +37,22 @@ type Agent interface {
 	HandleStateFoodTaken(msg StateFoodTakenMessage)
 	HandleStateHP(msg StateHPMessage)
 	HandleStateIntendedFoodTaken(msg StateIntendedFoodIntakeMessage)
+	HandleProposeTreaty(msg ProposeTreatyMessage)
+	HandleTreatyResponse(msg TreatyResponseMessage)
+	HandlePropogate(msg Message)
 }
 
 type Message interface {
 	MessageType() MessageType
 	SenderFloor() int
+	TargetFloor() int
+	ID() uuid.UUID
 	Visit(a Agent)
 }
 
 type AskMessage interface {
 	Message
-	Reply(senderFloor int, food int) StateMessage
+	Reply(senderID uuid.UUID, senderFloor int, targetFloor int, food int) StateMessage
 }
 
 type StateMessage interface {
@@ -52,31 +63,55 @@ type StateMessage interface {
 type RequestMessage interface {
 	Message
 	Request() int
-	Reply(senderFloor int, response bool) ResponseMessage
+	Reply(senderID uuid.UUID, senderFloor int, targetFloor int, response bool) ResponseMessage
+}
+
+type ProposalMessage interface {
+	Message
+	Treaty() Treaty
+	Reply(senderID uuid.UUID, senderFloor int, targetFloor int, response bool) TreatyResponseMessage
 }
 
 type ResponseMessage interface {
 	Message
 	Response() bool
+	RequestID() uuid.UUID
 }
 
 type BaseMessage struct {
+	senderID    uuid.UUID
 	senderFloor int
+	targetFloor int
 	messageType MessageType
+	id          uuid.UUID
 }
 
-func NewBaseMessage(senderFloor int, messageType MessageType) *BaseMessage {
+func NewBaseMessage(senderID uuid.UUID, senderFloor int, targetFloor int, messageType MessageType) *BaseMessage {
 	msg := &BaseMessage{
+		senderID:    senderID,
 		senderFloor: senderFloor,
+		targetFloor: targetFloor,
 		messageType: messageType,
+		id:          uuid.New(),
 	}
 	return msg
 }
 
-func (msg BaseMessage) MessageType() MessageType {
+func (msg *BaseMessage) MessageType() MessageType {
 	return msg.messageType
 }
 
-func (msg BaseMessage) SenderFloor() int {
+func (msg *BaseMessage) SenderFloor() int {
 	return msg.senderFloor
+}
+
+func (msg *BaseMessage) TargetFloor() int {
+	return msg.targetFloor
+}
+
+func (msg *BaseMessage) ID() uuid.UUID {
+	return msg.id
+}
+func (msg *BaseMessage) SenderID() uuid.UUID {
+	return msg.senderID
 }
