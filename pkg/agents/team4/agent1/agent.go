@@ -57,7 +57,6 @@ type CustomAgentEvoParams struct {
 	foodToEat    []int
 	daysToWait   []int
 	ageLastEaten int
-	lockedWait   int
 	// below params updated based in previous experience of floors
 	trustscore float64
 	morality   float64
@@ -94,7 +93,6 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 		// currentHpScore:    currentHpScoreEquation,
 		foodToEat:    data1.FoodToEat,
 		daysToWait:   data1.DaysToWait,
-		lockedWait:   data1.DaysToWait[3],
 		ageLastEaten: 0,
 		trustscore:   100 * rand.Float64(), //random for now
 		morality:     100 * rand.Float64(), //random for now

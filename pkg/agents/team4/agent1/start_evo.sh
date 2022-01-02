@@ -15,8 +15,8 @@ touch $agentConfigFile $bestAgentsFile
 numberOfHealthLevels=4
 numberOfBestAgents=5
 numberOfAgentsPerSim=16
-numberOfIterations=1
-numberOfRuns=1
+numberOfIterations=3
+numberOfRuns=3
 
 # Generate set of agents with 0 parameters
 python3 pkg/agents/team4/agent1/initaliseConfig.py $agentConfigFile $bestAgentsFile $numberOfHealthLevels $numberOfBestAgents

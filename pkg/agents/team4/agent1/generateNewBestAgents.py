@@ -46,8 +46,8 @@ agent_5 = best_agents_list[sorted_performance_list_indices[4]]
 agents_of_time = [agent_1,agent_2,agent_3,agent_4,agent_5]
 outfile = []
 for i in range(len(agents_of_time)):
-    agents_of_time[i]['life'] = performance_list_life[i]
-    agents_of_time[i]['death'] = performance_list_death[i]
+    agents_of_time[i]['life'] = performance_list_life[sorted_performance_list_indices[i]]
+    agents_of_time[i]['death'] = performance_list_death[sorted_performance_list_indices[i]]
 
 from datetime import datetime
 timestamp = datetime.now(tz=None)
