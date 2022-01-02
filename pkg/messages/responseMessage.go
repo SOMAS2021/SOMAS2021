@@ -8,9 +8,9 @@ type BoolResponseMessage struct {
 	requestId uuid.UUID
 }
 
-func NewResponseMessage(senderID uuid.UUID, senderFloor int, response bool, requestID uuid.UUID) *BoolResponseMessage {
+func NewResponseMessage(senderID uuid.UUID, senderFloor int, targetFloor int, response bool, requestID uuid.UUID) *BoolResponseMessage {
 	msg := &BoolResponseMessage{
-		NewBaseMessage(senderID, senderFloor, Response),
+		NewBaseMessage(senderID, senderFloor, targetFloor, Response),
 		response,
 		requestID,
 	}
@@ -26,5 +26,9 @@ func (msg *BoolResponseMessage) RequestID() uuid.UUID {
 }
 
 func (msg *BoolResponseMessage) Visit(a Agent) {
-	a.HandleResponse(*msg)
+	if msg.TargetFloor() != a.Floor() {
+		a.HandlePropogate(msg)
+	} else {
+		a.HandleResponse(*msg)
+	}
 }

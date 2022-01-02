@@ -7,9 +7,9 @@ type ProposeTreatyMessage struct {
 	treaty Treaty
 }
 
-func NewProposalMessage(senderID uuid.UUID, senderFloor int, treaty Treaty) *ProposeTreatyMessage {
+func NewProposalMessage(senderID uuid.UUID, senderFloor int, targetFloor int, treaty Treaty) *ProposeTreatyMessage {
 	msg := &ProposeTreatyMessage{
-		NewBaseMessage(senderID, senderFloor, ProposeTreaty),
+		NewBaseMessage(senderID, senderFloor, targetFloor, ProposeTreaty),
 		treaty,
 	}
 	return msg
@@ -20,10 +20,14 @@ func (msg *ProposeTreatyMessage) Treaty() Treaty {
 }
 
 func (msg *ProposeTreatyMessage) Visit(a Agent) {
-	a.HandleProposeTreaty(*msg)
+	if msg.TargetFloor() != a.Floor() {
+		a.HandlePropogate(msg)
+	} else {
+		a.HandleProposeTreaty(*msg)
+	}
 }
 
-func (msg *ProposeTreatyMessage) Reply(senderID uuid.UUID, senderFloor int, response bool) TreatyResponseMessage {
-	reply := *NewTreatyResponseMessage(senderID, senderFloor, response, msg.treaty.Id(), msg.ID())
+func (msg *ProposeTreatyMessage) Reply(senderID uuid.UUID, senderFloor int, targetFloor int, response bool) TreatyResponseMessage {
+	reply := *NewTreatyResponseMessage(senderID, senderFloor, targetFloor, response, msg.treaty.Id(), msg.ID())
 	return reply
 }

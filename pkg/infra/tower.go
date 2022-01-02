@@ -104,7 +104,11 @@ func (t *Tower) endOfDay() {
 	}
 }
 
-func (t *Tower) SendMessage(direction int, senderFloor int, msg messages.Message) {
+func (t *Tower) SendMessage(senderFloor int, msg messages.Message) {
+	direction := 1
+	if msg.SenderFloor() > msg.TargetFloor() {
+		direction = -1
+	}
 	for _, agent := range t.Agents {
 		agent := agent.BaseAgent()
 		if agent.floor == senderFloor+direction {
