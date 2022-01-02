@@ -3,10 +3,8 @@ import { DeathLog, GetDeathLogs } from "./Logging/Death";
 import { FoodLog, GetFoodLogs } from "./Logging/Food";
 import { Result } from "./Result";
 
-const DEV = true;
-
 function endpoint(req: string) {
-  return (DEV ? "http://localhost:9000/" : window.location) + req;
+  return (process.env.DEV ? "http://localhost:9000/" : window.location) + req;
 }
 
 function parseResponse(res: any, key: string) {
@@ -18,16 +16,23 @@ function parseResponse(res: any, key: string) {
 export function GetLogs(): Promise<string[]> {
   return new Promise<string[]>((resolve, reject) => {
     showToast("Loading logs in progress", "primary");
+    console.log(endpoint("directory"));
     fetch(endpoint("directory"))
       .then(async (res) => {
         if (res.status !== 200) {
           showToast(`Loading logs failed. (${res.status}) ${await res.text()}`, "danger", 5000);
           reject(res);
         }
-        res.json().then((res) => {
-          showToast("Loading logs completed", "success");
-          resolve(res["FolderNames"]);
-        });
+        res
+          .json()
+          .then((res) => {
+            showToast("Loading logs completed", "success");
+            resolve(res["FolderNames"]);
+          })
+          .catch((err) => {
+            showToast(`Loading logs: failed. ${err}`, "danger", 5000);
+            reject(err);
+          });
       })
       .catch((err) => {
         showToast(`Loading logs: failed. ${err}`, "danger", 5000);
