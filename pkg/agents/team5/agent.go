@@ -166,40 +166,29 @@ func (a *CustomAgent5) GetMessages() {
 }
 
 func (a *CustomAgent5) DailyMessages() {
-	sendingToFloor := 0
+	var msg messages.Message
+	targetFloor := a.Floor() + 1
 	switch a.messagingCounter {
 	case 0:
-		msg := messages.NewAskHPMessage(a.ID(), a.Floor())
-		sendingToFloor = 1
-		a.Log("Team 5 agent is sending an Ask HP Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
-		a.SendMessage(sendingToFloor, msg)
+		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), targetFloor)
 	case 1:
-		msg := messages.NewAskFoodTakenMessage(a.ID(), a.Floor())
-		sendingToFloor = 1
-		a.Log("Team 5 agent is sending an Ask Food Taken Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
-		a.SendMessage(sendingToFloor, msg)
+		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), targetFloor)
 	case 2:
-		msg := messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor())
-		sendingToFloor = 1
-		a.Log("Team 5 agent is sending an Ask Intention Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
-		a.SendMessage(sendingToFloor, msg)
+		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), targetFloor)
 	case 3:
-		msg := messages.NewAskHPMessage(a.ID(), a.Floor())
-		sendingToFloor = -1
-		a.Log("Team 5 agent is sending an Ask HP Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
-		a.SendMessage(sendingToFloor, msg)
+		targetFloor = a.Floor() - 1
+		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), targetFloor)
 	case 4:
-		msg := messages.NewAskFoodTakenMessage(a.ID(), a.Floor())
-		sendingToFloor = -1
-		a.Log("Team 5 agent is sending an Ask Food Taken Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
-		a.SendMessage(sendingToFloor, msg)
+		targetFloor = a.Floor() - 1
+		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), targetFloor)
 	case 5:
-		msg := messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor())
-		sendingToFloor = -1
-		a.Log("Team 5 agent is sending an Ask Intention Message", infra.Fields{"sender floor": a.Floor(), "sending to floor": a.Floor() + sendingToFloor})
-		a.SendMessage(sendingToFloor, msg)
+		targetFloor = a.Floor() - 1
+		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), targetFloor)
 	default:
 	}
+	a.SendMessage(msg)
+	a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
+
 	a.messagingCounter++
 }
 
@@ -306,8 +295,8 @@ func (a *CustomAgent5) Run() {
 //The message handler functions below are for a fully honest agent
 
 func (a *CustomAgent5) HandleAskHP(msg messages.AskHPMessage) {
-	reply := msg.Reply(a.ID(), a.Floor(), a.HP())
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
+	a.SendMessage(reply)
 	a.Log("Team 5 agent received an askHP message", infra.Fields{"sender floor": msg.SenderFloor(), "receiver floor": a.Floor()})
 	if !a.memoryIdExists(msg.SenderID()) {
 		a.newMemory(msg.SenderID())
@@ -317,8 +306,8 @@ func (a *CustomAgent5) HandleAskHP(msg messages.AskHPMessage) {
 }
 
 func (a *CustomAgent5) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
-	reply := msg.Reply(a.ID(), a.Floor(), int(a.lastMeal))
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.lastMeal))
+	a.SendMessage(reply)
 	a.Log("Team 5 agent received an askFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "receiver floor": a.Floor()})
 	if !a.memoryIdExists(msg.SenderID()) {
 		a.newMemory(msg.SenderID())
@@ -329,8 +318,8 @@ func (a *CustomAgent5) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 
 func (a *CustomAgent5) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
 	amount := int(a.calculateAttemptFood())
-	reply := msg.Reply(a.ID(), a.Floor(), amount)
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), amount)
+	a.SendMessage(reply)
 	a.Log("Team 5 agent received an askIntendedFoodTaken message", infra.Fields{"sender floor": msg.SenderFloor(), "receiver floor": a.Floor()})
 	if !a.memoryIdExists(msg.SenderID()) {
 		a.newMemory(msg.SenderID())
@@ -341,8 +330,9 @@ func (a *CustomAgent5) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 
 func (a *CustomAgent5) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
 	amount := msg.Request()
-	reply := msg.Reply(a.ID(), a.Floor(), false) //Always set to false for now to prevent deception, needs some calculations to determine whether we will leave the requested amount
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	// Always set to false for now to prevent deception, needs some calculations to determine whether we will leave the requested amount
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
+	a.SendMessage(reply)
 	a.Log("Team 5 agent received a requestLeaveFood message", infra.Fields{"sender floor": msg.SenderFloor(), "receiver floor": a.Floor(), "request amount": amount})
 	if !a.memoryIdExists(msg.SenderID()) {
 		a.newMemory(msg.SenderID())
@@ -357,8 +347,8 @@ func (a *CustomAgent5) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 	if a.calculateAttemptFood() > amount {
 		reponse = false
 	}
-	reply := msg.Reply(a.ID(), a.Floor(), reponse)
-	a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), reponse)
+	a.SendMessage(reply)
 	a.Log("Team 5 agent received a requestTakeFood message", infra.Fields{"sender floor": msg.SenderFloor(), "receiver floor": a.Floor(), "request amount": amount})
 	if !a.memoryIdExists(msg.SenderID()) {
 		a.newMemory(msg.SenderID())
