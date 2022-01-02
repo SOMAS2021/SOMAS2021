@@ -40,14 +40,14 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		Base:              baseAgent,
 		selfishness:       10, // of 0 to 10, with 10 being completely selfish, 0 being completely selfless
 		lastMeal:          0,  //Stores value of the last amount of food taken
+		daysSinceLastMeal: 0,  //Count of how many days since last eating
 		hpAfterEating:     baseAgent.HealthInfo().MaxHP,
-		daysSinceLastMeal: 0, //Count of how many days since last eating
 		currentAimHP:      baseAgent.HealthInfo().MaxHP,
 		attemptFood:       0,
-		satisfaction:      0,                          //Scale of -3 to 3, with 3 being satisfied and unsatisfied
+		satisfaction:      0,                          // Scale of -3 to 3, with 3 being satisfied and unsatisfied
 		rememberAge:       -1,                         // To check if a day has passed by our age increasing
 		socialMemory:      make(map[uuid.UUID]Memory), // Memory of other agents, key is agent id
-		surroundingAgents: make(map[int]uuid.UUID),    //Map agent id's of surrounding floors relative to current floor
+		surroundingAgents: make(map[int]uuid.UUID),    // Map agent IDs of surrounding floors relative to current floor
 	}, nil
 }
 
@@ -86,6 +86,7 @@ func (a *CustomAgent5) dayPassed() {
 	// a.Log("Selfishness at end of day", infra.Fields{"selfishness": a.selfishness})
 	// a.Log("Aim HP at end of day", infra.Fields{"aim HP": a.currentAimHP})
 	// a.Log("Surrounding Agent Knowledge at end of day", infra.Fields{"agent map": a.surroundingAgents})
+
 	a.daysSinceLastMeal++
 	a.incrementDaysSinceLastSeen()
 	if a.rememberFloor != a.Floor() {
@@ -123,11 +124,11 @@ func (a *CustomAgent5) Run() {
 			switch err.(type) {
 			case *infra.FloorError:
 			case *infra.NegFoodError:
-				log.Warn("NegFoodError: did CalculateAttemptFood() return a negative?")
+				log.Error("NegFoodError: did CalculateAttemptFood() return a negative?")
 			case *infra.AlreadyEatenError:
-				log.Warn("AlreadyEatenError occurred after checking for a.HasEaten()")
+				log.Error("AlreadyEatenError occurred after checking for a.HasEaten()")
 			default:
-				log.Fatal("Impossible error reached")
+				log.Error("Impossible error reached")
 			}
 		}
 		a.lastMeal = lastMeal
