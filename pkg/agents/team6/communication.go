@@ -90,12 +90,26 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 
 	if reply == true {
 		a.reqLeaveFoodAmount = msg.Request()
+		a.Log("I received a requestLeaveFood message and my response was true")
+	} else {
+		a.reqLeaveFoodAmount = -1
+		a.Log("I received a requestLeaveFood message and my response was false")
+	}
+
+}
+
+func (a *CustomAgent6) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
+	reply := false
+	replyMessage := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), reply)
+	a.SendMessage(replyMessage)
+
+	if reply == true {
+		a.reqLeaveFoodAmount = msg.Request()
 		a.Log("I received a requestTakeFood message and my response was true")
 	} else {
 		a.reqLeaveFoodAmount = -1
 		a.Log("I received a requestTakeFood message and my response was false")
 	}
-
 }
 
 func (a *CustomAgent6) HandleAskHP(msg messages.AskHPMessage) {
