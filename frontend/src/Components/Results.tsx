@@ -50,10 +50,10 @@ function ResultDisplay(props: ResultDisplayProps) {
       <H3>{result.title}</H3>
       <Divider></Divider>
       <div className="row">
-        <div className="col-lg-2">
+        <div className="col-lg-6">
           <ReportCard description="Total deaths" title={result.deaths.length.toString()} />
         </div>
-        <div className="col-lg-3">
+        <div className="col-lg-6">
           <ReportCard
             description="Average food on platform per tick"
             title={Average(result.food.map((f) => f.food))
