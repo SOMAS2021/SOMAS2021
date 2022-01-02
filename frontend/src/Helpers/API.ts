@@ -1,6 +1,6 @@
 import { showToast } from "../Components/Toaster";
-import { DeathLog, GetDeathLogs } from "./Logs/Death";
-import { FoodLog, GetFoodLogs } from "./Logs/Food";
+import { DeathLog, GetDeathLogs } from "./Logging/Death";
+import { FoodLog, GetFoodLogs } from "./Logging/Food";
 import { Result } from "./Result";
 
 const DEV = true;

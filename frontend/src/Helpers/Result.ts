@@ -1,5 +1,5 @@
-import { DeathLog } from "./Logs/Death";
-import { FoodLog } from "./Logs/Food";
+import { DeathLog } from "./Logging/Death";
+import { FoodLog } from "./Logging/Food";
 
 export interface Result {
   title: string
