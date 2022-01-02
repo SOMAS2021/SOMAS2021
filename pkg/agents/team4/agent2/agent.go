@@ -12,28 +12,29 @@ import (
 
 type CustomAgent4 struct {
 	*infra.Base
-	globalTrust         float32
-	globalTrustAdd      float32
-	globalTrustSubtract float32
-	coefficients        []float32
-	lastFoodTaken       food.FoodType
-	IntendedFoodTaken   food.FoodType
-	sentMessages        MessageMemory
-	MessageToSend       int
-	lastPlatFood        food.FoodType
-	maxFoodLimit        food.FoodType
+	globalTrust           float32
+	globalTrustAdd        float32
+	globalTrustSubtract   float32
+	coefficients          []float32
+	lastFoodTaken         food.FoodType
+	IntendedFoodTaken     food.FoodType
+	sentMessages          MessageMemory
+	responseMessages      MessageMemory
+	MessageToSend         int
+	lastPlatFood          food.FoodType
+	maxFoodLimit          food.FoodType
+	neighbourFoodEatenAmt food.FoodType
 }
 
 type MessageMemory struct {
 	// An array of messages stored into the agent before platform change.
-	//direction []int
 	direction []int
 	messages  []messages.Message
 }
 
-func (a *CustomAgent4) AppendToMessageMemory(direction int, msg messages.Message) {
-	a.sentMessages.direction = append(a.sentMessages.direction, direction)
-	a.sentMessages.messages = append(a.sentMessages.messages, msg)
+func (a *CustomAgent4) AppendToMessageMemory(direction int, msg messages.Message, msgMemory MessageMemory) {
+	msgMemory.direction = append(msgMemory.direction, direction)
+	msgMemory.messages = append(msgMemory.messages, msg)
 }
 
 func (a *CustomAgent4) SendingMessage(direction int) {
@@ -64,9 +65,23 @@ func (a *CustomAgent4) SendingMessage(direction int) {
 	}
 
 	a.SendMessage(msg)
-	a.AppendToMessageMemory(direction, msg)
+	a.AppendToMessageMemory(direction, msg, a.sentMessages)
 	a.Log("I sent a message", infra.Fields{"message": msg.MessageType()})
 
+}
+
+func (a *CustomAgent4) NeighbourFoodEaten() food.FoodType {
+	if a.CurrPlatFood() != -1 {
+		if !a.PlatformOnFloor() && a.CurrPlatFood() != a.lastPlatFood {
+			return a.lastPlatFood - a.CurrPlatFood()
+		}
+		return 0
+	}
+	return -1
+}
+
+func remove(slice MessageMemory, s int) ([]messages.Message, []int) {
+	return append(slice.messages[:s], slice.messages[s+1:]...), append(slice.direction[:s], slice.direction[s+1:]...)
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
@@ -85,6 +100,10 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 
 		// Initialise Agents individual message memory
 		sentMessages: MessageMemory{
+			direction: []int{},
+			messages:  []messages.Message{},
+		},
+		responseMessages: MessageMemory{
 			direction: []int{},
 			messages:  []messages.Message{},
 		},
@@ -113,20 +132,105 @@ func (a *CustomAgent4) Run() {
 	//TODO: Define a threshold limit for other agents to respond to our sent message.
 	direction := rand.Intn(1)
 	a.SendingMessage(direction)
-	// msg := messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), 10) //need to change how much to request to leave
-	// a.SendMessage(-1, msg)
-	// a.AppendToMessageMemory(-1, msg)
-	// a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
-	// Verbose explanation of calculating the intented food taken
-	// trust_prop := 100 - int(a.globalTrust)
-	// intversion := int(a.CurrPlatFood())
-	// food_prop := intversion * trust_prop / 100
-	// a.IntendedFoodTaken = food.FoodType(food_prop)
+
 	a.IntendedFoodTaken = food.FoodType(int(int(a.CurrPlatFood()) * (100 - int(a.globalTrust)) / 100))
 
 	a.lastFoodTaken, _ = a.TakeFood(a.IntendedFoodTaken)
 	// MessageToSend +=1
 	a.MessageToSend += rand.Intn(15)
+}
+
+func (a *CustomAgent4) CheckForResponse(msg messages.BoolResponseMessage) {
+	if !msg.Response() {
+		a.globalTrust += a.globalTrustSubtract * a.coefficients[0] // TODO: adapt for other conditions
+	} else { // Iterating through all messages in agent memory
+
+		if a.PlatformOnFloor() && len(a.responseMessages.messages) > 0 { // Check if there are any responses messages.
+			for i := 0; i < len(a.responseMessages.messages); i++ { // Iterate through each response message
+				respMsg := a.responseMessages.messages[i]
+				resMsg, ok := respMsg.(messages.ResponseMessage)
+				if !ok {
+					err := fmt.Errorf("ResponseMessage type assertion failed")
+					fmt.Println(err.Error())
+				} else {
+					for j := 0; j < len(a.sentMessages.messages); j++ { // Iterate through each sent message
+						sentMsg := a.sentMessages.messages[j]
+						sentMsgDir := a.sentMessages.direction[j]
+
+						if resMsg.RequestID() == sentMsg.ID() { // Find the corresponding response message that's been sent
+							a.sentMessages.messages, a.sentMessages.direction = remove(a.sentMessages, j) // Remove the accessed response/sent messages from memory
+							a.responseMessages.messages, a.responseMessages.direction = remove(a.responseMessages, i)
+							a.Log("Received a message", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": sentMsg.ID()})
+
+							if sentMsg.MessageType() == messages.RequestLeaveFood && sentMsgDir == 1 { //TODO: theres now target floors and not directions anymore
+								a.Log("Reponse message received", infra.Fields{"sentMsg_Type": sentMsg.MessageType()})
+								reqMsg, ok := sentMsg.(messages.RequestMessage)
+								if !ok {
+									err := fmt.Errorf("RequestMessage type assertion failed")
+									fmt.Println(err.Error())
+								} else if food.FoodType(reqMsg.Request()) <= a.CurrPlatFood() {
+									a.globalTrust += a.globalTrustAdd * a.coefficients[1]
+									a.Log("For Requested Food to Leave less than or equal to Food on platform", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.CurrPlatFood(), "global_trust": a.globalTrust})
+								} else if food.FoodType(reqMsg.Request()) > a.CurrPlatFood() {
+									a.globalTrust += a.globalTrustSubtract * a.coefficients[2]
+									a.Log("For Requested Food to Leave greater than Food on platform", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.CurrPlatFood(), "global_trust": a.globalTrust})
+
+								}
+							}
+						}
+					}
+					break
+				}
+
+			}
+		} else if a.lastFoodTaken+a.CurrPlatFood() != a.lastPlatFood {
+			for i := 0; i < len(a.responseMessages.messages); i++ { // Iterate through each response message
+				respMsg := a.responseMessages.messages[i]
+				resMsg, ok := respMsg.(messages.ResponseMessage)
+				if !ok {
+					err := fmt.Errorf("ResponseMessage type assertion failed")
+					fmt.Println(err.Error())
+				} else {
+					for j := 0; j < len(a.sentMessages.messages); j++ { // Iterate through each sent message
+						sentMsg := a.sentMessages.messages[j]
+						sentMsgDir := a.sentMessages.direction[j]
+
+						if resMsg.RequestID() == sentMsg.ID() { // Find the corresponding response message that's been sent
+							a.sentMessages.messages, a.sentMessages.direction = remove(a.sentMessages, j) // Remove the accessed response/sent messages from memory
+							a.responseMessages.messages, a.responseMessages.direction = remove(a.responseMessages, i)
+							a.Log("Received a message", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": sentMsg.ID()})
+
+							if sentMsg.MessageType() == messages.RequestTakeFood && sentMsgDir == -1 {
+								reqMessage, ok := sentMsg.(messages.RequestMessage)
+								if !ok {
+									err := fmt.Errorf("RequestMessage type assertion failed")
+									fmt.Println(err.Error())
+								} else if food.FoodType(reqMessage.Request()) >= a.NeighbourFoodEaten() {
+									a.globalTrust += a.globalTrustAdd * a.coefficients[1]
+								} else if food.FoodType(reqMessage.Request()) <= a.NeighbourFoodEaten() {
+									a.globalTrust += a.globalTrustSubtract * a.coefficients[2]
+								}
+							}
+						}
+						break
+					}
+				}
+			}
+
+		} else {
+			for j := 0; j < len(a.sentMessages.messages); j++ {
+				if msg.RequestID() == a.sentMessages.messages[j].ID() {
+					sentMsg := a.sentMessages.messages[j]
+					if sentMsg.MessageType() == messages.RequestTakeFood && a.NeighbourFoodEaten() == -1 {
+						a.AppendToMessageMemory(a.Floor()-msg.SenderFloor(), msg, a.responseMessages)
+					} else if sentMsg.MessageType() == messages.RequestLeaveFood && !a.PlatformOnFloor() {
+						a.AppendToMessageMemory(a.Floor()-msg.SenderFloor(), msg, a.responseMessages)
+					}
+				}
+				break
+			}
+		}
+	}
 }
 
 func (a *CustomAgent4) HandleAskHP(msg messages.AskHPMessage) {
@@ -160,55 +264,10 @@ func (a *CustomAgent4) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 	a.Log("I received a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
-func remove(slice MessageMemory, s int) ([]messages.Message, []int) {
-	return append(slice.messages[:s], slice.messages[s+1:]...), append(slice.direction[:s], slice.direction[s+1:]...)
-}
-
 func (a *CustomAgent4) HandleResponse(msg messages.BoolResponseMessage) {
 	response := msg.Response() // TODO: Change for later dependent on circumstance
-	if !response {
-		a.globalTrust += a.globalTrustSubtract * a.coefficients[0] // TODO: adapt for other conditions
-	} else { // Iterating through all messages in agent memory
-		for i := 0; i < len(a.sentMessages.messages); i++ {
-			if msg.RequestID() == a.sentMessages.messages[i].ID() {
-				a.Log("Received a message ", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": a.sentMessages.messages[i].ID()})
-
-				sentMessage := a.sentMessages.messages[i]
-				sentMessageDirection := a.sentMessages.direction[i]
-				a.sentMessages.messages, a.sentMessages.direction = remove(a.sentMessages, i) //a.sentMessages.messages[:i]+ a.sentMessages.messages[i+1:]
-
-				// fooType := reflect.TypeOf(sentMessage)
-				// 	for j := 0; j < fooType.NumMethod(); j++ {
-				// 		method := fooType.Method(j)
-				// 		fmt.Println(method.Name)
-
-				//12 is RequestLeaveFoodMessage.MessageType(), 13 is RequestTakeFoodMessage.MessageType()
-
-				if sentMessage.MessageType() == messages.RequestLeaveFood && sentMessageDirection == 1 {
-					reqMessage, ok := sentMessage.(messages.RequestMessage)
-					if !ok {
-						err := fmt.Errorf("RequestMessage type assertion failed")
-						fmt.Println(err.Error())
-					} else if food.FoodType(reqMessage.Request()) <= a.CurrPlatFood() {
-						a.globalTrust += a.globalTrustAdd * a.coefficients[1]
-					} else if food.FoodType(reqMessage.Request()) > a.CurrPlatFood() {
-						a.globalTrust += a.globalTrustSubtract * a.coefficients[2]
-					}
-				}
-
-				// if sentMessage.MessageType() == messages.RequestTakeFood && sentMessageDirection == -1 { /////////////////////////////////////////////////////////////////////////
-				// 	reqMessage := sentMessage.(messages.RequestMessage)
-				// 	if food.FoodType(reqMessage.Request()) <= a.CurrPlatFood() {
-				// 		a.globalTrust += a.globalTrustAdd * a.coefficients[1]
-				// 	} else if food.FoodType(reqMessage.Request()) > a.CurrPlatFood() {
-				// 		a.globalTrust += a.globalTrustSubtract * a.coefficients[2]
-				// 	}
-				// }
-
-			}
-		}
-	}
-	//a.Log("I received a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": response})
+	a.CheckForResponse(msg)
+	a.Log("I received a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": response})
 }
 
 func (a *CustomAgent4) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
@@ -236,47 +295,3 @@ func (a *CustomAgent4) HandleStateIntendedFoodTaken(msg messages.StateIntendedFo
 	}
 	a.Log("I received a StateIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": statement})
 }
-
-// func (a *CustomAgent4) Run() {
-// 	a.Log("Reporting agent state", infra.Fields{"health": a.HP(), "floor": a.ID(), a.Floor()})
-
-// 		receivedMsg := a.Base.ReceiveMessage()
-// 		switch receivedMsg.MessageType() {
-// 		case "AckMessage":
-// 			a.globalTrust += a.globalTrustAdd  *  coefficients[0]// TODO AND WORK ON
-// 			if a.globalTrust > 100.0{
-// 				a.globalTrust = 100.0
-// 			}
-// 		// case "foodOnPlatMessage":
-// 		// 	if receivedMsg.food == a.CurrPlatFood() && a.CurrPlatFood() != -1
-// 	 	 case "LeaveFoodMessage":
-// 			if receivedMsg.food == a.currPlatFood() && receivedMsg.senderFloor - a.ID(), a.Floor() == -1 && a.CurrPlatFood() != -1{ // on the floor above you
-// 				a.globalTrust+= a.globalTrustAdd //
-// 				if a.globalTrust > 100.0{
-// 					a.globalTrust = 100.0
-// 				}
-
-// 			} else if receivedMsg.food != a.currPlatFood() && receivedMsg.senderFloor - a.Floor() == 1 && a.CurrPlatFood() != -1{ // on the floor below you
-
-// 			}
-
-// 		default:
-
-// 		}
-// 	receivedMsg := a.ReceiveMessage()
-// 	if receivedMsg != nil {
-// 		receivedMsg.Visit(a)
-// 	} else {
-// 		a.Log("I got nothing")
-// 	}
-
-// 	// trust_prop := 100 - int(a.globalTrust)
-// 	// intversion := int(a.CurrPlatFood())
-// 	// food_prop := intversion * trust_prop / 100
-// 	// a.IntendedFoodTaken = food.FoodType(food_prop)
-
-// 	a.IntendedFoodTaken = food.FoodType(int(int(a.CurrPlatFood()) * (100 - int(a.globalTrust))/100))
-
-// 	a.lastFoodTaken = a.TakeFood(a.IntendedFoodTaken)
-
-// }
