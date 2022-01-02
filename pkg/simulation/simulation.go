@@ -9,8 +9,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team3"
 
-	// team4EvoAgent "github.com/SOMAS2021/SOMAS2021/pkg/agents/team4/agent1"
-	agentTrust "github.com/SOMAS2021/SOMAS2021/pkg/agents/team4/agent2"
+	team4EvoAgent "github.com/SOMAS2021/SOMAS2021/pkg/agents/team4/agent1"
 	team5 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team5/agent1"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
 	team7agent1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team7/agent1"
@@ -58,7 +57,7 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 			agent.Team1Agent2: agent2.New,
 			agent.Team2:       team2.New,
 			agent.Team3:       team3.New,
-			agent.Team4:       agentTrust.New,
+			agent.Team4:       team4EvoAgent.New,
 			agent.Team5:       team5.New,
 			agent.Team6:       team6.New,
 			agent.Team7:       team7agent1.New,

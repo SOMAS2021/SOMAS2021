@@ -1,4 +1,4 @@
-package agentTrust
+package team4EvoAgent
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
-func (a *CustomAgent4) CheckForResponse(msg messages.BoolResponseMessage) {
+func (a *CustomAgentEvo) CheckForResponse(msg messages.BoolResponseMessage) {
 	if a.PlatformOnFloor() && len(a.responseMessages) > 0 { // Check if there are any responses messages.
 		for i := 0; i < len(a.responseMessages); i++ { // Iterate through each response message
 			respMsg := a.responseMessages[i]
@@ -101,10 +101,10 @@ func (a *CustomAgent4) CheckForResponse(msg messages.BoolResponseMessage) {
 	}
 }
 
-func (a *CustomAgent4) AddToGlobalTrust(coeff float32) {
+func (a *CustomAgentEvo) AddToGlobalTrust(coeff float32) {
 	a.globalTrust += a.globalTrustAdd * coeff
 }
 
-func (a *CustomAgent4) SubFromGlobalTrust(coeff float32) {
+func (a *CustomAgentEvo) SubFromGlobalTrust(coeff float32) {
 	a.globalTrust += a.globalTrustSubtract * coeff
 }
