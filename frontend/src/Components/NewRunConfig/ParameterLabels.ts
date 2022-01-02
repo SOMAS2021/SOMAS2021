@@ -148,7 +148,7 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "RandomAgents",
-    },
+    }
 ];
 
 export interface Parameters {

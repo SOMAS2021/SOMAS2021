@@ -1,6 +1,6 @@
 import { showToast } from "../Toaster";
 import AdvancedSettingsMenu from "./AdvancedSettings/AdvancedSettings";
-import NewRun from "./Settings/Settings";
+import Settings from "./Settings/Settings";
 import InitConfigState from "../../Helpers/SimConfig";
 
 function request(configJSON: string) {
@@ -26,7 +26,7 @@ export default function NewRunState() {
   return (
     <div>
       <AdvancedSettingsMenu {...[config, setConfig]} />
-      <NewRun {...[config, setConfig]} />
+      <Settings {...[config, setConfig]} />
     </div>
   );
 }
