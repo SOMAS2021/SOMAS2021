@@ -51,7 +51,7 @@ function ResultDisplay(props: ResultDisplayProps) {
       <Divider></Divider>
       <div className="row">
         <div className="col-lg-2">
-          <ReportCard description="Total deaths" title={result.deaths.slice(-1)[0].cumulativeDeaths.toString()} />
+          <ReportCard description="Total deaths" title={result.deaths.length.toString()} />
         </div>
         <div className="col-lg-3">
           <ReportCard
