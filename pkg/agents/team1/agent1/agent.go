@@ -64,7 +64,7 @@ func (a *CustomAgent1) Run() {
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateIntendedFoodIntake", "floor": a.Floor()})
 	case 8:
-		treaty := messages.NewTreaty(messages.HP, messages.LeaveAmountFood, messages.GT, messages.EQ, 1, a.ID())
+		treaty := messages.NewTreaty(messages.HP, 100, messages.LeaveAmountFood, 30, messages.GT, messages.EQ, 1, a.ID())
 		msg := messages.NewProposalMessage(a.ID(), a.Floor(), a.Floor()+1, *treaty)
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "ProposeTreatyMessage", "floor": a.Floor()})

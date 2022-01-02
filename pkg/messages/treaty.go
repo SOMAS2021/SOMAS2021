@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type ConditionType int // type of condition
+type ConditionType int
 type RequestType int
 type Op int
 
@@ -30,7 +30,9 @@ const (
 
 type Treaty struct {
 	condition      ConditionType
+	conditionValue int
 	request        RequestType
+	requestValue   int
 	conditionOp    Op
 	requestOp      Op
 	signatureCount int
@@ -41,7 +43,9 @@ type Treaty struct {
 
 type Treatyer interface {
 	Condition() ConditionType
+	ConditionValue() int
 	Request() RequestType
+	RequestValue() int
 	ConditionOp() Op
 	RequestOp() Op
 	SignatureCount() int
@@ -53,10 +57,12 @@ type Treatyer interface {
 	DecrementDuration()
 }
 
-func NewTreaty(condition ConditionType, request RequestType, cop Op, rop Op, duration int, proposerID uuid.UUID) *Treaty {
+func NewTreaty(condition ConditionType, conditionValue int, request RequestType, requestValue int, cop Op, rop Op, duration int, proposerID uuid.UUID) *Treaty {
 	treaty := &Treaty{
 		condition:      condition,
+		conditionValue: conditionValue,
 		request:        request,
+		requestValue:   requestValue,
 		conditionOp:    cop,
 		requestOp:      rop,
 		signatureCount: 1,
@@ -71,8 +77,16 @@ func (t *Treaty) Condition() ConditionType {
 	return t.condition
 }
 
+func (t *Treaty) ConditionValue() int {
+	return t.conditionValue
+}
+
 func (t *Treaty) Request() RequestType {
 	return t.request
+}
+
+func (t *Treaty) RequestValue() int {
+	return t.requestValue
 }
 
 func (t *Treaty) ConditionOp() Op {
