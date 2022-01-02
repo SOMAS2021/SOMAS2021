@@ -24,6 +24,7 @@ type CustomAgent4 struct {
 	lastPlatFood          food.FoodType
 	maxFoodLimit          food.FoodType
 	neighbourFoodEatenAmt food.FoodType
+	message_counter       int
 }
 
 type MessageMemory struct {
@@ -108,9 +109,10 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			messages:  []messages.Message{},
 		},
 		// Define what message to send during a run.
-		MessageToSend: rand.Intn(8),
-		lastPlatFood:  -1,
-		maxFoodLimit:  50,
+		MessageToSend:   rand.Intn(8),
+		lastPlatFood:    -1,
+		maxFoodLimit:    50,
+		message_counter: 0,
 	}, nil
 }
 
@@ -212,9 +214,9 @@ func (a *CustomAgent4) CheckForResponse(msg messages.BoolResponseMessage) {
 								}
 							}
 						}
-						break
 					}
 				}
+				break
 			}
 
 		} else {
@@ -230,68 +232,18 @@ func (a *CustomAgent4) CheckForResponse(msg messages.BoolResponseMessage) {
 				break
 			}
 		}
-	}
-}
 
-func (a *CustomAgent4) HandleAskHP(msg messages.AskHPMessage) {
-	reply := msg.Reply(a.ID(), a.Floor(), msg.TargetFloor(), a.HP())
-	a.SendMessage(reply)
-	a.Log("I received an askHP message from ", infra.Fields{"floor": msg.SenderFloor(), "hp": a.HP()})
-}
-
-func (a *CustomAgent4) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
-	reply := msg.Reply(a.ID(), a.Floor(), msg.TargetFloor(), int(a.lastFoodTaken))
-	a.SendMessage(reply)
-	a.Log("I received an askFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": a.lastFoodTaken})
-}
-
-func (a *CustomAgent4) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
-	reply := msg.Reply(a.ID(), a.Floor(), msg.TargetFloor(), int(a.IntendedFoodTaken))
-	a.SendMessage(reply)
-	a.Log("I received an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": a.IntendedFoodTaken})
-}
-
-func (a *CustomAgent4) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
-	//fmt.Printf(msg.ID())
-	reply := msg.Reply(a.ID(), a.Floor(), msg.TargetFloor(), true) // TODO: Change for later dependent on circumstance
-	a.SendMessage(reply)
-	a.Log("I received a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
-}
-
-func (a *CustomAgent4) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
-	reply := msg.Reply(a.ID(), a.Floor(), msg.TargetFloor(), true) // TODO: Change for later dependent on circumstance
-	a.SendMessage(reply)
-	a.Log("I received a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
-}
-
-func (a *CustomAgent4) HandleResponse(msg messages.BoolResponseMessage) {
-	response := msg.Response() // TODO: Change for later dependent on circumstance
-	a.CheckForResponse(msg)
-	a.Log("I received a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": response})
-}
-
-func (a *CustomAgent4) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
-	statement := msg.Statement()
-	if food.FoodType(statement) > a.maxFoodLimit {
-		a.globalTrust += a.globalTrustSubtract * a.coefficients[3]
 	} else {
-		a.globalTrust += a.globalTrustAdd * a.coefficients[3]
+		for j := 0; j < len(a.sentMessages.messages); j++ {
+			if msg.RequestID() == a.sentMessages.messages[j].ID() {
+				sentMsg := a.sentMessages.messages[j]
+				if sentMsg.MessageType() == messages.RequestTakeFood && a.NeighbourFoodEaten() == -1 {
+					a.AppendToMessageMemory(a.Floor()-msg.SenderFloor(), &msg, a.responseMessages)
+				} else if sentMsg.MessageType() == messages.RequestLeaveFood && !a.PlatformOnFloor() {
+					a.AppendToMessageMemory(a.Floor()-msg.SenderFloor(), &msg, a.responseMessages)
+				}
+			}
+			break
+		}
 	}
-	a.Log("I received a StateFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": statement})
-}
-
-func (a *CustomAgent4) HandleStateHP(msg messages.StateHPMessage) {
-	statement := msg.Statement()
-	a.globalTrust += a.globalTrustAdd * a.coefficients[0]
-	a.Log("I received a StateHP message from ", infra.Fields{"floor": msg.SenderFloor(), "hp": statement})
-}
-
-func (a *CustomAgent4) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
-	statement := msg.Statement()
-	if food.FoodType(statement) > a.maxFoodLimit {
-		a.globalTrust += a.globalTrustSubtract * a.coefficients[3]
-	} else {
-		a.globalTrust += a.globalTrustAdd * a.coefficients[3]
-	}
-	a.Log("I received a StateIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": statement})
 }
