@@ -47,7 +47,9 @@ export default function Sidebar(props: SideBarProps) {
               <MenuDivider />
             </div>
           ))}
-          <H6 className="text-center" style={{padding: 10}}>Congratulations! You've reached the end of the directory</H6>
+          <H6 className="text-center" style={{ padding: 10 }}>
+            Congratulations! You've reached the end of the directory
+          </H6>
         </Menu>
       )}
       {loading && <Spinner intent="primary" />}

@@ -17,22 +17,7 @@ export default function NewRun() {
             <h5 className="bp3-heading">New Run Configuration</h5>
             <Button className="bp3-minimal close" icon="cross" text="" data-dismiss="modal" aria-label="Close" />
           </div>
-          <div className="modal-body">
-            <FormGroup
-              helperText="Some helper test"
-              label="Parameters"
-              labelFor="text-input"
-              labelInfo="(required)"
-            >
-              <InputGroup id="text-input" placeholder="Placeholder text" style ={{margin: "10px 0px"}}/>
-              <InputGroup id="text-input" placeholder="Placeholder text" style ={{margin: "10px 0px"}}/>
-              <InputGroup id="text-input" placeholder="Placeholder text" style ={{margin: "10px 0px"}}/>
-              <InputGroup id="text-input" placeholder="Placeholder text" style ={{margin: "10px 0px"}}/>
-              <InputGroup id="text-input" placeholder="Placeholder text" style ={{margin: "10px 0px"}}/>
-              <InputGroup id="text-input" placeholder="Placeholder text" style ={{margin: "10px 0px"}}/>
-              <InputGroup id="text-input" placeholder="Placeholder text" style ={{margin: "10px 0px"}}/>
-            </FormGroup>
-          </div>
+          <div className="modal-body">Form goes here</div>
           <div className="modal-footer">
             <Button intent="danger" className="close" icon="cross" text="Cancel" data-dismiss="modal" />
             <Button
