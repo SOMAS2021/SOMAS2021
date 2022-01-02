@@ -2,6 +2,7 @@ import { H3, H6, Divider, Spinner } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
 import { GetResult } from "../Helpers/API";
 import { Result } from "../Helpers/Result";
+import { Average } from "../Helpers/Utils";
 import ReportCard from "./Results/ReportCard";
 
 interface ResultsProps {
@@ -50,7 +51,10 @@ function ResultDisplay(props: ResultDisplayProps) {
       <Divider></Divider>
       <div className="row">
         <div className="col-lg-2">
-          <ReportCard description="Total deaths" title={result!.deaths.slice(-1)[0].cumulativeDeaths.toString()} />
+          <ReportCard description="Total deaths" title={result.deaths.slice(-1)[0].cumulativeDeaths.toString()} />
+        </div>
+        <div className="col-lg-3">
+          <ReportCard description="Average food on platform per tick" title={Average(result.food.map(f => f.food)).toFixed(3).toString()} />
         </div>
       </div>
     </>

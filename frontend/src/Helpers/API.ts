@@ -1,5 +1,6 @@
 import { showToast } from "../Components/Toaster";
-import { DeathLog } from "./Logs/Death";
+import { DeathLog, GetDeathLogs } from "./Logs/Death";
+import { FoodLog, GetFoodLogs } from "./Logs/Food";
 import { Result } from "./Result";
 
 const DEV = true;
@@ -37,19 +38,28 @@ export function GetLogs(): Promise<string[]> {
 
 export function GetResult(filename: string): Promise<Result> {
   return new Promise<Result>(async (resolve, reject) => {
+    // promises
+    var promises: Promise<any>[] = [];
+    // deaths
     var deaths: DeathLog[] = [];
-    const getDeaths = GetDeathLogs(filename).then((d) => (deaths = d));
+    promises.push(GetDeathLogs(filename).then((d) => (deaths = d)));
 
-    Promise.all([getDeaths]).then((_) =>
+    // foods
+    var foods: FoodLog[] = [];
+    promises.push(GetFoodLogs(filename).then((f) => (foods = f)));
+
+    // all
+    Promise.all(promises).then((_) =>
       resolve({
         title: filename,
         deaths: deaths,
+        food: foods,
       })
     );
   });
 }
 
-function GetFile(filename: string, logtype: string): Promise<any> {
+export function GetFile(filename: string, logtype: string): Promise<any> {
   return new Promise<any>((resolve, reject) => {
     var requestOptions = {
       method: "POST",
@@ -67,25 +77,5 @@ function GetFile(filename: string, logtype: string): Promise<any> {
         showToast(`Loading file: failed. ${error}`, "danger", 5000);
         reject(error);
       });
-  });
-}
-
-function GetDeathLogs(filename: string): Promise<DeathLog[]> {
-  return new Promise<DeathLog[]>((resolve, reject) => {
-    GetFile(filename, "death")
-      .then((deaths) =>
-        resolve(
-          deaths.map(function (e: any) {
-            const d: DeathLog = {
-              cumulativeDeaths: e["cumulativeDeaths"],
-              agentType: e["agent_type"],
-              tick: e["tick"],
-              day: e["day"],
-            };
-            return d;
-          })
-        )
-      )
-      .catch((err) => reject(err));
   });
 }
