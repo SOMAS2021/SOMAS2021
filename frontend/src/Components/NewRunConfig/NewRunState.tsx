@@ -8,7 +8,7 @@ function request(configJSON: string) {
     method: "POST",
     body: configJSON,
   };
-  var host = "http://localhost:9000";
+  var host = window.location.protocol + "//" + window.location.host;
   fetch(`${host}/simulate`, requestOptions)
     .then(function (response) {
       return response.json();
