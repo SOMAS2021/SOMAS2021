@@ -6,37 +6,46 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
-func (a *CustomAgent5) GetMessages() {
+func (a *CustomAgent5) getMessages() {
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
 	}
 }
 
-func (a *CustomAgent5) DailyMessages() {
+func (a *CustomAgent5) dailyMessages() {
 	var msg messages.Message
 	targetFloor := a.Floor() + 1
 	switch a.messagingCounter {
 	case 0:
 		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), targetFloor)
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 1:
 		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), targetFloor)
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 2:
 		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), targetFloor)
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 3:
 		targetFloor = a.Floor() - 1
 		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), targetFloor)
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 4:
 		targetFloor = a.Floor() - 1
 		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), targetFloor)
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 5:
 		targetFloor = a.Floor() - 1
 		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), targetFloor)
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	default:
 	}
-	a.SendMessage(msg)
-	a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
-
 	a.messagingCounter++
 }
 

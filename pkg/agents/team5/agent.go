@@ -93,6 +93,7 @@ func (a *CustomAgent5) dayPassed() {
 		a.rememberFloor = a.Floor()
 	}
 	a.messagingCounter = 0
+	a.rememberAge = a.Age()
 }
 
 func (a *CustomAgent5) calculateAttemptFood() food.FoodType {
@@ -110,11 +111,10 @@ func (a *CustomAgent5) Run() {
 	//Check if a day has passed
 	if a.Age() > a.rememberAge {
 		a.dayPassed()
-		a.rememberAge = a.Age()
 	}
 
-	a.GetMessages()
-	a.DailyMessages()
+	a.getMessages()
+	a.dailyMessages()
 
 	//When platform reaches our floor and we haven't tried to eat, then try to eat
 	if a.CurrPlatFood() != -1 && !a.HasEaten() {
@@ -136,6 +136,6 @@ func (a *CustomAgent5) Run() {
 		}
 		a.updateSatisfaction()
 		a.hpAfterEating = a.HP()
-		a.messagingCounter = 0
+		//a.messagingCounter = 0
 	}
 }
