@@ -17,24 +17,28 @@ func (a *CustomAgent5) newMemory(id uuid.UUID) {
 	}
 }
 
+// TODO: Consider adding check for exists and if not exists then add to memory.
 func (a *CustomAgent5) updateFoodTakenMemory(id uuid.UUID, foodTaken food.FoodType) {
 	mem := a.socialMemory[id]
 	mem.foodTaken = foodTaken
 	a.socialMemory[id] = mem
 }
 
+// TODO: Consider adding check for exists and if not exists then add to memory.
 func (a *CustomAgent5) updateAgentHPMemory(id uuid.UUID, agentHP int) {
 	mem := a.socialMemory[id]
 	mem.agentHP = agentHP
 	a.socialMemory[id] = mem
 }
 
+// TODO: Consider adding check for exists and if not exists then add to memory.
 func (a *CustomAgent5) updateIntentionFoodMemory(id uuid.UUID, intentionFood food.FoodType) {
 	mem := a.socialMemory[id]
 	mem.intentionFood = intentionFood
 	a.socialMemory[id] = mem
 }
 
+// TODO: Consider adding check for exists and if not exists then add to memory.
 func (a *CustomAgent5) addToSocialFavour(id uuid.UUID, change int) {
 	mem := a.socialMemory[id]
 	mem.favour = a.restrictToRange(0, 10, mem.favour+change)
@@ -78,6 +82,7 @@ func (a *CustomAgent5) incrementDaysSinceLastSeen() {
 	}
 }
 
+// TODO: Consider adding check for exists and if not exists then add to memory.
 func (a *CustomAgent5) resetSocialKnowledge(id uuid.UUID) {
 	mem := a.socialMemory[id]
 	mem.foodTaken = 100
@@ -86,6 +91,7 @@ func (a *CustomAgent5) resetSocialKnowledge(id uuid.UUID) {
 	a.socialMemory[id] = mem
 }
 
+// TODO: Consider adding check for exists and if not exists then add to memory.
 func (a *CustomAgent5) resetDaysSinceLastSeen(id uuid.UUID) {
 	mem := a.socialMemory[id]
 	mem.daysSinceLastSeen = 0

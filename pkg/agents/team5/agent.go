@@ -11,9 +11,9 @@ import (
 )
 
 type Memory struct {
-	foodTaken         food.FoodType //Store last known value of foodTaken by agent
-	agentHP           int           //Store last known value of HP of agent
-	intentionFood     food.FoodType //Store the last known value of the amount of food intended to take
+	foodTaken         food.FoodType // Store last known value of foodTaken by agent
+	agentHP           int           // Store last known value of HP of agent
+	intentionFood     food.FoodType // Store the last known value of the amount of food intended to take
 	favour            int           // e.g. generosity; scale of 0 to 10, with 0 being least favoured and 10 being most favoured
 	daysSinceLastSeen int           // days since last interaction
 }
@@ -39,8 +39,8 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgent5{
 		Base:              baseAgent,
 		selfishness:       10, // of 0 to 10, with 10 being completely selfish, 0 being completely selfless
-		lastMeal:          0,  //Stores value of the last amount of food taken
-		daysSinceLastMeal: 0,  //Count of how many days since last eating
+		lastMeal:          0,  // Stores value of the last amount of food taken
+		daysSinceLastMeal: 0,  // Count of how many days since last eating
 		hpAfterEating:     baseAgent.HealthInfo().MaxHP,
 		currentAimHP:      baseAgent.HealthInfo().MaxHP,
 		attemptFood:       0,
@@ -109,7 +109,7 @@ func (a *CustomAgent5) calculateAttemptFood() food.FoodType {
 func (a *CustomAgent5) Run() {
 	a.Log("Reporting agent state of team 5 agent", infra.Fields{"health": a.HP(), "floor": a.Floor()})
 
-	//Check if a day has passed
+	// Check if a day has passed
 	if a.Age() > a.rememberAge {
 		a.dayPassed()
 	}
@@ -117,18 +117,18 @@ func (a *CustomAgent5) Run() {
 	a.getMessages()
 	a.dailyMessages()
 
-	//When platform reaches our floor and we haven't tried to eat, then try to eat
+	// When platform reaches our floor and we haven't tried to eat, then try to eat
 	if a.CurrPlatFood() != -1 && !a.HasEaten() {
 		lastMeal, err := a.TakeFood(a.attemptFood)
 		if err != nil {
 			switch err.(type) {
 			case *infra.FloorError:
 			case *infra.NegFoodError:
-				log.Error("NegFoodError: did CalculateAttemptFood() return a negative?")
+				log.Error("Simulation - team5/agent.go: \t NegFoodError: did CalculateAttemptFood() return a negative?")
 			case *infra.AlreadyEatenError:
-				log.Error("AlreadyEatenError occurred after checking for a.HasEaten()")
+				log.Error("Simulation - team5/agent.go: \t AlreadyEatenError occurred after checking for a.HasEaten()")
 			default:
-				log.Error("Impossible error reached")
+				log.Error("Simulation - team5/agent.go: \t Impossible error reached")
 			}
 		}
 		a.lastMeal = lastMeal
