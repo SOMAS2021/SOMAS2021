@@ -46,13 +46,13 @@ export default function AdvancedSettingsMenu(state: any) {
               <Checkbox
                 label="Save Main"
                 type="checkbox"
-                onChange={(value) => configHandler((value.target as HTMLInputElement).checked, "SaveMain")}
+                onChange={(value) => configHandler((value.target as HTMLInputElement).checked, "LogMain")}
               />
             </FormGroup>
             <FormGroup label="File Name" labelFor="text-input" key="FileName">
               <input
                 type="text"
-                onChange={(value) => configHandler(value.target.value, "FileName")}
+                onChange={(value) => configHandler(value.target.value, "LogFileName")}
                 placeholder="Simulation Run #"
               />
             </FormGroup>
