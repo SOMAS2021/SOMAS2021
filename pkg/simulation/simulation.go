@@ -76,6 +76,12 @@ func (sE *SimEnv) Simulate() {
 	sE.simulationLoop(t)
 	sE.Log("Simulation Ended")
 	sE.Log("Summary of dead agents", infra.Fields{"Agent Type and number that died": t.DeadAgents()})
+
+	sE.Log("Living agents at end of simulation")
+	for agentID, agent := range t.Agents {
+		agent := agent.BaseAgent()
+		sE.Log("Agent survives till the end of the simulation", infra.Fields{"agentID": agentID, "agentType": agent.AgentType().String(), "agentAge": agent.Age()})
+	}
 }
 
 func (s *SimEnv) Log(message string, fields ...Fields) {
