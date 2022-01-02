@@ -1,4 +1,4 @@
-import { Menu, MenuDivider, MenuItem, Spinner } from "@blueprintjs/core";
+import { H6, Menu, MenuDivider, MenuItem, Spinner } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
 import { GetLogs } from "../Helpers/API";
 
@@ -47,6 +47,7 @@ export default function Sidebar(props: SideBarProps) {
               <MenuDivider />
             </div>
           ))}
+          <H6 className="text-center" style={{padding: 10}}>Congratulations! You've reached the end of the directory</H6>
         </Menu>
       )}
       {loading && <Spinner intent="primary" />}
