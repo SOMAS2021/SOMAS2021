@@ -6,6 +6,7 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
 type behaviour float64
@@ -35,9 +36,10 @@ type CustomAgent6 struct {
 	*infra.Base
 	config team6Config
 	//keep track of the lowest floor we've been to
-	maxFloorGuess int
-	currBehaviour behaviour
-	foodTakeDay   int
+	maxFloorGuess      int
+	currBehaviour      behaviour
+	foodTakeDay        int
+	reqLeaveFoodAmount int
 }
 
 type thresholdBehaviourPair struct {
@@ -65,9 +67,10 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
 		},
-		currBehaviour: initialBehaviour,
-		maxFloorGuess: baseAgent.Floor() + 2,
-		foodTakeDay:   0,
+		currBehaviour:      initialBehaviour,
+		maxFloorGuess:      baseAgent.Floor() + 2,
+		foodTakeDay:        0,
+		reqLeaveFoodAmount: -1,
 	}, nil
 }
 
@@ -86,13 +89,24 @@ func (b behaviour) String() string {
 }
 
 func (a *CustomAgent6) Run() {
+
 	// a.Log("Custom agent 6 before update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
 
 	a.updateBehaviour()
 
+	receivedMsg := a.ReceiveMessage()
+	if receivedMsg != nil {
+		receivedMsg.Visit(a)
+	} else {
+		a.Log("I got no thing")
+	}
+
 	// a.Log("Custom agent 6 after update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
 
 	foodAmount := a.foodIntake()
+	if a.reqLeaveFoodAmount != -1 {
+		foodAmount = food.FoodType(a.reqLeaveFoodAmount)
+	}
 	_, err := a.TakeFood(foodAmount)
 	if err != nil {
 		switch err.(type) {
