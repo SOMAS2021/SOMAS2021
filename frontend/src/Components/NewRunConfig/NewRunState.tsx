@@ -10,7 +10,13 @@ function request(configJSON: string) {
     body: configJSON,
   };
   var host = window.location.protocol + "//" + window.location.host;
-  fetch(`${host}/simulate`, requestOptions);
+  fetch(`${host}/simulate`, requestOptions)
+  .then(function(response){
+    return response.json();
+  })
+  .catch(function(error) {
+    console.log('There has been a problem with your fetch operation: ' + error.message);
+  });
 }
 
 export function SubmitSimulation(configJSON: string) {
