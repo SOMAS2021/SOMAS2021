@@ -5,7 +5,7 @@ interface ReportCardProps {
   description: string;
 }
 
-export default  function ReportCard(props: ReportCardProps) {
+export default function ReportCard(props: ReportCardProps) {
   const { title, description } = props;
   return (
     <Card interactive={true} elevation={Elevation.TWO} style={{ marginTop: 20 }}>
