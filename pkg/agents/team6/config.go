@@ -5,7 +5,6 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
@@ -94,6 +93,10 @@ func (a *CustomAgent6) Run() {
 
 	a.updateBehaviour()
 
+	// Sending messages
+	a.RequestLeaveFood()
+
+	// Receiving messages
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
@@ -107,6 +110,7 @@ func (a *CustomAgent6) Run() {
 	if a.reqLeaveFoodAmount != -1 {
 		foodAmount = food.FoodType(a.reqLeaveFoodAmount)
 	}
+
 	_, err := a.TakeFood(foodAmount)
 	if err != nil {
 		switch err.(type) {
@@ -118,10 +122,6 @@ func (a *CustomAgent6) Run() {
 	}
 	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodAmount, "bType": a.currBehaviour.String()})
 	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
-
-	msg := messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()+1)
-	a.SendMessage(msg)
-	a.Log("Team 6 sent message:", infra.Fields{"floor": a.Floor(), "messageType": msg.MessageType().String()})
 
 	// fmt.Println(a.ActiveTreaties())
 
