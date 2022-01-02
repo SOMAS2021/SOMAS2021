@@ -54,7 +54,12 @@ function ResultDisplay(props: ResultDisplayProps) {
           <ReportCard description="Total deaths" title={result.deaths.slice(-1)[0].cumulativeDeaths.toString()} />
         </div>
         <div className="col-lg-3">
-          <ReportCard description="Average food on platform per tick" title={Average(result.food.map(f => f.food)).toFixed(3).toString()} />
+          <ReportCard
+            description="Average food on platform per tick"
+            title={Average(result.food.map((f) => f.food))
+              .toFixed(3)
+              .toString()}
+          />
         </div>
       </div>
     </>
