@@ -16,7 +16,6 @@ function parseResponse(res: any, key: string) {
 export function GetLogs(): Promise<string[]> {
   return new Promise<string[]>((resolve, reject) => {
     showToast("Loading logs in progress", "primary");
-    console.log(endpoint("directory"));
     fetch(endpoint("directory"))
       .then(async (res) => {
         if (res.status !== 200) {
@@ -71,7 +70,7 @@ export function GetFile(filename: string, logtype: string): Promise<any> {
       body: JSON.stringify({ LogFileName: filename, LogType: logtype }),
     };
 
-    fetch("http://localhost:9000/read", requestOptions)
+    fetch(endpoint("read"), requestOptions)
       .then((response) => response.json())
       .catch((error) => {
         showToast(`Loading file: failed. ${error}`, "danger", 5000);
