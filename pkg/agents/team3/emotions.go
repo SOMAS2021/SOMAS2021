@@ -8,12 +8,12 @@ import (
 // Function decides if we read a message or we don't, depends on our level of stubbornness, return is bool
 // Stubborness of 20 means probability of 0.2 that we don't read message
 
-//func read(a *CustomAgent3) bool {
-//	rand.Seed(time.Now().UnixNano()) //creates seed to rand
-//	var random = rand.Intn(100)
-//
-//	return random <= a.vars.stubbornness
-//}
+func read(a *CustomAgent3) bool {
+	rand.Seed(time.Now().UnixNano()) //creates seed to rand
+	var random = rand.Intn(100)
+
+	return random <= a.vars.stubbornness
+}
 
 //Function adds a new person to our freindship list if they are not there yet.
 func addFriend(a *CustomAgent3, friend string) {
