@@ -51,12 +51,13 @@ func takeFoodCalculation(a *CustomAgent3) int {
 			} else { // a.DaysAtCritical() == 3
 				return foodRange(morality, hpCtoW, hpCtoW+3) //range hpCtoW to hpCtoW+3
 			}
-		default: // 10 <= hp && hp <= 100:
+		default: // 10 <= hp <= 100:
 			targetHP := targetHPCalc(a)
 			foodRequired := foodReqCalc(a, targetHP)
 			return foodScale(foodRequired, morality, 0.5, 1.5) // from foodRequired*0.5 (morality 100) to foodRequired*1.5 (morality 0)
 		}
 
+	//FOR THIS CASE; POTENTIALLY CHANGE IT TO LEAVE FOOD ALWAYS IF POSSIBLE AND CHECK FOR ACCEPTANCE IN MESSAGES
 	case (-1 | foodToLeave): //uses platFood, HP, morality and foodToLeave
 		switch hp := a.HP(); {
 		case hp == 5:
@@ -73,7 +74,7 @@ func takeFoodCalculation(a *CustomAgent3) int {
 			foodToEat = foodScale(foodRequired, morality, 0.5, 1.5) // from foodRequired*0.5 (morality 100) to foodRequired*1.5 (morality 0)
 		}
 
-		if platFood > foodToLeave {
+		if platFood-foodToEat > foodToLeave {
 			return foodToEat
 		} else if platFood-foodToLeave > 0 {
 			return platFood - foodToLeave
@@ -84,7 +85,7 @@ func takeFoodCalculation(a *CustomAgent3) int {
 		return foodToEat
 
 	default: //uses foodToEat and foodToLeave
-		if platFood >= foodToEat+foodToLeave {
+		if platFood-foodToLeave >= foodToEat {
 			return foodToEat
 		} else if platFood >= foodToLeave { //e.g. platFood=15, foodToLeave=10, foodToEat=10 --> if morality=100, take 5, if morality=0, take 10
 			return foodRange(morality, platFood-foodToLeave, foodToEat)

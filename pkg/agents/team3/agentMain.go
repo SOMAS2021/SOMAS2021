@@ -29,6 +29,8 @@ type team3Knowledge struct {
 	floorBelow string
 	//Stores who is in the floor above
 	floorAbove string
+	//Stores food last eaten
+	foodLastEaten food.FoodType
 }
 
 type team3Decisions struct {
@@ -55,12 +57,13 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			mood:         rand.Intn(100),
 		},
 		knowledge: team3Knowledge{
-			floors:     []int{},
-			lastHP:     100,
-			friends:    []string{},
-			friendship: []float64{},
-			floorBelow: "",
-			floorAbove: "",
+			floors:        []int{},
+			lastHP:        100,
+			friends:       []string{},
+			friendship:    []float64{},
+			floorBelow:    "",
+			floorAbove:    "",
+			foodLastEaten: food.FoodType(0),
 		},
 		decisions: team3Decisions{
 			foodToEat:   -1,
@@ -81,21 +84,8 @@ func (a *CustomAgent3) Run() {
 	}
 	a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "morality": a.vars.morality})
 
-	//Update variables right after eating
-	if a.HP() > a.knowledge.lastHP { //this will not work with the new HP function
-		a.knowledge.lastHP = a.HP()
-		a.decisions.foodToEat = -1
-		a.decisions.foodToLeave = -1
-	}
-
-	//receive Message
-
-	//message(a)
-
-	//message(a)
-
 	//eat
-	_, err := a.TakeFood(food.FoodType(takeFoodCalculation(a)))
+	foodTaken, err := a.TakeFood(food.FoodType((takeFoodCalculation(a))))
 	if err != nil {
 		switch err.(type) {
 		case *infra.FloorError:
@@ -104,6 +94,19 @@ func (a *CustomAgent3) Run() {
 		default:
 		}
 	}
+
+	//Update variables right after eating
+	if foodTaken != food.FoodType(-1) {
+		a.knowledge.lastHP = a.HP()
+		a.knowledge.foodLastEaten = food.FoodType(foodTaken)
+		a.decisions.foodToEat = -1
+		a.decisions.foodToLeave = -1
+	}
+
+	//message(a)
+
+	//eat
+
 	//send Message
 
 }

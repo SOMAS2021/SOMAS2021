@@ -97,6 +97,7 @@ func changeInMorality(a *CustomAgent3, pointsMin, pointsMax, direction int) {
 }
 
 // Updates mood and morality when the floor is changed. Called at the start of each day.
+//TO DO: Trial this and do sth different.
 func changeNewDay(a *CustomAgent3) {
 	a.knowledge.lastHP = a.HP()
 	if a.HP() < 50 {
@@ -114,7 +115,7 @@ func changeNewFloor(a *CustomAgent3) {
 	a.knowledge.floorAbove = ""
 	a.knowledge.floorBelow = ""
 
-	//calculate mood based on what floors we have been in
+	//Calculate mood based on what floors we have been in
 	currentFloor := a.Floor()
 
 	//If we are still in the same floor as before we keep the same mood
