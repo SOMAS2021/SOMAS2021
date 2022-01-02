@@ -44,27 +44,33 @@ func main() {
 			parameters, err := config.LoadParamFromHTTPRequest(r)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
+				log.Error("Unable to load parameters from the Simulation Request: " + err.Error())
 				return
 			}
 
-			// logFileName returned to be used in dashboard
-			logFileName := ""
+			rand.Seed(time.Now().UnixNano())
+			logFolderName, err := setupLogFile(parameters.LogFolderName, parameters.LogMain)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Error("Unable to setup log file: " + err.Error())
+			}
 
 			//channel and goroutine used for timeouts
 			c1 := make(chan string, 1)
 
 			go func() {
-				filenametemp := runNewSimulation(parameters)
-				c1 <- filenametemp
+				log.Info("Simulation " + logFolderName + " started")
+				runNewSimulation(parameters, logFolderName)
+				c1 <- "Simulation Finished"
 			}()
 
 			// Listen on our channel AND a timeout channel - which ever happens first.
 			select {
-			case res := <-c1:
-				logFileName = res
+			case <-c1:
+				log.Info("Simulation " + logFolderName + " finished successfully")
 			case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
-
 				http.Error(w, "Simulation Timeout", http.StatusInternalServerError)
+				log.Error("Simulation " + logFolderName + " timed out")
 				return
 			}
 
@@ -72,11 +78,12 @@ func main() {
 			w.Header().Set("Content-Type", "application/json")
 
 			response := config.SimulateResponse{
-				LogFileName: logFileName,
+				LogFolderName: logFolderName,
 			}
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Error("Error while encoding the response of simulation "+logFolderName+": ", err.Error())
 				return
 			}
 		})
@@ -90,11 +97,15 @@ func main() {
 			files, err := ioutil.ReadDir("./logs")
 			if err != nil {
 				http.Error(w, "Unable to open logs folder. There might not be any logs created yet", http.StatusInternalServerError)
+				log.Error("Unable to open logs folder. There might not be any logs created yet")
 				return
 			}
 
 			//put them all in a struct
 			var response config.DirectoryResponse
+
+			//this initialises the array to empty, as otherwise if there are no folders it is null
+			response.FolderNames = []string{}
 
 			for _, f := range files {
 				response.FolderNames = append(response.FolderNames, f.Name())
@@ -105,6 +116,7 @@ func main() {
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Error("Error while encoding the response of directory HTTP request: " + err.Error())
 				return
 			}
 		})
@@ -118,6 +130,7 @@ func main() {
 			logParams, err := config.LoadReadLogParamFromHTTPRequest(r)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
+				log.Error("Unable to load parameters from the File Read Request: " + err.Error())
 				return
 			}
 
@@ -125,6 +138,7 @@ func main() {
 			file, err := os.Open(logFileName + ".json")
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
+				log.Error("Unable to open the file " + logFileName + ".json: " + err.Error())
 				return
 			}
 			defer file.Close()
@@ -136,6 +150,7 @@ func main() {
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Error("Error while encoding the response of read HTTP request: " + err.Error())
 				return
 			}
 		})
@@ -149,7 +164,14 @@ func main() {
 
 		parameters, err := config.LoadParamFromJson(*configPathPtr)
 		if err != nil {
-			log.Error(err)
+			log.Fatal("Unable to load parameters: " + err.Error())
+			return
+		}
+
+		rand.Seed(time.Now().UnixNano())
+		logFolderName, err := setupLogFile(parameters.LogFolderName, parameters.LogMain)
+		if err != nil {
+			log.Fatal("Unable to setup log file: " + err.Error())
 			return
 		}
 
@@ -157,8 +179,8 @@ func main() {
 		c1 := make(chan string, 1)
 
 		go func() {
-			filenametemp := runNewSimulation(parameters)
-			c1 <- filenametemp
+			runNewSimulation(parameters, logFolderName)
+			c1 <- "Simulation Finished"
 		}()
 
 		// Listen on our channel AND a timeout channel - which ever happens first.
@@ -172,18 +194,12 @@ func main() {
 }
 
 // Returns the logfile name as it is needed in the HTTP response
-func runNewSimulation(parameters config.ConfigParameters) (logFolderName string) {
-	rand.Seed(time.Now().UnixNano())
-	logFolderName, err := setupLogFile(parameters.LogFileName, parameters.LogMain)
-	if err != nil {
-		return
-	}
+func runNewSimulation(parameters config.ConfigParameters, logFolderName string) {
 	healthInfo := health.NewHealthInfo(&parameters)
-	parameters.LogFileName = logFolderName
+	parameters.LogFolderName = logFolderName
 	// TODO: agentParameters - struct
 	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
 	simEnv.Simulate()
-	return logFolderName
 }
 
 func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName string, err error) {
@@ -191,7 +207,6 @@ func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName st
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
 		if err != nil {
-			log.Error("failed to create logs directory: ", err)
 			return "", err
 		}
 	}
@@ -207,7 +222,6 @@ func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName st
 	if _, err := os.Stat(logFolderName); os.IsNotExist(err) {
 		err := os.Mkdir(logFolderName, 0755)
 		if err != nil {
-			log.Error("failed to create custom folder directory: ", err)
 			return "", err
 		}
 	}
