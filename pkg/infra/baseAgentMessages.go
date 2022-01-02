@@ -46,15 +46,21 @@ func (a *Base) HandleStateHP(msg messages.StateHPMessage)                       
 func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {}
 
 // Note: You can override this function depending on how you want to handle treaties.
-// This implementation automatically accepts treaties. You probably don't want to do this.
+// This implementation automatically rejects treaties. You probably don't want to do this.
 func (a *Base) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
-	treaty := msg.Treaty()
-	treaty.SignTreaty()
-	a.activeTreaties[msg.TreatyID()] = treaty
-	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
 	a.SendMessage(reply)
-	a.Log("Accepted treaty", Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(),
+	a.Log("Rejected treaty", Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(),
 		"treatyID": msg.TreatyID()})
+
+	// The code below can be used to accept all treaties by default.
+	// treaty := msg.Treaty()
+	// treaty.SignTreaty()
+	// a.activeTreaties[msg.TreatyID()] = treaty
+	// reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
+	// a.SendMessage(reply)
+	// a.Log("Accepted treaty", Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(),
+	// 	"treatyID": msg.TreatyID()})
 }
 
 // Note: You can override this function depending on how you want to handle treaties.
