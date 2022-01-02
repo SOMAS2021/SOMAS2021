@@ -29,7 +29,7 @@ func (a *CustomAgent1) Run() {
 		a.Log("I got no thing")
 	}
 
-	r := rand.Intn(8)
+	r := rand.Intn(9)
 	switch r {
 	case 0:
 		msg := messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), a.Floor()-2)
@@ -63,6 +63,11 @@ func (a *CustomAgent1) Run() {
 		msg := messages.NewStateIntendedFoodIntakeMessage(a.ID(), a.Floor(), a.Floor()+3, 50)
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "StateIntendedFoodIntake", "floor": a.Floor()})
+	case 8:
+		treaty := messages.NewTreaty(messages.HP, messages.LeaveAmountFood, messages.GT, messages.EQ, 1, a.ID())
+		msg := messages.NewProposalMessage(a.ID(), a.Floor(), a.Floor()+1, *treaty)
+		a.SendMessage(msg)
+		a.Log("I sent a message", infra.Fields{"message": "ProposeTreatyMessage", "floor": a.Floor()})
 	}
 	a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
 	_, err := a.TakeFood(16)

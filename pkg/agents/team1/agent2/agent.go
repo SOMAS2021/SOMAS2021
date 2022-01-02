@@ -29,6 +29,12 @@ func (a *CustomAgent2) Run() {
 		default:
 		}
 	}
+
+	if len(a.ActiveTreaties()) == 0 {
+		a.Log("I no longer have treaties")
+	} else {
+		a.Log("I have treaties")
+	}
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
