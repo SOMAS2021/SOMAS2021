@@ -15,13 +15,14 @@ type CustomAgent4 struct {
 	globalTrustSubtract float32
 	coefficients        []float32
 	lastFoodTaken       food.FoodType
-	IntendedFoodTaken   food.FoodType
+	intendedFoodTaken   food.FoodType
 	sentMessages        MessageMemory
 	responseMessages    MessageMemory
 	MessageToSend       int
 	lastPlatFood        food.FoodType
 	maxFoodLimit        food.FoodType
-	message_counter     int
+	messageCounter      int
+	globalTrustLimit    float32
 }
 
 type MessageMemory struct {
@@ -92,7 +93,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		coefficients:        []float32{0.1, 0.2, 0.4, 0.5}, // TODO: Amend values for correct agent behaviour
 
 		// Initialise the amount of food our agent intends to eat.
-		IntendedFoodTaken: 0,
+		intendedFoodTaken: 0,
 		// Initialise the actual food taken on the previous run.
 		lastFoodTaken: 0,
 
@@ -106,10 +107,11 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			messages:  []messages.Message{},
 		},
 		// Define what message to send during a run.
-		MessageToSend:   rand.Intn(8),
-		lastPlatFood:    -1,
-		maxFoodLimit:    50,
-		message_counter: 0,
+		MessageToSend:    rand.Intn(8),
+		lastPlatFood:     -1,
+		maxFoodLimit:     50,
+		messageCounter:   0,
+		globalTrustLimit: 75,
 	}, nil
 }
 
@@ -132,9 +134,9 @@ func (a *CustomAgent4) Run() {
 	direction := rand.Intn(1)
 	a.SendingMessage(direction)
 
-	a.IntendedFoodTaken = food.FoodType(int(int(a.CurrPlatFood()) * (100 - int(a.globalTrust)) / 100))
+	a.intendedFoodTaken = food.FoodType(int(int(a.CurrPlatFood()) * (100 - int(a.globalTrust)) / 100))
 
-	a.lastFoodTaken, _ = a.TakeFood(a.IntendedFoodTaken)
+	a.lastFoodTaken, _ = a.TakeFood(a.intendedFoodTaken)
 	// MessageToSend +=1
 	a.MessageToSend += rand.Intn(15)
 }
