@@ -143,6 +143,7 @@ func main() {
 			}
 			defer file.Close()
 			var response config.ReadLogResponse
+			response.Log = []string{}
 			scanner := bufio.NewScanner(file)
 			for scanner.Scan() {
 				response.Log = append(response.Log, scanner.Text())
