@@ -16,8 +16,8 @@ type CustomAgent4 struct {
 	coefficients        []float32
 	lastFoodTaken       food.FoodType
 	intendedFoodTaken   food.FoodType
-	sentMessages        []messages.Message
-	responseMessages    []messages.Message
+	sentMessages        []messages.Message //TODO: make it a map hashed by messageIDs
+	responseMessages    []messages.Message //TODO: make it a map hashed by messageIDs
 	MessageToSend       int
 	lastPlatFood        food.FoodType
 	maxFoodLimit        food.FoodType
