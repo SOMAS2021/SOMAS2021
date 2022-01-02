@@ -52,7 +52,7 @@ type Message interface {
 
 type AskMessage interface {
 	Message
-	Reply(senderID uuid.UUID, senderFloor int, food int) StateMessage
+	Reply(senderID uuid.UUID, senderFloor int, targetFloor int, food int) StateMessage
 }
 
 type StateMessage interface {
@@ -63,13 +63,13 @@ type StateMessage interface {
 type RequestMessage interface {
 	Message
 	Request() int
-	Reply(senderID uuid.UUID, senderFloor int, response bool) ResponseMessage
+	Reply(senderID uuid.UUID, senderFloor int, targetFloor int, response bool) ResponseMessage
 }
 
 type ProposalMessage interface {
 	Message
 	Treaty() Treaty
-	Reply(senderID uuid.UUID, senderFloor int, response bool) TreatyResponseMessage
+	Reply(senderID uuid.UUID, senderFloor int, targetFloor int, response bool) TreatyResponseMessage
 }
 
 type ResponseMessage interface {

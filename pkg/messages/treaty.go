@@ -47,11 +47,13 @@ type Treatyer interface {
 	SignatureCount() int
 	ProposerID() uuid.UUID
 	Duration() int
-	Id() uuid.UUID
+	ID() uuid.UUID
 	SignTreaty()
+	SetCount(count int)
+	DecrementDuration()
 }
 
-func NewTreaty(condition ConditionType, request RequestType, cop Op, rop Op, duration int) *Treaty {
+func NewTreaty(condition ConditionType, request RequestType, cop Op, rop Op, duration int, proposerID uuid.UUID) *Treaty {
 	treaty := &Treaty{
 		condition:      condition,
 		request:        request,
@@ -60,6 +62,7 @@ func NewTreaty(condition ConditionType, request RequestType, cop Op, rop Op, dur
 		signatureCount: 1,
 		duration:       duration,
 		id:             uuid.New(),
+		proposerID:     proposerID,
 	}
 	return treaty
 }
@@ -92,10 +95,18 @@ func (t *Treaty) Duration() int {
 	return t.duration
 }
 
-func (t *Treaty) Id() uuid.UUID {
+func (t *Treaty) ID() uuid.UUID {
 	return t.id
 }
 
 func (t *Treaty) SignTreaty() {
 	t.signatureCount++
+}
+
+func (t *Treaty) SetCount(count int) {
+	t.signatureCount = count
+}
+
+func (t *Treaty) DecrementDuration() {
+	t.duration--
 }
