@@ -1,17 +1,11 @@
 {
     "UseFoodPerAgentRatio": false,
     "FoodOnPlatform": 100,
-<<<<<<< HEAD
     "FoodPerAgentRatio": 0,
     "Team1Agents": 2,
     "Team1Agents2": 2,
     "Team2Agents": 2,
     "Team3Agents": 2,
-=======
-    "Team1Agents": 0,
-    "Team2Agents": 0,
-    "Team3Agents": 0,
->>>>>>> fbf85fe... Added UUID's to msgs and extra msg handling
     "Team4Agents": 2,
     "Team5Agents": 2,
     "Team6Agents": 2,
