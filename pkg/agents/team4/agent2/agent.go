@@ -23,6 +23,7 @@ type CustomAgent4 struct {
 	maxFoodLimit        food.FoodType
 	messageCounter      int
 	globalTrustLimit    float32
+	lastAge             int
 }
 
 type MessageMemory struct {
@@ -112,7 +113,16 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		maxFoodLimit:     50,
 		messageCounter:   0,
 		globalTrustLimit: 75,
+		lastAge:          0,
 	}, nil
+}
+
+func (a *CustomAgent4) HasDayPassed() bool {
+	if a.Age() != a.lastAge {
+		a.lastAge = a.Age()
+		return true
+	}
+	return false
 }
 
 func (a *CustomAgent4) Run() {
