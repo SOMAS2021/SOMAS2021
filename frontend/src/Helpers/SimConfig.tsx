@@ -25,8 +25,9 @@ export default function InitConfigState() {
     maxDayCritical: 3,
     HPLossBase: 10,
     HPLossSlope: 0.25,
-    SaveMain: false,
-    FileName: "",
+    LogFileName:"", 
+    LogMain: false,
+    SimTimeoutSeconds: 10
   });
 }
 
@@ -54,6 +55,7 @@ export interface SimConfig {
   maxDayCritical: number;
   HPLossBase: number;
   HPLossSlope: number;
-  SaveMain: boolean;
-  FileName: string;
+  LogFileName:string, 
+  LogMain: boolean,
+  SimTimeoutSeconds: number
 }

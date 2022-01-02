@@ -148,6 +148,13 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "RandomAgents",
+    },
+    {
+      helperText: "Base this on the size of your simulation.",
+      label: "TimeOut",
+      labelFor: "text-input",
+      labelInfo: "",
+      key: "SimTimeoutSeconds",
     }
 ];
 
