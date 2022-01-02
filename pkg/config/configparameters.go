@@ -40,7 +40,7 @@ type ConfigParameters struct {
 	MaxDayCritical       int           `json:"maxDayCritical"`
 	HPLossBase           int           `json:"HPLossBase"`
 	HPLossSlope          float64       `json:"HPLossSlope"`
-	LogFileName          string        `json:"LogFileName"`
+	LogFolderName        string        `json:"LogFileName"`
 	LogMain              bool          `json:"LogMain"`
 	SimTimeoutSeconds    int           `json:"SimTimeoutSeconds"`
 	NumOfAgents          map[agent.AgentType]int
@@ -50,7 +50,7 @@ type ConfigParameters struct {
 }
 
 type SimulateResponse struct { // used for HTTP response on /simulate
-	LogFileName string `json:"LogFileName"`
+	LogFolderName string `json:"LogFileName"`
 }
 
 type DirectoryResponse struct { // used for HTTP response on /directory
