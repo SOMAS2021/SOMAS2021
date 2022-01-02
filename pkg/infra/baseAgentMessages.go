@@ -30,12 +30,7 @@ func (a *Base) DeleteTreaty(treatyID uuid.UUID) {
 	delete(a.activeTreaties, treatyID)
 }
 
-func (a *Base) HandleAskHP(msg messages.AskHPMessage) {
-	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
-	a.SendMessage(reply)
-	a.Log("I recieved an askHP message from ", Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
-
-}
+func (a *Base) HandleAskHP(msg messages.AskHPMessage)                                    {}
 func (a *Base) HandleAskFoodTaken(msg messages.AskFoodTakenMessage)                      {}
 func (a *Base) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage)     {}
 func (a *Base) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage)              {}
