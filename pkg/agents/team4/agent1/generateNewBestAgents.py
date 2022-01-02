@@ -6,6 +6,7 @@ import numpy as np
 best_agents_file_name = sys.argv[1]
 agent_life_expectencies_file_name = sys.argv[2]
 number_of_health_levels = int(sys.argv[3])
+agent_death_rate_file_name = sys.argv[4]
 
 # read bestAgent.config
 best_agents_file = open(best_agents_file_name)
@@ -14,24 +15,49 @@ best_agents_file.close
 
 # read the array of average time survied by each agent
 agent_life_expectencies_file = open(agent_life_expectencies_file_name)
-performance_list = json.load(agent_life_expectencies_file)
+performance_list_life = json.load(agent_life_expectencies_file)
 agent_life_expectencies_file.close()
 
+# read the array of average death by each agent
+agent_death_rate_file = open(agent_death_rate_file_name)
+performance_list_death = json.load(agent_death_rate_file)
+agent_death_rate_file.close()
+
 # sort array but keep a track of index to obtain best agent
-perfomance_list_indices = range(len(performance_list))
-zipped_performance = zip(performance_list, perfomance_list_indices)
+perfomance_list_indices = range(len(performance_list_life))
+zipped_performance = zip(performance_list_life, performance_list_death, perfomance_list_indices)
 sorted_zipped_performance = sorted(zipped_performance, reverse=True)
 tuples = zip(*sorted_zipped_performance)
-sorted_performance_list, sorted_performance_list_indices = [
+sorted_performance_list_life, sorted_performance_list_death, sorted_performance_list_indices = [
     list(tuple) for tuple in tuples]
 
 print("The current life expectencies are: {0}".format(
-    sorted_performance_list))
+    sorted_performance_list_life))
 
 # get the 3 best agents
 agent_1 = best_agents_list[sorted_performance_list_indices[0]]
 agent_2 = best_agents_list[sorted_performance_list_indices[1]]
 agent_3 = best_agents_list[sorted_performance_list_indices[2]]
+agent_4 = best_agents_list[sorted_performance_list_indices[3]]
+agent_5 = best_agents_list[sorted_performance_list_indices[4]]
+
+################################################################################################
+#life[0] death[0] timestamp
+agents_of_time = [agent_1,agent_2,agent_3,agent_4,agent_5]
+outfile = []
+for i in range(len(agents_of_time)):
+    agents_of_time[i]['life'] = performance_list_life[i]
+    agents_of_time[i]['death'] = performance_list_death[i]
+
+from datetime import datetime
+timestamp = datetime.now(tz=None)
+file_name_out= "pkg/agents/team4/agent1/"+"{0}/{1}_{2}_{3}.json".format("storedagents", timestamp, performance_list_life[0],performance_list_death[0])
+file_name_out=file_name_out.replace(" ","_")
+old_agents_file = open(file_name_out, 'w')
+old_agents_file.write(json.dumps(agents_of_time, indent=4))
+old_agents_file.close()
+################################################################################################
+
 
 attribute = ["FoodToEat", "DaysToWait"]
 noise_multiplier_for_attribute = {
@@ -42,7 +68,7 @@ noise_multiplier_for_attribute = {
 mu, sigma = 0, 1  # mean and standard deviation
 
 # create mutated agents based on the best 3 agents
-agent_1_slight_mutations_1 = agent_1
+agent_1_slight_mutations_1 = best_agents_list[sorted_performance_list_indices[0]]
 for i in attribute:
     for j in range(number_of_health_levels):
         rand = int(
@@ -155,6 +181,23 @@ new_best_agents = [agent_1, agent_1_slight_mutations_1, agent_mix_1,
 for best_agent in new_best_agents:
     best_agent["FoodToEat"][0] = -1
 
+
+# #life[0] death[0] timestamp
+# agents_of_time = [agent_1,agent_2,agent_3,agent_4,agent_5]
+# outfile = []
+# for i in range(len(agents_of_time)):
+#     agents_of_time[i]['life'] = performance_list_life[i]
+#     agents_of_time[i]['death'] = performance_list_death[i]
+
+# from datetime import datetime
+# timestamp = datetime.now(tz=None)
+# file_name_out= "pkg/agents/team4/agent1/"+"{0}/{1}_{2}_{3}.json".format("storedagents", timestamp, performance_list_life[0],performance_list_death[0])
+# file_name_out=file_name_out.replace(" ","_")
+# old_agents_file = open(file_name_out, 'w')
+# old_agents_file.write(json.dumps(agents_of_time, indent=4))
+# old_agents_file.close()
+
 best_agents_file = open(best_agents_file_name, 'w')
 best_agents_file.write(json.dumps(new_best_agents, indent=4))
 best_agents_file.close()
+
