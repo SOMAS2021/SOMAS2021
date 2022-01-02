@@ -16,8 +16,8 @@ type CustomAgent4 struct {
 	coefficients        []float32
 	lastFoodTaken       food.FoodType
 	intendedFoodTaken   food.FoodType
-	sentMessages        MessageMemory
-	responseMessages    MessageMemory
+	sentMessages        []messages.Message
+	responseMessages    []messages.Message
 	MessageToSend       int
 	lastPlatFood        food.FoodType
 	maxFoodLimit        food.FoodType
@@ -26,15 +26,8 @@ type CustomAgent4 struct {
 	lastAge             int
 }
 
-type MessageMemory struct {
-	// An array of messages stored into the agent before platform change.
-	direction []int
-	messages  []messages.Message
-}
-
-func (a *CustomAgent4) AppendToMessageMemory(direction int, msg messages.Message, msgMemory MessageMemory) {
-	msgMemory.direction = append(msgMemory.direction, direction)
-	msgMemory.messages = append(msgMemory.messages, msg)
+func (a *CustomAgent4) AppendToMessageMemory(msg messages.Message, msgMemory []messages.Message) {
+	msgMemory = append(msgMemory, msg)
 }
 
 func (a *CustomAgent4) SendingMessage(direction int) {
@@ -71,6 +64,7 @@ func (a *CustomAgent4) SendingMessage(direction int) {
 }
 
 func (a *CustomAgent4) NeighbourFoodEaten() food.FoodType {
+
 	if a.CurrPlatFood() != -1 {
 		if !a.PlatformOnFloor() && a.CurrPlatFood() != a.lastPlatFood {
 			return a.lastPlatFood - a.CurrPlatFood()
@@ -80,8 +74,8 @@ func (a *CustomAgent4) NeighbourFoodEaten() food.FoodType {
 	return -1
 }
 
-func remove(slice MessageMemory, s int) ([]messages.Message, []int) {
-	return append(slice.messages[:s], slice.messages[s+1:]...), append(slice.direction[:s], slice.direction[s+1:]...)
+func remove(slice []messages.Message, s int) []messages.Message {
+	return append(slice[:s], slice[s+1:]...)
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
@@ -99,14 +93,8 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		lastFoodTaken: 0,
 
 		// Initialise Agents individual message memory
-		sentMessages: MessageMemory{
-			direction: []int{},
-			messages:  []messages.Message{},
-		},
-		responseMessages: MessageMemory{
-			direction: []int{},
-			messages:  []messages.Message{},
-		},
+		sentMessages:     []messages.Message{},
+		responseMessages: []messages.Message{},
 		// Define what message to send during a run.
 		MessageToSend:    rand.Intn(8),
 		lastPlatFood:     -1,

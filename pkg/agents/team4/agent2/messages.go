@@ -14,57 +14,57 @@ func (a *CustomAgent4) SendingMessage(direction int) {
 	case 0:
 		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), floorToSend)
 		a.SendMessage(msg)
-		a.AppendToMessageMemory(direction, msg, a.sentMessages)
+		a.AppendToMessageMemory(msg, a.sentMessages)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 1:
 		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), floorToSend)
 		a.SendMessage(msg)
-		a.AppendToMessageMemory(direction, msg, a.sentMessages)
+		a.AppendToMessageMemory(msg, a.sentMessages)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 2:
 		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), floorToSend)
 		a.SendMessage(msg)
-		a.AppendToMessageMemory(direction, msg, a.sentMessages)
+		a.AppendToMessageMemory(msg, a.sentMessages)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 3:
 		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, 10) //need to change how much to request to leave
 		a.SendMessage(msg)
-		a.AppendToMessageMemory(direction, msg, a.sentMessages)
+		a.AppendToMessageMemory(msg, a.sentMessages)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 4:
 		msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, 20) //need to change how much to request to take
 		a.SendMessage(msg)
-		a.AppendToMessageMemory(direction, msg, a.sentMessages)
+		a.AppendToMessageMemory(msg, a.sentMessages)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 5:
 		floorToSend = a.Floor() - 1
 		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), floorToSend)
 		a.SendMessage(msg)
-		a.AppendToMessageMemory(direction, msg, a.sentMessages)
+		a.AppendToMessageMemory(msg, a.sentMessages)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 6:
 		floorToSend = a.Floor() - 1
 		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), floorToSend)
 		a.SendMessage(msg)
-		a.AppendToMessageMemory(direction, msg, a.sentMessages)
+		a.AppendToMessageMemory(msg, a.sentMessages)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 7:
 		floorToSend = a.Floor() - 1
 		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), floorToSend)
 		a.SendMessage(msg)
-		a.AppendToMessageMemory(direction, msg, a.sentMessages)
+		a.AppendToMessageMemory(msg, a.sentMessages)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 8:
 		floorToSend = a.Floor() - 1
 		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, 10) //need to change how much to request to leave
 		a.SendMessage(msg)
-		a.AppendToMessageMemory(direction, msg, a.sentMessages)
+		a.AppendToMessageMemory(msg, a.sentMessages)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 9:
 		floorToSend = a.Floor() - 1
 		msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, 20) //need to change how much to request to take
 		a.SendMessage(msg)
-		a.AppendToMessageMemory(direction, msg, a.sentMessages)
+		a.AppendToMessageMemory(msg, a.sentMessages)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	default:
 	}
