@@ -3,8 +3,6 @@ package agentTrust
 import (
 	"math/rand"
 
-	"fmt"
-
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -12,19 +10,18 @@ import (
 
 type CustomAgent4 struct {
 	*infra.Base
-	globalTrust           float32
-	globalTrustAdd        float32
-	globalTrustSubtract   float32
-	coefficients          []float32
-	lastFoodTaken         food.FoodType
-	IntendedFoodTaken     food.FoodType
-	sentMessages          MessageMemory
-	responseMessages      MessageMemory
-	MessageToSend         int
-	lastPlatFood          food.FoodType
-	maxFoodLimit          food.FoodType
-	neighbourFoodEatenAmt food.FoodType
-	message_counter       int
+	globalTrust         float32
+	globalTrustAdd      float32
+	globalTrustSubtract float32
+	coefficients        []float32
+	lastFoodTaken       food.FoodType
+	IntendedFoodTaken   food.FoodType
+	sentMessages        MessageMemory
+	responseMessages    MessageMemory
+	MessageToSend       int
+	lastPlatFood        food.FoodType
+	maxFoodLimit        food.FoodType
+	message_counter     int
 }
 
 type MessageMemory struct {
