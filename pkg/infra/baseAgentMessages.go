@@ -48,6 +48,9 @@ func (a *Base) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntake
 // Note: You can override this function depending on how you want to handle treaties.
 // This implementation automatically accepts treaties. You probably don't want to do this.
 func (a *Base) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
+	treaty := msg.Treaty()
+	treaty.SignTreaty()
+	a.activeTreaties[msg.TreatyID()] = treaty
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
 	a.SendMessage(reply)
 	a.Log("Accepted treaty", Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(),
@@ -55,11 +58,9 @@ func (a *Base) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 }
 
 // Note: You can override this function depending on how you want to handle treaties.
-// This implementation automatically increments the signature count of the treaty if
-// it was accepted.
+// This implementation automatically increments the signature count of the treaty if it was accepted.
 func (a *Base) HandleTreatyResponse(msg messages.TreatyResponseMessage) {
 	if msg.Response() {
-
 		treaty := a.activeTreaties[msg.TreatyID()]
 		treaty.SignTreaty()
 		a.activeTreaties[msg.TreatyID()] = treaty

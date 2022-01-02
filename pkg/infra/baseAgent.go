@@ -102,6 +102,15 @@ func (a *Base) increaseAge() {
 	a.age++
 }
 
+func (a *Base) updateTreaties() {
+	for _, treaty := range a.activeTreaties {
+		treaty.DecrementDuration()
+		if treaty.Duration() == 0 {
+			delete(a.activeTreaties, treaty.ID())
+		}
+	}
+}
+
 // only show the food on the platform if the platform is on the
 // same floor as the agent or directly below
 func (a *Base) CurrPlatFood() food.FoodType {

@@ -101,6 +101,7 @@ func (t *Tower) endOfDay() {
 		agent := agent.BaseAgent()
 		agent.hpDecay(t.healthInfo)
 		agent.increaseAge()
+		agent.updateTreaties()
 	}
 }
 
