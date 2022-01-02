@@ -16,7 +16,7 @@ numberOfHealthLevels=4
 numberOfBestAgents=5
 numberOfAgentsPerSim=16
 numberOfIterations=1
-numberOfRuns=3
+numberOfRuns=1
 
 # Generate set of agents with 0 parameters
 python3 pkg/agents/team4/agent1/initaliseConfig.py $agentConfigFile $bestAgentsFile $numberOfHealthLevels $numberOfBestAgents
@@ -51,7 +51,7 @@ do
             averageDeathRate=`echo $averageDeathRate+$deathRate | bc`
         done
         averageLifeExpectancy=`echo $averageLifeExpectancy/$numberOfRuns | bc -l` 
-        averageDeathRate=`echo $averageDeathRate+$numberOfRuns | bc -l` 
+        averageDeathRate=`echo $averageDeathRate/$numberOfRuns | bc -l` 
         # echo "  Average perfomance " $averageLifeExpectancy 
         arrLifeExp+=($averageLifeExpectancy)
         arrDeathRate+=($averageDeathRate)
@@ -63,7 +63,7 @@ do
     echo "[${joinedDeathRate%,}]" > $agentDeathRateFile
 
     # generate new set of best agents generated from previous perfomance 
-    python3 pkg/agents/team4/agent1/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectanciesFile $numberOfHealthLevels
+    python3 pkg/agents/team4/agent1/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectanciesFile $numberOfHealthLevels $agentDeathRateFile
     echo "------------------------------------------"
 done
 
