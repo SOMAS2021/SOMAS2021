@@ -7,6 +7,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 type Memory struct {
@@ -122,8 +123,11 @@ func (a *CustomAgent5) Run() {
 			switch err.(type) {
 			case *infra.FloorError:
 			case *infra.NegFoodError:
+				log.Warn("NegFoodError: did CalculateAttemptFood() return a negative?")
 			case *infra.AlreadyEatenError:
+				log.Warn("AlreadyEatenError occurred after checking for a.HasEaten()")
 			default:
+				log.Fatal("Impossible error reached")
 			}
 		}
 		a.lastMeal = lastMeal

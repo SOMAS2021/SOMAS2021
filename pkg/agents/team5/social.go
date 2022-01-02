@@ -39,14 +39,6 @@ func (a *CustomAgent5) addToSocialFavour(id uuid.UUID, change int) {
 	mem := a.socialMemory[id]
 	mem.favour = a.restrictToRange(0, 10, mem.favour+change)
 	a.socialMemory[id] = mem
-	// a.socialMemory[id] = Memory{
-	// 	//trust:             a.socialMemory[id].trust,
-	// 	foodTaken:         a.socialMemory[id].foodTaken,
-	// 	agentHP:           a.socialMemory[id].agentHP,
-	// 	intentionFood:     a.socialMemory[id].intentionFood,
-	// 	favour:            a.restrictToRange(0, 10, a.socialMemory[id].favour+change),
-	// 	daysSinceLastSeen: a.socialMemory[id].daysSinceLastSeen,
-	// }
 }
 
 func (a *CustomAgent5) updateFavour() {
