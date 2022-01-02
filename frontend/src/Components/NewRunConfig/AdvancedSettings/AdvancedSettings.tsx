@@ -1,4 +1,4 @@
-import { Button, FormGroup, NumericInput } from "@blueprintjs/core";
+import { Button, Checkbox, FormGroup, NumericInput } from "@blueprintjs/core";
 import { SubmitSimulation } from "../NewRunState";
 import { advancedParams, params } from "../ParameterLabels";
 import { SimConfig } from "../../../Helpers/SimConfig";
@@ -8,7 +8,7 @@ export default function AdvancedSettingsMenu(state: any) {
   const config = state[0];
   const setConfig = state[1];
 
-  function configHandler<Key extends keyof SimConfig>(value: number, keyString: any) {
+  function configHandler<Key extends keyof SimConfig>(value: any, keyString: any) {
     var key: Key = keyString; // converting keyString to type Key
     config[key] = value;
     setConfig(config);
@@ -42,6 +42,20 @@ export default function AdvancedSettingsMenu(state: any) {
                 <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} />
               </FormGroup>
             ))}
+            <FormGroup>
+              <Checkbox
+                label="Save Main"
+                type="checkbox"
+                onChange={(value) => configHandler((value.target as HTMLInputElement).checked, "SaveMain")}
+              />
+            </FormGroup>
+            <FormGroup label="File Name" labelFor="text-input" key="FileName">
+              <input
+                type="text"
+                onChange={(value) => configHandler(value.target.value, "FileName")}
+                placeholder="Simulation Run #"
+              />
+            </FormGroup>
           </div>
           <div className="modal-footer">
             <Button intent="danger" className="close" icon="cross" text="Cancel" data-dismiss="modal" />

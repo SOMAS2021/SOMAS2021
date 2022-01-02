@@ -1,4 +1,4 @@
-import { Button, Checkbox, FormGroup, InputGroup, NumericInput } from "@blueprintjs/core";
+import { Button, Checkbox, FormGroup, NumericInput } from "@blueprintjs/core";
 import { SubmitSimulation } from "../NewRunState";
 import { params } from "../ParameterLabels";
 import { SimConfig } from "../../../Helpers/SimConfig";
