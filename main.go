@@ -166,7 +166,6 @@ func main() {
 		case <-c1:
 			log.Info("Simulation Finished Successfully")
 		case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
-			log.Info("Simulation Timeout")
 			log.Fatal("Simulation Timeout")
 		}
 	}
