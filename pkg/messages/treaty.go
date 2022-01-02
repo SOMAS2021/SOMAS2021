@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type ConditionType int // type of condition
+type ConditionType int
 type RequestType int
 type Op int
 
