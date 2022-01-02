@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
@@ -67,12 +68,52 @@ type CustomAgentEvoParams struct {
 type CustomAgentEvo struct {
 	*infra.Base
 	// new params
-	params CustomAgentEvoParams
+	params              CustomAgentEvoParams
+	globalTrust         float32
+	globalTrustAdd      float32
+	globalTrustSubtract float32
+	coefficients        []float32
+	lastFoodTaken       food.FoodType
+	intendedFoodTaken   food.FoodType
+	sentMessages        []messages.Message //TODO: make it a map hashed by messageIDs
+	responseMessages    []messages.Message //TODO: make it a map hashed by messageIDs
+	MessageToSend       int
+	lastPlatFood        food.FoodType
+	maxFoodLimit        food.FoodType
+	messageCounter      int
+	globalTrustLimit    float32
+	lastAge             int
 }
 
 type LoadedData struct {
 	FoodToEat  []int
 	DaysToWait []int
+}
+
+func (a *CustomAgentEvo) AppendToMessageMemory(msg messages.Message, msgMemory []messages.Message) {
+	msgMemory = append(msgMemory, msg)
+}
+
+func (a *CustomAgentEvo) NeighbourFoodEaten() food.FoodType {
+
+	if a.CurrPlatFood() != -1 {
+		if !a.PlatformOnFloor() && a.CurrPlatFood() != a.lastPlatFood {
+			return a.lastPlatFood - a.CurrPlatFood()
+		}
+		return 0
+	}
+	return -1
+}
+func remove(slice []messages.Message, s int) []messages.Message {
+	return append(slice[:s], slice[s+1:]...)
+}
+
+func (a *CustomAgentEvo) HasDayPassed() bool {
+	if a.Age() != a.lastAge {
+		a.lastAge = a.Age()
+		return true
+	}
+	return false
 }
 
 func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
@@ -106,12 +147,49 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	// currentFloorScoreEquation, currentHpScoreEquation := GenerateEquations()
 	//create other parameters
 	return &CustomAgentEvo{
-		Base:   baseAgent,
-		params: InitaliseParams(baseAgent),
+		Base:                baseAgent,
+		params:              InitaliseParams(baseAgent),
+		globalTrust:         0.0,                           // TODO: Amend values for correct agent behaviour
+		globalTrustAdd:      9.0,                           // TODO: Amend values for correct agent behaviour
+		globalTrustSubtract: -9.0,                          // TODO: Amend values for correct agent behaviour
+		coefficients:        []float32{0.1, 0.2, 0.4, 0.5}, // TODO: Amend values for correct agent behaviour
+
+		// Initialise the amount of food our agent intends to eat.
+		intendedFoodTaken: 0,
+		// Initialise the actual food taken on the previous run.
+		lastFoodTaken: 0,
+
+		// Initialise Agents individual message memory
+		sentMessages:     []messages.Message{},
+		responseMessages: []messages.Message{},
+		// Define what message to send during a run.
+		MessageToSend:    rand.Intn(8),
+		lastPlatFood:     -1,
+		maxFoodLimit:     50,
+		messageCounter:   0,
+		globalTrustLimit: 75,
+		lastAge:          0,
 	}, nil
 }
 
 func (a *CustomAgentEvo) Run() {
+
+	if food.FoodType(a.CurrPlatFood()) != a.lastPlatFood && a.PlatformOnFloor() {
+		a.lastPlatFood = a.CurrPlatFood()
+	}
+
+	receivedMsg := a.ReceiveMessage()
+	if receivedMsg != nil {
+		receivedMsg.Visit(a)
+	} else {
+		a.Log("I got nothing")
+	}
+
+	//TODO: Define a threshold limit for other agents to respond to our sent message.
+	a.SendingMessage()
+
+	// a.intendedFoodTaken = food.FoodType(int(int(a.CurrPlatFood()) * (100 - int(a.globalTrust)) / 100))
+	// a.lastFoodTaken, _ = a.TakeFood(a.intendedFoodTaken)
 
 	dayPass := false
 	if a.Age() != a.params.previousAge {

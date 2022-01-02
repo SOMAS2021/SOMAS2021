@@ -1,4 +1,4 @@
-package agentTrust
+package team4EvoAgent
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
@@ -6,7 +6,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
-func (a *CustomAgent4) SendingMessage(direction int) {
+func (a *CustomAgentEvo) SendingMessage() {
 
 	var msg messages.Message
 	floorToSend := a.Floor() + 1
@@ -76,25 +76,25 @@ func (a *CustomAgent4) SendingMessage(direction int) {
 }
 
 //FOR HONEST AGENTS
-func (a *CustomAgent4) HandleAskHP(msg messages.AskHPMessage) {
+func (a *CustomAgentEvo) HandleAskHP(msg messages.AskHPMessage) {
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
 	a.SendMessage(reply)
 	a.Log("Team4 agent received an askHP message from ", infra.Fields{"floor": msg.SenderFloor(), "hp": a.HP()})
 }
 
-func (a *CustomAgent4) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
+func (a *CustomAgentEvo) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.lastFoodTaken))
 	a.SendMessage(reply)
 	a.Log("Team4 agent received an askFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": a.lastFoodTaken})
 }
 
-func (a *CustomAgent4) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
+func (a *CustomAgentEvo) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.intendedFoodTaken))
 	a.SendMessage(reply)
 	a.Log("Team4 agent received an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": a.intendedFoodTaken})
 }
 
-func (a *CustomAgent4) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
+func (a *CustomAgentEvo) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
 	response := true
 	if a.globalTrust < a.globalTrustLimit {
 		response = false
@@ -104,7 +104,7 @@ func (a *CustomAgent4) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 	a.Log("Team4 agent received a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
-func (a *CustomAgent4) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
+func (a *CustomAgentEvo) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
 	amount := msg.Request()
 	response := true
 	if a.intendedFoodTaken > food.FoodType(amount) {
@@ -115,38 +115,39 @@ func (a *CustomAgent4) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 	a.Log("Team4 agent received a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 }
 
-func (a *CustomAgent4) HandleResponse(msg messages.BoolResponseMessage) {
+func (a *CustomAgentEvo) HandleResponse(msg messages.BoolResponseMessage) {
 	response := msg.Response() // TODO: Change for later dependent on circumstance
 	if !msg.Response() {
 		a.SubFromGlobalTrust(a.coefficients[1]) // TODO: adapt for other conditions
 	} else {
 		a.CheckForResponse(msg)
 	}
-	a.Log("Team4 agent received a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": response})
+	a.Log("Team4 agent received a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": response, "global_trust": a.globalTrust})
+
 }
 
-func (a *CustomAgent4) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
+func (a *CustomAgentEvo) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
 	statement := msg.Statement()
 	if food.FoodType(statement) > a.maxFoodLimit {
 		a.SubFromGlobalTrust(a.coefficients[1])
 	} else {
 		a.AddToGlobalTrust(a.coefficients[1])
 	}
-	a.Log("Team4 agent received a StateFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": statement})
+	a.Log("Team4 agent received a StateFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": statement, "global_trust": a.globalTrust})
 }
 
-func (a *CustomAgent4) HandleStateHP(msg messages.StateHPMessage) {
+func (a *CustomAgentEvo) HandleStateHP(msg messages.StateHPMessage) {
 	statement := msg.Statement()
 	a.AddToGlobalTrust(a.coefficients[0])
-	a.Log("Team4 agent received a StateHP message from ", infra.Fields{"floor": msg.SenderFloor(), "hp": statement})
+	a.Log("Team4 agent received a StateHP message from ", infra.Fields{"floor": msg.SenderFloor(), "hp": statement, "global_trust": a.globalTrust})
 }
 
-func (a *CustomAgent4) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
+func (a *CustomAgentEvo) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
 	statement := msg.Statement()
 	if food.FoodType(statement) > a.maxFoodLimit {
 		a.SubFromGlobalTrust(a.coefficients[1])
 	} else {
 		a.AddToGlobalTrust(a.coefficients[1])
 	}
-	a.Log("Team4 agent received a StateIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": statement})
+	a.Log("Team4 agent received a StateIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": statement, "global_trust": a.globalTrust})
 }

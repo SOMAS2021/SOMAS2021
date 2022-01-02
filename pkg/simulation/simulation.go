@@ -57,7 +57,7 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 			agent.Team1Agent2: agent2.New,
 			agent.Team2:       team2.New,
 			agent.Team3:       team3.New,
-			agent.Team4:       agentTrust.New,
+			agent.Team4:       team4EvoAgent.New,
 			agent.Team5:       team5.New,
 			agent.Team6:       team6.New,
 			agent.Team7:       team7agent1.New,
