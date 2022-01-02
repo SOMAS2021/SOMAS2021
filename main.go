@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -93,9 +92,6 @@ func main() {
 				http.Error(w, "Unable to open logs folder. There might not be any logs created yet", http.StatusInternalServerError)
 				return
 			}
-			for _, f := range files {
-				fmt.Println(f.Name())
-			}
 
 			//put them all in a struct
 			var response config.DirectoryResponse
@@ -149,11 +145,11 @@ func main() {
 			log.Fatal(err)
 		}
 	} else {
-		fmt.Println("Loading parameters...")
+		log.Info("Loading parameters...")
 
 		parameters, err := config.LoadParamFromJson(*configPathPtr)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err)
 			return
 		}
 
@@ -168,9 +164,9 @@ func main() {
 		// Listen on our channel AND a timeout channel - which ever happens first.
 		select {
 		case <-c1:
-			fmt.Println("Simulation Finished Successfully")
+			log.Info("Simulation Finished Successfully")
 		case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
-			fmt.Println("Simulation Timeout")
+			log.Info("Simulation Timeout")
 			log.Fatal("Simulation Timeout")
 		}
 	}
@@ -196,7 +192,7 @@ func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName st
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
 		if err != nil {
-			fmt.Println("failed to create logs directory: ", err)
+			log.Error("failed to create logs directory: ", err)
 			return "", err
 		}
 	}
@@ -212,7 +208,7 @@ func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName st
 	if _, err := os.Stat(logFolderName); os.IsNotExist(err) {
 		err := os.Mkdir(logFolderName, 0755)
 		if err != nil {
-			fmt.Println("failed to create custom folder directory: ", err)
+			log.Error("failed to create custom folder directory: ", err)
 			return "", err
 		}
 	}
