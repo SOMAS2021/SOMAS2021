@@ -67,13 +67,13 @@ func changeInMood(a *CustomAgent3, pointsMin, pointsMax, direction int) {
 	r1 := rand.New(s1)
 	points := r1.Intn(pointsMax-pointsMin) + pointsMin
 	if direction <= 0 {
-		a.vars.mood = a.vars.mood - points
+		a.vars.mood -= points
 		if a.vars.mood < 0 {
 			a.vars.mood = 0
 		}
 	}
 	if direction > 0 {
-		a.vars.mood = a.vars.mood + points
+		a.vars.mood += points
 		if a.vars.mood > 100 {
 			a.vars.mood = 100
 		}
@@ -84,13 +84,13 @@ func changeInMood(a *CustomAgent3, pointsMin, pointsMax, direction int) {
 func changeInMorality(a *CustomAgent3, pointsMin, pointsMax, direction int) {
 	points := rand.Intn(pointsMax-pointsMin) + pointsMin
 	if direction < 0 {
-		a.vars.morality = a.vars.morality - points
+		a.vars.morality -= points
 		if a.vars.morality < 0 {
 			a.vars.morality = 0
 		}
 	}
 	if direction > 0 {
-		a.vars.morality = a.vars.morality + points
+		a.vars.morality += points
 		if a.vars.morality > 100 {
 			a.vars.morality = 100
 		}

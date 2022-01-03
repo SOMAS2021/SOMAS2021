@@ -53,7 +53,7 @@ func (a *CustomAgent3) message() {
 func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage) {
 	a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
 	if a.read() {
-		a.vars.stubbornness = a.vars.stubbornness - 5 //value could be different
+		a.vars.stubbornness -= 5 //value could be different
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.HP())
 		a.SendMessage(reply)
 		a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
@@ -64,7 +64,7 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 	a.Log("I recieved an askFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
-			a.vars.stubbornness = a.vars.stubbornness + 5
+			a.vars.stubbornness += 5
 			//addfriend(a, ) need id
 			//if a.vars.morality < 30 {
 			//can we reject this message or send a response of false?
@@ -79,7 +79,7 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 
 func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
 	if a.read() {
-		a.vars.stubbornness = a.vars.stubbornness + 2
+		a.vars.stubbornness += 2
 		//if a.vars.morality < 30 {
 
 		//}
@@ -93,9 +93,9 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if a.vars.stubbornness > 80 {
-				a.vars.stubbornness = a.vars.stubbornness + 5
+				a.vars.stubbornness += 5
 			} else {
-				a.vars.stubbornness = a.vars.stubbornness - 2
+				a.vars.stubbornness -= 2
 			}
 		}
 		if a.vars.morality > 50 { //want to implement effects of friendship
@@ -116,9 +116,9 @@ func (a *CustomAgent3) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if a.vars.stubbornness > 80 {
-				a.vars.stubbornness = a.vars.stubbornness + 5
+				a.vars.stubbornness += 5
 			} else {
-				a.vars.stubbornness = a.vars.stubbornness - 2
+				a.vars.stubbornness -= 2
 			}
 		}
 		if a.vars.morality > 50 { //want to implement effects of friendship
@@ -143,11 +143,11 @@ func (a *CustomAgent3) HandleResponse(msg messages.BoolResponseMessage) {
 func (a *CustomAgent3) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
 	statement := msg.Statement()
 	if statement > a.decisions.foodToEat {
-		a.vars.stubbornness = a.vars.stubbornness - 5
+		a.vars.stubbornness -= 5
 		changeInMood(a, 5, 10, -1)
 		changeInMorality(a, 5, 10, -1)
 	} else {
-		a.vars.stubbornness = a.vars.stubbornness + 5
+		a.vars.stubbornness += 5
 		changeInMood(a, 5, 10, 1)
 		changeInMorality(a, 5, 10, 1)
 	}
@@ -159,10 +159,10 @@ func (a *CustomAgent3) HandleStateHP(msg messages.StateHPMessage) {
 	statement := msg.Statement()
 	if a.read() {
 		if statement > a.HP() {
-			a.vars.stubbornness = a.vars.stubbornness - 5
+			a.vars.stubbornness -= 5
 			changeInMorality(a, 5, 10, -1)
 		} else {
-			a.vars.stubbornness = a.vars.stubbornness - 10
+			a.vars.stubbornness -= 10
 			changeInMorality(a, 5, 10, 1)
 			changeInMood(a, 5, 10, 1)
 		}
@@ -174,7 +174,7 @@ func (a *CustomAgent3) HandleStateHP(msg messages.StateHPMessage) {
 func (a *CustomAgent3) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
 	statement := msg.Statement()
 	if a.read() {
-		a.vars.stubbornness = a.vars.stubbornness - 5
+		a.vars.stubbornness -= 5
 		if statement > a.decisions.foodToEat {
 			changeInMood(a, 5, 10, -1)
 		} else {
