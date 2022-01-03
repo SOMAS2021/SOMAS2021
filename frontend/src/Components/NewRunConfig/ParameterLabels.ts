@@ -5,6 +5,7 @@ export const advancedParams: Parameters[] = [
     labelFor: "text-input",
     labelInfo: "",
     key: "AgentHP",
+    min:1
   },
   {
     helperText: "",
@@ -12,6 +13,7 @@ export const advancedParams: Parameters[] = [
     labelFor: "text-input",
     labelInfo: "",
     key: "AgentsPerFloor",
+    min:1
   },
   {
     helperText: "In Days...",
@@ -19,6 +21,7 @@ export const advancedParams: Parameters[] = [
     labelFor: "text-input",
     labelInfo: "",
     key: "ReshuffleDays",
+    min:1
   },
   {
     helperText: "",
@@ -26,6 +29,7 @@ export const advancedParams: Parameters[] = [
     labelFor: "text-input",
     labelInfo: "",
     key: "weakLevel",
+    min:1
   },
   {
     helperText: "",
@@ -33,6 +37,7 @@ export const advancedParams: Parameters[] = [
     labelFor: "text-input",
     labelInfo: "",
     key: "width",
+    min:1
   },
   {
     helperText: "",
@@ -40,6 +45,7 @@ export const advancedParams: Parameters[] = [
     labelFor: "text-input",
     labelInfo: "",
     key: "tau",
+    min:1
   },
   {
     helperText: "Upper bound",
@@ -47,6 +53,7 @@ export const advancedParams: Parameters[] = [
     labelFor: "text-input",
     labelInfo: "",
     key: "hpCritical",
+    min:1
   },
   {
     helperText: "",
@@ -54,6 +61,7 @@ export const advancedParams: Parameters[] = [
     labelFor: "text-input",
     labelInfo: "",
     key: "maxDayCritical",
+    min:1
   },
   {
     helperText: "",
@@ -61,6 +69,7 @@ export const advancedParams: Parameters[] = [
     labelFor: "text-input",
     labelInfo: "",
     key: "HPLossBase",
+    min:1
   },
   {
     helperText: "",
@@ -68,6 +77,7 @@ export const advancedParams: Parameters[] = [
     labelFor: "text-input",
     labelInfo: "",
     key: "HPLossSlope",
+    min:0
   },
 ];
 
@@ -78,6 +88,7 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "SimDays",
+      min:1
     },
     {
       helperText: "Agents can do one/two actions per 'Tick'",
@@ -85,13 +96,23 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "TicksPerFloor",
+      min:1
     },
     {
-      helperText: "Food on the platfrom at the beginnning of each day",
+      helperText: "Food on the platform at the beginning of each day",
       label: "Initial Food On The Platform",
       labelFor: "text-input",
       labelInfo: "",
       key: "FoodOnPlatform",
+      min:1,
+    },
+    {
+      helperText: "Food on the platform at the beginning of each day",
+      label: "Food Per Agent",
+      labelFor: "text-input",
+      labelInfo: "",
+      key: "FoodPerAgentRatio",
+      min:1,
     },
     {
       helperText: "Number of Agents from Team 1 in the Tower",
@@ -99,6 +120,7 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "Team1Agents",
+      min:0,
     },
     {
       helperText: "Number of Agents from Team 2 in the Tower",
@@ -106,6 +128,7 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "Team2Agents",
+      min:0,
     },
     {
       helperText: "Number of Agents from Team 3 in the Tower",
@@ -113,6 +136,7 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "Team3Agents",
+      min:0,
     },
     {
       helperText: "Number of Agents from Team 4 in the Tower",
@@ -120,6 +144,7 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "Team4Agents",
+      min:0,
     },
     {
       helperText: "Number of Agents from Team 5 in the Tower",
@@ -127,6 +152,7 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "Team5Agents",
+      min:0,
     },
     {
       helperText: "Number of Agents from Team 6 in the Tower",
@@ -134,6 +160,7 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "Team6Agents",
+      min:0,
     },
     {
       helperText: "Number of Agents from Team 7 in the Tower",
@@ -141,6 +168,7 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "Team7Agents",
+      min:0,
     },
     {
       helperText: "Number of Random Agents in the Tower",
@@ -148,6 +176,7 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "RandomAgents",
+      min:0,
     },
     {
       helperText: "Base this on the size of your simulation.",
@@ -155,6 +184,7 @@ export const params: Parameters[] = [
       labelFor: "text-input",
       labelInfo: "",
       key: "SimTimeoutSeconds",
+      min:1,
     }
 ];
 
@@ -164,4 +194,5 @@ export interface Parameters {
   labelFor: string;
   labelInfo: string;
   key: string;
+  min: number;
 }
