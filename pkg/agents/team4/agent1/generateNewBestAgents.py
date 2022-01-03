@@ -4,10 +4,11 @@ import json
 import numpy as np
 
 best_agents_file_name = sys.argv[1]
-agent_life_expectencies_file_name = sys.argv[2]
+agent_life_expectancies_file_name = sys.argv[2]
 number_of_health_levels = int(sys.argv[3])
 agent_death_rate_file_name = sys.argv[4]
-agent_our_life_expectencies_file_name = sys.argv[5]
+agent_our_life_expectancies_file_name = sys.argv[5]
+selfish_flag = sys.argv[6]
 
 # read bestAgent.config
 best_agents_file = open(best_agents_file_name)
@@ -15,14 +16,14 @@ best_agents_list = json.load(best_agents_file)
 best_agents_file.close
 
 # read the array of average time survied by each agent 
-agent_life_expectencies_file = open(agent_life_expectencies_file_name)
-performance_list_life = json.load(agent_life_expectencies_file)
-agent_life_expectencies_file.close()
+agent_life_expectancies_file = open(agent_life_expectancies_file_name)
+performance_list_life = json.load(agent_life_expectancies_file)
+agent_life_expectancies_file.close()
 
 # read the array of average time survied by each agent of our type
-agent_our_life_expectencies_file = open(agent_our_life_expectencies_file_name)
-performance_list_our_life = json.load(agent_our_life_expectencies_file)
-agent_our_life_expectencies_file.close()
+agent_our_life_expectancies_file = open(agent_our_life_expectancies_file_name)
+performance_list_our_life = json.load(agent_our_life_expectancies_file)
+agent_our_life_expectancies_file.close()
 
 # read the array of average death by each agent
 agent_death_rate_file = open(agent_death_rate_file_name)
@@ -31,16 +32,25 @@ agent_death_rate_file.close()
 
 # sort array but keep a track of index to obtain best agent
 perfomance_list_indices = range(len(performance_list_life))
-zipped_performance = zip(performance_list_life, performance_list_our_life, performance_list_death, perfomance_list_indices)
-sorted_zipped_performance = sorted(zipped_performance, reverse=True)
-tuples = zip(*sorted_zipped_performance)
-sorted_performance_list_life, sorted_performance_list_our_life, sorted_performance_list_death, sorted_performance_list_indices = [
-    list(tuple) for tuple in tuples]
+if not selfish_flag:
+    print("This is not selfish")
+    zipped_performance = zip(performance_list_life, performance_list_our_life, performance_list_death, perfomance_list_indices)
+    sorted_zipped_performance = sorted(zipped_performance, reverse=True)
+    tuples = zip(*sorted_zipped_performance)
+    sorted_performance_list_life, sorted_performance_list_our_life, sorted_performance_list_death, sorted_performance_list_indices = [
+        list(tuple) for tuple in tuples]
+else:
+    print("This is selfish")
+    zipped_performance = zip(performance_list_our_life, performance_list_life, performance_list_death, perfomance_list_indices)
+    sorted_zipped_performance = sorted(zipped_performance, reverse=True)
+    tuples = zip(*sorted_zipped_performance)
+    sorted_performance_list_our_life, sorted_performance_list_life, sorted_performance_list_death, sorted_performance_list_indices = [
+        list(tuple) for tuple in tuples]
 
-print("The current global life expectancies are: {0} \n The current our life expectancies are: {1} ".format(
+print("The current global life expectancies are: {0}\nThe current our life expectancies are: {1} ".format(
     sorted_performance_list_life, sorted_performance_list_our_life))
 
-# get the 3 best agents
+# get all best agents
 agent_1 = best_agents_list[sorted_performance_list_indices[0]]
 agent_2 = best_agents_list[sorted_performance_list_indices[1]]
 agent_3 = best_agents_list[sorted_performance_list_indices[2]]
