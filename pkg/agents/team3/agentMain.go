@@ -74,7 +74,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 
 func (a *CustomAgent3) Run() {
 	//Update agent variables at the beginning of day (when HP has been reduced)
-	if a.HP() < a.knowledge.lastHP { //thanks to the new HP, this will also not work (as somedays we might wake up with the same HP)
+	if a.HP() < a.knowledge.lastHP {
 		changeNewDay(a)
 	}
 
