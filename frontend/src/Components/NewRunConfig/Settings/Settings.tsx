@@ -38,7 +38,7 @@ export default function Settings(state: any) {
           <div className="modal-body">
             {params.map((i) => (
               <FormGroup {...i}>
-                <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} />
+                <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} min={i.min} />
               </FormGroup>
             ))}
             <FormGroup>

@@ -34,12 +34,12 @@ export default function AdvancedSettingsMenu(state: any) {
           <div className="modal-body">
             {params.map((i) => (
               <FormGroup {...i}>
-                <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} />
+                <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} min={i.min} />
               </FormGroup>
             ))}
             {advancedParams.map((i) => (
               <FormGroup {...i}>
-                <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} />
+                <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} min={i.min}/>
               </FormGroup>
             ))}
             <FormGroup>
