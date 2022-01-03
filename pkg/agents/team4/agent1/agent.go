@@ -55,6 +55,7 @@ type CustomAgentEvoParams struct {
 	// scalingEquation   Equation
 	// currentFloorScore Equation
 	// currentHpScore    Equation
+	locked       bool
 	previousAge  int
 	foodToEat    []int
 	daysToWait   []int
@@ -126,6 +127,7 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 	_ = json.Unmarshal(file, &data1) //parse the config json file to get the coeffs for floor and HP equations
 
 	data1.FoodToEat[0] = baseAgent.HealthInfo().HPReqCToW
+	data1.DaysToWait[0] = int(baseAgent.HealthInfo().MaxDayCritical / 2)
 
 	return CustomAgentEvoParams{ //initialise the parameters of the agent
 		// scalingEquation: Equation{
@@ -133,6 +135,7 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 		// },
 		// currentFloorScore: currentFloorScoreEquation,
 		// currentHpScore:    currentHpScoreEquation,
+		locked:            true,
 		previousAge:       0,
 		foodToEat:         data1.FoodToEat,
 		daysToWait:        data1.DaysToWait,
@@ -202,29 +205,36 @@ func (a *CustomAgentEvo) Run() {
 
 	if a.HP() <= a.HealthInfo().WeakLevel { //critical
 		healthStatus = 0
+		a.params.locked = false
 		// if dayPass {
 		// 	a.params.traumaScaleFactor = math.Min(200, a.params.traumaScaleFactor+0.03)
 		// }
-	} else if a.HP() <= a.HealthInfo().WeakLevel+healthLevelSeparation { //weak
-		healthStatus = 1
-		// if dayPass {
-		// 	a.params.traumaScaleFactor = math.Min(200, a.params.traumaScaleFactor+0.02)
-		// }
-	} else if a.HP() <= a.HealthInfo().WeakLevel+2*healthLevelSeparation { //normal
-		healthStatus = 2
-		// if dayPass {
-		// 	a.params.traumaScaleFactor = math.Max(0, a.params.traumaScaleFactor-0.02)
-		// }
-	} else { //strong
-		healthStatus = 3
-		// if dayPass {
-		// 	a.params.traumaScaleFactor = math.Max(0, a.params.traumaScaleFactor-0.03)
-		// }
+	}
+	if !a.params.locked {
+		if a.HP() <= a.HealthInfo().WeakLevel+healthLevelSeparation { //weak
+			healthStatus = 1
+			// if dayPass {
+			// 	a.params.traumaScaleFactor = math.Min(200, a.params.traumaScaleFactor+0.02)
+			// }
+		} else if a.HP() <= a.HealthInfo().WeakLevel+2*healthLevelSeparation { //normal
+			healthStatus = 2
+			// if dayPass {
+			// 	a.params.traumaScaleFactor = math.Max(0, a.params.traumaScaleFactor-0.02)
+			// }
+		} else { //strong
+			healthStatus = 3
+			// if dayPass {
+			// 	a.params.traumaScaleFactor = math.Max(0, a.params.traumaScaleFactor-0.03)
+			// }
+		}
+		a.params.locked = true
 	}
 
 	var foodEaten food.FoodType
 	var err error
-	if (a.Age() - a.params.ageLastEaten) >= a.params.daysToWait[healthStatus] {
+
+	if (a.Age()-a.params.ageLastEaten) >= a.params.daysToWait[healthStatus] || healthStatus == 0 {
+		a.params.locked = false
 		calculatedAmountToEat := a.params.traumaScaleFactor * float64(a.params.foodToEat[healthStatus])
 		foodEaten, err = a.TakeFood(food.FoodType(calculatedAmountToEat))
 		a.params.ageLastEaten = a.Age()
