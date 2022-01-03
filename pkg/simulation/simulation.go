@@ -86,6 +86,9 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 
 	sE.Log("Simulation Ended")
 	sE.Log("Summary of dead agents", infra.Fields{"Agent Type and number that died": t.DeadAgents()})
+	for agentType, count := range t.DeadAgents() {
+		sE.Log("dead agents", infra.Fields{"agentType": agentType.String(), "count": count})
+	}
 
 	sE.Log("Living agents at end of simulation")
 	for agentID, agent := range t.Agents {
