@@ -3,9 +3,9 @@
 selfish='false'
 
 print_usage() {
-  printf "Usage: ..."
-  printf "s) set to train for selfish agent"
-  printf "h) get help"
+  printf "Usage: ... \n"
+  printf "s) set to train for selfish agent \n"
+  printf "h) get help \n"
 }
 
 while getopts 'sh' flag
@@ -33,8 +33,8 @@ touch $agentConfigFile $bestAgentsFile
 numberOfHealthLevels=4
 numberOfBestAgents=5
 numberOfAgentsPerSim=5
-numberOfIterations=12
-numberOfRuns=3
+numberOfIterations=5
+numberOfRuns=1
 
 # Generate set of agents with 0 parameters
 python3 pkg/agents/team4/agent1/initaliseConfig.py $agentConfigFile $bestAgentsFile $numberOfHealthLevels $numberOfBestAgents
@@ -97,7 +97,7 @@ do
     echo "[${joinedDeathRate%,}]" > $agentDeathRateFile
 
     # generate new set of best agents generated from previous perfomance 
-    python3 pkg/agents/team4/agent1/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectanciesFile $numberOfHealthLevels $agentDeathRateFile $agentOurLifeExpectanciesFile
+    python3 pkg/agents/team4/agent1/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectanciesFile $numberOfHealthLevels $agentDeathRateFile $agentOurLifeExpectanciesFile $selfish
     echo "------------------------------------------"
 done
 
