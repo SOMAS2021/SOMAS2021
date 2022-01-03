@@ -47,9 +47,10 @@ func (a *CustomAgent5) addToSocialFavour(id uuid.UUID, change int) {
 
 func (a *CustomAgent5) updateFavour() {
 	for id, mem := range a.socialMemory {
-		if mem.daysSinceLastSeen < 2 {
-			judgement := (a.HP() - mem.agentHP) + int(a.lastMeal-mem.foodTaken) + int(a.calculateAttemptFood()-mem.intentionFood)
-			// a.Log("I have judged an agent", infra.Fields{"judgement": judgement})
+		//a.Log("Days since last seen", infra.Fields{"search for": mem.daysSinceLastSeen})
+		if mem.daysSinceLastSeen < 1 {
+			judgement := (a.hpAfterEating - mem.agentHP) + int(a.lastMeal-mem.foodTaken) //+ int(a.calculateAttemptFood()-mem.intentionFood)
+			//a.Log("I have judged an agent", infra.Fields{"judgement": judgement})
 			if judgement > 0 {
 				a.addToSocialFavour(id, 1)
 			}
@@ -77,8 +78,10 @@ func (a *CustomAgent5) calculateAverageFavour() int {
 }
 
 func (a *CustomAgent5) incrementDaysSinceLastSeen() {
-	for _, mem := range a.socialMemory {
-		mem.daysSinceLastSeen++
+	for id := range a.socialMemory {
+		temp := a.socialMemory[id]
+		temp.daysSinceLastSeen++
+		a.socialMemory[id] = temp
 	}
 }
 

@@ -136,8 +136,7 @@ func (a *CustomAgent5) Run() {
 		if a.lastMeal > 0 {
 			a.daysSinceLastMeal = 0
 		}
-		a.updateSatisfaction()
 		a.hpAfterEating = a.HP()
-		//a.messagingCounter = 0
+		a.updateSatisfaction()
 	}
 }

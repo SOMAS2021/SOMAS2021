@@ -44,9 +44,42 @@ func (a *CustomAgent5) dailyMessages() {
 		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), targetFloor)
 		a.SendMessage(msg)
 		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
+	case 6:
+		targetFloor = a.Floor() - 2
+		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), targetFloor)
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
+	case 7:
+		targetFloor = a.Floor() - 2
+		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), targetFloor)
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
+	case 8:
+		targetFloor = a.Floor() - 2
+		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), targetFloor)
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
+	case 9:
+		targetFloor = a.Floor() + 2
+		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), targetFloor)
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
+	case 10:
+		targetFloor = a.Floor() + 2
+		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), targetFloor)
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
+	case 11:
+		targetFloor = a.Floor() + 2
+		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), targetFloor)
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	default:
 	}
 	a.messagingCounter++
+	if a.messagingCounter > 25 {
+		a.messagingCounter = 0
+	}
 }
 
 //The message handler functions below are for a fully honest agent
@@ -133,7 +166,7 @@ func (a *CustomAgent5) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) 
 	a.resetDaysSinceLastSeen(msg.SenderID())
 	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID()
 	a.updateFoodTakenMemory(msg.SenderID(), statement)
-	a.Log("New value of foodTaken", infra.Fields{"statement": statement, "memory": a.socialMemory[msg.SenderID()].foodTaken})
+	//a.Log("New value of foodTaken", infra.Fields{"statement": statement, "memory": a.socialMemory[msg.SenderID()].foodTaken})
 }
 
 func (a *CustomAgent5) HandleStateHP(msg messages.StateHPMessage) {
@@ -145,7 +178,7 @@ func (a *CustomAgent5) HandleStateHP(msg messages.StateHPMessage) {
 	a.resetDaysSinceLastSeen(msg.SenderID())
 	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID()
 	a.updateAgentHPMemory(msg.SenderID(), statement)
-	a.Log("New value of agentHP", infra.Fields{"statement": statement, "memory": a.socialMemory[msg.SenderID()].agentHP})
+	//a.Log("New value of agentHP", infra.Fields{"statement": statement, "memory": a.socialMemory[msg.SenderID()].agentHP})
 }
 
 func (a *CustomAgent5) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
@@ -157,5 +190,5 @@ func (a *CustomAgent5) HandleStateIntendedFoodTaken(msg messages.StateIntendedFo
 	a.resetDaysSinceLastSeen(msg.SenderID())
 	a.surroundingAgents[msg.SenderFloor()-a.Floor()] = msg.SenderID()
 	a.updateIntentionFoodMemory(msg.SenderID(), statement)
-	a.Log("New value of intendedFood", infra.Fields{"statement": statement, "memory": a.socialMemory[msg.SenderID()].intentionFood})
+	//a.Log("New value of intendedFood", infra.Fields{"statement": statement, "memory": a.socialMemory[msg.SenderID()].intentionFood})
 }
