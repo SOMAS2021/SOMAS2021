@@ -23,7 +23,7 @@ func message(a *CustomAgent3) {
 		a.Log("I got nothing")
 	}
 
-	r := rand.Intn(9)
+	r := rand.Intn(4)
 	switch r {
 	case 0:
 		msg := messages.NewAskFoodTakenMessage(a.Floor())
@@ -45,24 +45,7 @@ func message(a *CustomAgent3) {
 		msg := messages.NewRequestTakeFoodMessage(a.Floor(), 20)
 		a.SendMessage(1, msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
-	case 5:
-		msg := messages.NewResponseMessage(a.Floor(), true)
-		a.SendMessage(1, msg)
-		a.Log("I sent a message", infra.Fields{"message": "Response"})
-	case 6:
-		msg := messages.NewStateFoodTakenMessage(a.Floor(), 30)
-		a.SendMessage(1, msg)
-		a.Log("I sent a message", infra.Fields{"message": "StateFoodTaken"})
-	case 7:
-		msg := messages.NewStateHPMessage(a.Floor(), 40)
-		a.SendMessage(1, msg)
-		a.Log("I sent a message", infra.Fields{"message": "StateHP"})
-	case 8:
-		msg := messages.NewStateIntendedFoodIntakeMessage(a.Floor(), 50)
-		a.SendMessage(1, msg)
-		a.Log("I sent a message", infra.Fields{"message": "StateIntendedFoodIntake"})
 	}
-	a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
 }
 
 func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage) {
