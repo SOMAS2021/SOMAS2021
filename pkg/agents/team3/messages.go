@@ -12,7 +12,7 @@ import (
 //If x time passed no message received/acked morale decrease
 //Include if ack message same user ID occurs x+1 times, morale increase
 //If stubborness = y+1, discard, a.k.a. leave unread
-func ticklyMessage(a *CustomAgent3) {
+func (a *CustomAgent3) ticklyMessage() {
 	r := rand.Intn(5)
 	switch r {
 	case 0:
@@ -37,14 +37,14 @@ func ticklyMessage(a *CustomAgent3) {
 		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
 	}
 }
-func message(a *CustomAgent3) {
+func (a *CustomAgent3) message() {
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "Mood": a.vars.mood, "Morality": a.vars.morality})
 		receivedMsg.Visit(a)
 		a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "Mood": a.vars.mood, "Morality": a.vars.morality})
 	} else {
-		ticklyMessage(a)
+		a.ticklyMessage()
 		a.Log("I got nothing")
 	}
 

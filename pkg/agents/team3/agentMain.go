@@ -102,7 +102,7 @@ func (a *CustomAgent3) Run() {
 		a.decisions.foodToLeave = -1
 	}
 
-	message(a)
+	a.message()
 
 	//eat
 

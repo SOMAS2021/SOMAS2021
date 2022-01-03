@@ -14,7 +14,9 @@ func foodReqCalc(a *CustomAgent3, targetHP int) int {
 
 // This function uses current HP of agents. This is a hunger equation.
 func targetHPCalc(a *CustomAgent3) int { //10hp -> target is 20hp, 65hp -> target is 65hp, 100hp -> target is 93hp
-	return int(12.0 + 9.0*float64(a.HP())/11.0)
+	grad := 9.0 / 11.0
+	c := 12.0
+	return int(grad*float64(a.HP()) + c)
 }
 
 func foodRange(metric int, min int, max int) int {
@@ -45,12 +47,10 @@ func takeFoodCalculation(a *CustomAgent3) int {
 
 		switch hp := a.HP(); {
 		case hp == a.HealthInfo().HPCritical:
-			if a.DaysAtCritical() == 1 { //depend on morality
-				return foodRange(morality, 0, hpCtoW+1) //range 0 to hpCtoW+1
-			} else if a.DaysAtCritical() == 2 {
-				return foodRange(morality, 1, hpCtoW+2) //range 1 to hpCtoW+2
+			if a.DaysAtCritical() < 3 { //depend on morality
+				return foodRange(morality, a.DaysAtCritical()-1, hpCtoW+a.DaysAtCritical()) // adaptive range
 			} else { // a.DaysAtCritical() == 3
-				return foodRange(morality, hpCtoW, hpCtoW+3) //range hpCtoW to hpCtoW+3
+				return foodRange(morality, hpCtoW, hpCtoW+a.DaysAtCritical()) //range hpCtoW to hpCtoW+3
 			}
 		default: // 10 <= hp <= 100:
 			targetHP := targetHPCalc(a)
@@ -67,18 +67,15 @@ func takeFoodCalculation(a *CustomAgent3) int {
 
 		if platFood-foodToEat >= foodToLeave {
 			if a.HP() == a.HealthInfo().HPCritical {
-				if a.DaysAtCritical() == 1 { //depend on morality
-					foodToEat = foodRange(morality, 0, hpCtoW+1) //range 0 to hpCtoW+1
-				} else if a.DaysAtCritical() == 2 {
-					foodToEat = foodRange(morality, 1, hpCtoW+2) //range 1 to hpCtoW+2
+				if a.DaysAtCritical() < 3 { //depend on morality
+					foodToEat = foodRange(morality, a.DaysAtCritical()-1, hpCtoW+a.DaysAtCritical()) // adaptive range
 				} else { // a.DaysAtCritical() == 3
-					foodToEat = foodRange(morality, hpCtoW, hpCtoW+3) //range hpCtoW to hpCtoW+3
+					foodToEat = foodRange(morality, hpCtoW, hpCtoW+a.DaysAtCritical()) //range hpCtoW to hpCtoW+3
 				}
 				if platFood-foodToEat >= foodToLeave {
 					return foodToEat
-				} else {
-					return platFood - foodToLeave
 				}
+				return platFood - foodToLeave
 			}
 			return foodToEat
 
