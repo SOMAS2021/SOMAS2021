@@ -5,6 +5,7 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+	"github.com/google/uuid"
 )
 
 type team3Variables struct {
@@ -61,8 +62,8 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			lastHP: 100,
 			//friends:       []string{},
 			//friendship:    []float64{},
-			floorBelow:    "",
-			floorAbove:    "",
+			floorBelow:    uuid.Nil,
+			floorAbove:    uuid.Nil,
 			foodLastEaten: food.FoodType(0),
 		},
 		decisions: team3Decisions{
@@ -93,10 +94,8 @@ func (a *CustomAgent3) Run() {
 		case *infra.AlreadyEatenError:
 		default:
 		}
-	}
-
-	//Update variables right after eating
-	if foodTaken != food.FoodType(-1) {
+	} else {
+		//Update variables right after eating
 		a.knowledge.lastHP = a.HP()
 		a.knowledge.foodLastEaten = food.FoodType(foodTaken)
 		a.decisions.foodToEat = -1

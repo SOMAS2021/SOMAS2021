@@ -52,7 +52,7 @@ func message(a *CustomAgent3) {
 
 func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage) {
 	a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
-	if read(a) {
+	if a.read() {
 		a.vars.stubbornness = a.vars.stubbornness - 5 //value could be different
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.HP())
 		a.SendMessage(reply)
@@ -62,7 +62,7 @@ func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage) {
 
 func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 	a.Log("I recieved an askFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
-	if read(a) {
+	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			a.vars.stubbornness = a.vars.stubbornness + 5
 			//addfriend(a, ) need id
@@ -78,7 +78,7 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 }
 
 func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
-	if read(a) {
+	if a.read() {
 		a.vars.stubbornness = a.vars.stubbornness + 2
 		//if a.vars.morality < 30 {
 
@@ -90,7 +90,7 @@ func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 }
 
 func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
-	if read(a) {
+	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if a.vars.stubbornness > 80 {
 				a.vars.stubbornness = a.vars.stubbornness + 5
@@ -113,7 +113,7 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 }
 
 func (a *CustomAgent3) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
-	if read(a) {
+	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if a.vars.stubbornness > 80 {
 				a.vars.stubbornness = a.vars.stubbornness + 5
@@ -157,7 +157,7 @@ func (a *CustomAgent3) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) 
 
 func (a *CustomAgent3) HandleStateHP(msg messages.StateHPMessage) {
 	statement := msg.Statement()
-	if read(a) {
+	if a.read() {
 		if statement > a.HP() {
 			a.vars.stubbornness = a.vars.stubbornness - 5
 			changeInMorality(a, 5, 10, -1)
@@ -173,7 +173,7 @@ func (a *CustomAgent3) HandleStateHP(msg messages.StateHPMessage) {
 
 func (a *CustomAgent3) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
 	statement := msg.Statement()
-	if read(a) {
+	if a.read() {
 		a.vars.stubbornness = a.vars.stubbornness - 5
 		if statement > a.decisions.foodToEat {
 			changeInMood(a, 5, 10, -1)

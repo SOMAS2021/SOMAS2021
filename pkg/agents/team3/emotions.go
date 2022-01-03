@@ -3,12 +3,14 @@ package team3
 import (
 	"math/rand"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // Function decides if we read a message or we don't, depends on our level of stubbornness, return is bool
 // Stubborness of 20 means probability of 0.2 that we don't read message
 
-func read(a *CustomAgent3) bool {
+func (a *CustomAgent3) read() bool {
 	random := rand.Intn(100)
 
 	return random <= a.vars.stubbornness
@@ -111,8 +113,8 @@ func changeNewDay(a *CustomAgent3) {
 // Function is called when the floor changes, changes the mood when we change floors
 func changeNewFloor(a *CustomAgent3) {
 	//Restart neighbour functions as we don´t know who is above/below anymore
-	a.knowledge.floorAbove = ""
-	a.knowledge.floorBelow = ""
+	a.knowledge.floorAbove = uuid.Nil
+	a.knowledge.floorBelow = uuid.Nil
 
 	//Calculate mood based on what floors we have been in
 	currentFloor := a.Floor()
@@ -124,10 +126,10 @@ func changeNewFloor(a *CustomAgent3) {
 		beenInLower := false
 
 		for _, floor := range a.knowledge.floors {
-			if a.knowledge.floors[i] < currentFloor {
+			if floor < currentFloor {
 				beenInLower = true
 			}
-			if a.knowledge.floors[i] > currentFloor {
+			if floor > currentFloor {
 				beenInHigher = true
 			}
 			if beenInLower && beenInHigher {
