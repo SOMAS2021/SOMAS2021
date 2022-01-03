@@ -86,6 +86,7 @@ func changeInStubbornness(a *CustomAgent3, change, direction int) {
 //TO DO: Trial this and do sth different.
 func changeNewDay(a *CustomAgent3) {
 	a.knowledge.lastHP = a.HP()
+	a.knowledge.agentAge = a.BaseAgent().Age()
 	if a.HP() < 50 {
 		changeInMorality(a, 10, 15, -1)
 		changeInMood(a, 10, 15, -1)

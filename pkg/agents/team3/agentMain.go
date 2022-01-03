@@ -78,12 +78,11 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 
 func (a *CustomAgent3) Run() {
 	//Update agent variables at the beginning of day (when HP has been reduced)
-	if a.HP() < a.knowledge.lastHP {
+	if a.knowledge.agentAge < a.BaseAgent().Age() {
 		changeNewDay(a)
-	}
-
-	if a.knowledge.agentAge == 1 {
-		a.knowledge.foodMovingAvg = food.FoodType(a.foodReqCalc(50, 50))
+		if a.knowledge.agentAge == 1 {
+			a.knowledge.foodMovingAvg = food.FoodType(a.foodReqCalc(50, 50))
+		}
 	}
 
 	//Update agent variables at the beginning of reshuffle (when floor has changed)
