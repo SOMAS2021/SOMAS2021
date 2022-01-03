@@ -152,10 +152,10 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgentEvo{
 		Base:                baseAgent,
 		params:              InitaliseParams(baseAgent),
-		globalTrust:         0.0,                           // TODO: Amend values for correct agent behaviour
-		globalTrustAdd:      9.0,                           // TODO: Amend values for correct agent behaviour
-		globalTrustSubtract: -9.0,                          // TODO: Amend values for correct agent behaviour
-		coefficients:        []float32{0.1, 0.2, 0.4, 0.5}, // TODO: Amend values for correct agent behaviour
+		globalTrust:         0.0,                      // TODO: Amend values for correct agent behaviour
+		globalTrustAdd:      9.0,                      // TODO: Amend values for correct agent behaviour
+		globalTrustSubtract: -9.0,                     // TODO: Amend values for correct agent behaviour
+		coefficients:        []float32{0.2, 0.4, 0.8}, // TODO: Amend values for correct agent behaviour
 
 		// Initialise the amount of food our agent intends to eat.
 		intendedFoodTaken: 0,
