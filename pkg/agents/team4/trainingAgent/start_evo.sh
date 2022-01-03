@@ -29,6 +29,8 @@ agentOurLifeExpectanciesFile="pkg/agents/team4/trainingAgent/agentOurLifeExpecta
 agentDeathRateFile="pkg/agents/team4/trainingAgent/agentDeathRate.json"
 rm $agentConfigFile $bestAgentsFile
 touch $agentConfigFile $bestAgentsFile
+rm -rf "pkg/agents/team4/trainingAgent/storedagents"
+mkdir "pkg/agents/team4/trainingAgent/storedagents"
 
 numberOfHealthLevels=4
 numberOfBestAgents=5
