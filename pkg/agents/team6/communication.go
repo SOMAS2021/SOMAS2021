@@ -49,6 +49,34 @@ func (a *CustomAgent6) RequestLeaveFood() {
 	}
 }
 
+// Request another agent to take a precise amount of food
+func (a *CustomAgent6) RequestTakeFood() {
+
+	reqAmount := -1
+	switch a.currBehaviour.String() {
+	case "Altruist":
+		reqAmount = -1
+
+	case "Collectivist":
+		reqAmount = -1
+
+	case "Selfish":
+		reqAmount = 0
+
+	case "Narcissist":
+		reqAmount = 0
+
+	default:
+		reqAmount = -1
+	}
+
+	if reqAmount != -1 {
+		msg := messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), a.Floor()-1, reqAmount)
+		a.SendMessage(msg)
+		a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood", "floor": a.Floor()})
+	}
+}
+
 func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
 	healthInfo := a.HealthInfo()
 	currentHP := a.HP()
