@@ -6,23 +6,25 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
-func InitActionSpace() actionSpace {
+func InitActionSpace(actionRange int) actionSpace {
 	//TODO: actionID might be removed in further versions
 	//index : 0 => disregard food
 	//index : 1 => satisfice with food
 	//index : 2 => satisfy with food
 	initialActionSpace := actionSpace{}
-	initialActionSpace.actionId = make([]int, 3)
-	for i := 0; i < 3; i++ {
+	initialActionSpace.actionId = make([]int, actionRange)
+	for i := 0; i < actionRange; i++ {
 		initialActionSpace.actionId[i] = i
 	}
-	m := map[int]func(hp int) food.FoodType{
-		//actions based on the current hp level
-		initialActionSpace.actionId[0]: DisFood,
-		initialActionSpace.actionId[1]: Satisfice,
-		initialActionSpace.actionId[2]: Satisfy,
-	}
-	initialActionSpace.actionSet = m
+	/*
+		m := map[int]func(hp int) food.FoodType{
+			//actions based on the current hp level
+			initialActionSpace.actionId[0]: DisFood,
+			initialActionSpace.actionId[1]: Satisfice,
+			initialActionSpace.actionId[2]: Satisfy,
+		}
+		initialActionSpace.actionSet = m
+	*/
 	return initialActionSpace
 }
 
