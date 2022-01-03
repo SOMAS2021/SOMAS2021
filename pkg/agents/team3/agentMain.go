@@ -86,7 +86,7 @@ func (a *CustomAgent3) Run() {
 	a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "morality": a.vars.morality})
 
 	//eat
-	foodTaken, err := a.TakeFood(food.FoodType((takeFoodCalculation(a))))
+	foodTaken, err := a.TakeFood(food.FoodType((a.takeFoodCalculation())))
 	if err != nil {
 		switch err.(type) {
 		case *infra.FloorError:

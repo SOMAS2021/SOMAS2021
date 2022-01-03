@@ -33,7 +33,7 @@ func foodScale(number int, metric int, minScale float64, maxScale float64) int {
 	return -1
 }
 
-func takeFoodCalculation(a *CustomAgent3) int {
+func (a *CustomAgent3) takeFoodCalculation() int {
 
 	platFood := int(a.CurrPlatFood())
 	hpCtoW := a.HealthInfo().HPReqCToW
