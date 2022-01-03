@@ -60,7 +60,7 @@ type actionSpace struct {
 }
 type CustomAgent2 struct {
 	*infra.Base
-	stateSpace    [][][]int
+	stateSpace    [][][][]int
 	actionSpace   actionSpace
 	policies      [][]float64
 	rTable        [][]float64
@@ -79,12 +79,13 @@ func InitTable(numStates int, numActions int) [][]float64 {
 func New(baseAgent *infra.Base) (infra.Agent, error) {
 	hpStatesDim := baseAgent.HealthInfo().MaxHP + 1
 	actionDim := baseAgent.HealthInfo().MaxHP + 1
+	daysAtCriticalDim := baseAgent.HealthInfo().MaxDayCritical + 1
 
-	stateSpace := InitStateSpace(hpStatesDim, 3, 3)
+	stateSpace := InitStateSpace(hpStatesDim, 3, 3, daysAtCriticalDim)
 	actionSpace := InitActionSpace(actionDim)
-	policies := InitPolicies(hpStatesDim*3*3, actionDim)
-	rTable := InitTable(hpStatesDim*3*3, actionDim)
-	qTable := InitTable(hpStatesDim*3*3, actionDim)
+	policies := InitPolicies(hpStatesDim*3*3*daysAtCriticalDim, actionDim)
+	rTable := InitTable(hpStatesDim*3*3*daysAtCriticalDim, actionDim)
+	qTable := InitTable(hpStatesDim*3*3*daysAtCriticalDim, actionDim)
 	return &CustomAgent2{
 		Base:          baseAgent,
 		stateSpace:    stateSpace,
