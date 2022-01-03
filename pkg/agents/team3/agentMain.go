@@ -25,10 +25,10 @@ type team3Knowledge struct {
 	//friends []string
 	//We know if we like or not the people we have met
 	//friendship []float64
-	//Stores who is in the floor bellow
-	floorBelow string
+	//Stores who is in the floor below
+	floorBelow uuid.UUID
 	//Stores who is in the floor above
-	floorAbove string
+	floorAbove uuid.UUID
 	//Stores food last eaten
 	foodLastEaten food.FoodType
 }

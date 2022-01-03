@@ -9,8 +9,7 @@ import (
 // Stubborness of 20 means probability of 0.2 that we don't read message
 
 func read(a *CustomAgent3) bool {
-	rand.Seed(time.Now().UnixNano()) //creates seed to rand
-	var random = rand.Intn(100)
+	random := rand.Intn(100)
 
 	return random <= a.vars.stubbornness
 }
@@ -124,7 +123,7 @@ func changeNewFloor(a *CustomAgent3) {
 		beenInHigher := false
 		beenInLower := false
 
-		for i := 0; i < len(a.knowledge.floors); i++ {
+		for _, floor := range a.knowledge.floors {
 			if a.knowledge.floors[i] < currentFloor {
 				beenInLower = true
 			}
