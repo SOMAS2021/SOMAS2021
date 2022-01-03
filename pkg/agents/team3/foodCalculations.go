@@ -12,6 +12,7 @@ func foodReqCalc(a *CustomAgent3, targetHP int) int {
 	return int(-a.HealthInfo().Tau * math.Log(1.0-(float64(decayCurrentHP-a.HP())/a.HealthInfo().Width)))
 }
 
+// This function uses current HP of agents. This is a hunger equation.
 func targetHPCalc(a *CustomAgent3) int { //10hp -> target is 20hp, 65hp -> target is 65hp, 100hp -> target is 93hp
 	return int(12.0 + 9.0*float64(a.HP())/11.0)
 }
@@ -41,8 +42,10 @@ func takeFoodCalculation(a *CustomAgent3) int {
 	switch foodToEat | foodToLeave {
 
 	case (-1): // uses HP and morality
+	case (-1): // (-1 | -1), uses HP and morality
+
 		switch hp := a.HP(); {
-		case hp == 5:
+		case hp == a.HealthInfo().HPCritical:
 			if a.DaysAtCritical() == 1 { //depend on morality
 				return foodRange(morality, 0, hpCtoW+1) //range 0 to hpCtoW+1
 			} else if a.DaysAtCritical() == 2 {
@@ -53,7 +56,7 @@ func takeFoodCalculation(a *CustomAgent3) int {
 		default: // 10 <= hp <= 100:
 			targetHP := targetHPCalc(a)
 			foodRequired := foodReqCalc(a, targetHP)
-			return foodScale(foodRequired, morality, 0.5, 1.5) // from foodRequired*0.5 (morality 100) to foodRequired*1.5 (morality 0)
+			return foodScale(foodRequired, morality, 0.0, 2.0) // from foodRequired*0 (morality 100) to foodRequired*2 (morality 0)
 		}
 
 	case (-1 | foodToLeave): //uses platFood, HP, morality and foodToLeave
@@ -61,10 +64,25 @@ func takeFoodCalculation(a *CustomAgent3) int {
 		//Any Hp
 		targetHP := targetHPCalc(a)
 		foodRequired := foodReqCalc(a, targetHP)
-		foodToEat = foodScale(foodRequired, morality, 0.5, 1.5) // from foodRequired*0.5 (morality 100) to foodRequired*1.5 (morality 0)
+		foodToEat = foodScale(foodRequired, morality, 0.0, 2.0) // from foodRequired*0 (morality 100) to foodRequired*2 (morality 0)
 
 		if platFood-foodToEat >= foodToLeave {
+			if a.HP() == a.HealthInfo().HPCritical {
+				if a.DaysAtCritical() == 1 { //depend on morality
+					foodToEat = foodRange(morality, 0, hpCtoW+1) //range 0 to hpCtoW+1
+				} else if a.DaysAtCritical() == 2 {
+					foodToEat = foodRange(morality, 1, hpCtoW+2) //range 1 to hpCtoW+2
+				} else { // a.DaysAtCritical() == 3
+					foodToEat = foodRange(morality, hpCtoW, hpCtoW+3) //range hpCtoW to hpCtoW+3
+				}
+				if platFood-foodToEat >= foodToLeave {
+					return foodToEat
+				} else {
+					return platFood - foodToLeave
+				}
+			}
 			return foodToEat
+
 		} else if platFood >= foodToLeave {
 			return platFood - foodToLeave
 		} // Cannot satisfy platform requirement
