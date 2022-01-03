@@ -2,6 +2,7 @@ package team5
 
 import (
 	"math"
+	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -31,6 +32,7 @@ type CustomAgent5 struct {
 	rememberFloor     int
 	messagingCounter  int
 	attemptToEat      bool
+	leadership        int
 	// Social network of other agents
 	socialMemory      map[uuid.UUID]Memory
 	surroundingAgents map[int]uuid.UUID
@@ -50,6 +52,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		rememberFloor:     0,                            //Store the floor we are on so we can see if we have been reshuffled
 		messagingCounter:  0,                            //Counter so that various messages are sent throughout the day
 		attemptToEat:      true,                         // To check if we have already attempted to eat in a day. Needed because HasEaten() does not update if there is no food on the platform
+		leadership:        rand.Intn(10),                //Initilise a random leadership value for each agent, used to determine whether they try to cause change in the tower. 0 is more likely to become a leader
 		socialMemory:      make(map[uuid.UUID]Memory),   // Memory of other agents, key is agent id
 		surroundingAgents: make(map[int]uuid.UUID),      // Map agent IDs of surrounding floors relative to current floor
 	}, nil
@@ -78,11 +81,20 @@ func (a *CustomAgent5) updateSatisfaction() {
 	}
 }
 
+func (a *CustomAgent5) checkForLeader() {
+	diceRoll := rand.Intn(10) + 3 - a.selfishness - a.Floor() //Random number between 3 and 12 generated, then the agent floor and selfishness are deducted from this
+	if diceRoll >= a.leadership {
+		a.Log("An agent has become a leader", infra.Fields{"dice roll": diceRoll, "leadership": a.leadership, "selfishness": a.selfishness, "floor": a.Floor()})
+		//TODO: Send treaties here about eating less food
+	}
+}
+
 func (a *CustomAgent5) dayPassed() {
 	a.updateFavour()
 	a.updateSelfishness()
 	a.updateAimHP()
 	a.attemptFood = a.calculateAttemptFood()
+	a.checkForLeader()
 
 	// for id := range a.socialMemory {
 	// 	a.Log("Memory at end of day", infra.Fields{"favour": a.socialMemory[id].favour, "agentHP": a.socialMemory[id].agentHP, "foodTaken": a.socialMemory[id].foodTaken, "intent": a.socialMemory[id].intentionFood})
