@@ -42,10 +42,10 @@ export default function Settings(state: any) {
             <FormGroup>
               <Switch
                 label="Use Food Per Agent"
-                onChange={(value) => (
-                  setDisableTotalFood((value.target as HTMLInputElement).checked),
-                  configHandler((value.target as HTMLInputElement).checked, "UseFoodPerAgentRatio")
-                )}
+                onChange={(value) => {
+                  setDisableTotalFood((value.target as HTMLInputElement).checked);
+                  configHandler((value.target as HTMLInputElement).checked, "UseFoodPerAgentRatio");
+                }}
               />
             </FormGroup>
             {params.map((i) =>

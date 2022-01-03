@@ -11,7 +11,6 @@ export default function AdvancedSettingsMenu(state: any) {
 
   const [disableTotalFood, setDisableTotalFood] = useState(Boolean);
 
-
   function configHandler<Key extends keyof SimConfig>(value: any, keyString: any) {
     var key: Key = keyString; // converting keyString to type Key
     config[key] = value;
@@ -36,13 +35,13 @@ export default function AdvancedSettingsMenu(state: any) {
         <div className="modal-content">
           <div className="modal-header">Advanced Settings</div>
           <div className="modal-body">
-          <FormGroup>
+            <FormGroup>
               <Switch
                 label="Use Food Per Agent"
-                onChange={(value) => (
-                  setDisableTotalFood((value.target as HTMLInputElement).checked),
-                  configHandler((value.target as HTMLInputElement).checked, "UseFoodPerAgentRatio")
-                )}
+                onChange={(value) => {
+                  setDisableTotalFood((value.target as HTMLInputElement).checked);
+                  configHandler((value.target as HTMLInputElement).checked, "UseFoodPerAgentRatio");
+                }}
               />
             </FormGroup>
             {params.map((i) =>
