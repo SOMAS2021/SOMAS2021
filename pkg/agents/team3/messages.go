@@ -66,9 +66,9 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 		if a.HP() < a.knowledge.lastHP {
 			a.vars.stubbornness = a.vars.stubbornness + 5
 			//addfriend(a, ) need id
-			if a.vars.morality < 30 {
-				//can we reject this message or send a response of false?
-			}
+			//if a.vars.morality < 30 {
+			//can we reject this message or send a response of false?
+			//}
 			changeInMood(a, 5, 10, 1)
 		}
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), int(a.knowledge.foodLastEaten))
@@ -80,9 +80,9 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
 	if read(a) {
 		a.vars.stubbornness = a.vars.stubbornness + 2
-		if a.vars.morality < 30 {
+		//if a.vars.morality < 30 {
 
-		}
+		//}
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.decisions.foodToEat)
 		a.SendMessage(reply)
 		a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
