@@ -1,3 +1,4 @@
+from datetime import datetime
 import sys
 import random
 import json
@@ -8,14 +9,14 @@ agent_life_expectancies_file_name = sys.argv[2]
 number_of_health_levels = int(sys.argv[3])
 agent_death_rate_file_name = sys.argv[4]
 agent_our_life_expectancies_file_name = sys.argv[5]
-selfish_flag = sys.argv[6]
+selfish_flag = bool(sys.argv[6])
 
 # read bestAgent.config
 best_agents_file = open(best_agents_file_name)
 best_agents_list = json.load(best_agents_file)
 best_agents_file.close
 
-# read the array of average time survied by each agent 
+# read the array of average time survied by each agent
 agent_life_expectancies_file = open(agent_life_expectancies_file_name)
 performance_list_life = json.load(agent_life_expectancies_file)
 agent_life_expectancies_file.close()
@@ -34,14 +35,16 @@ agent_death_rate_file.close()
 perfomance_list_indices = range(len(performance_list_life))
 if not selfish_flag:
     print("This is not selfish")
-    zipped_performance = zip(performance_list_life, performance_list_our_life, performance_list_death, perfomance_list_indices)
+    zipped_performance = zip(performance_list_life, performance_list_our_life,
+                             performance_list_death, perfomance_list_indices)
     sorted_zipped_performance = sorted(zipped_performance, reverse=True)
     tuples = zip(*sorted_zipped_performance)
     sorted_performance_list_life, sorted_performance_list_our_life, sorted_performance_list_death, sorted_performance_list_indices = [
         list(tuple) for tuple in tuples]
 else:
     print("This is selfish")
-    zipped_performance = zip(performance_list_our_life, performance_list_life, performance_list_death, perfomance_list_indices)
+    zipped_performance = zip(performance_list_our_life, performance_list_life,
+                             performance_list_death, perfomance_list_indices)
     sorted_zipped_performance = sorted(zipped_performance, reverse=True)
     tuples = zip(*sorted_zipped_performance)
     sorted_performance_list_our_life, sorted_performance_list_life, sorted_performance_list_death, sorted_performance_list_indices = [
@@ -58,18 +61,18 @@ agent_4 = best_agents_list[sorted_performance_list_indices[3]]
 agent_5 = best_agents_list[sorted_performance_list_indices[4]]
 
 ################################################################################################
-#life[0] death[0] timestamp
-agents_of_time = [agent_1,agent_2,agent_3,agent_4,agent_5]
+# life[0] death[0] timestamp
+agents_of_time = [agent_1, agent_2, agent_3, agent_4, agent_5]
 outfile = []
 for i in range(len(agents_of_time)):
     agents_of_time[i]['life'] = performance_list_life[sorted_performance_list_indices[i]]
     agents_of_time[i]['death'] = performance_list_death[sorted_performance_list_indices[i]]
     agents_of_time[i]['our_life'] = performance_list_our_life[sorted_performance_list_indices[i]]
 
-from datetime import datetime
 timestamp = datetime.now(tz=None)
-file_name_out= "pkg/agents/team4/agent1/"+"{0}/{1}_{2}_{3}.json".format("storedagents", timestamp, performance_list_life[0],performance_list_death[0])
-file_name_out=file_name_out.replace(" ","_")
+file_name_out = "pkg/agents/team4/agent1/"+"{0}/{1}_{2}_{3}.json".format(
+    "storedagents", timestamp, performance_list_life[0], performance_list_death[0])
+file_name_out = file_name_out.replace(" ", "_")
 old_agents_file = open(file_name_out, 'w')
 old_agents_file.write(json.dumps(agents_of_time, indent=4))
 old_agents_file.close()
@@ -217,4 +220,3 @@ for best_agent in new_best_agents:
 best_agents_file = open(best_agents_file_name, 'w')
 best_agents_file.write(json.dumps(new_best_agents, indent=4))
 best_agents_file.close()
-
