@@ -12,18 +12,8 @@ import (
 //If x time passed no message received/acked morale decrease
 //Include if ack message same user ID occurs x+1 times, morale increase
 //If stubborness = y+1, discard, a.k.a. leave unread
-
-func message(a *CustomAgent3) {
-	receivedMsg := a.ReceiveMessage()
-	if receivedMsg != nil {
-		a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "Mood": a.vars.mood, "Morality": a.vars.morality})
-		receivedMsg.Visit(a)
-		a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "Mood": a.vars.mood, "Morality": a.vars.morality})
-	} else {
-		a.Log("I got nothing")
-	}
-
-	r := rand.Intn(4)
+func ticklyMessage(a *CustomAgent3) {
+	r := rand.Intn(5)
 	switch r {
 	case 0:
 		msg := messages.NewAskFoodTakenMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
@@ -41,11 +31,23 @@ func message(a *CustomAgent3) {
 		msg := messages.NewRequestLeaveFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, 10)
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
-	case 4:
-		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, 10)
+	default:
+		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, 10) //make func to determine value
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
 	}
+}
+func message(a *CustomAgent3) {
+	receivedMsg := a.ReceiveMessage()
+	if receivedMsg != nil {
+		a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "Mood": a.vars.mood, "Morality": a.vars.morality})
+		receivedMsg.Visit(a)
+		a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "Mood": a.vars.mood, "Morality": a.vars.morality})
+	} else {
+		ticklyMessage(a)
+		a.Log("I got nothing")
+	}
+
 }
 
 func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage) {
@@ -65,9 +67,7 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 			a.vars.stubbornness = a.vars.stubbornness + 5
 			//addfriend(a, ) need id
 			if a.vars.morality < 30 {
-				initial_resp := messages.NewAskFoodTakenMessage(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor())
-				a.SendMessage(initial_resp)
-				a.Log("I sent an initial_resp message", infra.Fields{"message": "AskFoodTaken"})
+				//can we reject this message or send a response of false?
 			}
 			changeInMood(a, 5, 10, 1)
 		}
@@ -81,9 +81,7 @@ func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 	if read(a) {
 		a.vars.stubbornness = a.vars.stubbornness + 2
 		if a.vars.morality < 30 {
-			initial_resp := messages.NewAskIntendedFoodIntakeMessage(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor())
-			a.SendMessage(initial_resp)
-			a.Log("I sent an initial_resp message", infra.Fields{"message": "AskIntendedFoodIntake"})
+
 		}
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.decisions.foodToEat)
 		a.SendMessage(reply)
