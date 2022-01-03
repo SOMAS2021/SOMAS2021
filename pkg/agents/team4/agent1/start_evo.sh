@@ -1,6 +1,6 @@
 #!/bin/bash
 
-selfish='false'
+selfish='False'
 
 print_usage() {
   printf "Usage: ... \n"
@@ -11,7 +11,7 @@ print_usage() {
 while getopts 'sh' flag
 do
   case "${flag}" in
-    s) selfish='true' ;;
+    s) selfish='True' ;;
     h) print_usage
        exit 1 ;;
   esac
