@@ -242,11 +242,11 @@ func setupLogFile(parameters config.ConfigParameters, saveMainLog bool) (ffolder
 	}
 
 	//save the config inside the folder
-	jsonoutput, err := json.MarshalIndent(parameters, "", "\t")
+	jsonConfig, err := json.MarshalIndent(parameters, "", "\t")
 	if err != nil {
 		return "", err
 	}
-	err = ioutil.WriteFile(filepath.Join(logFolderName, "config.json"), jsonoutput, 0644)
+	err = ioutil.WriteFile(filepath.Join(logFolderName, "config.json"), jsonConfig, 0644)
 	if err != nil {
 		return "", err
 	}
