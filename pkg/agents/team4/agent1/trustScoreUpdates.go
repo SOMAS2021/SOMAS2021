@@ -1,4 +1,4 @@
-package team4EvoAgent
+package team4TrainingEvoAgent
 
 import (
 	"fmt"

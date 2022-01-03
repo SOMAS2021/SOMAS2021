@@ -9,7 +9,7 @@ agent_life_expectancies_file_name = sys.argv[2]
 number_of_health_levels = int(sys.argv[3])
 agent_death_rate_file_name = sys.argv[4]
 agent_our_life_expectancies_file_name = sys.argv[5]
-selfish_flag = bool(sys.argv[6])
+selfish_flag = sys.argv[6]
 
 # read bestAgent.config
 best_agents_file = open(best_agents_file_name)
@@ -33,7 +33,7 @@ agent_death_rate_file.close()
 
 # sort array but keep a track of index to obtain best agent
 perfomance_list_indices = range(len(performance_list_life))
-if not selfish_flag:
+if selfish_flag == "False":
     print("This is not selfish")
     zipped_performance = zip(performance_list_life, performance_list_our_life,
                              performance_list_death, perfomance_list_indices)
