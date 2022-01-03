@@ -26,24 +26,24 @@ func message(a *CustomAgent3) {
 	r := rand.Intn(4)
 	switch r {
 	case 0:
-		msg := messages.NewAskFoodTakenMessage(a.Floor())
-		a.SendMessage(1, msg)
+		msg := messages.NewAskFoodTakenMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
+		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "AskFoodTaken"})
 	case 1:
-		msg := messages.NewAskHPMessage(a.Floor())
-		a.SendMessage(1, msg)
+		msg := messages.NewAskHPMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
+		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "AskHP"})
 	case 2:
-		msg := messages.NewAskIntendedFoodIntakeMessage(a.Floor())
-		a.SendMessage(1, msg)
+		msg := messages.NewAskIntendedFoodIntakeMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
+		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "AskIntendedFoodIntake"})
 	case 3:
-		msg := messages.NewRequestLeaveFoodMessage(a.Floor(), 10)
-		a.SendMessage(1, msg)
+		msg := messages.NewRequestLeaveFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, 10)
+		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
 	case 4:
-		msg := messages.NewRequestTakeFoodMessage(a.Floor(), 20)
-		a.SendMessage(1, msg)
+		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, 10)
+		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
 	}
 }
@@ -52,8 +52,8 @@ func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage) {
 	a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
 	if read(a) {
 		a.vars.stubbornness = a.vars.stubbornness - 5 //value could be different
-		reply := msg.Reply(a.Floor(), a.HP())
-		a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.HP())
+		a.SendMessage(reply)
 		a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
 	}
 }
@@ -65,14 +65,14 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 			a.vars.stubbornness = a.vars.stubbornness + 5
 			//addfriend(a, ) need id
 			if a.vars.morality < 30 {
-				initial_resp := messages.NewAskFoodTakenMessage(a.Floor())
-				a.SendMessage(msg.SenderFloor()-a.Floor(), initial_resp)
+				initial_resp := messages.NewAskFoodTakenMessage(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor())
+				a.SendMessage(initial_resp)
 				a.Log("I sent an initial_resp message", infra.Fields{"message": "AskFoodTaken"})
 			}
 			changeInMood(a, 5, 10, 1)
 		}
-		reply := msg.Reply(a.Floor(), 10)
-		a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), int(a.knowledge.foodLastEaten))
+		a.SendMessage(reply)
 		a.Log("I sent a replyFoodTaken message to ", infra.Fields{"floor": msg.SenderFloor()})
 	}
 }
@@ -81,12 +81,12 @@ func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 	if read(a) {
 		a.vars.stubbornness = a.vars.stubbornness + 2
 		if a.vars.morality < 30 {
-			initial_resp := messages.NewAskIntendedFoodIntakeMessage(a.Floor())
-			a.SendMessage(msg.SenderFloor()-a.Floor(), initial_resp)
+			initial_resp := messages.NewAskIntendedFoodIntakeMessage(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor())
+			a.SendMessage(initial_resp)
 			a.Log("I sent an initial_resp message", infra.Fields{"message": "AskIntendedFoodIntake"})
 		}
-		reply := msg.Reply(a.Floor(), 11)
-		a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.decisions.foodToEat)
+		a.SendMessage(reply)
 		a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
 	}
 }
@@ -108,8 +108,8 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 		if a.vars.mood < 30 { //can we see when we are in critical state
 			changeInMood(a, 5, 10, -1)
 		}
-		reply := msg.Reply(a.Floor(), true)
-		a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), true)
+		a.SendMessage(reply)
 		a.Log("I recieved a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 	}
 }
@@ -131,8 +131,8 @@ func (a *CustomAgent3) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 		if a.vars.mood < 30 {
 			changeInMood(a, 5, 10, -1)
 		}
-		reply := msg.Reply(a.Floor(), true)
-		a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
+		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), true)
+		a.SendMessage(reply)
 		a.Log("I recieved a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 	}
 }
