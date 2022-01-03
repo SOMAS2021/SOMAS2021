@@ -5,7 +5,7 @@ func InitPolicies(numStates int, numActions int) [][]float64 {
 	uniformProb := 1.0 / float64(numActions)
 	for i := 0; i < numStates; i++ {
 		policies[i] = make([]float64, numActions)
-		for j := 0; j < 3; j++ {
+		for j := 0; j < numActions; j++ {
 			policies[i][j] = uniformProb
 		}
 	}

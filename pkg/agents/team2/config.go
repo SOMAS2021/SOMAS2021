@@ -77,11 +77,14 @@ func InitTable(numStates int, numActions int) [][]float64 {
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
-	stateSpace := InitStateSpace(3, 3, 3)
-	actionSpace := InitActionSpace()
-	policies := InitPolicies(27, 3)
-	rTable := InitTable(27, 3)
-	qTable := InitTable(27, 3)
+	hpStatesDim := baseAgent.HealthInfo().MaxHP + 1
+	actionDim := baseAgent.HealthInfo().MaxHP + 1
+
+	stateSpace := InitStateSpace(hpStatesDim, 3, 3)
+	actionSpace := InitActionSpace(actionDim)
+	policies := InitPolicies(hpStatesDim*3*3, actionDim)
+	rTable := InitTable(hpStatesDim*3*3, actionDim)
+	qTable := InitTable(hpStatesDim*3*3, actionDim)
 	return &CustomAgent2{
 		Base:          baseAgent,
 		stateSpace:    stateSpace,
@@ -114,7 +117,7 @@ func (a *CustomAgent2) Run() {
 		oldHP := a.HP()
 		a.Log("Agent team2 before action:", infra.Fields{"floor": a.Floor(), "hp": oldHP, "food": a.CurrPlatFood(), "state": oldState})
 		action := a.SelectAction()
-		_, err := a.TakeFood(a.actionSpace.actionSet[action](oldHP)) //perform selected action
+		_, err := a.TakeFood(food.FoodType(a.actionSpace.actionId[action])) //perform selected action
 		if err != nil {
 			switch err.(type) {
 			case *infra.FloorError:
