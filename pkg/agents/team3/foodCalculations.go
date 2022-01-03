@@ -7,18 +7,21 @@ import (
 //To Do:
 //1. Remove int() from platFood once platFood is type int
 
-func foodReqCalc(a *CustomAgent3, targetHP int) int {
+// Calculates the food required to go from the current HP of an agent to the specified targetHP argument.
+func (a *CustomAgent3) foodReqCalc(targetHP int) int {
 	decayCurrentHP := int((float64(targetHP+a.HealthInfo().HPLossBase)-float64(a.HealthInfo().WeakLevel)*a.HealthInfo().HPLossSlope)/(1.0-a.HealthInfo().HPLossSlope) + 1)
 	return int(-a.HealthInfo().Tau * math.Log(1.0-(float64(decayCurrentHP-a.HP())/a.HealthInfo().Width)))
 }
 
 // This function uses current HP of agents. This is a hunger equation.
-func targetHPCalc(a *CustomAgent3) int { //10hp -> target is 20hp, 65hp -> target is 65hp, 100hp -> target is 93hp
+// 10hp -> target is 20hp, 65hp -> target is 65hp, 100hp -> target is 93hp.
+func (a *CustomAgent3) targetHPCalc() int {
 	grad := 9.0 / 11.0
 	c := 12.0
 	return int(grad*float64(a.HP()) + c)
 }
 
+// Returns a range from min to max, depending on the value of the metric
 func foodRange(metric int, min int, max int) int {
 	if max > min && max >= 0 && min >= 0 {
 		return int(float64(max) - math.Round((float64(metric) / (100.0 / float64(max-min)))))
@@ -26,6 +29,7 @@ func foodRange(metric int, min int, max int) int {
 	return -1
 }
 
+// Returns a range from number*minScale to number*maxScale, depending on the value of the metric
 func foodScale(number int, metric int, minScale float64, maxScale float64) int {
 	if maxScale > minScale && maxScale >= 0 && minScale >= 0 {
 		return int(float64(number)*minScale*float64(metric)/100.0 + float64(number)*maxScale*float64(100-metric)/100.0)
@@ -36,7 +40,6 @@ func foodScale(number int, metric int, minScale float64, maxScale float64) int {
 func (a *CustomAgent3) takeFoodCalculation() int {
 
 	platFood := int(a.CurrPlatFood())
-	hpCtoW := a.HealthInfo().HPReqCToW
 	morality := a.vars.morality
 	foodToEat := a.decisions.foodToEat
 	foodToLeave := a.decisions.foodToLeave
@@ -47,30 +50,32 @@ func (a *CustomAgent3) takeFoodCalculation() int {
 
 		switch hp := a.HP(); {
 		case hp == a.HealthInfo().HPCritical:
+			survivalFood := a.foodReqCalc(a.HealthInfo().HPReqCToW)
 			if a.DaysAtCritical() < 3 { //depend on morality
-				return foodRange(morality, a.DaysAtCritical()-1, hpCtoW+a.DaysAtCritical()) // adaptive range
+				return foodRange(morality, a.DaysAtCritical()-1, survivalFood+a.DaysAtCritical()) // adaptive range
 			} else { // a.DaysAtCritical() == 3
-				return foodRange(morality, hpCtoW, hpCtoW+a.DaysAtCritical()) //range hpCtoW to hpCtoW+3
+				return foodRange(morality, survivalFood, survivalFood+a.DaysAtCritical()) //range ensures survival if possible with foodToLeave
 			}
 		default: // 10 <= hp <= 100:
-			targetHP := targetHPCalc(a)
-			foodRequired := foodReqCalc(a, targetHP)
+			targetHP := a.targetHPCalc()
+			foodRequired := a.foodReqCalc(targetHP)
 			return foodScale(foodRequired, morality, 0.0, 2.0) // from foodRequired*0 (morality 100) to foodRequired*2 (morality 0)
 		}
 
 	case (-1 | foodToLeave): //uses platFood, HP, morality and foodToLeave
 
 		//Any Hp
-		targetHP := targetHPCalc(a)
-		foodRequired := foodReqCalc(a, targetHP)
+		targetHP := a.targetHPCalc()
+		foodRequired := a.foodReqCalc(targetHP)
 		foodToEat = foodScale(foodRequired, morality, 0.0, 2.0) // from foodRequired*0 (morality 100) to foodRequired*2 (morality 0)
 
 		if platFood-foodToEat >= foodToLeave {
 			if a.HP() == a.HealthInfo().HPCritical {
+				survivalFood := a.foodReqCalc(a.HealthInfo().HPReqCToW)
 				if a.DaysAtCritical() < 3 { //depend on morality
-					foodToEat = foodRange(morality, a.DaysAtCritical()-1, hpCtoW+a.DaysAtCritical()) // adaptive range
+					foodToEat = foodRange(morality, a.DaysAtCritical()-1, survivalFood+a.DaysAtCritical()) // adaptive range
 				} else { // a.DaysAtCritical() == 3
-					foodToEat = foodRange(morality, hpCtoW, hpCtoW+a.DaysAtCritical()) //range hpCtoW to hpCtoW+3
+					foodToEat = foodRange(morality, survivalFood, survivalFood+a.DaysAtCritical()) //range ensures survival if possible with foodToLeave
 				}
 				if platFood-foodToEat >= foodToLeave {
 					return foodToEat
