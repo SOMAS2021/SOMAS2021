@@ -80,7 +80,7 @@ func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food
 func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 	intendedFoodIntake := a.desiredFoodIntake()
 	if a.reqLeaveFoodAmount != -1 {
-		intendedFoodIntake = food.FoodType(a.reqLeaveFoodAmount)
+		intendedFoodIntake = food.FoodType(a.reqLeaveFoodAmount) // to correct
 	}
 	return intendedFoodIntake
 }
