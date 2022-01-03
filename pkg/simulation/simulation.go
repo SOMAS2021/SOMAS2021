@@ -1,6 +1,8 @@
 package simulation
 
 import (
+	"context"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/randomAgent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
@@ -63,7 +65,7 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 	}
 }
 
-func (sE *SimEnv) Simulate() {
+func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	sE.Log("Simulation Initializing")
 
 	totalAgents := utilFunctions.Sum(sE.AgentCount)
@@ -73,7 +75,15 @@ func (sE *SimEnv) Simulate() {
 	sE.generateInitialAgents(t)
 
 	sE.Log("Simulation Started")
-	sE.simulationLoop(t)
+	sE.simulationLoop(t, ctx, ch)
+
+	//returns if there was a timeout
+	select {
+	case <-ctx.Done():
+		return
+	default:
+	}
+
 	sE.Log("Simulation Ended")
 	sE.Log("Summary of dead agents", infra.Fields{"Agent Type and number that died": t.DeadAgents()})
 
