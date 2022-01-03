@@ -194,14 +194,14 @@ func (a *CustomAgentEvo) Run() {
 	// a.intendedFoodTaken = food.FoodType(int(int(a.CurrPlatFood()) * (100 - int(a.globalTrust)) / 100))
 	// a.lastFoodTaken, _ = a.TakeFood(a.intendedFoodTaken)
 
-	dayPass := false
+	//dayPass := false
 	if a.Age() != a.params.previousAge {
 		a.params.previousAge = a.Age()
-		dayPass = true
+		//dayPass = true
 	}
-	dayPass = dayPass
+	//dayPass = dayPass
 	var healthStatus int
-	var healthLevelSeparation = int(0.33 * float64(a.HealthInfo().MaxHP-a.HealthInfo().WeakLevel))
+	healthLevelSeparation := int(0.33 * float64(a.HealthInfo().MaxHP-a.HealthInfo().WeakLevel))
 
 	if a.HP() <= a.HealthInfo().WeakLevel { //critical
 		healthStatus = 0

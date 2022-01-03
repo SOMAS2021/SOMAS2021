@@ -15,7 +15,7 @@
     "AgentsPerFloor": 1,
     "TicksPerFloor": 10,
     "SimDays": 100,
-    "ReshuffleDays": 10,
+    "ReshuffleDays": 1,
     "maxHP": 100,
     "weakLevel": 10,
     "width": 48,
