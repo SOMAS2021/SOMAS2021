@@ -75,7 +75,6 @@ func InitTable(numStates int, numActions int) [][]float64 {
 func New(baseAgent *infra.Base) (infra.Agent, error) {
 	actionDim := 6
 	daysAtCriticalDim := baseAgent.HealthInfo().MaxDayCritical + 1
-
 	stateSpace := InitStateSpace(10, 10, daysAtCriticalDim, 11)
 	actionSpace := InitActionSpace(actionDim)
 	policies := InitPolicies(10*10*daysAtCriticalDim*11, actionDim)
