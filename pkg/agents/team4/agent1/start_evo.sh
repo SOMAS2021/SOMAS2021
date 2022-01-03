@@ -101,6 +101,9 @@ do
     echo "------------------------------------------"
 done
 
+# TODO: autmatate finding best agents (writing to a different file based on the selfish flag)
+# python3 findBestConfigs.py
+
 # Initialise set of agents
 # for agents in all agents
 #   create population of only agent
