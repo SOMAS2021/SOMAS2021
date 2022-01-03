@@ -41,7 +41,6 @@ func takeFoodCalculation(a *CustomAgent3) int {
 
 	switch foodToEat | foodToLeave {
 
-	case (-1): // uses HP and morality
 	case (-1): // (-1 | -1), uses HP and morality
 
 		switch hp := a.HP(); {
