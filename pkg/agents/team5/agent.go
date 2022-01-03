@@ -30,6 +30,7 @@ type CustomAgent5 struct {
 	rememberAge       int
 	rememberFloor     int
 	messagingCounter  int
+	attemptToEat      bool
 	// Social network of other agents
 	socialMemory      map[uuid.UUID]Memory
 	surroundingAgents map[int]uuid.UUID
@@ -38,16 +39,19 @@ type CustomAgent5 struct {
 func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgent5{
 		Base:              baseAgent,
-		selfishness:       10, // of 0 to 10, with 10 being completely selfish, 0 being completely selfless
-		lastMeal:          0,  // Stores value of the last amount of food taken
-		daysSinceLastMeal: 0,  // Count of how many days since last eating
-		hpAfterEating:     baseAgent.HealthInfo().MaxHP,
-		currentAimHP:      baseAgent.HealthInfo().MaxHP,
-		attemptFood:       0,
-		satisfaction:      0,                          // Scale of -3 to 3, with 3 being satisfied and unsatisfied
-		rememberAge:       -1,                         // To check if a day has passed by our age increasing
-		socialMemory:      make(map[uuid.UUID]Memory), // Memory of other agents, key is agent id
-		surroundingAgents: make(map[int]uuid.UUID),    // Map agent IDs of surrounding floors relative to current floor
+		selfishness:       10,                           // of 0 to 10, with 10 being completely selfish, 0 being completely selfless
+		lastMeal:          0,                            // Stores value of the last amount of food taken
+		daysSinceLastMeal: 0,                            // Count of how many days since last eating
+		hpAfterEating:     baseAgent.HealthInfo().MaxHP, //Stores HP value after eating in a day
+		currentAimHP:      baseAgent.HealthInfo().MaxHP, //Stores aim HP for a given day
+		attemptFood:       0,                            //Stores food agent will attempt to eat in a
+		satisfaction:      0,                            // Scale of -3 to 3, with 3 being satisfied and unsatisfied
+		rememberAge:       -1,                           // To check if a day has passed by our age increasing
+		rememberFloor:     0,                            //Store the floor we are on so we can see if we have been reshuffled
+		messagingCounter:  0,                            //Counter so that various messages are sent throughout the day
+		attemptToEat:      true,                         // To check if we have already attempted to eat in a day. Needed because HasEaten() does not update if there is no food on the platform
+		socialMemory:      make(map[uuid.UUID]Memory),   // Memory of other agents, key is agent id
+		surroundingAgents: make(map[int]uuid.UUID),      // Map agent IDs of surrounding floors relative to current floor
 	}, nil
 }
 
@@ -96,6 +100,7 @@ func (a *CustomAgent5) dayPassed() {
 	}
 	a.messagingCounter = 0
 	a.rememberAge = a.Age()
+	a.attemptToEat = true
 }
 
 func (a *CustomAgent5) calculateAttemptFood() food.FoodType {
@@ -119,7 +124,7 @@ func (a *CustomAgent5) Run() {
 	a.dailyMessages()
 
 	// When platform reaches our floor and we haven't tried to eat, then try to eat
-	if a.CurrPlatFood() != -1 && !a.HasEaten() {
+	if a.CurrPlatFood() != -1 && a.attemptToEat {
 		lastMeal, err := a.TakeFood(a.attemptFood)
 		if err != nil {
 			switch err.(type) {
@@ -138,5 +143,6 @@ func (a *CustomAgent5) Run() {
 		}
 		a.hpAfterEating = a.HP()
 		a.updateSatisfaction()
+		a.attemptToEat = false
 	}
 }
