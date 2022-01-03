@@ -50,7 +50,7 @@ func main() {
 			}
 
 			rand.Seed(time.Now().UnixNano())
-			logFolderName, err := setupLogFile(parameters.LogFolderName, parameters.LogMain)
+			logFolderName, err := setupLogFile(parameters, parameters.LogMain)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				log.Error("Unable to setup log file: " + err.Error())
@@ -177,7 +177,7 @@ func main() {
 		}
 
 		rand.Seed(time.Now().UnixNano())
-		logFolderName, err := setupLogFile(parameters.LogFolderName, parameters.LogMain)
+		logFolderName, err := setupLogFile(parameters, parameters.LogMain)
 		if err != nil {
 			log.Fatal("Unable to setup log file: " + err.Error())
 			return
@@ -217,7 +217,7 @@ func runNewSimulation(parameters config.ConfigParameters, logFolderName string, 
 	simEnv.Simulate(ctx, ch)
 }
 
-func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName string, err error) {
+func setupLogFile(parameters config.ConfigParameters, saveMainLog bool) (ffolderName string, err error) {
 	// setup logs folder if never created
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
@@ -229,8 +229,8 @@ func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName st
 	// setup simulation run folder for logs
 	logFolderName := ""
 	// Check if the log folder name was set in config
-	if len(parameterLogFileName) != 0 {
-		logFolderName = filepath.Join("logs", parameterLogFileName)
+	if len(parameters.LogFolderName) != 0 {
+		logFolderName = filepath.Join("logs", parameters.LogFolderName)
 	} else {
 		logFolderName = filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05"))
 	}
@@ -240,5 +240,16 @@ func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName st
 			return "", err
 		}
 	}
+
+	//save the config inside the folder
+	jsonoutput, err := json.MarshalIndent(parameters, "", "\t")
+	if err != nil {
+		return "", err
+	}
+	err = ioutil.WriteFile(filepath.Join(logFolderName, "config.json"), jsonoutput, 0644)
+	if err != nil {
+		return "", err
+	}
+
 	return logFolderName, nil
 }
