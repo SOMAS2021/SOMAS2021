@@ -17,48 +17,48 @@ func (a *CustomAgent3) read() bool {
 }
 
 ////Function adds a new person to our freindship list if they are not there yet.
-//func addFriend(a *CustomAgent3, friend string) {
-//	newFriend := true
-//	for i := 0; i < len(a.knowledge.friends); i++ {
-//		if a.knowledge.friends[i] == friend {
-//			newFriend = false
-//			break
-//		}
-//
-//	}
-//
-//	if newFriend {
-//		a.knowledge.friends = append(a.knowledge.friends, friend)
-//		a.knowledge.friendship = append(a.knowledge.friendship, 0.4+(float64(a.vars.morality)/100)*0.2)
-//	}
-//
-//}
+func addFriend(a *CustomAgent3, friend uuid.UUID) {
+	newFriend := true
+	for i := 0; i < len(a.knowledge.friends); i++ {
+		if a.knowledge.friends[i] == friend {
+			newFriend = false
+			break
+		}
+
+	}
+
+	if newFriend {
+		a.knowledge.friends = append(a.knowledge.friends, friend)
+		a.knowledge.friendship = append(a.knowledge.friendship, 0.4+(float64(a.vars.morality)/100)*0.2)
+	}
+
+}
 
 // Function will return the friendship level for a specific agent, if we don't know them friendship is 0, and the position it is stored at
-//func friendshipLevel(a *CustomAgent3, friend string) (float64, int) {
-//	for i := 0; i < len(a.knowledge.friends); i++ {
-//		if a.knowledge.friends[i] == friend {
-//			return a.knowledge.friendship[i], i
-//		}
-//	}
-//	return 0, -1
-//}
+func friendshipLevel(a *CustomAgent3, friend uuid.UUID) (float64, int) {
+	for i := 0; i < len(a.knowledge.friends); i++ {
+		if a.knowledge.friends[i] == friend {
+			return a.knowledge.friendship[i], i
+		}
+	}
+	return 0, -1
+}
 
-// Function changes value of friendship depending on factor change -1 to 1, negative reduces frienship, positive increases
-//func friendshipChange(a *CustomAgent3, friend string, change float64) {
-//
-//	var level, index = friendshipLevel(a, friend)
-//
-//	if index >= 0 {
-//		if change < 0 {
-//			level = level - change*(level)
-//		} else {
-//			level = level + change*(1-level)
-//		}
-//		a.knowledge.friendship[index] = level
-//	}
-//
-//}
+//Function changes value of friendship depending on factor change -1 to 1, negative reduces frienship, positive increases
+func friendshipChange(a *CustomAgent3, friend uuid.UUID, change float64) {
+
+	var level, index = friendshipLevel(a, friend)
+
+	if index >= 0 {
+		if change < 0 {
+			level = level - change*(level)
+		} else {
+			level = level + change*(1-level)
+		}
+		a.knowledge.friendship[index] = level
+	}
+
+}
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
 func changeInMood(a *CustomAgent3, pointsMin, pointsMax, direction int) {

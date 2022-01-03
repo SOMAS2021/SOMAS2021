@@ -6,6 +6,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+	"github.com/google/uuid"
 )
 
 //Upon receipt of message define affected emotions
@@ -13,6 +14,16 @@ import (
 //If x time passed no message received/acked morale decrease
 //Include if ack message same user ID occurs x+1 times, morale increase
 //If stubborness = y+1, discard, a.k.a. leave unread
+
+func (a *CustomAgent3) updateFriendship(friend uuid.UUID, value float64) {
+	friendship, _ := friendshipLevel(a, friend)
+	if friendship == 0 {
+		addFriend(a, friend)
+	} else {
+		friendshipChange(a, friend, value)
+	}
+}
+
 func (a *CustomAgent3) ticklyMessage() {
 	r := rand.Intn(5)
 	switch r {
@@ -55,6 +66,8 @@ func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage) {
 	a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
 	if a.read() {
 		changeInStubbornness(a, 5, -1) //value could be different
+		a.updateFriendship(msg.SenderID(), 1)
+		changeInMood(a, 5, 10, 1)
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.HP())
 		a.SendMessage(reply)
 		a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
@@ -66,11 +79,8 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			changeInStubbornness(a, 5, 1)
-			//addfriend(a, ) need id
-			//if a.vars.morality < 30 {
-			//can we reject this message or send a response of false?
-			//}
-			changeInMood(a, 5, 10, 1)
+
+			changeInMood(a, 5, 10, -1)
 		}
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), int(a.knowledge.foodLastEaten))
 		a.SendMessage(reply)
@@ -79,11 +89,13 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 }
 
 func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
+	friendship, _ := friendshipLevel(a, msg.SenderID())
 	if a.read() {
 		changeInStubbornness(a, 2, 1)
-		//if a.vars.morality < 30 {
-
-		//}
+		if friendship != 0 {
+			changeInMood(a, 5, 10, 1)
+		}
+		//add critical state effect
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.decisions.foodToEat)
 		a.SendMessage(reply)
 		a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
@@ -91,6 +103,7 @@ func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 }
 
 func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
+	friendship, _ := friendshipLevel(a, msg.SenderID())
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if a.vars.stubbornness > 70 {
@@ -99,10 +112,12 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 				changeInStubbornness(a, 2, -1)
 			}
 		}
-		if a.vars.morality > 50 { //want to implement effects of friendship
+		if a.vars.morality > 50 { //want to implement effects of sender.floor
 			changeInMorality(a, 5, 10, 1)
 		} else {
-			changeInMorality(a, 5, 10, -1)
+			if friendship != 0 {
+				changeInMorality(a, 5, 10, -1)
+			}
 		}
 		if a.vars.mood < 30 { //can we see when we are in critical state
 			changeInMood(a, 5, 10, -1)

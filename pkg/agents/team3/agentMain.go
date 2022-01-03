@@ -23,9 +23,9 @@ type team3Knowledge struct {
 	//We know the last HP
 	lastHP int
 	//We know who we have meet
-	//friends []string
+	friends []uuid.UUID
 	//We know if we like or not the people we have met
-	//friendship []float64
+	friendship []float64
 	//Stores who is in the floor below
 	floorBelow uuid.UUID
 	//Stores who is in the floor above
@@ -62,10 +62,10 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			mood:         rand.Intn(100),
 		},
 		knowledge: team3Knowledge{
-			floors: []int{},
-			lastHP: 100,
-			//friends:       []string{},
-			//friendship:    []float64{},
+			floors:        []int{},
+			lastHP:        100,
+			friends:       []uuid.UUID{},
+			friendship:    []float64{},
 			floorBelow:    uuid.Nil,
 			floorAbove:    uuid.Nil,
 			foodLastEaten: food.FoodType(0),
