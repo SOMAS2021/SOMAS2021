@@ -1,12 +1,16 @@
-import { Button, Checkbox, FormGroup, NumericInput } from "@blueprintjs/core";
+import { Button, Checkbox, FormGroup, NumericInput, Switch } from "@blueprintjs/core";
 import { SubmitSimulation } from "../NewRunState";
 import { advancedParams, params } from "../ParameterLabels";
 import { SimConfig } from "../../../Helpers/SimConfig";
 import "./AdvancedSettings.css";
+import { useState } from "react";
 
 export default function AdvancedSettingsMenu(state: any) {
   const config = state[0];
   const setConfig = state[1];
+
+  const [disableTotalFood, setDisableTotalFood] = useState(Boolean);
+
 
   function configHandler<Key extends keyof SimConfig>(value: any, keyString: any) {
     var key: Key = keyString; // converting keyString to type Key
@@ -32,14 +36,51 @@ export default function AdvancedSettingsMenu(state: any) {
         <div className="modal-content">
           <div className="modal-header">Advanced Settings</div>
           <div className="modal-body">
-            {params.map((i) => (
-              <FormGroup {...i}>
-                <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} min={i.min} />
-              </FormGroup>
-            ))}
+          <FormGroup>
+              <Switch
+                label="Use Food Per Agent"
+                onChange={(value) => (
+                  setDisableTotalFood((value.target as HTMLInputElement).checked),
+                  configHandler((value.target as HTMLInputElement).checked, "UseFoodPerAgentRatio")
+                )}
+              />
+            </FormGroup>
+            {params.map((i) =>
+              i.key === "FoodOnPlatform" ? (
+                <FormGroup {...i} disabled={disableTotalFood}>
+                  <NumericInput
+                    disabled={disableTotalFood}
+                    placeholder={config[i.key]}
+                    onValueChange={(value) => configHandler(value, i.key)}
+                    min={i.min}
+                  />
+                </FormGroup>
+              ) : i.key === "FoodPerAgentRatio" ? (
+                <FormGroup {...i} disabled={!disableTotalFood}>
+                  <NumericInput
+                    disabled={!disableTotalFood}
+                    placeholder={config[i.key]}
+                    onValueChange={(value) => configHandler(value, i.key)}
+                    min={i.min}
+                  />
+                </FormGroup>
+              ) : (
+                <FormGroup {...i}>
+                  <NumericInput
+                    placeholder={config[i.key]}
+                    onValueChange={(value) => configHandler(value, i.key)}
+                    min={i.min}
+                  />
+                </FormGroup>
+              )
+            )}
             {advancedParams.map((i) => (
               <FormGroup {...i}>
-                <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} min={i.min}/>
+                <NumericInput
+                  placeholder={config[i.key]}
+                  onValueChange={(value) => configHandler(value, i.key)}
+                  min={i.min}
+                />
               </FormGroup>
             ))}
             <FormGroup>

@@ -107,6 +107,14 @@ export const params: Parameters[] = [
       min:1,
     },
     {
+      helperText: "Food on the platfrom at the beginnning of each day",
+      label: "Food Per Agent",
+      labelFor: "text-input",
+      labelInfo: "",
+      key: "FoodPerAgentRatio",
+      min:1,
+    },
+    {
       helperText: "Number of Agents from Team 1 in the Tower",
       label: "Agents of Team 1",
       labelFor: "text-input",
