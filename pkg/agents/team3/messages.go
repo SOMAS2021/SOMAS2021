@@ -184,3 +184,21 @@ func (a *CustomAgent3) HandleStateIntendedFoodTaken(msg messages.StateIntendedFo
 	}
 	a.Log("I recieved a StateIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": statement})
 }
+
+func (a *CustomAgent3) HandleTreatyResponse(msg messages.TreatyResponseMessage) {
+	
+	if msg.Response() == true{
+		changeInMood(a, 5, 10, 1)
+		changeInMorality(a, 5, 10, 1)
+		a.vars.stubbornness -= 5
+		//Add friendship level with agent who responded
+		//msg.RequestID()		
+	} else {
+		changeInMood(a, 5, 10, -1)
+		changeInMorality(a, 5, 10, -1)
+		a.vars.stubbornness += 5
+		//Reduce friendship level with agent who responded
+		//msg.RequestID()
+	}
+	
+}
