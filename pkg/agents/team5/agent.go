@@ -89,6 +89,7 @@ func (a *CustomAgent5) dayPassed() {
 
 	a.daysSinceLastMeal++
 	a.incrementDaysSinceLastSeen()
+	// Needs to be fixed: you can be reshuffled but end up on the same floor.
 	if a.rememberFloor != a.Floor() {
 		a.ResetSurroundingAgents()
 		a.rememberFloor = a.Floor()
