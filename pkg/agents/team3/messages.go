@@ -5,6 +5,7 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
 //Upon receipt of message define affected emotions
@@ -53,7 +54,7 @@ func (a *CustomAgent3) message() {
 func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage) {
 	a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
 	if a.read() {
-		changeInStubbornness(a, 5, -1)//value could be different
+		changeInStubbornness(a, 5, -1) //value could be different
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.HP())
 		a.SendMessage(reply)
 		a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
@@ -186,13 +187,13 @@ func (a *CustomAgent3) HandleStateIntendedFoodTaken(msg messages.StateIntendedFo
 }
 
 func (a *CustomAgent3) HandleTreatyResponse(msg messages.TreatyResponseMessage) {
-	
-	if msg.Response() == true{
+
+	if msg.Response() {
 		changeInMood(a, 5, 10, 1)
 		changeInMorality(a, 5, 10, 1)
 		changeInStubbornness(a, 5, -1)
 		//Add friendship level with agent who responded
-		//msg.RequestID()		
+		//msg.RequestID()
 	} else {
 		changeInMood(a, 5, 10, -1)
 		changeInMorality(a, 5, 10, -1)
@@ -200,5 +201,21 @@ func (a *CustomAgent3) HandleTreatyResponse(msg messages.TreatyResponseMessage) 
 		//Reduce friendship level with agent who responded
 		//msg.RequestID()
 	}
-	
+
+}
+func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
+	var reply messages.ResponseMessage
+	// calculate the benefit of the treaty to the agent - more complex func needed
+	// possible parameters: mood, food consumed history, number of friends,
+
+	if a.knowledge.foodMovingAvg >= food.FoodType(a.foodReqCalc(50, 50)) { // satiated
+		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.read()) // a.read() false "stubbornness" % of the time
+	} else { // unsatiated
+		if a.vars.mood > 50 {
+			reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.read()) // a.read() false "stubbornness" % of the time
+		} else {
+			reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), false) // a.read() false "stubbornness" % of the time
+		}
+	}
+	a.SendMessage(reply)
 }

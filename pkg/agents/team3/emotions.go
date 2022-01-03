@@ -3,6 +3,7 @@ package team3
 import (
 	"math/rand"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/google/uuid"
 )
 
@@ -12,7 +13,7 @@ import (
 func (a *CustomAgent3) read() bool {
 	random := rand.Intn(100)
 
-	return random <= a.vars.stubbornness
+	return random >= a.vars.stubbornness
 }
 
 ////Function adds a new person to our freindship list if they are not there yet.
@@ -120,6 +121,7 @@ func changeNewDay(a *CustomAgent3) {
 		changeInMorality(a, 10, 15, 1)
 		changeInMood(a, 10, 15, 1)
 	}
+	a.knowledge.foodMovingAvg = food.FoodType(float64(a.knowledge.foodMovingAvg)*0.9 + float64(a.knowledge.foodLastEaten)*0.1)
 }
 
 // Function is called when the floor changes, changes the mood when we change floors

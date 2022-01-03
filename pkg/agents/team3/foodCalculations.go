@@ -10,9 +10,9 @@ import (
 //1. Remove int() from platFood once platFood is type int
 
 // Calculates the food required to go from the current HP of an agent to the specified targetHP argument.
-func (a *CustomAgent3) foodReqCalc(targetHP int) int {
+func (a *CustomAgent3) foodReqCalc(initialHP int, targetHP int) int {
 	decayCurrentHP := int((float64(targetHP+a.HealthInfo().HPLossBase)-float64(a.HealthInfo().WeakLevel)*a.HealthInfo().HPLossSlope)/(1.0-a.HealthInfo().HPLossSlope) + 1)
-	return int(-a.HealthInfo().Tau * math.Log(1.0-(float64(decayCurrentHP-a.HP())/a.HealthInfo().Width)))
+	return int(-a.HealthInfo().Tau * math.Log(1.0-(float64(decayCurrentHP-initialHP)/a.HealthInfo().Width)))
 }
 
 // This function uses current HP of agents. This is a hunger equation.
@@ -87,6 +87,7 @@ func (a *CustomAgent3) handleTreaties() {
 }
 
 func (a *CustomAgent3) takeFoodCalculation() int {
+	a.handleTreaties()
 
 	platFood := int(a.CurrPlatFood())
 	morality := a.vars.morality
@@ -99,7 +100,7 @@ func (a *CustomAgent3) takeFoodCalculation() int {
 
 		switch hp := a.HP(); {
 		case hp == a.HealthInfo().HPCritical:
-			survivalFood := a.foodReqCalc(a.HealthInfo().HPReqCToW)
+			survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
 			if a.DaysAtCritical() < 3 { //depend on morality
 				return foodRange(morality, a.DaysAtCritical()-1, survivalFood+a.DaysAtCritical()) // adaptive range
 			} else { // a.DaysAtCritical() == 3
@@ -107,7 +108,7 @@ func (a *CustomAgent3) takeFoodCalculation() int {
 			}
 		default: // 10 <= hp <= 100:
 			targetHP := a.targetHPCalc()
-			foodRequired := a.foodReqCalc(targetHP)
+			foodRequired := a.foodReqCalc(a.HP(), targetHP)
 			return foodScale(foodRequired, morality, 0.0, 2.0) // from foodRequired*0 (morality 100) to foodRequired*2 (morality 0)
 		}
 
@@ -115,12 +116,12 @@ func (a *CustomAgent3) takeFoodCalculation() int {
 
 		//Any Hp
 		targetHP := a.targetHPCalc()
-		foodRequired := a.foodReqCalc(targetHP)
+		foodRequired := a.foodReqCalc(a.HP(), targetHP)
 		foodToEat = foodScale(foodRequired, morality, 0.0, 2.0) // from foodRequired*0 (morality 100) to foodRequired*2 (morality 0)
 
 		if platFood-foodToEat >= foodToLeave {
 			if a.HP() == a.HealthInfo().HPCritical {
-				survivalFood := a.foodReqCalc(a.HealthInfo().HPReqCToW)
+				survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
 				if a.DaysAtCritical() < 3 { //depend on morality
 					foodToEat = foodRange(morality, a.DaysAtCritical()-1, survivalFood+a.DaysAtCritical()) // adaptive range
 				} else { // a.DaysAtCritical() == 3

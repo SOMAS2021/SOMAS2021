@@ -32,6 +32,10 @@ type team3Knowledge struct {
 	floorAbove uuid.UUID
 	//Stores food last eaten
 	foodLastEaten food.FoodType
+	//Stores moving average of food consumed
+	foodMovingAvg food.FoodType
+	//Stores how old (in days) the agent is
+	agentAge int
 }
 
 type team3Decisions struct {
@@ -65,6 +69,8 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			floorBelow:    uuid.Nil,
 			floorAbove:    uuid.Nil,
 			foodLastEaten: food.FoodType(0),
+			foodMovingAvg: 0, //a.foodReqCalc(50, 50)
+			agentAge:      0,
 		},
 		decisions: team3Decisions{
 			foodToEat:   -1,
@@ -77,6 +83,10 @@ func (a *CustomAgent3) Run() {
 	//Update agent variables at the beginning of day (when HP has been reduced)
 	if a.HP() < a.knowledge.lastHP {
 		changeNewDay(a)
+	}
+
+	if a.knowledge.agentAge == 1 {
+		a.knowledge.foodMovingAvg = food.FoodType(a.foodReqCalc(50, 50))
 	}
 
 	//Update agent variables at the beginning of reshuffle (when floor has changed)
