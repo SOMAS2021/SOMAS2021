@@ -3,6 +3,7 @@ package team3
 import (
 	"math/rand"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/google/uuid"
 )
 
@@ -100,6 +101,7 @@ func (a *CustomAgent3) resshufleEstimator() {
 			a.knowledge.reshuffleEst = a.Age() - a.knowledge.reshuffleEst
 		}
 	}
+	a.knowledge.foodMovingAvg = food.FoodType(float64(a.knowledge.foodMovingAvg)*0.9 + float64(a.knowledge.foodLastEaten)*0.1)
 }
 
 // Function is called when the floor changes, changes the mood when we change floors
