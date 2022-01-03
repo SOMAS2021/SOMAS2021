@@ -49,6 +49,20 @@ func (a *CustomAgent5) dailyMessages() {
 	a.messagingCounter++
 }
 
+//Override baseAgent's HandlePropogate, and process any StateMessages
+
+func (a *CustomAgent5) HandlePropogate(msg messages.Message) {
+	if stateFoodTakenMsg, ok := msg.(*messages.StateFoodTakenMessage); ok {
+		a.HandleStateFoodTaken(*stateFoodTakenMsg)
+	} else if stateHPMsg, ok := msg.(*messages.StateHPMessage); ok {
+		a.HandleStateHP(*stateHPMsg)
+	} else if stateIntendedFoodIntakeMsg, ok := msg.(*messages.StateIntendedFoodIntakeMessage); ok {
+		a.HandleStateIntendedFoodTaken(*stateIntendedFoodIntakeMsg)
+	}
+
+	a.SendMessage(msg)
+}
+
 //The message handler functions below are for a fully honest agent
 
 func (a *CustomAgent5) HandleAskHP(msg messages.AskHPMessage) {
