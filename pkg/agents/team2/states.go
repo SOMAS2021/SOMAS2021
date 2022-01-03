@@ -22,7 +22,7 @@ func (a *CustomAgent2) CheckState() int {
 	if a.CurrPlatFood() == -1.0 {
 		return -1
 	}
-	return a.stateSpace[CategoriseObs(a.HP())][floorState][CategoriseObs(int(a.CurrPlatFood()))]
+	return a.stateSpace[a.HP()][floorState][CategoriseObs(int(a.CurrPlatFood()))]
 }
 
 func CategoriseObs(observation int) (category int) {
