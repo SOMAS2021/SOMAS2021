@@ -10,7 +10,7 @@
     "Team5Agents": 2,
     "Team6Agents": 2,
     "Team7Agent1": 2,
-    "RandomAgents": 0,
+    "RandomAgents": 2,
     "AgentHP": 100,
     "AgentsPerFloor": 1,
     "TicksPerFloor": 10,
