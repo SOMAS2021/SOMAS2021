@@ -6,7 +6,6 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
-	"github.com/google/uuid"
 )
 
 //Upon receipt of message define affected emotions
@@ -14,15 +13,6 @@ import (
 //If x time passed no message received/acked morale decrease
 //Include if ack message same user ID occurs x+1 times, morale increase
 //If stubborness = y+1, discard, a.k.a. leave unread
-
-func (a *CustomAgent3) updateFriendship(friend uuid.UUID, value float64) {
-	friendship, _ := friendshipLevel(a, friend)
-	if friendship == 0 {
-		addFriend(a, friend)
-	} else {
-		friendshipChange(a, friend, value)
-	}
-}
 
 func (a *CustomAgent3) ticklyMessage() {
 	r := rand.Intn(5)
@@ -89,7 +79,7 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 }
 
 func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
-	friendship, _ := friendshipLevel(a, msg.SenderID())
+	friendship, _ := a.knowledge.friends[msg.SenderID()]
 	if a.read() {
 		changeInStubbornness(a, 2, 1)
 		if friendship != 0 {
@@ -103,7 +93,7 @@ func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 }
 
 func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
-	friendship, _ := friendshipLevel(a, msg.SenderID())
+	friendship, _ := a.knowledge.friends[msg.SenderID()]
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if a.vars.stubbornness > 70 {

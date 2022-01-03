@@ -16,48 +16,20 @@ func (a *CustomAgent3) read() bool {
 	return random >= a.vars.stubbornness
 }
 
-////Function adds a new person to our freindship list if they are not there yet.
-func addFriend(a *CustomAgent3, friend uuid.UUID) {
-	newFriend := true
-	for i := 0; i < len(a.knowledge.friends); i++ {
-		if a.knowledge.friends[i] == friend {
-			newFriend = false
-			break
-		}
-
-	}
-
-	if newFriend {
-		a.knowledge.friends = append(a.knowledge.friends, friend)
-		a.knowledge.friendship = append(a.knowledge.friendship, 0.4+(float64(a.vars.morality)/100)*0.2)
-	}
-
-}
-
-// Function will return the friendship level for a specific agent, if we don't know them friendship is 0, and the position it is stored at
-func friendshipLevel(a *CustomAgent3, friend uuid.UUID) (float64, int) {
-	for i := 0; i < len(a.knowledge.friends); i++ {
-		if a.knowledge.friends[i] == friend {
-			return a.knowledge.friendship[i], i
-		}
-	}
-	return 0, -1
-}
-
-//Function changes value of friendship depending on factor change -1 to 1, negative reduces frienship, positive increases
-func friendshipChange(a *CustomAgent3, friend uuid.UUID, change float64) {
-
-	var level, index = friendshipLevel(a, friend)
-
-	if index >= 0 {
+//Function updates friendship depending on factor change -1 to 1, negative reduces frienship, positive increases
+//If they are not in our list, we add them.
+func (a *CustomAgent3) updateFriendship(friend uuid.UUID, change float64) {
+	level, found := a.knowledge.friends[friend]
+	if !found {
+		a.knowledge.friends[friend] = 0.4 + (float64(a.vars.morality)/100)*0.2
+	} else {
 		if change < 0 {
 			level = level - change*(level)
 		} else {
 			level = level + change*(1-level)
 		}
-		a.knowledge.friendship[index] = level
+		a.knowledge.friends[friend] = level
 	}
-
 }
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
