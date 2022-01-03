@@ -1,11 +1,7 @@
-package team4TrainingEvoAgent
+package team4EvoAgent
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"math/rand"
-	"os"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -13,12 +9,13 @@ import (
 )
 
 type CustomAgentEvoParams struct {
-	locked            bool    // used to lock the wait time before eating
-	foodToEat         []int   // the amount of food to eat for various health levels
-	daysToWait        []int   // the days to wait before eating for various health levels
-	ageLastEaten      int     // the age at which the agent last ate
-	morality          float64 // the morality of the agent that determines how selfishly or selflessly the agent will act
-	traumaScaleFactor float64 // the amount of trauma the agent has suffered which effects the amount of food it is likely to eat
+	locked             bool             // used to lock the wait time before eating
+	foodToEat          map[string][]int // the amount of food to eat for various health levels
+	daysToWait         map[string][]int // the days to wait before eating for various health levels
+	currentPersonality string           // the current personality of the agent
+	ageLastEaten       int              // the age at which the agent last ate
+	morality           float64          // the morality of the agent that determines how selfishly or selflessly the agent will act
+	traumaScaleFactor  float64          // the amount of trauma the agent has suffered which effects the amount of food it is likely to eat
 
 	globalTrust      float32            // the overall trust the agent has in other agents in the tower
 	coefficients     []float32          // the amount trust score changes by for certain actions
@@ -46,35 +43,35 @@ type LoadedData struct {
 }
 
 func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
-	mydir, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-	}
-	file, _ := ioutil.ReadFile(fmt.Sprintf("%s/pkg/agents/team4/agent1/agentConfig.json", mydir))
-	var data1 LoadedData
-	_ = json.Unmarshal(file, &data1) //parse the config json file to get the coeffs for floor and HP equations
 
-	data1.FoodToEat[0] = baseAgent.HealthInfo().HPReqCToW
-	data1.DaysToWait[0] = int(baseAgent.HealthInfo().MaxDayCritical / 2)
+	foodToEat := map[string][]int{
+		"selfish":  {baseAgent.HealthInfo().HPReqCToW, 7, 9, 11}, // TODO: to optimise more
+		"selfless": {baseAgent.HealthInfo().HPReqCToW, 7, 9, 11}, // TODO: to optimise more
+	}
+	daysToWait := map[string][]int{
+		"selfish":  {int(baseAgent.HealthInfo().MaxDayCritical / 2), 1, 4, 3}, // TODO: to optimise more
+		"selfless": {int(baseAgent.HealthInfo().MaxDayCritical / 2), 1, 4, 3}, // TODO: to optimise more
+	}
 
 	return CustomAgentEvoParams{ //initialise the parameters of the agent
-		locked:            true,
-		foodToEat:         data1.FoodToEat,
-		daysToWait:        data1.DaysToWait,
-		ageLastEaten:      0,
-		morality:          100 * rand.Float64(), // TODO: Use this properly
-		traumaScaleFactor: 1,
-		healthStatus:      3,
-		globalTrust:       0.0,
-		coefficients:      []float32{2, 4, 8}, // TODO: maybe train these co-efficients using evolutionary algorithm
-		lastFoodTaken:     0,
-		sentMessages:      []messages.Message{},
-		responseMessages:  []messages.Message{},
-		lastPlatFood:      -1,
-		maxFoodLimit:      50,
-		messageCounter:    0,
-		globalTrustLimit:  75,
-		lastAge:           0,
+		locked:             true,
+		foodToEat:          foodToEat,
+		daysToWait:         daysToWait,
+		currentPersonality: "selfless",
+		ageLastEaten:       0,
+		morality:           100 * rand.Float64(), // TODO: Use this properly
+		traumaScaleFactor:  1,
+		healthStatus:       3,
+		globalTrust:        0.0,
+		coefficients:       []float32{2, 4, 8}, // TODO: maybe train these co-efficients using evolutionary algorithm
+		lastFoodTaken:      0,
+		sentMessages:       []messages.Message{},
+		responseMessages:   []messages.Message{},
+		lastPlatFood:       -1,
+		maxFoodLimit:       50,
+		messageCounter:     0,
+		globalTrustLimit:   75,
+		lastAge:            0,
 	}
 }
 
@@ -161,12 +158,19 @@ func (a *CustomAgentEvo) Run() {
 		a.params.locked = true
 	}
 
+	if a.params.globalTrust < a.params.globalTrustLimit {
+		a.params.currentPersonality = "selfish"
+	} else {
+		a.params.currentPersonality = "selfless"
+	}
+
 	var foodEaten food.FoodType
 	var err error
+	var calculatedAmountToEat float64
 
-	if (a.Age()-a.params.ageLastEaten) >= a.params.daysToWait[a.params.healthStatus] || a.params.healthStatus == 0 {
+	if (a.Age()-a.params.ageLastEaten) >= a.params.daysToWait[a.params.currentPersonality][a.params.healthStatus] || a.params.healthStatus == 0 {
 		a.params.locked = false
-		calculatedAmountToEat := a.params.traumaScaleFactor * float64(a.params.foodToEat[a.params.healthStatus])
+		calculatedAmountToEat = a.params.traumaScaleFactor * float64(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus])
 		foodEaten, err = a.TakeFood(food.FoodType(calculatedAmountToEat))
 		a.params.ageLastEaten = a.Age()
 		if err != nil {
@@ -179,5 +183,5 @@ func (a *CustomAgentEvo) Run() {
 		}
 	}
 
-	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "FoodToEat": a.params.foodToEat[a.params.healthStatus], "DaysToWait": a.params.daysToWait, "foodEaten": foodEaten})
+	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "FoodToEat": calculatedAmountToEat, "DaysToWait": a.params.daysToWait, "foodEaten": foodEaten})
 }

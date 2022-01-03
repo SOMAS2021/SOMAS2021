@@ -1,4 +1,4 @@
-package team4TrainingEvoAgent
+package team4EvoAgent
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
@@ -89,9 +89,9 @@ func (a *CustomAgentEvo) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 }
 
 func (a *CustomAgentEvo) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
-	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.params.foodToEat[a.params.healthStatus]))
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]))
 	a.SendMessage(reply)
-	a.Log("Team4 agent received an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": a.params.foodToEat[a.params.healthStatus]})
+	a.Log("Team4 agent received an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]})
 }
 
 func (a *CustomAgentEvo) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
@@ -107,7 +107,7 @@ func (a *CustomAgentEvo) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMes
 func (a *CustomAgentEvo) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
 	amount := msg.Request()
 	response := true
-	if food.FoodType(a.params.foodToEat[a.params.healthStatus]) > food.FoodType(amount) {
+	if food.FoodType(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) > food.FoodType(amount) {
 		response = false
 	}
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), response) // TODO: Change for later dependent on circumstance
