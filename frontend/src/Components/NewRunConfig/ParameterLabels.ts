@@ -99,7 +99,7 @@ export const params: Parameters[] = [
       min:1
     },
     {
-      helperText: "Food on the platfrom at the beginnning of each day",
+      helperText: "Food on the platform at the beginning of each day",
       label: "Initial Food On The Platform",
       labelFor: "text-input",
       labelInfo: "",
