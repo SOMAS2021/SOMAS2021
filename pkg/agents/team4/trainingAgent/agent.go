@@ -135,40 +135,51 @@ func (a *CustomAgentEvo) Run() {
 	healthLevelSeparation := int(0.33 * float64(a.HealthInfo().MaxHP-a.HealthInfo().WeakLevel))
 
 	if a.HP() <= a.HealthInfo().WeakLevel { //critical
+		// if a.PlatformOnFloor() {
+		// 	fmt.Println("IMA DIE")
+		// 	fmt.Println(a.CurrPlatFood())
+		// }
 		a.params.healthStatus = 0
 		a.params.locked = false
 		// if dayPass {
 		// 	a.params.traumaScaleFactor = math.Min(200, a.params.traumaScaleFactor+0.03)
 		// }
-	}
-	if !a.params.locked {
+	} else if !a.params.locked {
 		if a.HP() <= a.HealthInfo().WeakLevel+healthLevelSeparation { //weak
 			a.params.healthStatus = 1
+			a.params.locked = true
 			// if dayPass {
 			// 	a.params.traumaScaleFactor = math.Min(200, a.params.traumaScaleFactor+0.02)
 			// }
 		} else if a.HP() <= a.HealthInfo().WeakLevel+2*healthLevelSeparation { //normal
 			a.params.healthStatus = 2
+			a.params.locked = true
 			// if dayPass {
 			// 	a.params.traumaScaleFactor = math.Max(0, a.params.traumaScaleFactor-0.02)
 			// }
 		} else { //strong
 			a.params.healthStatus = 3
+			a.params.locked = true
 			// if dayPass {
 			// 	a.params.traumaScaleFactor = math.Max(0, a.params.traumaScaleFactor-0.03)
 			// }
 		}
-		a.params.locked = true
 	}
 
 	var foodEaten food.FoodType
 	var err error
+	var calculatedAmountToEat float64
 
 	if (a.Age()-a.params.ageLastEaten) >= a.params.daysToWait[a.params.healthStatus] || a.params.healthStatus == 0 {
 		a.params.locked = false
-		calculatedAmountToEat := a.params.traumaScaleFactor * float64(a.params.foodToEat[a.params.healthStatus])
+		calculatedAmountToEat = a.params.traumaScaleFactor * float64(a.params.foodToEat[a.params.healthStatus])
 		foodEaten, err = a.TakeFood(food.FoodType(calculatedAmountToEat))
 		a.params.ageLastEaten = a.Age()
+		// if a.PlatformOnFloor() {
+		// 	fmt.Println("EATING")
+		// 	fmt.Println(calculatedAmountToEat)
+		// 	fmt.Println(foodEaten)
+		// }
 		if err != nil {
 			switch err.(type) {
 			case *infra.FloorError:
@@ -179,5 +190,5 @@ func (a *CustomAgentEvo) Run() {
 		}
 	}
 
-	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "FoodToEat": a.params.foodToEat[a.params.healthStatus], "DaysToWait": a.params.daysToWait, "foodEaten": foodEaten})
+	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "FoodToEat": calculatedAmountToEat, "DaysToWait": a.params.daysToWait, "foodEaten": foodEaten})
 }
