@@ -63,7 +63,6 @@ func message(a *CustomAgent3) {
 		a.Log("I sent a message", infra.Fields{"message": "StateIntendedFoodIntake"})
 	}
 	a.Log("My agent is doing something", infra.Fields{"thing": "potatoe", "another_thing": "another potatoe"})
-	a.TakeFood(16)
 }
 
 func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage) {
