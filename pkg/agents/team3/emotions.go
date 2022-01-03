@@ -2,7 +2,6 @@ package team3
 
 import (
 	"math/rand"
-	"time"
 
 	"github.com/google/uuid"
 )
