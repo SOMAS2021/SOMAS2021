@@ -2,6 +2,8 @@ package team3
 
 import (
 	"math"
+
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 )
 
 //To Do:
@@ -35,6 +37,53 @@ func foodScale(number int, metric int, minScale float64, maxScale float64) int {
 		return int(float64(number)*minScale*float64(metric)/100.0 + float64(number)*maxScale*float64(100-metric)/100.0)
 	}
 	return -1
+}
+
+func OpSolver(r int, l int, op messages.Op) bool {
+	switch op {
+	case (messages.GT):
+		return r > l
+	case (messages.GE):
+		return r >= l
+	case (messages.EQ):
+		return r == l
+	case (messages.LE):
+		return r <= l
+	default: //LT
+		return r <= l
+	}
+}
+
+func (a *CustomAgent3) conditionMet(tr messages.Treaty) bool {
+	conditionMet := false
+	switch tr.Condition() {
+	case (messages.HP):
+		conditionMet = OpSolver(a.HP(), tr.ConditionValue(), tr.ConditionOp())
+	case (messages.Floor):
+		conditionMet = OpSolver(a.BaseAgent().Floor(), tr.ConditionValue(), tr.ConditionOp())
+	case (messages.AvailableFood):
+		conditionMet = OpSolver(int(a.Base.CurrPlatFood()), tr.ConditionValue(), tr.ConditionOp())
+	}
+	return conditionMet
+}
+
+func (a *CustomAgent3) handleTreaties() {
+
+	for _, tr := range a.BaseAgent().ActiveTreaties() {
+		condMet := a.conditionMet(tr)
+
+		if condMet {
+			switch tr.Request() {
+			case (messages.LeaveAmountFood):
+				a.decisions.foodToLeave = tr.RequestValue() //would sb request for us to leave less than certain food?
+			case (messages.LeavePercentFood):
+				//Is leave Percent Food
+			case (messages.Inform):
+				//Send the message they require
+			}
+		}
+
+	}
 }
 
 func (a *CustomAgent3) takeFoodCalculation() int {
