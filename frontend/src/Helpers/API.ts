@@ -2,6 +2,7 @@ import { showToast } from "../Components/Toaster";
 import { DeathLog, GetDeathLogs } from "./Logging/Death";
 import { FoodLog, GetFoodLogs } from "./Logging/Food";
 import { Result } from "./Result";
+import { GetSimConfig, SimConfig } from "./SimConfig";
 
 function endpoint(req: string) {
   return (process.env.DEV ? "http://localhost:9000/" : window.location) + req;
@@ -52,12 +53,17 @@ export function GetResult(filename: string): Promise<Result> {
     var foods: FoodLog[] = [];
     promises.push(GetFoodLogs(filename).then((f) => (foods = f)));
 
+    // fconfig
+    var config: SimConfig = undefined!
+    promises.push(GetSimConfig(filename).then((c) => (config = c)));
+
     // all
     Promise.all(promises).then((_) =>
       resolve({
         title: filename,
         deaths: deaths,
         food: foods,
+        config: config,
       })
     );
   });

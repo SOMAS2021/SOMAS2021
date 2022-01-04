@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/config"
@@ -155,6 +156,12 @@ func main() {
 			for scanner.Scan() {
 				response.Log = append(response.Log, scanner.Text())
 			}
+
+			// special files we know are a single json
+			if logParams.LogType == "config" {
+				response.Log = []string{strings.Join(response.Log[:], "")}
+			}
+
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)

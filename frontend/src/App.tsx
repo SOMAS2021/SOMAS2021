@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import Navbar from "./Components/Navbar";
-import Results from "./Components/Results";
+import Results from "./Components/Results/Results";
 import Sidebar from "./Components/Sidebar";
 import NewRunState from "./Components/NewRunConfig/NewRunState";
 function App() {

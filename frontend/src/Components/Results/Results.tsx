@@ -1,9 +1,10 @@
 import { H3, H6, Divider, Spinner } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
-import { GetResult } from "../Helpers/API";
-import { Result } from "../Helpers/Result";
-import { Average } from "../Helpers/Utils";
-import ReportCard from "./Results/ReportCard";
+import { GetResult } from "../../Helpers/API";
+import { Result } from "../../Helpers/Result";
+import { Average } from "../../Helpers/Utils";
+import ConfigInfo from "./ConfigInfo";
+import ReportCard from "./ReportCard";
 
 interface ResultsProps {
   logName: string;
@@ -48,6 +49,8 @@ function ResultDisplay(props: ResultDisplayProps) {
   return (
     <>
       <H3>{result.title}</H3>
+      <Divider></Divider>
+      <ConfigInfo config={result.config} />
       <Divider></Divider>
       <div className="row">
         <div className="col-lg-6">
