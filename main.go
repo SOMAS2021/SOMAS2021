@@ -17,6 +17,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/config"
 	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/logging"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -57,6 +58,12 @@ func main() {
 				log.Error("Unable to setup log file: " + err.Error())
 			}
 
+			err = logging.UpdateSimStatusJson(logFolderName, "running")
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Error("Unable to setup status file: " + err.Error())
+			}
+
 			//Timeout related stuff
 			//don't touch, don't ask me how it works
 			//https://stackoverflow.com/a/50579561
@@ -76,9 +83,19 @@ func main() {
 			select {
 			case <-ch:
 				log.Info("Simulation " + logFolderName + " finished successfully")
+				err = logging.UpdateSimStatusJson(logFolderName, "finished succesfully")
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					log.Error("Unable to update status file: " + err.Error())
+				}
 			case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
 				http.Error(w, "Simulation Timeout", http.StatusInternalServerError)
 				log.Error("Simulation " + logFolderName + " timed out")
+				err = logging.UpdateSimStatusJson(logFolderName, "timed out")
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					log.Error("Unable to update status file: " + err.Error())
+				}
 				return
 			}
 
@@ -190,6 +207,12 @@ func main() {
 			return
 		}
 
+		err = logging.UpdateSimStatusJson(logFolderName, "running")
+		if err != nil {
+			log.Fatal("Unable to setup status file: " + err.Error())
+			return
+		}
+
 		//Timeout related stuff
 		//don't touch, don't ask me how it works
 		//https://stackoverflow.com/a/50579561
@@ -209,7 +232,17 @@ func main() {
 		select {
 		case <-ch:
 			log.Info("Simulation Finished Successfully")
+			err = logging.UpdateSimStatusJson(logFolderName, "finished successfully")
+			if err != nil {
+				log.Fatal("Unable to update status file: " + err.Error())
+				return
+			}
 		case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
+			err = logging.UpdateSimStatusJson(logFolderName, "timed out")
+			if err != nil {
+				log.Fatal("Unable to update status file: " + err.Error())
+				return
+			}
 			log.Fatal("Simulation Timeout")
 		}
 	}
