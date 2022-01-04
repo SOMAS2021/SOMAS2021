@@ -133,10 +133,6 @@ func (a *CustomAgentEvo) Run() {
 	healthLevelSeparation := int(0.33 * float64(a.HealthInfo().MaxHP-a.HealthInfo().WeakLevel))
 
 	if a.HP() <= a.HealthInfo().WeakLevel { //critical
-		// if a.PlatformOnFloor() {
-		// 	fmt.Println("IMA DIE")
-		// 	fmt.Println(a.CurrPlatFood())
-		// }
 		a.params.healthStatus = 0
 		a.params.locked = false
 		// if dayPass {
@@ -180,11 +176,6 @@ func (a *CustomAgentEvo) Run() {
 		calculatedAmountToEat = food.FoodType(a.params.traumaScaleFactor * float64(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]))
 		foodEaten, err = a.TakeFood(food.FoodType(calculatedAmountToEat))
 		a.params.ageLastEaten = a.Age()
-		// if a.PlatformOnFloor() {
-		// 	fmt.Println("EATING")
-		// 	fmt.Println(calculatedAmountToEat)
-		// 	fmt.Println(foodEaten)
-		// }
 		if err != nil {
 			switch err.(type) {
 			case *infra.FloorError:
