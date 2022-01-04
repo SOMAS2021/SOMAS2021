@@ -64,7 +64,12 @@ function Agents(props: ConfigInfoProps) {
       {blobs(config).map((blob, index) => (
         <div className="col-md-3" key={index}>
           <H2>
-            <img src={blob.blob} style={{ paddingRight: 10, opacity: blob.count === 0 ? 0.5 : 1 }}></img>x{blob.count}
+            <img
+              src={blob.blob}
+              style={{ paddingRight: 10, opacity: blob.count === 0 ? 0.5 : 1 }}
+              alt={`Blob image for ${blob.name}`}
+            ></img>
+            x{blob.count}
           </H2>
           <H5>({blob.name})</H5>
         </div>
