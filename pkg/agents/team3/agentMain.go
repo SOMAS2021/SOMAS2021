@@ -24,12 +24,10 @@ type team3Knowledge struct {
 	lastHP int
 	//Stores who we have met and how we feel about them
 	friends map[uuid.UUID]float64
-	//Stores who is in the floor below
-	floorBelow uuid.UUID
-	//Stores who is in the floor above
-	floorAbove uuid.UUID
 	//Stores food last eaten
 	foodLastEaten food.FoodType
+	//Stores food last eaten
+	foodLastSeen food.FoodType
 	//Stores moving average of food consumed
 	foodMovingAvg food.FoodType
 	//Stores how old (in days) the agent is
@@ -63,9 +61,8 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			floors:        []int{},
 			lastHP:        100,
 			friends:       make(map[uuid.UUID]float64),
-			floorBelow:    uuid.Nil,
-			floorAbove:    uuid.Nil,
 			foodLastEaten: food.FoodType(0),
+			foodLastSeen:  food.FoodType(-1),
 			foodMovingAvg: 0, //a.foodReqCalc(50, 50)
 			agentAge:      0,
 		},
@@ -77,10 +74,10 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 }
 
 func (a *CustomAgent3) Run() {
-	//Update agent variables at the beginning of day (when HP has been reduced)
+	//Update agent variables at the beginning of day (when we age)
 	if a.knowledge.agentAge < a.BaseAgent().Age() {
 		changeNewDay(a)
-		if a.knowledge.agentAge == 1 {
+		if a.knowledge.agentAge == 1 { //case need to initialise our moving average in day 1
 			a.knowledge.foodMovingAvg = food.FoodType(a.foodReqCalc(50, 50))
 		}
 	}
@@ -89,9 +86,9 @@ func (a *CustomAgent3) Run() {
 	if len(a.knowledge.floors) == 0 || a.knowledge.floors[len(a.knowledge.floors)-1] != a.Floor() {
 		changeNewFloor(a)
 	}
-	a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "morality": a.vars.morality})
+	a.Log("Agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "morality": a.vars.morality, "stubbornness": a.vars.stubbornness})
 
-	//eat
+	//check if platform is in our floor, if so, eat.
 	foodTaken, err := a.TakeFood(food.FoodType((a.takeFoodCalculation())))
 	if err != nil {
 		switch err.(type) {
@@ -102,6 +99,7 @@ func (a *CustomAgent3) Run() {
 		}
 	} else {
 		//Update variables right after eating
+		a.knowledge.foodLastSeen = a.BaseAgent().CurrPlatFood()
 		a.knowledge.lastHP = a.HP()
 		a.knowledge.foodLastEaten = food.FoodType(foodTaken)
 		a.decisions.foodToEat = -1
@@ -109,8 +107,6 @@ func (a *CustomAgent3) Run() {
 	}
 
 	a.message()
-
-	//eat
 
 	//send Message
 

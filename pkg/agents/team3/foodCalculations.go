@@ -6,9 +6,6 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 )
 
-//To Do:
-//1. Remove int() from platFood once platFood is type int
-
 // Calculates the food required to go from the current HP of an agent to the specified targetHP argument.
 func (a *CustomAgent3) foodReqCalc(initialHP int, targetHP int) int {
 	decayCurrentHP := int((float64(targetHP+a.HealthInfo().HPLossBase)-float64(a.HealthInfo().WeakLevel)*a.HealthInfo().HPLossSlope)/(1.0-a.HealthInfo().HPLossSlope) + 1)
@@ -49,45 +46,51 @@ func OpSolver(r int, l int, op messages.Op) bool {
 		return r == l
 	case (messages.LE):
 		return r <= l
-	default: //LT
-		return r <= l
+	case (messages.LT):
+		return r < l
+	default:
+		return false
 	}
 }
 
+//Checks wether a treaty condition is currently met
 func (a *CustomAgent3) conditionMet(tr messages.Treaty) bool {
-	conditionMet := false
 	switch tr.Condition() {
 	case (messages.HP):
-		conditionMet = OpSolver(a.HP(), tr.ConditionValue(), tr.ConditionOp())
+		return OpSolver(a.HP(), tr.ConditionValue(), tr.ConditionOp())
 	case (messages.Floor):
-		conditionMet = OpSolver(a.BaseAgent().Floor(), tr.ConditionValue(), tr.ConditionOp())
+		return OpSolver(a.BaseAgent().Floor(), tr.ConditionValue(), tr.ConditionOp())
 	case (messages.AvailableFood):
-		conditionMet = OpSolver(int(a.Base.CurrPlatFood()), tr.ConditionValue(), tr.ConditionOp())
+		return OpSolver(int(a.Base.CurrPlatFood()), tr.ConditionValue(), tr.ConditionOp())
+	default:
+		return false
 	}
-	return conditionMet
+
 }
 
 func (a *CustomAgent3) handleTreaties() {
+	for _, tr := range a.BaseAgent().ActiveTreaties() { //check all treaties in our memory bank
 
-	for _, tr := range a.BaseAgent().ActiveTreaties() {
-		condMet := a.conditionMet(tr)
-
-		if condMet {
-			switch tr.Request() {
+		if a.conditionMet(tr) { //if we meet the treaties condition
+			switch tr.Request() { //do the requuest
 			case (messages.LeaveAmountFood):
 				a.decisions.foodToLeave = tr.RequestValue() //would sb request for us to leave less than certain food?
 			case (messages.LeavePercentFood):
-				//Is leave Percent Food
+				if a.BaseAgent().CurrPlatFood() != -1 {
+					a.decisions.foodToLeave = (tr.RequestValue() / 100) * int(a.BaseAgent().CurrPlatFood())
+				}
 			case (messages.Inform):
-				//Send the message they require
+				if tr.Condition() == messages.HP {
+					msg := messages.NewStateHPMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1, a.BaseAgent().HP())
+					a.SendMessage(msg)
+				}
 			}
 		}
-
 	}
 }
 
 func (a *CustomAgent3) takeFoodCalculation() int {
-	a.handleTreaties()
+	a.handleTreaties() //take into account treaties.
 
 	platFood := int(a.CurrPlatFood())
 	morality := a.vars.morality
