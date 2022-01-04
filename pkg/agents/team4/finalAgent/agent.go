@@ -174,7 +174,7 @@ func (a *CustomAgentEvo) Run() {
 	if (a.Age()-a.params.ageLastEaten) >= a.params.daysToWait[a.params.currentPersonality][a.params.healthStatus] || a.params.healthStatus == 0 {
 		a.params.locked = false
 		calculatedAmountToEat = food.FoodType(a.params.traumaScaleFactor * float64(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]))
-		foodEaten, err = a.TakeFood(food.FoodType(calculatedAmountToEat))
+		foodEaten, err = a.TakeFood(calculatedAmountToEat)
 		a.params.ageLastEaten = a.Age()
 		if err != nil {
 			switch err.(type) {

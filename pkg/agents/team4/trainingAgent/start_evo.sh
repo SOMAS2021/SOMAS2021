@@ -1,17 +1,20 @@
 #!/bin/bash
 
 selfish='False'
+selfless='False'
 
 print_usage() {
   printf "Usage: ... \n"
-  printf "s) set to train for selfish agent \n"
+  printf "f) set to train for selfish agent \n"
+  printf "l) set to train for selfless agent \n"
   printf "h) get help \n"
 }
 
-while getopts 'sh' flag
+while getopts 'fhl' flag
 do
   case "${flag}" in
-    s) selfish='True' ;;
+    f) selfish='True' ;;
+    l) selfless='True' ;;
     h) print_usage
        exit 1 ;;
   esac
@@ -26,6 +29,7 @@ agentConfigFile="pkg/agents/team4/trainingAgent/agentConfig.json"
 bestAgentsFile="pkg/agents/team4/trainingAgent/bestAgents.json"
 agentLifeExpectanciesFile="pkg/agents/team4/trainingAgent/agentLifeExpectancies.json"
 agentOurLifeExpectanciesFile="pkg/agents/team4/trainingAgent/agentOurLifeExpectancies.json"
+agentOtherLifeExpectanciesFile="pkg/agents/team4/trainingAgent/agentOtherLifeExpectancies.json"
 agentDeathRateFile="pkg/agents/team4/trainingAgent/agentDeathRate.json"
 rm $agentConfigFile $bestAgentsFile
 touch $agentConfigFile $bestAgentsFile
@@ -36,7 +40,7 @@ numberOfHealthLevels=4
 numberOfBestAgents=5
 numberOfAgentsPerSim=5
 numberOfIterations=5
-numberOfRuns=1
+numberOfRuns=3
 
 # Generate set of agents with 0 parameters
 python3 pkg/agents/team4/trainingAgent/initaliseConfig.py $agentConfigFile $bestAgentsFile $numberOfHealthLevels $numberOfBestAgents
@@ -47,11 +51,13 @@ do
     echo ""
     arrLifeExp=()
     arrOurLifeExp=()
+    arrOtherLifeExp=( )
     arrDeathRate=()
     for j in $( eval echo {1..$numberOfBestAgents} )
     do
         echo "  Getting average performance of agent " $j
         averageLifeExpectancy="0.0"
+        averageOtherLifeExpectancy="0.0"
         averageOurLifeExpectancy="0.0"
         averageDeathRate="0.0"
         for k in $( eval echo {1..$numberOfRuns} )
@@ -79,15 +85,21 @@ do
 
             averageOurLifeExpectancy=`echo $averageOurLifeExpectancy+${agentLifeExpectanciesArray[1]} | bc`
 
+            averageOtherLifeExpectancy=`echo $averageOtherLifeExpectancy+${agentLifeExpectanciesArray[2]} | bc`
+
             averageDeathRate=`echo $averageDeathRate+$deathRate | bc`
 
         done
         averageLifeExpectancy=`echo $averageLifeExpectancy/$numberOfRuns | bc -l`
         averageOurLifeExpectancy=`echo $averageOurLifeExpectancy/$numberOfRuns | bc -l` 
         averageDeathRate=`echo $averageDeathRate/$numberOfRuns | bc -l` 
+        averageOtherLifeExpectancy=`echo $averageOtherLifeExpectancy/$numberOfRuns | bc -l`
+
+
         arrLifeExp+=($averageLifeExpectancy)
         arrOurLifeExp+=($averageOurLifeExpectancy)
         arrDeathRate+=($averageDeathRate)
+        arrOtherLifeExp+=($averageOtherLifeExpectancy)
     done
     printf -v joinedLifeExp '%s,' ${arrLifeExp[*]}
     echo "[${joinedLifeExp%,}]" > $agentLifeExpectanciesFile
@@ -98,8 +110,11 @@ do
     printf -v joinedDeathRate '%s,' ${arrDeathRate[*]}
     echo "[${joinedDeathRate%,}]" > $agentDeathRateFile
 
+    printf -v joinedOtherLifeExp '%s,' ${arrOtherLifeExp[*]}
+    echo "[${joinedOtherLifeExp%,}]" > $agentOtherLifeExpectanciesFile
+
     # generate new set of best agents generated from previous perfomance 
-    python3 pkg/agents/team4/trainingAgent/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectanciesFile $numberOfHealthLevels $agentDeathRateFile $agentOurLifeExpectanciesFile $selfish
+    python3 pkg/agents/team4/trainingAgent/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectanciesFile $agentDeathRateFile $agentOurLifeExpectanciesFile $agentOtherLifeExpectanciesFile $numberOfHealthLevels $selfish $selfless 
     echo "------------------------------------------"
 done
 

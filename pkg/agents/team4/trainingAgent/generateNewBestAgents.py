@@ -4,12 +4,17 @@ import random
 import json
 import numpy as np
 
+# input files
 best_agents_file_name = sys.argv[1]
 agent_life_expectancies_file_name = sys.argv[2]
-number_of_health_levels = int(sys.argv[3])
-agent_death_rate_file_name = sys.argv[4]
-agent_our_life_expectancies_file_name = sys.argv[5]
-selfish_flag = sys.argv[6]
+agent_death_rate_file_name = sys.argv[3]
+agent_our_life_expectancies_file_name = sys.argv[4]
+agent_other_life_expectancies_file_name = sys.argv[5]
+
+# input flags and numerical parameters 
+number_of_health_levels = int(sys.argv[6])
+selfish_flag = sys.argv[7]
+selfless_flag = sys.argv[8]
 
 # read bestAgent.config
 best_agents_file = open(best_agents_file_name)
@@ -26,6 +31,10 @@ agent_our_life_expectancies_file = open(agent_our_life_expectancies_file_name)
 performance_list_our_life = json.load(agent_our_life_expectancies_file)
 agent_our_life_expectancies_file.close()
 
+agent_other_life_expectancies_file = open(agent_other_life_expectancies_file_name)
+performance_list_other_life = json.load(agent_other_life_expectancies_file)
+agent_other_life_expectancies_file.close()
+
 # read the array of average death by each agent
 agent_death_rate_file = open(agent_death_rate_file_name)
 performance_list_death = json.load(agent_death_rate_file)
@@ -33,25 +42,33 @@ agent_death_rate_file.close()
 
 # sort array but keep a track of index to obtain best agent
 perfomance_list_indices = range(len(performance_list_life))
-if selfish_flag == "False":
-    print("This is not selfish")
-    zipped_performance = zip(performance_list_life, performance_list_our_life,
+    
+if selfless_flag == "True":
+    print("This is selfless") # TODO: this to change
+    zipped_performance = zip(performance_list_other_life, performance_list_our_life,  performance_list_life,
                              performance_list_death, perfomance_list_indices)
     sorted_zipped_performance = sorted(zipped_performance, reverse=True)
     tuples = zip(*sorted_zipped_performance)
-    sorted_performance_list_life, sorted_performance_list_our_life, sorted_performance_list_death, sorted_performance_list_indices = [
+    sorted_performance_list_other_life, sorted_performance_list_our_life, sorted_performance_list_life, sorted_performance_list_death, sorted_performance_list_indices = [
+        list(tuple) for tuple in tuples]
+elif selfish_flag=="True":
+    print("This is selfish")
+    zipped_performance = zip(performance_list_our_life, performance_list_other_life, performance_list_life,
+                             performance_list_death, perfomance_list_indices)
+    sorted_zipped_performance = sorted(zipped_performance, reverse=True)
+    tuples = zip(*sorted_zipped_performance)
+    sorted_performance_list_our_life, sorted_performance_list_other_life, sorted_performance_list_life, sorted_performance_list_death, sorted_performance_list_indices = [
         list(tuple) for tuple in tuples]
 else:
-    print("This is selfish")
-    zipped_performance = zip(performance_list_our_life, performance_list_life,
+    print("This is neutral")
+    zipped_performance = zip(performance_list_life, performance_list_other_life, performance_list_our_life,
                              performance_list_death, perfomance_list_indices)
     sorted_zipped_performance = sorted(zipped_performance, reverse=True)
     tuples = zip(*sorted_zipped_performance)
-    sorted_performance_list_our_life, sorted_performance_list_life, sorted_performance_list_death, sorted_performance_list_indices = [
+    sorted_performance_list_life, sorted_performance_list_other_life, sorted_performance_list_our_life, sorted_performance_list_death, sorted_performance_list_indices = [
         list(tuple) for tuple in tuples]
-
-print("The current global life expectancies are: {0}\nThe current our life expectancies are: {1} ".format(
-    sorted_performance_list_life, sorted_performance_list_our_life))
+print("The current global life expectancies are: {0}\nThe current our life expectancies are: {1} \nThe current other life expectancies are: {2}".format(
+    sorted_performance_list_life, sorted_performance_list_our_life, sorted_performance_list_other_life))
 
 # get all best agents
 agent_1 = best_agents_list[sorted_performance_list_indices[0]]
@@ -61,13 +78,13 @@ agent_4 = best_agents_list[sorted_performance_list_indices[3]]
 agent_5 = best_agents_list[sorted_performance_list_indices[4]]
 
 ################################################################################################
-# life[0] death[0] timestamp
 agents_of_time = [agent_1, agent_2, agent_3, agent_4, agent_5]
 outfile = []
 for i in range(len(agents_of_time)):
     agents_of_time[i]['life'] = performance_list_life[sorted_performance_list_indices[i]]
     agents_of_time[i]['death'] = performance_list_death[sorted_performance_list_indices[i]]
     agents_of_time[i]['our_life'] = performance_list_our_life[sorted_performance_list_indices[i]]
+    agents_of_time[i]['other_life'] = performance_list_other_life[sorted_performance_list_indices[i]]
 
 timestamp = datetime.now(tz=None)
 file_name_out = "pkg/agents/team4/trainingAgent/"+"{0}/{1}_{2}_{3}.json".format(
@@ -81,7 +98,7 @@ old_agents_file.close()
 
 attribute = ["FoodToEat", "DaysToWait"]
 noise_multiplier_for_attribute = {
-    "FoodToEat": 5,
+    "FoodToEat": 10,
     "DaysToWait": 2
 }
 
@@ -91,14 +108,9 @@ mu, sigma = 0, 1  # mean and standard deviation
 agent_1_slight_mutations_1 = best_agents_list[sorted_performance_list_indices[0]]
 for i in attribute:
     for j in range(number_of_health_levels):
-        rand = int(
-            noise_multiplier_for_attribute[i]*np.random.normal(mu, sigma))
-        add_sub = random.random()
-        if (add_sub < 0.5):
-            agent_1_slight_mutations_1[i][j] += rand
-        else:
-            agent_1_slight_mutations_1[i][j] -= rand
-
+        rand = int(np.random.normal(mu, noise_multiplier_for_attribute[i]*sigma))
+        agent_1_slight_mutations_1[i][j] += rand
+        
         if (attribute == "FoodToEat" and agent_1_slight_mutations_1[i][j] > 100):
             agent_1_slight_mutations_1[i][j] = 100
         if (agent_1_slight_mutations_1[i][j] < 0):
