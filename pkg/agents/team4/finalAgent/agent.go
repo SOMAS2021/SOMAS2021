@@ -17,15 +17,15 @@ type CustomAgentEvoParams struct {
 	morality           float64          // the morality of the agent that determines how selfishly or selflessly the agent will act
 	traumaScaleFactor  float64          // the amount of trauma the agent has suffered which effects the amount of food it is likely to eat
 
-	globalTrust      float32            // the overall trust the agent has in other agents in the tower
-	coefficients     []float32          // the amount trust score changes by for certain actions
+	globalTrust      float64            // the overall trust the agent has in other agents in the tower
+	coefficients     []float64          // the amount trust score changes by for certain actions
 	lastFoodTaken    food.FoodType      // food taken on the previous day
 	sentMessages     []messages.Message // TODO: make it a map hashed by messageIDs
 	responseMessages []messages.Message // TODO: make it a map hashed by messageIDs
 	lastPlatFood     food.FoodType      // last seen food on the platform
 	maxFoodLimit     food.FoodType      // maximum food we want to allow others to eat
 	messageCounter   int                // the total number of messages we send in a day
-	globalTrustLimit float32            // limit to check whether to be selfish or not
+	globalTrustLimit float64            // limit to check whether to be selfish or not
 	lastAge          int                // the age of the agent on the previous day
 	healthStatus     int
 }
@@ -63,7 +63,7 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 		traumaScaleFactor:  1,
 		healthStatus:       3,
 		globalTrust:        0.0,
-		coefficients:       []float32{2, 4, 8}, // TODO: maybe train these co-efficients using evolutionary algorithm
+		coefficients:       []float64{2, 4, 8}, // TODO: maybe train these co-efficients using evolutionary algorithm
 		lastFoodTaken:      0,
 		sentMessages:       []messages.Message{},
 		responseMessages:   []messages.Message{},
@@ -109,8 +109,9 @@ func (a *CustomAgentEvo) HasDayPassed() bool {
 }
 
 func (a *CustomAgentEvo) Run() {
+	a.Log("Reporting agent state of team 4 agent", infra.Fields{"health": a.HP(), "floor": a.Floor()})
 
-	if food.FoodType(a.CurrPlatFood()) != a.params.lastPlatFood && a.PlatformOnFloor() {
+	if a.CurrPlatFood() != a.params.lastPlatFood && a.PlatformOnFloor() {
 		a.params.lastPlatFood = a.CurrPlatFood()
 	}
 
@@ -132,10 +133,6 @@ func (a *CustomAgentEvo) Run() {
 	healthLevelSeparation := int(0.33 * float64(a.HealthInfo().MaxHP-a.HealthInfo().WeakLevel))
 
 	if a.HP() <= a.HealthInfo().WeakLevel { //critical
-		// if a.PlatformOnFloor() {
-		// 	fmt.Println("IMA DIE")
-		// 	fmt.Println(a.CurrPlatFood())
-		// }
 		a.params.healthStatus = 0
 		a.params.locked = false
 		// if dayPass {
@@ -169,20 +166,15 @@ func (a *CustomAgentEvo) Run() {
 		a.params.currentPersonality = "selfless"
 	}
 
-	var foodEaten food.FoodType
+	foodEaten := food.FoodType(0)
 	var err error
-	var calculatedAmountToEat float64
+	calculatedAmountToEat := food.FoodType(0)
 
 	if (a.Age()-a.params.ageLastEaten) >= a.params.daysToWait[a.params.currentPersonality][a.params.healthStatus] || a.params.healthStatus == 0 {
 		a.params.locked = false
-		calculatedAmountToEat = a.params.traumaScaleFactor * float64(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus])
+		calculatedAmountToEat = food.FoodType(a.params.traumaScaleFactor * float64(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]))
 		foodEaten, err = a.TakeFood(food.FoodType(calculatedAmountToEat))
 		a.params.ageLastEaten = a.Age()
-		// if a.PlatformOnFloor() {
-		// 	fmt.Println("EATING")
-		// 	fmt.Println(calculatedAmountToEat)
-		// 	fmt.Println(foodEaten)
-		// }
 		if err != nil {
 			switch err.(type) {
 			case *infra.FloorError:

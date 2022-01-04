@@ -118,7 +118,7 @@ func (a *CustomAgentEvo) HandleRequestTakeFood(msg messages.RequestTakeFoodMessa
 func (a *CustomAgentEvo) HandleResponse(msg messages.BoolResponseMessage) {
 	response := msg.Response() // TODO: Change for later dependent on circumstance
 	if !msg.Response() {
-		a.SubFromGlobalTrust(a.params.coefficients[1]) // TODO: adapt for other conditions
+		a.AddToGlobalTrust(-a.params.coefficients[1]) // TODO: adapt for other conditions
 	} else {
 		a.CheckForResponse(msg)
 	}
@@ -129,7 +129,7 @@ func (a *CustomAgentEvo) HandleResponse(msg messages.BoolResponseMessage) {
 func (a *CustomAgentEvo) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
 	statement := msg.Statement()
 	if food.FoodType(statement) > a.params.maxFoodLimit {
-		a.SubFromGlobalTrust(a.params.coefficients[1])
+		a.AddToGlobalTrust(-a.params.coefficients[1])
 	} else {
 		a.AddToGlobalTrust(a.params.coefficients[1])
 	}
@@ -145,7 +145,7 @@ func (a *CustomAgentEvo) HandleStateHP(msg messages.StateHPMessage) {
 func (a *CustomAgentEvo) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
 	statement := msg.Statement()
 	if food.FoodType(statement) > a.params.maxFoodLimit {
-		a.SubFromGlobalTrust(a.params.coefficients[1])
+		a.AddToGlobalTrust(-a.params.coefficients[1])
 	} else {
 		a.AddToGlobalTrust(a.params.coefficients[1])
 	}

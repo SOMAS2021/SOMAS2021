@@ -6,112 +6,106 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+	log "github.com/sirupsen/logrus"
 )
 
+func (a *CustomAgentEvo) typeAssertResponseMessage(responseMessage messages.Message) (messages.ResponseMessage, error) {
+	typeAsserted, ok := responseMessage.(messages.ResponseMessage)
+	if !ok {
+		err := fmt.Errorf("ResponseMessage type assertion failed")
+		return nil, err
+	}
+	return typeAsserted, nil
+}
+
+func (a *CustomAgentEvo) typeAssertRequestMessage(requestMessage messages.Message) (messages.RequestMessage, error) {
+	typeAsserted, ok := requestMessage.(messages.RequestMessage)
+	if !ok {
+		err := fmt.Errorf("RequestMessage type assertion failed")
+		return nil, err
+	}
+	return typeAsserted, nil
+}
+
+func (a *CustomAgentEvo) updateGlobalTrustReqLeaveFood(msg messages.BoolResponseMessage, sentMsg messages.Message) {
+	a.Log("Team4 reponse message received", infra.Fields{"sentMsg_Type": sentMsg.MessageType(), "senderFloor": msg.SenderFloor()})
+	reqMsg, err := a.typeAssertRequestMessage(sentMsg)
+	if err != nil {
+		log.Error(err)
+	} else {
+		if food.FoodType(reqMsg.Request()) <= a.CurrPlatFood() {
+			a.AddToGlobalTrust(a.params.coefficients[1])
+			a.Log("Team4: For Requested Food to Leave less than or equal to Food on platform", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.CurrPlatFood(), "global_trust": a.params.globalTrust})
+		} else if food.FoodType(reqMsg.Request()) > a.CurrPlatFood() {
+			a.AddToGlobalTrust(-a.params.coefficients[1])
+			a.Log("Team4: For Requested Food to Leave greater than Food on platform", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.CurrPlatFood(), "global_trust": a.params.globalTrust})
+		}
+	}
+}
+
+func (a *CustomAgentEvo) updateGlobalTrustforReqTakeFood(msg messages.BoolResponseMessage, sentMsg messages.Message) {
+	a.Log("Team4 reponse message received", infra.Fields{"sentMsg_Type": sentMsg.MessageType(), "senderFloor": msg.SenderFloor()})
+	reqMsg, err := a.typeAssertRequestMessage(sentMsg)
+	if err != nil {
+		log.Error(err)
+	} else {
+		if food.FoodType(reqMsg.Request()) >= a.NeighbourFoodEaten() {
+			a.Log("Team4: For Requested Food to Take greater then or equal neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.NeighbourFoodEaten(), "global_trust": a.params.globalTrust})
+			a.AddToGlobalTrust(a.params.coefficients[1])
+		} else if food.FoodType(reqMsg.Request()) < a.NeighbourFoodEaten() {
+			a.Log("Team4: For Requested Food to Take less than neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.NeighbourFoodEaten(), "global_trust": a.params.globalTrust})
+			a.AddToGlobalTrust(-a.params.coefficients[1])
+		}
+	}
+}
+
 func (a *CustomAgentEvo) CheckForResponse(msg messages.BoolResponseMessage) {
-	if a.PlatformOnFloor() && len(a.params.responseMessages) > 0 { // Check if there are any responses messages.
-		for i := 0; i < len(a.params.responseMessages); i++ { // Iterate through each response message
-			respMsg := a.params.responseMessages[i]
-			resMsg, ok := respMsg.(messages.ResponseMessage)
-			if !ok {
-				err := fmt.Errorf("ResponseMessage type assertion failed")
-				fmt.Println(err.Error())
+	if len(a.params.responseMessages) > 0 {
+		for i, respMsg := range a.params.responseMessages { // Iterate through each response message
+			resMsg, err := a.typeAssertResponseMessage(respMsg)
+			if err != nil {
+				log.Error(err)
 			} else {
-				for j := 0; j < len(a.params.sentMessages); j++ { // Iterate through each sent message
-					sentMsg := a.params.sentMessages[j]
+				for j, sentMsg := range a.params.sentMessages { // Iterate through each sent message
+					if resMsg.RequestID() == sentMsg.ID() {
+						if a.PlatformOnFloor() && sentMsg.MessageType() == messages.RequestLeaveFood && a.Floor()-msg.SenderFloor() == 1 { // Check if there are any responses messages.
+							a.updateGlobalTrustReqLeaveFood(msg, sentMsg)
 
-					if resMsg.RequestID() == sentMsg.ID() { // Find the corresponding response message that's been sent
+						} else if a.params.lastFoodTaken+a.CurrPlatFood() != a.params.lastPlatFood && sentMsg.MessageType() == messages.RequestTakeFood && a.Floor()-msg.SenderFloor() == -1 {
+							a.updateGlobalTrustforReqTakeFood(msg, sentMsg)
+						}
 						a.params.sentMessages = remove(a.params.sentMessages, j) // Remove the accessed response/sent messages from memory
 						a.params.responseMessages = remove(a.params.responseMessages, i)
-						a.Log("Team4 received a message", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": sentMsg.ID()})
-
-						if sentMsg.MessageType() == messages.RequestLeaveFood && a.Floor()-msg.SenderFloor() == 1 { //TODO: theres now target floors and not directions anymore
-							a.Log("Team4 reponse message received", infra.Fields{"sentMsg_Type": sentMsg.MessageType()})
-							reqMsg, ok := sentMsg.(messages.RequestMessage)
-							if !ok {
-								err := fmt.Errorf("RequestMessage type assertion failed")
-								fmt.Println(err.Error())
-							} else if food.FoodType(reqMsg.Request()) <= a.CurrPlatFood() {
-								a.AddToGlobalTrust(a.params.coefficients[1])
-							} else if food.FoodType(reqMsg.Request()) > a.CurrPlatFood() {
-								a.SubFromGlobalTrust(a.params.coefficients[1])
-								a.Log("Team4: For Requested Food to Leave greater than Food on platform", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.CurrPlatFood(), "global_trust": a.params.globalTrust})
-							}
-						}
-						break
-					}
-				}
-
-			}
-
-		}
-	} else if a.params.lastFoodTaken+a.CurrPlatFood() != a.params.lastPlatFood {
-		for i := 0; i < len(a.params.responseMessages); i++ { // Iterate through each response message
-			respMsg := a.params.responseMessages[i]
-			resMsg, ok := respMsg.(messages.ResponseMessage)
-			if !ok {
-				err := fmt.Errorf("ResponseMessage type assertion failed")
-				fmt.Println(err.Error())
-			} else {
-				for j := 0; j < len(a.params.sentMessages); j++ { // Iterate through each sent message
-					sentMsg := a.params.sentMessages[j]
-
-					if resMsg.RequestID() == sentMsg.ID() { // Find the corresponding response message that's been sent
-						a.params.sentMessages = remove(a.params.sentMessages, j) // Remove the accessed response/sent messages from memory
-						a.params.responseMessages = remove(a.params.responseMessages, i)
-						a.Log("Team4 received a message", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": sentMsg.ID()})
-
-						if sentMsg.MessageType() == messages.RequestTakeFood && a.Floor()-msg.SenderFloor() == -1 {
-							reqMsg, ok := sentMsg.(messages.RequestMessage)
-							if !ok {
-								err := fmt.Errorf("RequestMessage type assertion failed")
-								fmt.Println(err.Error())
-							} else if food.FoodType(reqMsg.Request()) >= a.NeighbourFoodEaten() {
-								a.Log("Team4: For Requested Food to Take greater then or equal neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.NeighbourFoodEaten(), "global_trust": a.params.globalTrust})
-								a.AddToGlobalTrust(a.params.coefficients[1])
-							} else if food.FoodType(reqMsg.Request()) < a.NeighbourFoodEaten() {
-								a.Log("Team4: For Requested Food to Take less than neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.NeighbourFoodEaten(), "global_trust": a.params.globalTrust})
-								a.SubFromGlobalTrust(a.params.coefficients[1])
-							}
-						}
 						break
 					}
 				}
 			}
 		}
-
 	} else {
 		for j := 0; j < len(a.params.sentMessages); j++ {
 			if msg.RequestID() == a.params.sentMessages[j].ID() {
 				sentMsg := a.params.sentMessages[j]
 				a.Log("Team4 received a message", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": sentMsg.ID()})
 
-				if sentMsg.MessageType() == messages.RequestTakeFood && a.NeighbourFoodEaten() == -1 {
-					a.params.sentMessages = append(a.params.responseMessages, &msg)
-				} else if sentMsg.MessageType() == messages.RequestLeaveFood && !a.PlatformOnFloor() {
-					a.params.sentMessages = append(a.params.responseMessages, &msg)
-				} else if sentMsg.MessageType() == messages.RequestTakeFood && a.Floor()-msg.SenderFloor() == 1 {
+				if sentMsg.MessageType() == messages.RequestTakeFood && a.Floor()-msg.SenderFloor() == 1 { //assuming honest
 					a.AddToGlobalTrust(a.params.coefficients[1])
-				} else if sentMsg.MessageType() == messages.RequestLeaveFood && a.Floor()-msg.SenderFloor() == -1 {
+				} else if sentMsg.MessageType() == messages.RequestLeaveFood && a.Floor()-msg.SenderFloor() == -1 { //assuming honest
 					a.AddToGlobalTrust(a.params.coefficients[1])
+				} else {
+					a.params.responseMessages = append(a.params.responseMessages, &msg)
 				}
-				break
 			}
 		}
 	}
 }
 
-func (a *CustomAgentEvo) AddToGlobalTrust(coeff float32) {
+func (a *CustomAgentEvo) AddToGlobalTrust(coeff float64) {
 	a.params.globalTrust += coeff
+
+	// Limiting global trust bounds between 0 and 100
 	if a.params.globalTrust > 100 {
 		a.params.globalTrust = 100
-	}
-}
-
-func (a *CustomAgentEvo) SubFromGlobalTrust(coeff float32) {
-	a.params.globalTrust -= coeff
-	if a.params.globalTrust < 0 {
+	} else if a.params.globalTrust < 0 {
 		a.params.globalTrust = 0
 	}
-
 }
