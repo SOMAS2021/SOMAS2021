@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { GetFile } from "./API";
 
 export default function InitConfigState() {
   return useState<SimConfig>({
@@ -62,4 +63,15 @@ export interface SimConfig {
   LogFileName: string;
   LogMain: boolean;
   SimTimeoutSeconds: number;
+}
+
+export function GetSimConfig(filename: string): Promise<SimConfig> {
+  return new Promise<SimConfig>((resolve, reject) => {
+    GetFile(filename, "config")
+      .then((config) => {
+        console.log(config)
+        resolve(config as SimConfig);
+      })
+      .catch((err) => reject(err));
+  });
 }

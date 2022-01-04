@@ -1,9 +1,9 @@
 import { H3, H6, Divider, Spinner } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
-import { GetResult } from "../Helpers/API";
-import { Result } from "../Helpers/Result";
-import { Average } from "../Helpers/Utils";
-import ReportCard from "./Results/ReportCard";
+import { GetResult } from "../../Helpers/API";
+import { Result } from "../../Helpers/Result";
+import { Average } from "../../Helpers/Utils";
+import ReportCard from "./ReportCard";
 
 interface ResultsProps {
   logName: string;
