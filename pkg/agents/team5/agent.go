@@ -5,6 +5,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/google/uuid"
@@ -63,7 +64,10 @@ func (a *CustomAgent5) updateAimHP() {
 }
 
 func (a *CustomAgent5) updateSelfishness() {
+	// Tit for tat strategy, agent will conform to the mean behaviour of their social network
 	a.selfishness = 10 - a.calculateAverageFavour()
+	// Make agent less selfish if going through tough times, lowers their expectations and makes them more sympathetic of others struggles
+	a.selfishness = a.restrictToRange(0, 10, a.selfishness-a.daysSinceLastMeal)
 }
 
 func (a *CustomAgent5) updateSatisfaction() {
@@ -86,6 +90,53 @@ func (a *CustomAgent5) checkForLeader() {
 	if diceRoll >= a.leadership {
 		a.Log("An agent has become a leader", infra.Fields{"dice roll": diceRoll, "leadership": a.leadership, "selfishness": a.selfishness, "floor": a.Floor()})
 		//TODO: Send treaties here about eating less food
+	}
+}
+
+func (a *CustomAgent5) overideCalculation(treaty messages.Treaty) {
+	if treaty.Request() == messages.LeaveAmountFood {
+		if treaty.RequestOp() == messages.GT && a.CurrPlatFood()-a.attemptFood < food.FoodType(treaty.RequestValue()) {
+			a.attemptFood = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue())-1)))
+		}
+		if treaty.RequestOp() == messages.GE && a.CurrPlatFood()-a.attemptFood <= food.FoodType(treaty.RequestValue()) {
+			a.attemptFood = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue()))))
+		}
+	}
+	if treaty.Request() == messages.LeavePercentFood {
+		if treaty.RequestOp() == messages.EQ {
+			a.attemptFood = a.CurrPlatFood() - food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue()/100))
+		}
+		if treaty.RequestOp() == messages.GT && a.CurrPlatFood()-a.attemptFood < food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue()/100)) {
+			a.attemptFood = a.CurrPlatFood() - food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue()/100)) - 1
+		}
+		if treaty.RequestOp() == messages.GE && a.CurrPlatFood()-a.attemptFood <= food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue()/100)) {
+			a.attemptFood = a.CurrPlatFood() - food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue()/100))
+		}
+	}
+}
+
+func (a *CustomAgent5) treatyOveride() {
+	for _, treaty := range a.ActiveTreaties() {
+		switch {
+		case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.EQ && a.HP() == treaty.ConditionValue():
+			a.overideCalculation(treaty)
+		case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.GT && a.HP() > treaty.ConditionValue():
+			a.overideCalculation(treaty)
+		case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.GE && a.HP() >= treaty.ConditionValue():
+			a.overideCalculation(treaty)
+		case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.EQ && a.Floor() == treaty.ConditionValue():
+			a.overideCalculation(treaty)
+		case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.LT && a.Floor() < treaty.ConditionValue():
+			a.overideCalculation(treaty)
+		case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.LE && a.Floor() <= treaty.ConditionValue():
+			a.overideCalculation(treaty)
+		case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.EQ && a.CurrPlatFood() == food.FoodType(treaty.ConditionValue()):
+			a.overideCalculation(treaty)
+		case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.GT && a.CurrPlatFood() > food.FoodType(treaty.ConditionValue()):
+			a.overideCalculation(treaty)
+		case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.GE && a.CurrPlatFood() >= food.FoodType(treaty.ConditionValue()):
+			a.overideCalculation(treaty)
+		}
 	}
 }
 
@@ -137,6 +188,7 @@ func (a *CustomAgent5) Run() {
 
 	// When platform reaches our floor and we haven't tried to eat, then try to eat
 	if a.CurrPlatFood() != -1 && a.attemptToEat {
+		a.treatyOveride()
 		lastMeal, err := a.TakeFood(a.attemptFood)
 		if err != nil {
 			switch err.(type) {
