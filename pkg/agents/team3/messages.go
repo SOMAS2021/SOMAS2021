@@ -30,11 +30,11 @@ func (a *CustomAgent3) ticklyMessage() {
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "AskIntendedFoodIntake"})
 	case 3:
-		msg := messages.NewRequestLeaveFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, 10)
+		msg := messages.NewRequestLeaveFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, a.requestLeaveFoodAmt())
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
 	default:
-		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, 10) //make func to determine value
+		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, a.requestTakeFoodAmt()) //make func to determine value
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
 	}
@@ -48,6 +48,70 @@ func (a *CustomAgent3) message() {
 	} else {
 		a.ticklyMessage()
 		a.Log("I got nothing")
+	}
+
+}
+
+func max(x, y, z int) int {
+	if x < y && z < y {
+		return y
+	}
+	if x < z {
+		return z
+	}
+	return x
+}
+
+func min(x, y, z int) int {
+	if x > y && z > y {
+		return y
+	}
+	if x > z {
+		return z
+	}
+	return x
+}
+
+func (a *CustomAgent3) requestTakeFoodAmt() int {
+	foodReqAmt := a.foodReqCalc(a.HP(), a.HP()) //food required to keep same HP
+	if a.vars.morality >= 70 {
+		return max(a.decisions.foodToEat, foodReqAmt, int(a.knowledge.foodLastEaten)) //we would want people to eat as much as sustainable amount due to high morality
+	} else if a.vars.morality < 70 && a.vars.morality > 30 {
+		return min(a.decisions.foodToEat, foodReqAmt, int(a.knowledge.foodLastEaten)) //we want people above to eat as little as sustainable
+	} else {
+		return min(5, int(a.knowledge.foodLastEaten), 6) //we want people to take least food possible
+	}
+}
+
+func (a *CustomAgent3) requestLeaveFoodAmt() int {
+	if a.HP() >= 70 {
+		foodReqAmt := a.foodReqCalc(a.HP(), a.HP()-5)
+		if a.vars.morality >= 70 {
+			foodReqAmt -= 5
+		}
+		if a.vars.morality <= 30 {
+			foodReqAmt += 5
+		}
+		return foodReqAmt
+
+	} else if a.HP() < 70 && a.HP() > 30 {
+		foodReqAmt := a.foodReqCalc(a.HP(), a.HP())
+		if a.vars.morality >= 70 {
+			foodReqAmt -= 5
+		}
+		if a.vars.morality <= 30 {
+			foodReqAmt += 5
+		}
+		return foodReqAmt
+	} else {
+		foodReqAmt := a.foodReqCalc(a.HP(), a.HP()+5)
+		if a.vars.morality >= 70 {
+			foodReqAmt -= 5
+		}
+		if a.vars.morality <= 30 {
+			foodReqAmt += 5
+		}
+		return foodReqAmt
 	}
 
 }
@@ -79,7 +143,7 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 }
 
 func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
-	friendship, _ := a.knowledge.friends[msg.SenderID()]
+	friendship := a.knowledge.friends[msg.SenderID()]
 	if a.read() {
 		changeInStubbornness(a, 2, 1)
 		if friendship != 0 {
@@ -93,7 +157,7 @@ func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 }
 
 func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
-	friendship, _ := a.knowledge.friends[msg.SenderID()]
+	friendship := a.knowledge.friends[msg.SenderID()]
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if a.vars.stubbornness > 70 {
