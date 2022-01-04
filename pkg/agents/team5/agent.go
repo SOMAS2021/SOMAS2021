@@ -104,13 +104,13 @@ func (a *CustomAgent5) overideCalculation(treaty messages.Treaty) {
 	}
 	if treaty.Request() == messages.LeavePercentFood {
 		if treaty.RequestOp() == messages.EQ {
-			a.attemptFood = a.CurrPlatFood() - food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue()/100))
+			a.attemptFood = a.CurrPlatFood() - food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue())/100)
 		}
 		if treaty.RequestOp() == messages.GT && a.CurrPlatFood()-a.attemptFood < food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue()/100)) {
-			a.attemptFood = a.CurrPlatFood() - food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue()/100)) - 1
+			a.attemptFood = a.CurrPlatFood() - food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue())/100) - 1
 		}
 		if treaty.RequestOp() == messages.GE && a.CurrPlatFood()-a.attemptFood <= food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue()/100)) {
-			a.attemptFood = a.CurrPlatFood() - food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue()/100))
+			a.attemptFood = a.CurrPlatFood() - food.FoodType(float64(a.CurrPlatFood())*float64(treaty.RequestValue())/100)
 		}
 	}
 }
