@@ -32,6 +32,8 @@ for i in logs: # Add all agents to the dictionary, holds their age at point of d
                 agents[i['agent_type']] = []
             agents[i['agent_type']].append(i["daysLived"])
         elif i['msg'] == "Agent survives till the end of the simulation":
+            if i['agent_type'] not in agents:
+                agents[i['agent_type']] = []
             agents[i['agent_type']].append(i["agentAge"])
     except:
         continue
@@ -46,24 +48,23 @@ avg_all_other_agents = 0
 
 # number of agents not of Team 4
 number_of_other_agents = 0
-
 for agent in agents:
-    # get avg life expectancy per agent and store
+    # get avg life expectancy per agent type and store
     avg = sum(agents[agent])/len(agents[agent])
     avgs[agent] = avg
 
     # increase global life exp
-    avg_of_all_agents += avg
+    avg_of_all_agents += sum(agents[agent])
 
     if agent != "Team4":
         # count number of agents not Team 4
-        number_of_other_agents += 1
+        number_of_other_agents += len(agents[agent])
 
         # increase global life exp of not team 4 
-        avg_all_other_agents += avg
+        avg_all_other_agents += sum(agents[agent])
 
 
-avg_of_all_agents /= len(avgs)
+avg_of_all_agents /= sum([len(agents[a]) for a in agents])
 
 avg_all_other_agents /= number_of_other_agents
 

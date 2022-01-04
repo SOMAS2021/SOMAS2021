@@ -37,10 +37,10 @@ rm -rf "pkg/agents/team4/trainingAgent/storedagents"
 mkdir "pkg/agents/team4/trainingAgent/storedagents"
 
 numberOfHealthLevels=4
-numberOfBestAgents=25
+numberOfBestAgents=5
 numberOfAgentsPerSim=16
 numberOfIterations=15
-numberOfRuns=3
+numberOfRuns=1
 
 # Generate set of agents with 0 parameters
 python3 pkg/agents/team4/trainingAgent/initaliseConfig.py $agentConfigFile $bestAgentsFile $numberOfHealthLevels $numberOfBestAgents
