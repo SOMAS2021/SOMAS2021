@@ -67,7 +67,7 @@ function Agents(props: ConfigInfoProps) {
             <img
               src={blob.blob}
               style={{ paddingRight: 10, opacity: blob.count === 0 ? 0.5 : 1 }}
-              alt={`Blob image for ${blob.name}`}
+              alt=""
             ></img>
             x{blob.count}
           </H2>
