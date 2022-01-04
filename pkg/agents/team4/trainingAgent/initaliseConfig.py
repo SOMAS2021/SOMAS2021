@@ -4,25 +4,29 @@ import random
 
 agent_config_file_name = sys.argv[1]
 best_agent_file_name = sys.argv[2]
-degree_of_equations = sys.argv[3]
+number_of_health_levels = sys.argv[3]
 number_of_best_agents = sys.argv[4]
 
 agent_config_file = open(agent_config_file_name, 'r+')
 best_agents_file = open(best_agent_file_name, 'r+')
 
-number_of_agents = int(number_of_best_agents) + 1
+number_of_agents = int(number_of_best_agents)
 
 # Initialising all configuration files to 0 values
 best_agents = []
 for _ in range(number_of_agents):
     agent_config = {
-        "Floor": [],
-        "Hp": [],
+        "FoodToEat": [],
+        "DaysToWait": [],
     }
 
-    for k, _ in agent_config.items():
-        agent_config[k] = [round(0.0, 4)
-                           for _ in range(int(degree_of_equations) + 1)]
+    # random.randint(0, 100)
+    agent_config["FoodToEat"] = [0.0
+                                 for _ in range(int(number_of_health_levels))]
+
+    # random.randint(0, 7)
+    agent_config["DaysToWait"] = [0.0
+                                  for _ in range(int(number_of_health_levels))]
 
     best_agents.append(agent_config)
 
