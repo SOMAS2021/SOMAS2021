@@ -69,8 +69,7 @@ export function GetSimConfig(filename: string): Promise<SimConfig> {
   return new Promise<SimConfig>((resolve, reject) => {
     GetFile(filename, "config")
       .then((config) => {
-        console.log(config)
-        resolve(config as SimConfig);
+        resolve(config[0] as SimConfig);
       })
       .catch((err) => reject(err));
   });

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { GetResult } from "../../Helpers/API";
 import { Result } from "../../Helpers/Result";
 import { Average } from "../../Helpers/Utils";
+import ConfigInfo from "./ConfigInfo";
 import ReportCard from "./ReportCard";
 
 interface ResultsProps {
@@ -48,6 +49,8 @@ function ResultDisplay(props: ResultDisplayProps) {
   return (
     <>
       <H3>{result.title}</H3>
+      <Divider></Divider>
+      <ConfigInfo config={result.config} />
       <Divider></Divider>
       <div className="row">
         <div className="col-lg-6">
