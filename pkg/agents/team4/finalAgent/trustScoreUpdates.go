@@ -28,34 +28,36 @@ func (a *CustomAgentEvo) typeAssertRequestMessage(requestMessage messages.Messag
 }
 
 func (a *CustomAgentEvo) updateGlobalTrustReqLeaveFood(msg messages.BoolResponseMessage, sentMsg messages.Message) {
-	a.Log("Team4 reponse message received", infra.Fields{"sentMsg_Type": sentMsg.MessageType(), "senderFloor": msg.SenderFloor()})
+	a.Log("Team4 reponse message received", infra.Fields{"sentMsg_Type": sentMsg.MessageType().String(), "senderFloor": msg.SenderFloor()})
 	reqMsg, err := a.typeAssertRequestMessage(sentMsg)
 	if err != nil {
 		log.Error(err)
+		return
+	}
+	if food.FoodType(reqMsg.Request()) <= a.CurrPlatFood() {
+		a.AddToGlobalTrust(a.params.coefficients[1])
+		a.Log("Team4: For Requested Food to Leave less than or equal to Food on platform", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.CurrPlatFood(), "global_trust": a.params.globalTrust})
+		return
 	} else {
-		if food.FoodType(reqMsg.Request()) <= a.CurrPlatFood() {
-			a.AddToGlobalTrust(a.params.coefficients[1])
-			a.Log("Team4: For Requested Food to Leave less than or equal to Food on platform", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.CurrPlatFood(), "global_trust": a.params.globalTrust})
-		} else if food.FoodType(reqMsg.Request()) > a.CurrPlatFood() {
-			a.AddToGlobalTrust(-a.params.coefficients[1])
-			a.Log("Team4: For Requested Food to Leave greater than Food on platform", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.CurrPlatFood(), "global_trust": a.params.globalTrust})
-		}
+		a.AddToGlobalTrust(-a.params.coefficients[1])
+		a.Log("Team4: For Requested Food to Leave greater than Food on platform", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.CurrPlatFood(), "global_trust": a.params.globalTrust})
 	}
 }
 
-func (a *CustomAgentEvo) updateGlobalTrustforReqTakeFood(msg messages.BoolResponseMessage, sentMsg messages.Message) {
-	a.Log("Team4 reponse message received", infra.Fields{"sentMsg_Type": sentMsg.MessageType(), "senderFloor": msg.SenderFloor()})
+func (a *CustomAgentEvo) updateGlobalTrustReqTakeFood(msg messages.BoolResponseMessage, sentMsg messages.Message) {
+	a.Log("Team4 reponse message received", infra.Fields{"sentMsg_Type": sentMsg.MessageType().String(), "senderFloor": msg.SenderFloor()})
 	reqMsg, err := a.typeAssertRequestMessage(sentMsg)
 	if err != nil {
 		log.Error(err)
+		return
+	}
+	if food.FoodType(reqMsg.Request()) >= a.NeighbourFoodEaten() {
+		a.Log("Team4: For Requested Food to Take greater then or equal neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.NeighbourFoodEaten(), "global_trust": a.params.globalTrust})
+		a.AddToGlobalTrust(a.params.coefficients[1])
+		return
 	} else {
-		if food.FoodType(reqMsg.Request()) >= a.NeighbourFoodEaten() {
-			a.Log("Team4: For Requested Food to Take greater then or equal neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.NeighbourFoodEaten(), "global_trust": a.params.globalTrust})
-			a.AddToGlobalTrust(a.params.coefficients[1])
-		} else if food.FoodType(reqMsg.Request()) < a.NeighbourFoodEaten() {
-			a.Log("Team4: For Requested Food to Take less than neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.NeighbourFoodEaten(), "global_trust": a.params.globalTrust})
-			a.AddToGlobalTrust(-a.params.coefficients[1])
-		}
+		a.Log("Team4: For Requested Food to Take less than neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.NeighbourFoodEaten(), "global_trust": a.params.globalTrust})
+		a.AddToGlobalTrust(-a.params.coefficients[1])
 	}
 }
 
@@ -72,7 +74,7 @@ func (a *CustomAgentEvo) CheckForResponse(msg messages.BoolResponseMessage) {
 							a.updateGlobalTrustReqLeaveFood(msg, sentMsg)
 
 						} else if a.params.lastFoodTaken+a.CurrPlatFood() != a.params.lastPlatFood && sentMsg.MessageType() == messages.RequestTakeFood && a.Floor()-msg.SenderFloor() == -1 {
-							a.updateGlobalTrustforReqTakeFood(msg, sentMsg)
+							a.updateGlobalTrustReqTakeFood(msg, sentMsg)
 						}
 						a.params.sentMessages = remove(a.params.sentMessages, j) // Remove the accessed response/sent messages from memory
 						a.params.responseMessages = remove(a.params.responseMessages, i)
@@ -81,19 +83,18 @@ func (a *CustomAgentEvo) CheckForResponse(msg messages.BoolResponseMessage) {
 				}
 			}
 		}
-	} else {
-		for j := 0; j < len(a.params.sentMessages); j++ {
-			if msg.RequestID() == a.params.sentMessages[j].ID() {
-				sentMsg := a.params.sentMessages[j]
-				a.Log("Team4 received a message", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": sentMsg.ID()})
+		return
+	}
+	for _, sentMsg := range a.params.sentMessages {
+		if msg.RequestID() == sentMsg.ID() {
+			a.Log("Team4 received a message", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": sentMsg.ID()})
 
-				if sentMsg.MessageType() == messages.RequestTakeFood && a.Floor()-msg.SenderFloor() == 1 { //assuming honest
-					a.AddToGlobalTrust(a.params.coefficients[1])
-				} else if sentMsg.MessageType() == messages.RequestLeaveFood && a.Floor()-msg.SenderFloor() == -1 { //assuming honest
-					a.AddToGlobalTrust(a.params.coefficients[1])
-				} else {
-					a.params.responseMessages = append(a.params.responseMessages, &msg)
-				}
+			if sentMsg.MessageType() == messages.RequestTakeFood && a.Floor()-msg.SenderFloor() == 1 { //assuming honest
+				a.AddToGlobalTrust(a.params.coefficients[1])
+			} else if sentMsg.MessageType() == messages.RequestLeaveFood && a.Floor()-msg.SenderFloor() == -1 { //assuming honest
+				a.AddToGlobalTrust(a.params.coefficients[1])
+			} else {
+				a.params.responseMessages = append(a.params.responseMessages, &msg)
 			}
 		}
 	}

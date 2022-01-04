@@ -139,21 +139,20 @@ func (a *CustomAgentEvo) Run() {
 		// 	a.params.traumaScaleFactor = math.Min(200, a.params.traumaScaleFactor+0.03)
 		// }
 	} else if !a.params.locked {
+		a.params.locked = true
 		if a.HP() <= a.HealthInfo().WeakLevel+healthLevelSeparation { //weak
 			a.params.healthStatus = 1
-			a.params.locked = true
+
 			// if dayPass {
 			// 	a.params.traumaScaleFactor = math.Min(200, a.params.traumaScaleFactor+0.02)
 			// }
 		} else if a.HP() <= a.HealthInfo().WeakLevel+2*healthLevelSeparation { //normal
 			a.params.healthStatus = 2
-			a.params.locked = true
 			// if dayPass {
 			// 	a.params.traumaScaleFactor = math.Max(0, a.params.traumaScaleFactor-0.02)
 			// }
 		} else { //strong
 			a.params.healthStatus = 3
-			a.params.locked = true
 			// if dayPass {
 			// 	a.params.traumaScaleFactor = math.Max(0, a.params.traumaScaleFactor-0.03)
 			// }

@@ -15,57 +15,57 @@ func (a *CustomAgentEvo) SendingMessage() {
 		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), floorToSend)
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType().String()})
 	case 1:
 		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), floorToSend)
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType().String()})
 	case 2:
 		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), floorToSend)
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType().String()})
 	case 3:
 		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, 10) //need to change how much to request to leave
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType().String()})
 	case 4:
 		msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, 20) //need to change how much to request to take
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType().String()})
 	case 5:
 		floorToSend = a.Floor() - 1
 		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), floorToSend)
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType().String()})
 	case 6:
 		floorToSend = a.Floor() - 1
 		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), floorToSend)
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType().String()})
 	case 7:
 		floorToSend = a.Floor() - 1
 		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), floorToSend)
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType().String()})
 	case 8:
 		floorToSend = a.Floor() - 1
 		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, 10) //need to change how much to request to leave
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType().String()})
 	case 9:
 		floorToSend = a.Floor() - 1
 		msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, 20) //need to change how much to request to take
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType().String()})
 	default:
 	}
 
@@ -106,10 +106,7 @@ func (a *CustomAgentEvo) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMes
 
 func (a *CustomAgentEvo) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
 	amount := msg.Request()
-	response := true
-	if food.FoodType(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) > food.FoodType(amount) {
-		response = false
-	}
+	response := a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus] <= amount
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), response) // TODO: Change for later dependent on circumstance
 	a.SendMessage(reply)
 	a.Log("Team4 agent received a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
