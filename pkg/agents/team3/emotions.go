@@ -106,7 +106,6 @@ func (a *CustomAgent3) resshufleEstimator() {
 
 // Function is called when the floor changes, changes the mood when we change floors
 func changeNewFloor(a *CustomAgent3) {
-
 	//Calculate mood based on what floors we have been in
 	if len(a.knowledge.floors) != 0 {
 		lastFloor := a.knowledge.floors[len(a.knowledge.floors)-1]
