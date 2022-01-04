@@ -5,7 +5,8 @@ import { Result } from "../../Helpers/Result";
 import { Average } from "../../Helpers/Utils";
 import ConfigInfo from "./ConfigInfo";
 import ReportCard from "./ReportCard";
-
+import LineChart from "./Graphs/LineChart";
+import BarChart from "./Graphs/BarChart";
 interface ResultsProps {
   logName: string;
 }
@@ -63,6 +64,14 @@ function ResultDisplay(props: ResultDisplayProps) {
               .toFixed(3)
               .toString()}
           />
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-lg-6">
+          <BarChart yAxis={result.deaths.map((d)=> d.cumulativeDeaths)} xAxis={result.deaths.map((d) => d.agentType)} graphTitle="Cumulative Deaths per Agent type" />
+        </div>
+        <div className="col-lg-6">
+        <LineChart yAxis={result.food.map((f)=> f.food)} xAxis={result.food.map((f) => f.tick)} graphTitle="Total Food on Platform per Tick"/>
         </div>
       </div>
     </>
