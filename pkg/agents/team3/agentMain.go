@@ -32,6 +32,8 @@ type team3Knowledge struct {
 	foodMovingAvg food.FoodType
 	//Stores how old (in days) the agent is
 	agentAge int
+	//Stores whether we already have a treaty with the person above
+	aboveFoodTreaty bool
 }
 
 type team3Decisions struct {
@@ -58,13 +60,14 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			mood:         rand.Intn(100),
 		},
 		knowledge: team3Knowledge{
-			floors:        []int{},
-			lastHP:        100,
-			friends:       make(map[uuid.UUID]float64),
-			foodLastEaten: food.FoodType(0),
-			foodLastSeen:  food.FoodType(-1),
-			foodMovingAvg: 0, //a.foodReqCalc(50, 50)
-			agentAge:      0,
+			floors:          []int{},
+			lastHP:          100,
+			friends:         make(map[uuid.UUID]float64),
+			foodLastEaten:   food.FoodType(0),
+			foodLastSeen:    food.FoodType(-1),
+			foodMovingAvg:   0, //a.foodReqCalc(50, 50)
+			agentAge:        0,
+			aboveFoodTreaty: false,
 		},
 		decisions: team3Decisions{
 			foodToEat:   -1,

@@ -14,13 +14,39 @@ import (
 //Include if ack message same user ID occurs x+1 times, morale increase
 //If stubborness = y+1, discard, a.k.a. leave unread
 
+//case 0, we are going to check our hunger and propose a treaty or, if we already have one, ask about the people bellow's health (cause why not)
+func (a *CustomAgent3) sendMsgHPRelated() {
+	if a.knowledge.foodLastSeen < 10 && a.HP() < a.HealthInfo().HPReqCToW { //do this properly with Eds help
+		if a.knowledge.aboveFoodTreaty {
+			msg := messages.NewAskHPMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
+			a.SendMessage(msg)
+			a.Log("I sent a message", infra.Fields{"message": "AskHP"})
+		} else {
+			tr := messages.NewTreaty(messages.HP, 20, messages.LeaveAmountFood, 20, messages.GT, messages.GT, 20, a.ID()) //generalise later
+			msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, *tr)
+			a.SendMessage(msg)
+			a.Log("I sent a treaty")
+		}
+
+	} else {
+		msg := messages.NewAskHPMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1)
+		a.SendMessage(msg)
+		a.Log("I sent a message", infra.Fields{"message": "AskHP"})
+	}
+}
+
+func (a *CustomAgent3) sendMsgFoodTaken() {
+	msg := messages.NewAskHPMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
+	a.SendMessage(msg)
+	a.Log("I sent a message", infra.Fields{"message": "AskHP"})
+}
+
 func (a *CustomAgent3) ticklyMessage() {
+
 	r := rand.Intn(5)
 	switch r {
 	case 0:
-		msg := messages.NewAskFoodTakenMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
-		a.SendMessage(msg)
-		a.Log("I sent a message", infra.Fields{"message": "AskFoodTaken"})
+		a.sendMsgHPRelated()
 	case 1:
 		msg := messages.NewAskHPMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
 		a.SendMessage(msg)
@@ -33,8 +59,8 @@ func (a *CustomAgent3) ticklyMessage() {
 		msg := messages.NewRequestLeaveFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, a.requestLeaveFoodAmt())
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
-	default:
-		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, a.requestTakeFoodAmt()) //make func to determine value
+	case 4:
+		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, 10) //make func to determine value
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
 	}
