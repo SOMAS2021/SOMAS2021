@@ -77,7 +77,7 @@ func (a *CustomAgent3) handleTreaties() {
 				a.decisions.foodToLeave = tr.RequestValue() //would sb request for us to leave less than certain food?
 			case (messages.LeavePercentFood):
 				if a.BaseAgent().CurrPlatFood() != -1 {
-					a.decisions.foodToLeave = (tr.RequestValue() / 100) * int(a.BaseAgent().CurrPlatFood())
+					a.decisions.foodToLeave = int((float64(tr.RequestValue()) / 100.0) * float64(a.BaseAgent().CurrPlatFood()))
 				}
 			case (messages.Inform):
 				if tr.Condition() == messages.HP {
