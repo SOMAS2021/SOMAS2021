@@ -26,19 +26,19 @@ func calcReward(hp int, hpInc int, MaxHp int, WeakLevel int, HPCritical int, Day
 	*/
 	// Reward Cal base on HP + DaysAtCritical
 
-	if hp > 86 { // over 2 tau
+	if hp > 86 { // over 2 tau: less reward for agent have more than enough food
 		ret += 1.0 * (math.Exp(-float64(hp-86) / 100))
-	} else if hp > WeakLevel {
+	} else if hp > WeakLevel { // more reward for agent in normal state
 		ret += 1.0 * (((1.0-0.3)/(100.0-float64(WeakLevel)))*float64(hp) - (1.0-0.3)*float64(WeakLevel)/(100.0-float64(WeakLevel)))
-	} else if hp > HPCritical {
+	} else if hp > HPCritical { // small reward for agent in weak state
 		ret += 1.0 * (((0.3-0.0)/(float64(WeakLevel)-float64(HPCritical)))*float64(hp) - (0.3-0.0)*float64(HPCritical)/(float64(WeakLevel)-float64(HPCritical)))
-	} else {
+	} else { // penaty for agent at crital HP
 		ret += 0.5 * ((1.0/float64(HPCritical))*float64(hp) - 1)
 	}
-	if DaysAtCritical > 0 {
-		ret += 0.5 * ((1.0/float64(MaxDayCritical))*float64(DaysAtCritical) - 1)
+	if DaysAtCritical > 0 { // penaty for days at critical
+		ret += 0.5 * ((-1.0 / float64(MaxDayCritical)) * float64(DaysAtCritical))
 	}
-	if hp <= 0 {
+	if hp <= 0 { // penaty for death
 		ret -= 5
 	}
 
