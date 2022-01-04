@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"math/rand"
 	"os"
 
@@ -31,6 +32,7 @@ type CustomAgentEvoParams struct {
 	globalTrustLimit float32            // limit to check whether to be selfish or not
 	lastAge          int                // the age of the agent on the previous day
 	healthStatus     int
+	maxFloor         int
 }
 
 type CustomAgentEvo struct {
@@ -75,6 +77,7 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 		messageCounter:    0,
 		globalTrustLimit:  75,
 		lastAge:           0,
+		maxFloor:          0,
 	}
 }
 
@@ -112,6 +115,9 @@ func (a *CustomAgentEvo) HasDayPassed() bool {
 }
 
 func (a *CustomAgentEvo) Run() {
+
+	// update agent's perception of maxFloor
+	a.params.maxFloor = int(math.Max(float64(a.params.maxFloor), float64(a.Floor()))) // math.Max only take in floats while we require an integer floor.
 
 	if food.FoodType(a.CurrPlatFood()) != a.params.lastPlatFood && a.PlatformOnFloor() {
 		a.params.lastPlatFood = a.CurrPlatFood()
@@ -172,7 +178,8 @@ func (a *CustomAgentEvo) Run() {
 
 	if (a.Age()-a.params.ageLastEaten) >= a.params.daysToWait[a.params.healthStatus] || a.params.healthStatus == 0 {
 		a.params.locked = false
-		calculatedAmountToEat = a.params.traumaScaleFactor * float64(a.params.foodToEat[a.params.healthStatus])
+		calculatedAmountToEat = a.params.traumaScaleFactor * float64(a.params.foodToEat[a.params.healthStatus]) * float64(a.Floor()/a.params.maxFloor)
+
 		foodEaten, err = a.TakeFood(food.FoodType(calculatedAmountToEat))
 		a.params.ageLastEaten = a.Age()
 		// if a.PlatformOnFloor() {

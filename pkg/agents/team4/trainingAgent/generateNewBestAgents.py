@@ -2,6 +2,7 @@ from datetime import datetime
 import sys
 import random
 import json
+import math
 import numpy as np
 
 # input files
@@ -15,7 +16,7 @@ agent_other_life_expectancies_file_name = sys.argv[5]
 number_of_health_levels = int(sys.argv[6])
 selfish_flag = sys.argv[7]
 selfless_flag = sys.argv[8]
-
+current_iteration = int(sys.argv[9])
 # read bestAgent.config
 best_agents_file = open(best_agents_file_name)
 best_agents_list = json.load(best_agents_file)
@@ -98,7 +99,7 @@ old_agents_file.close()
 
 attribute = ["FoodToEat", "DaysToWait"]
 noise_multiplier_for_attribute = {
-    "FoodToEat": 10,
+    "FoodToEat": 22/math.sqrt(current_iteration), # Value will tend to 10
     "DaysToWait": 2
 }
 
@@ -147,37 +148,37 @@ for i in attribute:
 #         elif(agent_1_big_mutation[i][j] < -1):
 #             agent_1_big_mutation[i][j] = -1
 
-agent_mix_1 = {}
-for i in attribute:
-    values = []
-    for j in range(number_of_health_levels):
-        temp_val = 0
-        rand = random.random()
-        if (rand < 0.66):
-            temp_val = agent_1[i][j]
-        elif (rand < 0.90):
-            temp_val = agent_2[i][j]
-        else:
-            temp_val = agent_3[i][j]
-        values.append(temp_val)
+# agent_mix_1 = {}
+# for i in attribute:
+#     values = []
+#     for j in range(number_of_health_levels):
+#         temp_val = 0
+#         rand = random.random()
+#         if (rand < 0.66):
+#             temp_val = agent_1[i][j]
+#         elif (rand < 0.90):
+#             temp_val = agent_2[i][j]
+#         else:
+#             temp_val = agent_3[i][j]
+#         values.append(temp_val)
 
-    agent_mix_1[i] = values
+#     agent_mix_1[i] = values
 
-agent_mix_2 = {}
-for i in attribute:
-    values = []
-    for j in range(number_of_health_levels):
-        temp_val = 0.0
-        rand = random.random()
-        if (rand < 0.66):
-            temp_val = agent_1[i][j]
-        elif (rand < 0.90):
-            temp_val = agent_2[i][j]
-        else:
-            temp_val = agent_3[i][j]
-        values.append(temp_val)
+# agent_mix_2 = {}
+# for i in attribute:
+#     values = []
+#     for j in range(number_of_health_levels):
+#         temp_val = 0.0
+#         rand = random.random()
+#         if (rand < 0.66):
+#             temp_val = agent_1[i][j]
+#         elif (rand < 0.90):
+#             temp_val = agent_2[i][j]
+#         else:
+#             temp_val = agent_3[i][j]
+#         values.append(temp_val)
 
-    agent_mix_2[i] = values
+#     agent_mix_2[i] = values
 
 # agent_mix_3 = {}
 # for i in attribute:
@@ -195,20 +196,20 @@ for i in attribute:
 
 #     agent_mix_3[i] = values
 
-random_mutation_agent = {
-    "FoodToEat": [],
-    "DaysToWait": [],
-}
+# random_mutation_agent = {
+#     "FoodToEat": [],
+#     "DaysToWait": [],
+# }
 
-random_mutation_agent["FoodToEat"] = [random.randint(0, 100)
-                                      for _ in range(int(number_of_health_levels))]
+# random_mutation_agent["FoodToEat"] = [random.randint(0, 100)
+#                                       for _ in range(int(number_of_health_levels))]
 
-random_mutation_agent["DaysToWait"] = [random.randint(0, 7)
-                                       for _ in range(int(number_of_health_levels))]
+# random_mutation_agent["DaysToWait"] = [random.randint(0, 7)
+#                                        for _ in range(int(number_of_health_levels))]
 
 
-new_best_agents = [agent_1, agent_1_slight_mutations_1, agent_mix_1,
-                   agent_mix_2, random_mutation_agent]
+# new_best_agents = [agent_1, agent_1_slight_mutations_1, agent_mix_1,
+#                    agent_mix_2, random_mutation_agent]
 
 for best_agent in new_best_agents:
     best_agent["FoodToEat"][0] = -1
@@ -232,3 +233,73 @@ for best_agent in new_best_agents:
 best_agents_file = open(best_agents_file_name, 'w')
 best_agents_file.write(json.dumps(new_best_agents, indent=4))
 best_agents_file.close()
+
+def generate_mutated_agent(agent):
+    attribute = ["FoodToEat", "DaysToWait"]
+    noise_multiplier_for_attribute = {
+        "FoodToEat": 22/math.sqrt(current_iteration), # Value will tend to 10
+        "DaysToWait": 2
+    }
+
+    mu, sigma = 0, 1  # mean and standard deviation
+
+    for i in attribute:
+        for j in range(number_of_health_levels):
+            rand = int(np.random.normal(mu, noise_multiplier_for_attribute[i]*sigma))
+            agent[i][j] += rand
+            
+            if (attribute == "FoodToEat" and agent[i][j] > 100):
+                agent[i][j] = 100
+            if (agent[i][j] < 0):
+                agent[i][j] = 0
+                
+    return agent
+
+
+
+
+def generate_mixed_agent(agent_list, number_of_agents_to_use): # We define a mixed agent from parameters of the previous best agents
+
+    picked_best_agents = agent_list[:number_of_agents_to_use]
+
+    bands = []
+    for i in range(number_of_agents_to_use):
+        bands.append(((1/number_of_agents_to_use) * (1/(i+1))))
+        
+    sumOf = sum(bands)
+    for i in range(len(bands)):
+        bands[i] *= (1/sumOf)
+
+    for i in range(1,len(bands)):
+        bands[i] += bands[i-1]
+
+    agent_mix = {}
+    for i in attribute:
+        values = []
+        for j in range(number_of_health_levels):
+            temp_val = 0.0
+            rand = random.random()
+
+            for k in range(number_of_agents_to_use):
+                if rand < pow(2,number_of_agents_to_use-(k+1))/pow(2,number_of_agents_to_use):
+                    temp_val = picked_best_agents[k][i][j]
+                    break
+            values.append(temp_val)
+
+        agent_mix[i] = values
+    return agent_mix
+
+
+def generate_random_agent(): # We define an entirely new random agent
+    random_mutation_agent = {
+    "FoodToEat": [],
+    "DaysToWait": [],
+    }
+
+    random_mutation_agent["FoodToEat"] = [random.randint(0, 100)
+                                        for _ in range(int(number_of_health_levels))]
+
+    random_mutation_agent["DaysToWait"] = [random.randint(0, 7)
+                                        for _ in range(int(number_of_health_levels))]
+                                        
+    return random_mutation_agent

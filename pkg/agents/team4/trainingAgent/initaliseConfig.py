@@ -14,18 +14,18 @@ number_of_agents = int(number_of_best_agents)
 
 # Initialising all configuration files to 0 values
 best_agents = []
-for _ in range(number_of_agents):
+for i in range(number_of_agents):
     agent_config = {
         "FoodToEat": [],
         "DaysToWait": [],
     }
 
     # random.randint(0, 100)
-    agent_config["FoodToEat"] = [0.0
+    agent_config["FoodToEat"] = [(i % 5) * 20
                                  for _ in range(int(number_of_health_levels))]
 
     # random.randint(0, 7)
-    agent_config["DaysToWait"] = [0.0
+    agent_config["DaysToWait"] = [random.randint(0, 7)
                                   for _ in range(int(number_of_health_levels))]
 
     best_agents.append(agent_config)

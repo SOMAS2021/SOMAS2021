@@ -37,9 +37,9 @@ rm -rf "pkg/agents/team4/trainingAgent/storedagents"
 mkdir "pkg/agents/team4/trainingAgent/storedagents"
 
 numberOfHealthLevels=4
-numberOfBestAgents=5
-numberOfAgentsPerSim=5
-numberOfIterations=5
+numberOfBestAgents=25
+numberOfAgentsPerSim=16
+numberOfIterations=15
 numberOfRuns=3
 
 # Generate set of agents with 0 parameters
@@ -51,7 +51,7 @@ do
     echo ""
     arrLifeExp=()
     arrOurLifeExp=()
-    arrOtherLifeExp=( )
+    arrOtherLifeExp=()
     arrDeathRate=()
     for j in $( eval echo {1..$numberOfBestAgents} )
     do
@@ -114,7 +114,7 @@ do
     echo "[${joinedOtherLifeExp%,}]" > $agentOtherLifeExpectanciesFile
 
     # generate new set of best agents generated from previous perfomance 
-    python3 pkg/agents/team4/trainingAgent/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectanciesFile $agentDeathRateFile $agentOurLifeExpectanciesFile $agentOtherLifeExpectanciesFile $numberOfHealthLevels $selfish $selfless 
+    python3 pkg/agents/team4/trainingAgent/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectanciesFile $agentDeathRateFile $agentOurLifeExpectanciesFile $agentOtherLifeExpectanciesFile $numberOfHealthLevels $selfish $selfless $i
     echo "------------------------------------------"
 done
 
