@@ -30,6 +30,10 @@ Neuroticism high-> dramatic mood swings, struggles to recover after weak state
 			low-> stable, relaxed and resilient
 */
 
+type floorInfo struct {
+	numOfDays, avgFood int
+}
+
 type team7Personalities struct {
 	openness          int
 	conscientiousness int
@@ -38,8 +42,17 @@ type team7Personalities struct {
 	neuroticism       int
 }
 
-type floorInfo struct {
-	numOfDays, avgFood int
+type CurrentBehaviour struct { //determines directly the food taken
+	greediness     int
+	kindness       int // likehood to read and send messages // affacted by openess and extraversion
+	responsiveness int // affected by days on floor, days hungry // changes less frequently than sanity
+	sanity         int
+
+	// morality   int
+	// affected by days on floor, previous floor, days hungry and frequency of communictaion(extraversion),
+	// neuroticism
+	// more sensitive to other factors
+	// lower sanity -> less logical behaviour -> (ex: no food taken when starving ?)
 }
 
 type OperationalMemory struct {
@@ -50,25 +63,9 @@ type OperationalMemory struct {
 	avgFood           int
 	daysHungry        int
 	seenPlatform      bool
-	foodEaten         food.FoodType
 	prevHP            int
 	leaveFood         int
-}
-
-type CurrentBehaviour struct { //determines directly the food taken
-	greediness int
-	kindness   int
-	// likehood to read and send messages
-	// affacted by openess and extraversion
-	activeness int
-	// affected by days on floor, days hungry
-	// changes less frequently than sanity
-	morality int
-	// affected by days on floor, previous floor, days hungry and frequency of communictaion(extraversion),
-	// neuroticism
-	// more sensitive to other factors
-	// lower sanity -> less logical behaviour -> (ex: no food taken when starving ?)
-	sanity int
+	foodEaten         food.FoodType
 }
 
 type CustomAgent7 struct {
@@ -98,8 +95,10 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			neuroticism:       neuroticism,
 		},
 		behaviour: CurrentBehaviour{
-			greediness: 100 - agreeableness,
-			kindness:   agreeableness,
+			greediness:     100 - agreeableness,
+			kindness:       agreeableness,
+			sanity:         100 - neuroticism,
+			responsiveness: (agreeableness + openness + extraversion) / 3,
 		},
 		opMem: OperationalMemory{
 			orderPrevFloors:   []int{},
@@ -124,7 +123,13 @@ func (a *CustomAgent7) Run() {
 	// Operational Variables
 	// UserID := a.ID()
 	// currentHP := a.HP()
-	// healthInfo := a.HealthInfo()
+
+	//****experimental
+	//TargetHP initialise by 70 +/- random scaling * +/- Neuroticism
+	//TargetHP := 70 //+/- Neurpticism Scaled
+	healthInfo := a.HealthInfo()
+	//****
+
 	currentAvailFood := a.CurrPlatFood()
 	currentFloor := a.Floor()
 	// prevFloor := a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1]
@@ -134,7 +139,6 @@ func (a *CustomAgent7) Run() {
 		a.opMem.currentDayonFloor = 1          //reset currentDay counter
 		if len(a.opMem.orderPrevFloors) != 0 { //if the floor tracker is not empty
 
-			//Zaids Stuff
 			closestFloorAboveCurrent := 0
 			closestFloorBelowCurrent := math.Inf(1)
 			beenOnCurrentFloorBefore := false
@@ -153,29 +157,39 @@ func (a *CustomAgent7) Run() {
 				}
 				for i := 0; i < len(a.opMem.orderPrevFloors); i++ {
 					if a.opMem.orderPrevFloors[i] > currentFloor && a.opMem.orderPrevFloors[i] < int(closestFloorBelowCurrent) {
-						closestFloorAboveCurrent = a.opMem.orderPrevFloors[i]
+						closestFloorBelowCurrent = float64(a.opMem.orderPrevFloors[i])
 					}
 				}
 			}
 
-			// expectedFood := healthInfo.maxPlatFood / 2 // The middle of the possible total
+			var expectedFood int
 
-			// if beenOnCurrentFloorBefore == true {
-			// 	expectedFood = a.opMem.prevFloors[currentFloor].avgFood
-			// } else {
+			if beenOnCurrentFloorBefore {
+				expectedFood = a.opMem.prevFloors[currentFloor].avgFood
+			} else {
 
-			// 	if closestFloorAboveCurrent != 0 && closestFloorBelowCurrent != math.Inf(1) {
-			// 		expectedFood = a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood + (a.opMem.prevFloors[closestFloorAboveCurrent].avgFood-a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood)*(int(closestFloorBelowCurrent)-currentFloor)/(int(closestFloorBelowCurrent)-int(closestFloorAboveCurrent))
-			// 	}
-			// 	if closestFloorAboveCurrent == 0 && closestFloorBelowCurrent != math.Inf(1) {
-			// 		expectedFood = a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood + (healthInfo.maxPlatFood-a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood)*(int(closestFloorBelowCurrent)-currentFloor)/(int(closestFloorBelowCurrent)-int(closestFloorAboveCurrent))
-			// 	}
-			// 	if closestFloorAboveCurrent != 0 && closestFloorBelowCurrent == math.Inf(1) {
-			// 		expectedFood = healthInfo.maxPlatFood - (healthInfo.maxPlatFood-a.opMem.prevFloors[closestFloorAboveCurrent].avgFood)*(currentFloor/closestFloorAboveCurrent)
-			// 	}
+				if closestFloorAboveCurrent != 0 && closestFloorBelowCurrent != math.Inf(1) {
+					expectedFood = a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood + (a.opMem.prevFloors[closestFloorAboveCurrent].avgFood-a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood)*(int(closestFloorBelowCurrent)-currentFloor)/(int(closestFloorBelowCurrent)-int(closestFloorAboveCurrent))
+				}
+				if closestFloorAboveCurrent == 0 && closestFloorBelowCurrent != math.Inf(1) {
+					if a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood == 0 {
+						expectedFood = 0
+					} else {
+						estimatedMealSize := healthInfo.HPReqCToW + (a.personality.openness / 5)
+						expectedFood = a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood + (int(closestFloorBelowCurrent)-currentFloor)*estimatedMealSize
+					}
+				}
+				if closestFloorAboveCurrent != 0 && closestFloorBelowCurrent == math.Inf(1) {
+					estimatedMealSize := healthInfo.HPReqCToW + ((100 - a.personality.openness) / 5)
+					expectedFood = a.opMem.prevFloors[closestFloorAboveCurrent].avgFood - (currentFloor-closestFloorAboveCurrent)*estimatedMealSize
+				}
+				if expectedFood < 0 {
+					expectedFood = 0
+				}
 
-			// }
-			//End of Zaids Stuff
+			}
+
+			//How the above impacts stuff
 
 			//Update Behaviour
 			if currentFloor < a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1] {
@@ -187,7 +201,10 @@ func (a *CustomAgent7) Run() {
 			} else {
 				//if we have moved up our kindness increases
 				a.behaviour.kindness += (a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1] - currentFloor)
-
+			}
+			//greediness is effected by the amount of food expected on this floor as estimated from past experience
+			if expectedFood < healthInfo.HPReqCToW { //greediness only begins to be effected once the expected food is below a crticial threshold
+				a.behaviour.greediness += (healthInfo.HPReqCToW - expectedFood)
 			}
 
 		}
@@ -220,13 +237,15 @@ func (a *CustomAgent7) Run() {
 	// Eat
 
 	//
-	if a.CurrPlatFood() != -1 {
+	if a.CurrPlatFood() != -1 && a.PlatformOnFloor() {
 
 		r1 := rand.Intn(11) - 5
 		r2 := rand.Intn(11) - 5
+		r3 := rand.Intn(11) - 5
 
 		a.behaviour.kindness += (a.personality.neuroticism * r1) / 50
 		a.behaviour.greediness += (a.personality.neuroticism * r2) / 50
+		a.behaviour.sanity += (a.personality.neuroticism * r3) / 50 //also factor in total_messages*a.personality.extraversion !!!
 
 		if a.behaviour.kindness < 0 {
 			a.behaviour.kindness = 0
@@ -240,7 +259,39 @@ func (a *CustomAgent7) Run() {
 			a.behaviour.greediness = 100
 		}
 
-		foodtotake := food.FoodType(100 - a.behaviour.kindness + a.behaviour.greediness)
+		// ///******///
+		// currentHealth := a.HP()
+
+		// // Possible food to take: Food available on platform/Food required to go from ciritcal to weak, critical to healthy
+
+		// FoodToWeakHP := healthInfo.HPReqCToW
+		// currentAvailFood := a.CurrPlatFood()
+
+		// // Influences on Food taking: greediness, kindness, memory map HOW???, Sanity [depends on messaging, extraversion???, neuroticism], activeness, morality,
+		// // so if your extraverted: less interaction leads to lowered sanity/More interaction better sanity
+		// // higher neuroticism -> fall faster into insanity, initialise sanity based on neuroticism, sanity = 100-neuroticism/ sanity bsaed on
+		// //
+
+		// if a.opMem.treaty {
+		// 	object = treay
+		// }
+
+		// switch object {
+		// case treaty
+		// }
+
+		// if treaty {
+		// 	foodtotake := 100 - foodtoleave + behavioural_adjustments
+		// } else if request {
+		// 	foodtotake := 100 - requested_leave_food
+		// } else {
+		// 	foodtotake := (foodreqCriticaltoWeak + weaktoHealthy) + behavioural_adjustments
+		// }
+
+		foodtotake := food.FoodType((100) - a.behaviour.kindness + a.behaviour.greediness)
+
+		// TREATIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// ///********///
 
 		// has the agent seen the platform
 		if a.CurrPlatFood() != -1 && a.PlatformOnFloor() {
@@ -275,16 +326,13 @@ func (a *CustomAgent7) Run() {
 
 }
 
-// func (a *CustomAgent7) ID() string {
-// 	return a.Base.ID()
-// }
-
 // Message Handlers
 
 // Handle Asks and auto respond
 func (a *CustomAgent7) HandleAskHP(msg messages.AskHPMessage) {
 	a.Log("Recieved askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
-	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.HP())
+	// reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
 	// a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.SendMessage(reply)
 }
