@@ -1,4 +1,4 @@
-import { Card, Elevation, H1, H6, Intent } from "@blueprintjs/core";
+import { Card, Elevation, H1, H6, Intent, Colors } from "@blueprintjs/core";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -21,7 +21,6 @@ interface LineChartProps {
 
 export default function LineChart(props: LineChartProps) {
   const { xAxis, yAxis, graphTitle } = props;
-  console.log(xAxis);
   return (
     <Line
       data={{
@@ -30,7 +29,7 @@ export default function LineChart(props: LineChartProps) {
           {
             label: graphTitle,
             data: yAxis,
-            backgroundColor: Intent.PRIMARY,
+            backgroundColor: Colors.BLUE1,
           },
         ],
       }}

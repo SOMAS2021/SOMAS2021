@@ -1,4 +1,4 @@
-import { Card, Elevation, Intent } from "@blueprintjs/core";
+import { Card, Elevation, Intent, Colors } from "@blueprintjs/core";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -32,7 +32,7 @@ export default function BarChart(props: BarChartProps) {
             label: graphTitle,
             data: yAxis,
 
-            backgroundColor: Intent.PRIMARY,
+            backgroundColor: Colors.BLUE1,
           },
         ],
       }}
