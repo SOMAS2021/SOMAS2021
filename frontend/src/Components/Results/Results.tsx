@@ -34,7 +34,7 @@ export default function Results(props: ResultsProps) {
         (logName !== "" && result ? (
           <ResultDisplay result={result} />
         ) : (
-          <H6 style={{paddingTop: 20}}>
+          <H6 style={{ paddingTop: 20 }}>
             <i>Select an existing simulation result to view results</i>
           </H6>
         ))}

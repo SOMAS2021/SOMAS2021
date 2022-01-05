@@ -34,7 +34,6 @@ export default function Sidebar(props: SideBarProps) {
         borderRightWidth: 10,
         borderStyle: "solid",
       }}
-
       className="hide-scrollbar"
     >
       {!loading && (

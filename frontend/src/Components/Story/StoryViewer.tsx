@@ -1,4 +1,4 @@
-import { Button, Collapse, Divider, H4, Intent, Pre } from "@blueprintjs/core";
+import { Button, Collapse, Divider, Intent, Pre } from "@blueprintjs/core";
 import { useState } from "react";
 import {
   StoryDeathLog,

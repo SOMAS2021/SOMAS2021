@@ -1,5 +1,4 @@
-import { H4, Button, Divider } from "@blueprintjs/core";
-import { StoryFoodLog, StoryMessageLog, StoryDeathLog, StoryPlatformLog } from "../../Helpers/Logging/StoryLog";
+import { H4, Button } from "@blueprintjs/core";
 
 interface TickerProps {
   tick: number;
