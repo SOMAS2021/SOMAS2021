@@ -1,4 +1,4 @@
-import { Button } from "@blueprintjs/core";
+import { Button, Collapse, Divider, H4, Intent, Pre } from "@blueprintjs/core";
 import { useState } from "react";
 import {
   StoryDeathLog,
@@ -14,12 +14,63 @@ interface StoryViewerProps {
 
 export default function StoryViewer(props: StoryViewerProps) {
   const { story } = props;
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div style={{ margin: "10px 0px" }}>
+      <Button
+        intent={isOpen ? Intent.PRIMARY : Intent.WARNING}
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ width: 200 }}
+      >
+        {isOpen ? "Hide" : "Show"} Story
+      </Button>
+      <Collapse isOpen={isOpen} keepChildrenMounted={true}>
+        <Pre>
+          <StoryController story={story} />
+        </Pre>
+      </Collapse>
+    </div>
+  );
+}
+
+interface StoryControllerProps {
+  story: StoryLog[];
+}
+
+function StoryController(props: StoryControllerProps) {
+  const { story } = props;
   const [tick, setTick] = useState(1);
+  const maxTick = Math.max(...story.map((e) => e.tick));
   return (
     <div>
-      <Button icon="arrow-left" onClick={() => setTick(tick - 1)}/>
-      <Button icon="arrow-right" onClick={() => setTick(tick + 1)}/>
-      Tick {tick}
+      <div className="row">
+        <div className="col-lg-6">
+          <H4>
+            Tick {tick} / {maxTick}
+          </H4>
+        </div>
+        <div className="col-lg-6" style={{ textAlign: "right" }}>
+          <Button icon="arrow-left" onClick={() => setTick(Math.max(1, tick - 100))} disabled={tick <= 1} />
+          <Button icon="double-chevron-left" onClick={() => setTick(Math.max(1, tick - 10))} disabled={tick <= 1} />
+          <Button icon="chevron-left" onClick={() => setTick(Math.max(1, tick - 1))} disabled={tick <= 1} />
+          <Button
+            icon="chevron-right"
+            onClick={() => setTick(Math.min(maxTick, tick + 1))}
+            disabled={tick >= maxTick}
+          />
+          <Button
+            icon="double-chevron-right"
+            onClick={() => setTick(Math.min(maxTick, tick + 10))}
+            disabled={tick >= maxTick}
+          />
+          <Button
+            icon="arrow-right"
+            onClick={() => setTick(Math.min(maxTick, tick + 100))}
+            disabled={tick >= maxTick}
+          />
+        </div>
+      </div>
+      <Divider />
       <div>
         {story.map((log, index) => {
           if (log.tick === tick) {

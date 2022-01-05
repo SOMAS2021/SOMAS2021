@@ -21,7 +21,11 @@ export default function ConfigInfo(props: ConfigInfoProps) {
 
   return (
     <div style={{ margin: "10px 0px" }}>
-      <Button intent={isOpen ? Intent.PRIMARY : Intent.WARNING} onClick={() => setIsOpen(!isOpen)}>
+      <Button
+        intent={isOpen ? Intent.PRIMARY : Intent.WARNING}
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ width: 200 }}
+      >
         {isOpen ? "Hide" : "Show"} config
       </Button>
       <Collapse isOpen={isOpen}>

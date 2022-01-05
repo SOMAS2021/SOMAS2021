@@ -28,7 +28,7 @@ export default function Results(props: ResultsProps) {
   }, [logName]);
 
   return (
-    <div style={{ padding: 20 }}>
+    <div>
       {loading && <Spinner intent="primary" />}
       {!loading &&
         (logName !== "" && result ? (
@@ -48,25 +48,27 @@ interface ResultDisplayProps {
 function ResultDisplay(props: ResultDisplayProps) {
   const { result } = props;
   return (
-    <>
+    <div style={{ overflowY: "scroll", overflowX: "hidden", height: "95vh", textAlign: "left", padding: "10px" }}>
       <H3>{result.title}</H3>
-      <Divider></Divider>
-      <ConfigInfo config={result.config} />
-      <Divider></Divider>
-      <StoryViewer story={result.story}/>
-      <div className="row">
-        <div className="col-lg-6">
-          <ReportCard description="Total deaths" title={result.deaths.length.toString()} />
-        </div>
-        <div className="col-lg-6">
-          <ReportCard
-            description="Average food on platform per tick"
-            title={Average(result.food.map((f) => f.food))
-              .toFixed(3)
-              .toString()}
-          />
+      <div>
+        <Divider></Divider>
+        <ConfigInfo config={result.config} />
+        <Divider></Divider>
+        <StoryViewer story={result.story} />
+        <div className="row">
+          <div className="col-lg-6">
+            <ReportCard description="Total deaths" title={result.deaths.length.toString()} />
+          </div>
+          <div className="col-lg-6">
+            <ReportCard
+              description="Average food on platform per tick"
+              title={Average(result.food.map((f) => f.food))
+                .toFixed(3)
+                .toString()}
+            />
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
