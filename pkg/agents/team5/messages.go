@@ -13,6 +13,31 @@ func (a *CustomAgent5) getMessages() {
 	}
 }
 
+func (a *CustomAgent5) treatyProposal() {
+	sendToFloor := a.Floor()
+	switch a.treatySendCounter {
+	case 1:
+		sendToFloor = a.Floor() + 1
+	case 2:
+		sendToFloor = a.Floor() - 1
+	case 3:
+		sendToFloor = a.Floor() + 2
+	case 4:
+		sendToFloor = a.Floor() - 2
+	case 5:
+		sendToFloor = a.Floor() + 3
+	case 6:
+		sendToFloor = a.Floor() - 3
+	}
+
+	msg := messages.NewProposalMessage(a.ID(), a.Floor(), sendToFloor, *a.currentProposal)
+	a.SendMessage(msg)
+	a.treatySendCounter++
+	if a.treatySendCounter > 6 {
+		a.treatySendCounter = 0
+	}
+}
+
 func (a *CustomAgent5) dailyMessages() {
 	var msg messages.Message
 	targetFloor := a.Floor() + 1

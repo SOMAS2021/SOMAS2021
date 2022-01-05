@@ -32,6 +32,8 @@ type CustomAgent5 struct {
 	rememberAge       int
 	rememberFloor     int
 	messagingCounter  int
+	treatySendCounter int
+	currentProposal   *messages.Treaty
 	attemptToEat      bool
 	leadership        int
 	// Social network of other agents
@@ -52,6 +54,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		rememberAge:       -1,                           // To check if a day has passed by our age increasing
 		rememberFloor:     0,                            //Store the floor we are on so we can see if we have been reshuffled
 		messagingCounter:  0,                            //Counter so that various messages are sent throughout the day
+		treatySendCounter: 0,                            //Counter so that treaty messages can be sent
 		attemptToEat:      true,                         // To check if we have already attempted to eat in a day. Needed because HasEaten() does not update if there is no food on the platform
 		leadership:        rand.Intn(10),                //Initilise a random leadership value for each agent, used to determine whether they try to cause change in the tower. 0 is more likely to become a leader
 		socialMemory:      make(map[uuid.UUID]Memory),   // Memory of other agents, key is agent id
@@ -90,6 +93,9 @@ func (a *CustomAgent5) checkForLeader() {
 	if diceRoll >= a.leadership {
 		a.Log("An agent has become a leader", infra.Fields{"dice roll": diceRoll, "leadership": a.leadership, "selfishness": a.selfishness, "floor": a.Floor()})
 		//TODO: Send treaties here about eating less food
+		hpLevel := a.currentAimHP - ((a.currentAimHP-a.HealthInfo().WeakLevel)/10)*(diceRoll-a.leadership)
+		a.currentProposal = messages.NewTreaty(messages.HP, hpLevel, messages.LeavePercentFood, 100, messages.GE, messages.EQ, 5, a.ID())
+		a.treatySendCounter = 1
 	}
 }
 
@@ -184,7 +190,11 @@ func (a *CustomAgent5) Run() {
 	}
 
 	a.getMessages()
-	a.dailyMessages()
+	if a.treatySendCounter == 0 {
+		a.dailyMessages()
+	} else {
+		a.treatyProposal()
+	}
 
 	// When platform reaches our floor and we haven't tried to eat, then try to eat
 	if a.CurrPlatFood() != -1 && a.attemptToEat {
