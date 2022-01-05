@@ -1,4 +1,4 @@
-import AdvancedSettingsMenu from "./AdvancedSettings/AdvancedSettings";
+import AdvancedSettings from "./AdvancedSettings/AdvancedSettings";
 import Settings from "./Settings/Settings";
 import InitConfigState from "../../Helpers/SimConfig";
 
@@ -8,7 +8,7 @@ export default function NewRunState() {
 
   return (
     <div>
-      <AdvancedSettingsMenu config={config} setConfig={setConfig} />
+      <AdvancedSettings config={config} setConfig={setConfig} />
       <Settings config={config} setConfig={setConfig} />
     </div>
   );

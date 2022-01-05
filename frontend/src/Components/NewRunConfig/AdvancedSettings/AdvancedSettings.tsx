@@ -5,12 +5,12 @@ import "./AdvancedSettings.css";
 import { useState } from "react";
 import { Simulate } from "../../../Helpers/API";
 
-interface AdvancedSettingsMenuProps {
+interface AdvancedSettingsProps {
   config: SimConfig;
   setConfig: React.Dispatch<React.SetStateAction<SimConfig>>;
 }
 
-export default function AdvancedSettingsMenu(props: AdvancedSettingsMenuProps) {
+export default function AdvancedSettings(props: AdvancedSettingsProps) {
   const { config, setConfig } = props;
 
   const [disableTotalFood, setDisableTotalFood] = useState(Boolean);
