@@ -302,8 +302,8 @@ func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 
 	//Now we have ruled treaties that are always unacceptable, now to decide if agent will agree to an acceptable treaty
 	//TODO: Develop the decision calculation.
-	//For now: Middle range of selfishness - selfishness + opinion of agent proposing treaty
-	decision := 5 - a.selfishness + a.socialMemory[msg.SenderID()].favour
+	//For now: Middle range of selfishness - selfishness + opinion of agent proposing treaty - duration of treaty/4
+	decision := 5 - a.selfishness + a.socialMemory[msg.SenderID()].favour - treaty.Duration()/4
 	if decision > 0 {
 		treaty.SignTreaty()
 		a.AddTreaty(treaty)
