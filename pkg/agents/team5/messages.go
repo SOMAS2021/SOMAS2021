@@ -44,80 +44,60 @@ func (a *CustomAgent5) dailyMessages() {
 	switch a.messagingCounter {
 	case 0:
 		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), targetFloor)
-		a.SendMessage(msg)
-		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 1:
 		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), targetFloor)
-		a.SendMessage(msg)
-		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 2:
 		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), targetFloor)
-		a.SendMessage(msg)
-		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 3:
 		targetFloor = a.Floor() - 1
 		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), targetFloor)
-		a.SendMessage(msg)
-		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 4:
 		targetFloor = a.Floor() - 1
 		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), targetFloor)
-		a.SendMessage(msg)
-		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 5:
 		targetFloor = a.Floor() - 1
 		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), targetFloor)
-		a.SendMessage(msg)
-		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 6:
 		targetFloor = a.Floor() - 2
 		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), targetFloor)
-		a.SendMessage(msg)
-		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 7:
 		targetFloor = a.Floor() - 2
 		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), targetFloor)
-		a.SendMessage(msg)
-		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 8:
 		targetFloor = a.Floor() - 2
 		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), targetFloor)
-		a.SendMessage(msg)
-		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 9:
 		targetFloor = a.Floor() + 2
 		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), targetFloor)
-		a.SendMessage(msg)
-		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 10:
 		targetFloor = a.Floor() + 2
 		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), targetFloor)
-		a.SendMessage(msg)
-		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	case 11:
 		targetFloor = a.Floor() + 2
 		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), targetFloor)
-		a.SendMessage(msg)
-		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
 	default:
 	}
+	if msg != nil {
+		a.SendMessage(msg)
+		a.Log("Team 5 agent sent message", infra.Fields{"msgType": msg.MessageType().String(), "senderFloor": a.Floor(), "targetFloor": targetFloor})
+	}
 	a.messagingCounter++
+	// This needs to be at least twice the number of cases in the switch statement.
 	if a.messagingCounter > 25 {
 		a.messagingCounter = 0
 	}
 }
 
 //Override baseAgent's HandlePropogate, and process any StateMessages
-
 func (a *CustomAgent5) HandlePropogate(msg messages.Message) {
-	if stateFoodTakenMsg, ok := msg.(*messages.StateFoodTakenMessage); ok {
-		a.HandleStateFoodTaken(*stateFoodTakenMsg)
-	} else if stateHPMsg, ok := msg.(*messages.StateHPMessage); ok {
-		a.HandleStateHP(*stateHPMsg)
-	} else if stateIntendedFoodIntakeMsg, ok := msg.(*messages.StateIntendedFoodIntakeMessage); ok {
-		a.HandleStateIntendedFoodTaken(*stateIntendedFoodIntakeMsg)
+	switch stateMsg := msg.(type) {
+	case *messages.StateFoodTakenMessage:
+		a.HandleStateFoodTaken(*stateMsg)
+	case *messages.StateHPMessage:
+		a.HandleStateHP(*stateMsg)
+	case *messages.StateIntendedFoodIntakeMessage:
+		a.HandleStateIntendedFoodTaken(*stateMsg)
 	}
-
 	a.SendMessage(msg)
 }
 
