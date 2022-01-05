@@ -166,7 +166,7 @@ func (a *CustomAgent5) treatyConflicts(treaty messages.Treaty) bool {
 	return false
 }
 
-func (a *CustomAgent5) overideCalculation(treaty messages.Treaty) {
+func (a *CustomAgent5) overrideCalculation(treaty messages.Treaty) {
 	if treaty.Request() == messages.LeaveAmountFood {
 		if treaty.RequestOp() == messages.GT && a.CurrPlatFood()-a.attemptFood < food.FoodType(treaty.RequestValue()) {
 			a.attemptFood = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue())-1)))
@@ -188,27 +188,27 @@ func (a *CustomAgent5) overideCalculation(treaty messages.Treaty) {
 	}
 }
 
-func (a *CustomAgent5) treatyOveride() {
+func (a *CustomAgent5) treatyOverride() {
 	for _, treaty := range a.ActiveTreaties() {
 		switch {
 		case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.EQ && a.HP() == treaty.ConditionValue():
-			a.overideCalculation(treaty)
+			a.overrideCalculation(treaty)
 		case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.GT && a.HP() > treaty.ConditionValue():
-			a.overideCalculation(treaty)
+			a.overrideCalculation(treaty)
 		case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.GE && a.HP() >= treaty.ConditionValue():
-			a.overideCalculation(treaty)
+			a.overrideCalculation(treaty)
 		case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.EQ && a.Floor() == treaty.ConditionValue():
-			a.overideCalculation(treaty)
+			a.overrideCalculation(treaty)
 		case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.LT && a.Floor() < treaty.ConditionValue():
-			a.overideCalculation(treaty)
+			a.overrideCalculation(treaty)
 		case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.LE && a.Floor() <= treaty.ConditionValue():
-			a.overideCalculation(treaty)
+			a.overrideCalculation(treaty)
 		case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.EQ && a.CurrPlatFood() == food.FoodType(treaty.ConditionValue()):
-			a.overideCalculation(treaty)
+			a.overrideCalculation(treaty)
 		case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.GT && a.CurrPlatFood() > food.FoodType(treaty.ConditionValue()):
-			a.overideCalculation(treaty)
+			a.overrideCalculation(treaty)
 		case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.GE && a.CurrPlatFood() >= food.FoodType(treaty.ConditionValue()):
-			a.overideCalculation(treaty)
+			a.overrideCalculation(treaty)
 		}
 	}
 }
@@ -265,7 +265,7 @@ func (a *CustomAgent5) Run() {
 
 	// When platform reaches our floor and we haven't tried to eat, then try to eat
 	if a.CurrPlatFood() != -1 && a.attemptToEat {
-		a.treatyOveride()
+		a.treatyOverride()
 		lastMeal, err := a.TakeFood(a.attemptFood)
 		if err != nil {
 			switch err.(type) {
