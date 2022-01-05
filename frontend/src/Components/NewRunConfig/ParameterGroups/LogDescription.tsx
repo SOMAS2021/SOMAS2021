@@ -1,4 +1,4 @@
-import { H5, FormGroup, Checkbox } from "@blueprintjs/core";
+import { H5, FormGroup, Switch } from "@blueprintjs/core";
 
 export default function LogDescription(props: any) {
   const { configHandler } = props;
@@ -9,10 +9,11 @@ export default function LogDescription(props: any) {
       <div className="row">
         <div className="col-lg-6 d-flex justify-content-center">
           <FormGroup>
-            <Checkbox
+          <Switch
               label="Save Main"
-              type="checkbox"
-              onChange={(value) => configHandler((value.target as HTMLInputElement).checked, "LogMain")}
+              onChange={(value) => {
+                configHandler((value.target as HTMLInputElement).checked, "LogMain");
+              }}
             />
           </FormGroup>
         </div>
