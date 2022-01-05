@@ -35,7 +35,7 @@ export function addCumulativeDeaths(deathLog: DeathLog[]) {
       let idx = findDuplicates[j][1];
       var tempValue = 0;
       for (i = 0; i < idx.length; i++) {
-        tempValue += cumulativeDeaths[idx[i]];
+        tempValue += 1;
       }
       cumulativeDeaths[idx[0]] = tempValue;
 
