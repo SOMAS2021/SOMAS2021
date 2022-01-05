@@ -1,4 +1,4 @@
-import { Card, Elevation, Intent, Colors } from "@blueprintjs/core";
+import { Colors } from "@blueprintjs/core";
 import {
   Chart as ChartJS,
   CategoryScale,

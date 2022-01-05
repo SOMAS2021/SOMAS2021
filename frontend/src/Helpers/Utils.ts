@@ -4,11 +4,10 @@ export function Average(arr: number[]): number {
   return arr.reduce((a, b) => a + b) / arr.length;
 }
 
-
-  // CUMULATIVE DEATHS PER AGENT CODE
-  // Finding which agent types are duplicated and their respective indices
-  // Adding the cumulative deaths, and removing duplicated agentTypes
-export function addCumulativeDeaths(deathLog : DeathLog[]) {
+// CUMULATIVE DEATHS PER AGENT CODE
+// Finding which agent types are duplicated and their respective indices
+// Adding the cumulative deaths, and removing duplicated agentTypes
+export function addCumulativeDeaths(deathLog: DeathLog[]) {
   var agentTypes = deathLog.map((d) => d.agentType);
   var cumulativeDeaths = deathLog.map((d) => d.cumulativeDeaths);
   var myMap = new Map<string, number[]>();
@@ -28,13 +27,14 @@ export function addCumulativeDeaths(deathLog : DeathLog[]) {
     if (val.length > 1) {
       return [key, val];
     }
+    return [];
   });
 
   if (findDuplicates) {
     for (var j = 0; j < findDuplicates.length; j++) {
-      let [n, idx] = findDuplicates[j];
+      let idx = findDuplicates[j][1];
       var tempValue = 0;
-      for (var i = 0; i < idx.length; i++) {
+      for (i = 0; i < idx.length; i++) {
         tempValue += cumulativeDeaths[idx[i]];
       }
       cumulativeDeaths[idx[0]] = tempValue;
@@ -52,5 +52,5 @@ export function addCumulativeDeaths(deathLog : DeathLog[]) {
     });
   }
 
-  return {agentTypes, cumulativeDeaths};
+  return { agentTypes, cumulativeDeaths };
 }
