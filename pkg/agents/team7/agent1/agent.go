@@ -390,17 +390,17 @@ func (a *CustomAgent7) HandleResponse(msg messages.BoolResponseMessage) {
 
 //Treaties
 
-func (a *CustomAgent7) ActiveTreaties() map[uuid.UUID]messages.Treaty {
-	return a.activeTreaties
-}
+// func (a *CustomAgent7) ActiveTreaties() map[uuid.UUID]messages.Treaty {
+// 	return a.activeTreaties
+// }
 
-func (a *CustomAgent7) AddTreaty(treaty messages.Treaty) {
-	a.activeTreaties[treaty.ID()] = treaty
-}
+// func (a *CustomAgent7) AddTreaty(treaty messages.Treaty) {
+// 	a.activeTreaties[treaty.ID()] = treaty
+// }
 
-func (a *CustomAgent7) DeleteTreaty(treatyID uuid.UUID) {
-	delete(a.activeTreaties, treatyID)
-}
+// func (a *CustomAgent7) DeleteTreaty(treatyID uuid.UUID) {
+// 	delete(a.activeTreaties, treatyID)
+// }
 
 func (a *CustomAgent7) RejectTreaty(msg messages.ProposeTreatyMessage) {
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
