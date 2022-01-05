@@ -1,9 +1,13 @@
-import { Button, Checkbox, FormGroup, NumericInput, Switch } from "@blueprintjs/core";
-import { advancedParams, params } from "../ParameterLabels";
+import { Button, H3 } from "@blueprintjs/core";
 import { SimConfig } from "../../../Helpers/SimConfig";
 import "./AdvancedSettings.css";
 import { useState } from "react";
 import { Simulate } from "../../../Helpers/API";
+import TowerFood from "../ParameterGroups/TowerFood";
+import TowerLength from "../ParameterGroups/TowerLength";
+import AgentTypesParams from "../ParameterGroups/AgentTypes";
+import AgentGeneral from "../ParameterGroups/AgentGeneral";
+import LogDescription from "../ParameterGroups/LogDescription";
 
 interface AdvancedSettingsProps {
   config: SimConfig;
@@ -12,8 +16,6 @@ interface AdvancedSettingsProps {
 
 export default function AdvancedSettings(props: AdvancedSettingsProps) {
   const { config, setConfig } = props;
-
-  const [disableTotalFood, setDisableTotalFood] = useState(Boolean);
 
   function configHandler<Key extends keyof SimConfig>(value: any, keyString: any) {
     var key: Key = keyString; // converting keyString to type Key
@@ -24,7 +26,7 @@ export default function AdvancedSettings(props: AdvancedSettingsProps) {
   return (
     <div
       className="modal custom fade"
-      id="testModal"
+      id="advancedSettingsModal"
       data-backdrop="false"
       tabIndex={-1}
       aria-labelledby="staticBackdropLabel"
@@ -32,69 +34,15 @@ export default function AdvancedSettings(props: AdvancedSettingsProps) {
     >
       <div className="modal-dialog">
         <div className="modal-content">
-          <div className="modal-header">Advanced Settings</div>
+          <div className="modal-header">
+            <H3 className="text-center">Advanced Settings</H3>
+          </div>
           <div className="modal-body">
-            <FormGroup>
-              <Switch
-                label="Use Food Per Agent"
-                onChange={(value) => {
-                  setDisableTotalFood((value.target as HTMLInputElement).checked);
-                  configHandler((value.target as HTMLInputElement).checked, "UseFoodPerAgentRatio");
-                }}
-              />
-            </FormGroup>
-            {params.map((i) =>
-              i.key === "FoodOnPlatform" ? (
-                <FormGroup {...i} disabled={disableTotalFood}>
-                  <NumericInput
-                    disabled={disableTotalFood}
-                    placeholder={config[i.key].toString()}
-                    onValueChange={(value) => configHandler(value, i.key)}
-                    min={i.min}
-                  />
-                </FormGroup>
-              ) : i.key === "FoodPerAgentRatio" ? (
-                <FormGroup {...i} disabled={!disableTotalFood}>
-                  <NumericInput
-                    disabled={!disableTotalFood}
-                    placeholder={config[i.key].toString()}
-                    onValueChange={(value) => configHandler(value, i.key)}
-                    min={i.min}
-                  />
-                </FormGroup>
-              ) : (
-                <FormGroup {...i}>
-                  <NumericInput
-                    placeholder={config[i.key].toString()}
-                    onValueChange={(value) => configHandler(value, i.key)}
-                    min={i.min}
-                  />
-                </FormGroup>
-              )
-            )}
-            {advancedParams.map((i) => (
-              <FormGroup {...i}>
-                <NumericInput
-                  placeholder={config[i.key].toString()}
-                  onValueChange={(value) => configHandler(value, i.key)}
-                  min={i.min}
-                />
-              </FormGroup>
-            ))}
-            <FormGroup>
-              <Checkbox
-                label="Save Main"
-                type="checkbox"
-                onChange={(value) => configHandler((value.target as HTMLInputElement).checked, "LogMain")}
-              />
-            </FormGroup>
-            <FormGroup label="File Name" labelFor="text-input" key="FileName">
-              <input
-                type="text"
-                onChange={(value) => configHandler(value.target.value, "LogFileName")}
-                placeholder="Simulation Run #"
-              />
-            </FormGroup>
+            <TowerFood config={config} configHandler={configHandler} />
+            <TowerLength config={config} configHandler={configHandler} advanced={true} />
+            <AgentTypesParams config={config} configHandler={configHandler} />
+            <AgentGeneral config={config} configHandler={configHandler} advanced={true} />
+            <LogDescription configHandler={configHandler} />
           </div>
           <div className="modal-footer">
             <Button intent="danger" className="close" icon="cross" text="Cancel" data-dismiss="modal" />

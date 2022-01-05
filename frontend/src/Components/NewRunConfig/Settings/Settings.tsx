@@ -1,9 +1,13 @@
-import { Button, Checkbox, FormGroup, NumericInput, Switch } from "@blueprintjs/core";
-import { params } from "../ParameterLabels";
+import { Button} from "@blueprintjs/core";
 import { SimConfig } from "../../../Helpers/SimConfig";
 import "./Settings.css";
 import { useState } from "react";
 import { Simulate } from "../../../Helpers/API";
+import TowerFood from "../ParameterGroups/TowerFood";
+import TowerLength from "../ParameterGroups/TowerLength";
+import AgentGeneral from "../ParameterGroups/AgentGeneral";
+import AgentTypesParams from "../ParameterGroups/AgentTypes";
+import LogDescription from "../ParameterGroups/LogDescription";
 
 interface SettingsProps {
   config: SimConfig;
@@ -25,7 +29,7 @@ export default function Settings(props: SettingsProps) {
   return (
     <div
       className="modal custom fade"
-      id="exampleModal"
+      id="settingsModal"
       data-backdrop="false"
       tabIndex={-1}
       aria-labelledby="staticBackdropLabel"
@@ -38,58 +42,11 @@ export default function Settings(props: SettingsProps) {
             <Button className="bp3-minimal close" icon="cross" text="" data-dismiss="modal" aria-label="Close" />
           </div>
           <div className="modal-body">
-            <FormGroup>
-              <Switch
-                label="Use Food Per Agent"
-                onChange={(value) => {
-                  setDisableTotalFood((value.target as HTMLInputElement).checked);
-                  configHandler((value.target as HTMLInputElement).checked, "UseFoodPerAgentRatio");
-                }}
-              />
-            </FormGroup>
-            {params.map((i) =>
-              i.key === "FoodOnPlatform" ? (
-                <FormGroup {...i} disabled={disableTotalFood}>
-                  <NumericInput
-                    disabled={disableTotalFood}
-                    placeholder={config[i.key].toString()}
-                    onValueChange={(value) => configHandler(value, i.key)}
-                    min={i.min}
-                  />
-                </FormGroup>
-              ) : i.key === "FoodPerAgentRatio" ? (
-                <FormGroup {...i} disabled={!disableTotalFood}>
-                  <NumericInput
-                    disabled={!disableTotalFood}
-                    placeholder={config[i.key].toString()}
-                    onValueChange={(value) => configHandler(value, i.key)}
-                    min={i.min}
-                  />
-                </FormGroup>
-              ) : (
-                <FormGroup {...i}>
-                  <NumericInput
-                    placeholder={config[i.key].toString()}
-                    onValueChange={(value) => configHandler(value, i.key)}
-                    min={i.min}
-                  />
-                </FormGroup>
-              )
-            )}
-            <FormGroup>
-              <Checkbox
-                label="Save Main"
-                type="checkbox"
-                onChange={(value) => configHandler((value.target as HTMLInputElement).checked, "LogMain")}
-              />
-            </FormGroup>
-            <FormGroup label="File Name" labelFor="text-input" key="FileName">
-              <input
-                type="text"
-                onChange={(value) => configHandler(value.target.value, "LogFileName")}
-                placeholder="Simulation Run #"
-              />
-            </FormGroup>
+            <TowerFood config={config} configHandler={configHandler} />
+            <TowerLength config={config} configHandler={configHandler} advanced={false} />
+            <AgentTypesParams config={config} configHandler={configHandler} />
+            <AgentGeneral config={config} configHandler={configHandler} advanced={false} />
+            <LogDescription configHandler={configHandler} />
           </div>
           <div className="modal-footer">
             <Button intent="danger" className="close" icon="cross" text="Cancel" data-dismiss="modal" />

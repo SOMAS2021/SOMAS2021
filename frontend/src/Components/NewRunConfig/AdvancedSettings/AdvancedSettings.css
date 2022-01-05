@@ -1,30 +1,30 @@
-.modal.custom#testModal .modal-dialog {
+.modal.custom#advancedSettingsModal .modal-dialog {
   position:relative;
   /* margin: 0 auto; */
   z-index: -1;
 }
 
-.modal-open#testModal .modal {
+.modal-open#advancedSettingsModal .modal {
   width: 0;
   margin: auto;
 }
 
-#testModal .modal-content{
+#advancedSettingsModal .modal-content{
   width: 100%;
 }
 
-#testModal .modal-header{
+#advancedSettingsModal .modal-header{
   margin:auto;
 }
 
 @media (min-width: 576px){
-  #testModal .modal-dialog {
-    max-width: 700px;
+  #advancedSettingsModal .modal-dialog {
+    max-width: 65%;
     margin: 1.75rem auto;
     }
 }
 
-#testModal .modal-body {
+/* #advancedSettingsModal .modal-body {
   columns: 2 auto;
   column-gap: 10%;
-}
+} */

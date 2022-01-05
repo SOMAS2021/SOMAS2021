@@ -1,4 +1,5 @@
-.modal.custom#exampleModal .modal-dialog {
+
+.modal.custom#settingsModal .modal-dialog {
   position:fixed;
   bottom:0;
   right:0;
@@ -6,14 +7,16 @@
   z-index: -1;
 }
 
-.modal-open#exampleModal .modal {
+
+
+.modal-open#settingsModal .modal {
     width: 0;
     margin: 0 auto;
 }
 
 @media (min-width: 576px){
-  #exampleModal .modal-dialog {
-    max-width: 600px;
+  #settingsModal .modal-dialog {
+    max-width: 50%;
     margin: 1.75rem auto;
     }
 }

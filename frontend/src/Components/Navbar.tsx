@@ -14,7 +14,7 @@ export default function Nav() {
           icon="search-around"
           text="Quick Run"
           data-toggle="modal"
-          data-target="#exampleModal"
+          data-target="#settingsModal"
         />
         <Navbar.Divider />
         <Button
@@ -22,7 +22,7 @@ export default function Nav() {
           icon="search-around"
           text="Advanced Run"
           data-toggle="modal"
-          data-target="#testModal"
+          data-target="#advancedSettingsModal"
         />
       </Navbar.Group>
     </Navbar>
