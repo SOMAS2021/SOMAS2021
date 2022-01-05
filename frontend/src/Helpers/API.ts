@@ -6,7 +6,7 @@ import { Result } from "./Result";
 import { GetSimConfig, SimConfig } from "./SimConfig";
 
 function endpoint(req: string) {
-  return (true ? "http://localhost:9000/" : window.location) + req;
+  return (process.env.DEV ? "http://localhost:9000/" : window.location) + req;
 }
 
 function parseResponse(res: any, key: string) {
