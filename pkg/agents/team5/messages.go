@@ -281,6 +281,12 @@ func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
 		a.SendMessage(reply)
 		a.Log("Accepted treaty", infra.Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(), "treatyID": msg.TreatyID()})
+		passingOnTo := a.Floor() + 1
+		if msg.SenderFloor() > a.Floor() {
+			passingOnTo = a.Floor() - 1
+		}
+		passItOn := messages.NewProposalMessage(a.ID(), a.Floor(), passingOnTo, treaty)
+		a.SendMessage(passItOn)
 	} else {
 		a.RejectTreaty(msg)
 	}

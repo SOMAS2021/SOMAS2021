@@ -58,7 +58,7 @@ func (a *CustomAgent5) updateFavour() {
 				a.addToSocialFavour(id, int(math.Max(float64(judgement)/20, -3)))
 			}
 		}
-		if mem.daysSinceLastSeen > 5 {
+		if mem.daysSinceLastSeen == 6 {
 			a.resetSocialKnowledge(id)
 		}
 	}
