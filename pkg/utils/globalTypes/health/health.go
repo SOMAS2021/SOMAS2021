@@ -52,7 +52,7 @@ func FoodRequired(currentHP int, goalHP int, healthInfo *HealthInfo) food.FoodTy
 	base := healthInfo.HPLossBase
 	numer := float64(goalHP) - (1-slope)*float64(currentHP) + float64(base) - slope*float64(healthInfo.WeakLevel)
 	denom := healthInfo.Width * (1 - slope)
-	food := food.FoodType(-1 * healthInfo.Tau * math.Log(1-numer/denom))
+	food := food.FoodType(math.Round(-1 * healthInfo.Tau * math.Log(1-numer/denom)))
 	if food < 0 {
 		if goalHP < currentHP {
 			return 0
