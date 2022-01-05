@@ -325,3 +325,12 @@ func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	// a.Log("Accepted treaty", Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(),
 	// 	"treatyID": msg.TreatyID()})
 }
+
+func (a *CustomAgent5) HandleTreatyResponse(msg messages.TreatyResponseMessage) {
+	if msg.Response() {
+		treaty := a.ActiveTreaties()[msg.TreatyID()]
+		treaty.SignTreaty()
+		a.ActiveTreaties()[msg.TreatyID()] = treaty
+		a.addToSocialFavour(msg.SenderID(), a.socialMemory[msg.SenderID()].favour+2)
+	}
+}
