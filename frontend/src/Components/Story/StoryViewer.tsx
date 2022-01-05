@@ -81,7 +81,7 @@ function StoryController(props: StoryControllerProps) {
                   </div>
                 );
               default:
-                return <div key={index}>oups</div>;
+                return <div key={index}>oups {log.msg}</div>;
             }
           }
           return null;
