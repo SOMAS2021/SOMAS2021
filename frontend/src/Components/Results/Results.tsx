@@ -63,6 +63,7 @@ function ResultDisplay(props: ResultDisplayProps) {
         <ConfigInfo config={result.config} />
         <Divider></Divider>
         <StoryViewer story={result.story} />
+        <Divider></Divider>
         <div className="row">
           <div className="col-lg-6">
             <ReportCard description="Total deaths" title={result.deaths.length.toString()} />
