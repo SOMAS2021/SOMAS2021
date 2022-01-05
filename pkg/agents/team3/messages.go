@@ -464,8 +464,6 @@ func (a *CustomAgent3) reqFoodTakenEstimate(treaty messages.Treaty, percentage b
 func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
 	var minActivationLevel AgentPosition
-	var foodTakenEstimate FoodTaken
-	var reply messages.TreatyResponseMessage
 	var response bool
 
 	switch treaty.Condition() {
@@ -477,7 +475,7 @@ func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		minActivationLevel = a.requiredAvailFoodLevel(treaty)
 	}
 
-	foodTakenEstimate = a.reqFoodTakenEstimate(treaty, treaty.Request() == messages.LeavePercentFood)
+	foodTakenEstimate := a.reqFoodTakenEstimate(treaty, treaty.Request() == messages.LeavePercentFood)
 
 	// Maybe take the duration and signatures into account
 
@@ -495,7 +493,7 @@ func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	} else {
 		response = false // reject unaccceptable treaties
 	}
-	reply = *messages.NewTreatyResponseMessage(treaty.ProposerID(), msg.SenderFloor(), msg.TargetFloor(), response, treaty.ID(), reply.RequestID())
-	a.HandleTreatyResponse(reply)
+	reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), response)
+	a.SendMessage(reply)
 
 }
