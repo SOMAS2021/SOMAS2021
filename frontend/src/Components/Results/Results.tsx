@@ -3,9 +3,8 @@ import { useEffect, useState } from "react";
 import { GetResult } from "../../Helpers/API";
 import { Result } from "../../Helpers/Result";
 import StoryViewer from "../Story/StoryViewer";
-import { Average, Max, Min } from "../../Helpers/Utils";
 import ConfigInfo from "./ConfigInfo";
-import ReportCard from "./ReportCard";
+import StatsViewer from "./Stats";
 
 interface ResultsProps {
   logName: string;
@@ -64,39 +63,7 @@ function ResultDisplay(props: ResultDisplayProps) {
         <Divider></Divider>
         <StoryViewer story={result.story} />
         <Divider></Divider>
-        <div className="row">
-          <div className="col-lg-6">
-            <ReportCard description="Total deaths" title={result.deaths.length.toString()} />
-          </div>
-          <div className="col-lg-6">
-            <ReportCard
-              description="Average food on platform per tick"
-              title={Average(result.food.map((f) => f.food))
-                .toFixed(3)
-                .toString()}
-            />
-          </div>
-          <div className="col-lg-6">
-            <ReportCard
-              description="Average agent age upon death"
-              title={Average(result.deaths.map((d) => d.ageUponDeath))
-                .toFixed(3)
-                .toString()}
-            />
-          </div>
-          <div className="col-lg-6">
-            <ReportCard
-              description="Max agent age upon death"
-              title={Max(result.deaths.map((d) => d.ageUponDeath)).toString()}
-            />
-          </div>
-          <div className="col-lg-6">
-            <ReportCard
-              description="Min agent age upon death"
-              title={Min(result.deaths.map((d) => d.ageUponDeath)).toString()}
-            />
-          </div>
-        </div>
+        <StatsViewer result={result} />
       </div>
     </div>
   );
