@@ -102,6 +102,7 @@ func (ls *StateLog) LogStoryAgentTookFood(simState *day.DayInfo, state AgentStat
 		WithFields(
 			log.Fields{
 				"day":       simState.CurrDay,
+				"tick":      simState.CurrTick,
 				"foodTaken": foodTaken,
 				"foodLeft":  foodLeft,
 			}).
@@ -113,6 +114,7 @@ func (ls *StateLog) LogStoryAgentSentMessage(simState *day.DayInfo, state AgentS
 		WithFields(
 			log.Fields{
 				"day":      simState.CurrDay,
+				"tick":     simState.CurrTick,
 				"target":   message.TargetFloor(),
 				"mtype":    message.MessageType().String(),
 				"mcontent": message.StoryLog(),
@@ -125,31 +127,18 @@ func (ls *StateLog) LogStoryAgentDied(simState *day.DayInfo, state AgentState) {
 	ls.storyLogger.
 		WithFields(
 			log.Fields{
-				"day": simState.CurrDay,
+				"day":  simState.CurrDay,
+				"tick": simState.CurrTick,
 			}).
 		WithFields(state.AgentFields()).Info("death")
 }
 
-func (ls *StateLog) LogStoryPlatformMoved(simState *day.DayInfo, state AgentState) {
+func (ls *StateLog) LogStoryPlatformMoved(simState *day.DayInfo, floor int) {
 	ls.storyLogger.
 		WithFields(
 			log.Fields{
-				"day": simState.CurrDay,
-			}).
-		WithFields(state.AgentFields()).Info("death")
+				"day":   simState.CurrDay,
+				"tick":  simState.CurrTick,
+				"floor": floor,
+			}).Info("floor")
 }
-
-/*
-
-- The platform moved:
-	- Previous floor
-	- Current floor it moved to
-- (Same with treaties)
-
-Agent state:
-- HP
-- Custom params from agent teams
-- Agent type
-- Floor
-- Age
-*/

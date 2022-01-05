@@ -64,6 +64,7 @@ func (t *Tower) Tick() {
 	// Move the platform
 	if t.dayInfo.CurrTick%t.dayInfo.TicksPerFloor == 0 {
 		t.currPlatFloor++
+		t.stateLog.LogStoryPlatformMoved(t.dayInfo, t.currPlatFloor)
 	}
 	// Decrease agent HP and reset tower at end of day
 	if t.dayInfo.CurrTick%t.dayInfo.TicksPerDay == 0 {
