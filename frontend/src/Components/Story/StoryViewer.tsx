@@ -62,7 +62,7 @@ function StoryController(props: StoryControllerProps) {
                 const m = log as StoryMessageLog;
                 return (
                   <div key={index}>
-                    Agent {m.atype} on floor {m.floor} sent a message {m.mtype} targeting floor {m.target} with{" "}
+                    Agent {m.atype} on Floor {m.floor} sent a message {m.mtype} targeting Floor {m.target} with{" "}
                     {m.mcontent === "" && "no "}content {m.mcontent}
                   </div>
                 );
