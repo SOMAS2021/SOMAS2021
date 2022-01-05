@@ -240,10 +240,14 @@ func (a *CustomAgent5) RejectTreaty(msg messages.ProposeTreatyMessage) {
 
 func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
-	if len(a.ActiveTreaties()) > 0 || treaty.Request() == messages.Inform {
-		//TODO: Have a checkForConflicts function that determines if we can feasibly sign up to multiple treaties.
-		//For now, only agree to sign up to 1 treaty at a time for simplicity
-		//Also, reject any inform treaties as I'm not sure what they are or how to handle them
+	if treaty.Request() == messages.Inform {
+		// Reject any inform treaties as I'm not sure what they are or how to handle them
+		a.RejectTreaty(msg)
+		return
+	}
+
+	if a.treatyConflicts(treaty) {
+		// Reject treaty if it conflicts with any other active treaty
 		a.RejectTreaty(msg)
 		return
 	}

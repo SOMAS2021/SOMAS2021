@@ -100,6 +100,63 @@ func (a *CustomAgent5) checkForLeader() {
 	}
 }
 
+func (a *CustomAgent5) statementsIntersect(op1 messages.Op, value1 int, op2 messages.Op, value2 int) bool {
+	switch op1 {
+	case messages.EQ:
+		return ((op2 == messages.EQ && value1 == value2) ||
+			(op2 == messages.LT && value1 < value2) ||
+			(op2 == messages.LE && value1 <= value2) ||
+			(op2 == messages.GT && value1 > value2) ||
+			(op2 == messages.GE && value1 >= value2))
+	case messages.LT:
+		return ((op2 == messages.EQ && value1 < value2) ||
+			op2 == messages.LT ||
+			op2 == messages.LE ||
+			(op2 == messages.GT && (value1-1) > value2) || // need the -1 here to disallow x<3 AND x>2
+			(op2 == messages.GE && value1 > value2))
+	case messages.LE:
+		return (op2 == messages.LT ||
+			op2 == messages.LE ||
+			value1 > value2)
+	case messages.GT:
+		return ((op2 == messages.EQ && value1 > value2) ||
+			(op2 == messages.LT && value1 < (value2-1)) ||
+			(op2 == messages.LE && value1 < value2) ||
+			op2 == messages.GT ||
+			op2 == messages.GE)
+	case messages.GE:
+		return (op2 == messages.GT ||
+			op2 == messages.GE ||
+			value1 < value2)
+	default:
+		// It should be impossible to get here
+		return true
+	}
+}
+
+func (a *CustomAgent5) treatiesCanCoexist(t1 messages.Treaty, t2 messages.Treaty) bool {
+	conditionsIntersect := a.statementsIntersect(t1.ConditionOp(), t1.ConditionValue(), t2.ConditionOp(), t2.ConditionValue())
+
+	if t1.Condition() == t2.Condition() && !conditionsIntersect {
+		// If the treaties are based on the same type of condition, they can coexist
+		// when the conditions are mutually exclusive (can never occurr simultaneously)
+		return true
+	}
+
+	// Otherwise, if the treaties are based on different conditions, or the conditions
+	// can occurr simultaneously, they can coexist only if the requests can be fulfilled simultaneously
+	return a.statementsIntersect(t1.RequestOp(), t1.RequestValue(), t2.RequestOp(), t2.RequestValue())
+}
+
+func (a *CustomAgent5) treatyConflicts(treaty messages.Treaty) bool {
+	for _, activeTreaty := range a.ActiveTreaties() {
+		if !a.treatiesCanCoexist(treaty, activeTreaty) {
+			return true
+		}
+	}
+	return false
+}
+
 func (a *CustomAgent5) overideCalculation(treaty messages.Treaty) {
 	if treaty.Request() == messages.LeaveAmountFood {
 		if treaty.RequestOp() == messages.GT && a.CurrPlatFood()-a.attemptFood < food.FoodType(treaty.RequestValue()) {
