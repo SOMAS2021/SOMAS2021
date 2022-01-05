@@ -140,5 +140,5 @@ func (ls *StateLog) LogStoryPlatformMoved(simState *day.DayInfo, floor int) {
 				"day":   simState.CurrDay,
 				"tick":  simState.CurrTick,
 				"floor": floor,
-			}).Info("floor")
+			}).Info("platform")
 }

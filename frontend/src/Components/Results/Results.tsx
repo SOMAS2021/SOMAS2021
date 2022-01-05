@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { GetResult } from "../../Helpers/API";
 import { Result } from "../../Helpers/Result";
 import { Average } from "../../Helpers/Utils";
+import StoryViewer from "../Story/StoryViewer";
 import ConfigInfo from "./ConfigInfo";
 import ReportCard from "./ReportCard";
 
@@ -52,6 +53,7 @@ function ResultDisplay(props: ResultDisplayProps) {
       <Divider></Divider>
       <ConfigInfo config={result.config} />
       <Divider></Divider>
+      <StoryViewer story={result.story}/>
       <div className="row">
         <div className="col-lg-6">
           <ReportCard description="Total deaths" title={result.deaths.length.toString()} />
