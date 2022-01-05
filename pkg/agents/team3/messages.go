@@ -434,8 +434,8 @@ func (a *CustomAgent3) requiredAvailFoodLevel(treaty messages.Treaty) AgentPosit
 func (a *CustomAgent3) reqFoodTakenEstimate(treaty messages.Treaty, percentage bool) FoodTaken {
 	var foodToEatCalc int
 
-	if treaty.RequestOp() == messages.LT || treaty.RequestOp() == messages.LE || treaty.RequestValue() > a.CurrPlatFood() {
-		return TooLittle
+	if treaty.RequestOp() == messages.LT || treaty.RequestOp() == messages.LE {
+		return VeryLarge
 	}
 
 	if percentage {
@@ -463,17 +463,18 @@ func (a *CustomAgent3) reqFoodTakenEstimate(treaty messages.Treaty, percentage b
 // 3. agentVarsPassed uses agent params with evaluations, 4. Reply sent which accepts/rejects the treaty
 func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
-	var requiredAgentPosition AgentPosition
+	var minActivationLevel AgentPosition
 	var foodTakenEstimate FoodTaken
 	var reply messages.TreatyResponseMessage
+	var response bool
 
 	switch treaty.Condition() {
 	case messages.HP:
-		requiredAgentPosition = a.requiredHPLevel(treaty)
+		minActivationLevel = a.requiredHPLevel(treaty)
 	case messages.Floor:
-		requiredAgentPosition = a.requiredFloorLevel(treaty)
+		minActivationLevel = a.requiredFloorLevel(treaty)
 	case messages.AvailableFood:
-		requiredAgentPosition = a.requiredAvailFoodLevel(treaty)
+		minActivationLevel = a.requiredAvailFoodLevel(treaty)
 	}
 
 	foodTakenEstimate = a.reqFoodTakenEstimate(treaty, treaty.Request() == messages.LeavePercentFood)
@@ -482,18 +483,19 @@ func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 
 	// If agent is in a bad mood, it will only accept treaties that take effect when it is in a strong position.
 	// If agent has low morality, it will only accept treaties that involve it taking large amounts of food.
-	agentVarsPassed := a.vars.mood > (20*int(requiredAgentPosition)-20) && a.vars.morality > (20*int(foodTakenEstimate)-20) && a.vars.morality < (20*int(foodTakenEstimate)+20)
+	agentVarsPassed := a.vars.mood > (20*int(minActivationLevel)-20) && a.vars.morality > (20*int(foodTakenEstimate)-20) && a.vars.morality < (20*int(foodTakenEstimate)+20)
 
 	//use agent variables, foodTakenEstimate, and requiredAgentPosition to accept/reject
 	if treaty.Request() == messages.Inform && treaty.Condition() == messages.HP { // accept HP inform requests
-		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), true)
+		response = true
 	} else if treaty.Request() == messages.Inform { // reject Floor and AvailableFood inform requests
-		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), false)
+		response = false
 	} else if agentVarsPassed { // For leavePercentFood and leaveAmountFood requests, use agent state and predicted benefit of treaty
-		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.read()) // accept acceptable treaties "stubbornness" % of time
+		response = a.read() // accept acceptable treaties "stubbornness" % of time
 	} else {
-		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), false) // reject unaccceptable treaties
+		response = false // reject unaccceptable treaties
 	}
-	a.SendMessage(reply)
+	reply = *messages.NewTreatyResponseMessage(treaty.ProposerID(), msg.SenderFloor(), msg.TargetFloor(), response, treaty.ID(), reply.RequestID())
+	a.HandleTreatyResponse(reply)
 
 }
