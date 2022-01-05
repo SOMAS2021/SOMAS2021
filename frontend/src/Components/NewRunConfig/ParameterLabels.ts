@@ -1,4 +1,6 @@
-export const advancedParams: Parameters[] = [
+import { SimConfig } from "../../Helpers/SimConfig";
+
+export const advancedParams: Parameter[] = [
   {
     helperText: "",
     label: "Agents Max HP",
@@ -81,7 +83,7 @@ export const advancedParams: Parameters[] = [
   },
 ];
 
-export const params: Parameters[] = [
+export const params: Parameter[] = [
     {
       helperText: "In Days...",
       label: "Simulation Length",
@@ -188,11 +190,11 @@ export const params: Parameters[] = [
     }
 ];
 
-export interface Parameters {
+export interface Parameter {
   helperText: string;
   label: string;
   labelFor: string;
   labelInfo: string;
-  key: string;
+  key: keyof(SimConfig);
   min: number;
 }
