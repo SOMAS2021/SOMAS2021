@@ -417,10 +417,12 @@ func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	//use agent variables, foodTakenEstimate, and requiredAgentPosition to accept/reject
 	if treaty.Request() == messages.Inform && treaty.Condition() == messages.HP { // accept HP inform requests
 		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), true)
-	} else if agentVarsPassed { // uses agent state and predicted benefit of treaty
-		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.read()) // accept "stubbornness" % of time
+	} else if treaty.Request() == messages.Inform { // reject Floor and AvailableFood inform requests
+		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), false)
+	} else if agentVarsPassed { // For leavePercentFood and leaveAmountFood requests, use agent state and predicted benefit of treaty
+		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.read()) // accept acceptable treaties "stubbornness" % of time
 	} else {
-		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), false) // reject
+		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), false) // reject unaccceptable treaties
 	}
 	a.SendMessage(reply)
 
