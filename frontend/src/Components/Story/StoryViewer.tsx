@@ -7,6 +7,7 @@ import {
   StoryMessageLog,
   StoryPlatformLog,
 } from "../../Helpers/Logging/StoryLog";
+import { Ticker } from "./Ticker";
 
 interface StoryViewerProps {
   story: StoryLog[];
@@ -41,35 +42,10 @@ function StoryController(props: StoryControllerProps) {
   const { story } = props;
   const [tick, setTick] = useState(1);
   const maxTick = Math.max(...story.map((e) => e.tick));
+
   return (
     <div>
-      <div className="row">
-        <div className="col-lg-6">
-          <H4>
-            Tick {tick} / {maxTick}
-          </H4>
-        </div>
-        <div className="col-lg-6" style={{ textAlign: "right" }}>
-          <Button icon="arrow-left" onClick={() => setTick(Math.max(1, tick - 100))} disabled={tick <= 1} />
-          <Button icon="double-chevron-left" onClick={() => setTick(Math.max(1, tick - 10))} disabled={tick <= 1} />
-          <Button icon="chevron-left" onClick={() => setTick(Math.max(1, tick - 1))} disabled={tick <= 1} />
-          <Button
-            icon="chevron-right"
-            onClick={() => setTick(Math.min(maxTick, tick + 1))}
-            disabled={tick >= maxTick}
-          />
-          <Button
-            icon="double-chevron-right"
-            onClick={() => setTick(Math.min(maxTick, tick + 10))}
-            disabled={tick >= maxTick}
-          />
-          <Button
-            icon="arrow-right"
-            onClick={() => setTick(Math.min(maxTick, tick + 100))}
-            disabled={tick >= maxTick}
-          />
-        </div>
-      </div>
+      <Ticker tick={tick} setTick={setTick} maxTick={maxTick} />
       <Divider />
       <div>
         {story.map((log, index) => {
@@ -77,16 +53,33 @@ function StoryController(props: StoryControllerProps) {
             switch (log.msg) {
               case "food":
                 const f = log as StoryFoodLog;
-                return <div key={index}>{f.foodTaken}</div>;
+                return (
+                  <div key={index}>
+                    Agent {f.atype} took {f.foodTaken} food on floor {f.floor} and left {f.foodLeft}
+                  </div>
+                );
               case "message":
                 const m = log as StoryMessageLog;
-                return <div key={index}>{m.mtype}</div>;
+                return (
+                  <div key={index}>
+                    Agent {m.atype} on floor {m.floor} sent a message {m.mtype} targeting floor {m.target} with{" "}
+                    {m.mcontent === "" && "no "}content {m.mcontent}
+                  </div>
+                );
               case "death":
                 const d = log as StoryDeathLog;
-                return <div key={index}>{d.atype}</div>;
+                return (
+                  <div key={index}>
+                    Agent {d.atype} died at age {d.age} on floor {d.floor}
+                  </div>
+                );
               case "platform":
                 const p = log as StoryPlatformLog;
-                return <div key={index}>{p.floor}</div>;
+                return (
+                  <div key={index}>
+                    The platform moved from floor {p.floor - 1} to floor {p.floor}
+                  </div>
+                );
               default:
                 return <div key={index}>oups</div>;
             }
