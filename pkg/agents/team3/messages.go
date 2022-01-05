@@ -335,18 +335,19 @@ const (
 	TooLittle
 )
 
+// Returns the AgentPosition (relative strength measure) of the agent when at the minimum HP defined by the condition and conditionOp
 func (a *CustomAgent3) requiredHPLevel(treaty messages.Treaty) AgentPosition {
-	if treaty.ConditionOp() == messages.LT || treaty.ConditionOp() == messages.LE {
+	if treaty.ConditionOp() == messages.LT || treaty.ConditionOp() == messages.LE || treaty.ConditionValue() > 100 {
 		return SurvivalLevel
 	}
 	switch hp := treaty.ConditionValue(); {
-	case hp >= 75 && hp <= 100:
+	case hp >= 75:
 		return Strong
-	case hp >= 55 && hp < 75:
+	case hp >= 55:
 		return Healthy
-	case hp >= 35 && hp < 55:
+	case hp >= 35:
 		return Average
-	case hp >= 10 && hp < 35:
+	case hp >= a.HealthInfo().WeakLevel:
 		return Weak
 	default:
 		return SurvivalLevel
@@ -354,18 +355,25 @@ func (a *CustomAgent3) requiredHPLevel(treaty messages.Treaty) AgentPosition {
 }
 
 // Determining if a given floor means an agent is in a good / bad position relies on knowledge that the agent has no access to.
-// Hence, initial approach is to assume the treaty is risky, and can activate at SurvivalLevel.
+// Hence, initial approach is to assume the treaty is risky, and could possibly activate when the agent is at SurvivalLevel.
 func (a *CustomAgent3) requiredFloorLevel(treaty messages.Treaty) AgentPosition {
 	return SurvivalLevel
 }
 
+// Same as Floor, initial approach is to assume the treaty is risky, and could possibly activate when the agent is at SurvivalLevel.
 func (a *CustomAgent3) requiredAvailFoodLevel(treaty messages.Treaty) AgentPosition {
 	return SurvivalLevel
 }
 
 // Calculates food available to eat if request applied to current platform food, and uses this as an estimate for the general case.
-func (a *CustomAgent3) leaveAmountFoodEstimate(treaty messages.Treaty) FoodTaken {
-	switch foodToEat := int(int(a.CurrPlatFood()) - treaty.RequestValue()); {
+func (a *CustomAgent3) reqFoodTakenEstimate(treaty messages.Treaty, percentage bool) FoodTaken {
+	var foodToEatCalc int
+	if percentage {
+		foodToEatCalc = int(int(a.CurrPlatFood()) * (100 - treaty.RequestValue()))
+	} else {
+		foodToEatCalc = int(int(a.CurrPlatFood()) - treaty.RequestValue())
+	}
+	switch foodToEat := foodToEatCalc; {
 	case foodToEat > a.foodReqCalc(85, 85):
 		return VeryLarge
 	case foodToEat > a.foodReqCalc(60, 60):
@@ -381,25 +389,8 @@ func (a *CustomAgent3) leaveAmountFoodEstimate(treaty messages.Treaty) FoodTaken
 	}
 }
 
-// Calculates food available to eat if request applied to current platform food, and uses this as an estimate for the general case.
-// Assumes leavePercentFood from 0 to 100.
-func (a *CustomAgent3) leavePercentFoodEstimate(treaty messages.Treaty) FoodTaken {
-	switch foodToEat := int(int(a.CurrPlatFood()) * (100 - treaty.RequestValue())); {
-	case foodToEat > a.foodReqCalc(85, 85):
-		return VeryLarge
-	case foodToEat > a.foodReqCalc(60, 60):
-		return Large
-	case foodToEat > a.foodReqCalc(40, 40):
-		return Moderate
-	case foodToEat > a.foodReqCalc(25, 25):
-		return Little
-	case foodToEat > a.foodReqCalc(10, 10):
-		return SurvivalAmount
-	default:
-		return TooLittle
-	}
-}
-
+// 1. requiredAgentPosition evaluates the condition, 2. foodTakenEstimate evaluates the request,
+// 3. agentVarsPassed uses agent params with evaluations, 4. Reply sent which accepts/rejects the treaty
 func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
 	var requiredAgentPosition AgentPosition
@@ -415,12 +406,9 @@ func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		requiredAgentPosition = a.requiredAvailFoodLevel(treaty)
 	}
 
-	switch treaty.Request() {
-	case messages.LeaveAmountFood:
-		foodTakenEstimate = a.leaveAmountFoodEstimate(treaty)
-	case messages.LeavePercentFood:
-		foodTakenEstimate = a.leavePercentFoodEstimate(treaty)
-	}
+	foodTakenEstimate = a.reqFoodTakenEstimate(treaty, treaty.Request() == messages.LeavePercentFood)
+
+	// Maybe take the duration and signatures into account
 
 	// If agent is in a bad mood, it will only accept treaties that take effect when it is in a strong position.
 	// If agent has low morality, it will only accept treaties that involve it taking large amounts of food.
