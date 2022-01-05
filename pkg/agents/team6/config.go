@@ -2,6 +2,7 @@ package team6
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
@@ -16,6 +17,15 @@ type behaviour float64
 //  selfish
 //  narcissist
 // )
+
+type utilityParameters struct {
+	// Greediness
+	g float64
+	// Risk aversion
+	r float64
+	// community cost
+	c float64
+}
 
 type team6Config struct {
 	baseBehaviour behaviour
@@ -75,6 +85,39 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	}, nil
 }
 
+// Todo: define some sensible values
+func NewUtilityParams(socialMotive string) utilityParameters {
+	switch socialMotive {
+	case "Altruist":
+		return utilityParameters{
+			g: 1.0,
+			r: 2.0,
+			c: 3.0,
+		}
+	case "Collectivist":
+		return utilityParameters{
+			g: 1.0,
+			r: 2.0,
+			c: 3.0,
+		}
+	case "Selfish":
+		return utilityParameters{
+			g: 1.0,
+			r: 2.0,
+			c: 3.0,
+		}
+	case "Narcissist":
+		return utilityParameters{
+			g: 1.0,
+			r: 2.0,
+			c: 3.0,
+		}
+	default:
+		// error
+		return utilityParameters{}
+	}
+}
+
 func (b behaviour) String() string {
 	behaviourMap := [...]thresholdBehaviourPair{{2, "Altruist"}, {7, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
 
@@ -132,4 +175,16 @@ func (a *CustomAgent6) Run() {
 
 	// fmt.Println(a.ActiveTreaties())
 
+}
+
+// The utility function with
+// x - food input
+// g - greediness
+// r - risk aversion
+// c - community cost
+// z - desired food (maximum of the function)
+func Utility(x, z float64, params utilityParameters) float64 {
+	// calculate the function scaling parameter a
+	a := (1 / z) * math.Pow((params.c*params.r)/params.g, params.r/(1-params.r))
+	return params.g*math.Pow(a*x, 1/params.r) - params.c*a*x
 }
