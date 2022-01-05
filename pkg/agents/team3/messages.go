@@ -489,7 +489,7 @@ func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		agentVarsPassed := a.vars.mood > (20*int(minActivationLevel)-20) && a.vars.morality > (20*int(foodTakenEstimate)-20) && a.vars.morality < (20*int(foodTakenEstimate)+20)
 
 		//use agent variables, foodTakenEstimate, and requiredAgentPosition to accept/reject
-		if agentVarsPassed || treaty.Request() == messages.Inform { // accept HP inform requests
+		if agentVarsPassed && treaty.Request() != messages.Inform { // dont accept HP inform requests
 			response = true
 			treaty.SignTreaty()
 			a.AddTreaty(treaty)
