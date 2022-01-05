@@ -1,3 +1,5 @@
+import { SimConfig } from "../../Helpers/SimConfig";
+
 export const advancedParams: Parameters[] = [
   {
     helperText: "",
@@ -193,6 +195,6 @@ export interface Parameters {
   label: string;
   labelFor: string;
   labelInfo: string;
-  key: string;
+  key: keyof(SimConfig);
   min: number;
 }

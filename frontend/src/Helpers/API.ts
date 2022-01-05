@@ -54,7 +54,7 @@ export function GetResult(filename: string): Promise<Result> {
     promises.push(GetFoodLogs(filename).then((f) => (foods = f)));
 
     // fconfig
-    var config: SimConfig = undefined!
+    var config: SimConfig = undefined!;
     promises.push(GetSimConfig(filename).then((c) => (config = c)));
 
     // all
@@ -85,6 +85,25 @@ export function GetFile(filename: string, logtype: string): Promise<any> {
       .then((result) => resolve(parseResponse(result, "Log")))
       .catch((error) => {
         showToast(`Loading file: failed. ${error}`, "danger", 5000);
+        reject(error);
+      });
+  });
+}
+
+export function Simulate(config: SimConfig): Promise<boolean> {
+  return new Promise<boolean>((resolve, reject) => {
+    const requestOptions = {
+      method: "POST",
+      body: JSON.stringify(config),
+    };
+    showToast("Job submitted successfully to backend!", "success");
+    fetch(endpoint("simulate"), requestOptions)
+      .then(function (response) {
+        response.json().then((res) => console.log(res));
+        resolve(true);
+      })
+      .catch(function (error) {
+        console.log("There has been a problem with submitting the simulation: " + error.message);
         reject(error);
       });
   });
