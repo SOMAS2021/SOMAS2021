@@ -1,6 +1,7 @@
 import { showToast } from "../Components/Toaster";
 import { DeathLog, GetDeathLogs } from "./Logging/Death";
 import { FoodLog, GetFoodLogs } from "./Logging/Food";
+import { GetStoryLogs, StoryLog } from "./Logging/StoryLog";
 import { Result } from "./Result";
 import { GetSimConfig, SimConfig } from "./SimConfig";
 
@@ -53,9 +54,13 @@ export function GetResult(filename: string): Promise<Result> {
     var foods: FoodLog[] = [];
     promises.push(GetFoodLogs(filename).then((f) => (foods = f)));
 
-    // fconfig
+    // config
     var config: SimConfig = undefined!;
     promises.push(GetSimConfig(filename).then((c) => (config = c)));
+
+    // story
+    var story: StoryLog[] = [];
+    promises.push(GetStoryLogs(filename).then((s) => (story = s)));
 
     // all
     Promise.all(promises).then((_) =>
@@ -64,6 +69,7 @@ export function GetResult(filename: string): Promise<Result> {
         deaths: deaths,
         food: foods,
         config: config,
+        story: story,
       })
     );
   });

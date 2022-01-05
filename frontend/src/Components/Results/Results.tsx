@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { GetResult } from "../../Helpers/API";
 import { Result } from "../../Helpers/Result";
 import { Average } from "../../Helpers/Utils";
+import StoryViewer from "../Story/StoryViewer";
 import ConfigInfo from "./ConfigInfo";
 import ReportCard from "./ReportCard";
 
@@ -27,13 +28,13 @@ export default function Results(props: ResultsProps) {
   }, [logName]);
 
   return (
-    <div style={{ padding: 20 }}>
+    <div>
       {loading && <Spinner intent="primary" />}
       {!loading &&
         (logName !== "" && result ? (
           <ResultDisplay result={result} />
         ) : (
-          <H6>
+          <H6 style={{ paddingTop: 20 }}>
             <i>Select an existing simulation result to view results</i>
           </H6>
         ))}
@@ -47,24 +48,36 @@ interface ResultDisplayProps {
 function ResultDisplay(props: ResultDisplayProps) {
   const { result } = props;
   return (
-    <>
+    <div
+      style={{
+        overflowY: "scroll",
+        overflowX: "hidden",
+        height: "95vh",
+        textAlign: "left",
+        padding: "20px 10px 30px 10px",
+      }}
+    >
       <H3>{result.title}</H3>
-      <Divider></Divider>
-      <ConfigInfo config={result.config} />
-      <Divider></Divider>
-      <div className="row">
-        <div className="col-lg-6">
-          <ReportCard description="Total deaths" title={result.deaths.length.toString()} />
-        </div>
-        <div className="col-lg-6">
-          <ReportCard
-            description="Average food on platform per tick"
-            title={Average(result.food.map((f) => f.food))
-              .toFixed(3)
-              .toString()}
-          />
+      <div>
+        <Divider></Divider>
+        <ConfigInfo config={result.config} />
+        <Divider></Divider>
+        <StoryViewer story={result.story} />
+        <Divider></Divider>
+        <div className="row">
+          <div className="col-lg-6">
+            <ReportCard description="Total deaths" title={result.deaths.length.toString()} />
+          </div>
+          <div className="col-lg-6">
+            <ReportCard
+              description="Average food on platform per tick"
+              title={Average(result.food.map((f) => f.food))
+                .toFixed(3)
+                .toString()}
+            />
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

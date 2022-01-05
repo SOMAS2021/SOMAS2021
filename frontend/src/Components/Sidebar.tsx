@@ -29,8 +29,12 @@ export default function Sidebar(props: SideBarProps) {
         height: "95vh",
         textAlign: "left",
         padding: "10px 0px",
-        // backgroundColor: "#EBF1F5",
+        borderColor: "#EBF1F5",
+        borderWidth: 0,
+        borderRightWidth: 10,
+        borderStyle: "solid",
       }}
+      className="hide-scrollbar"
     >
       {!loading && (
         <Menu>

@@ -32,3 +32,10 @@ func (msg *BoolResponseMessage) Visit(a Agent) {
 		a.HandleResponse(*msg)
 	}
 }
+
+func (msg *BoolResponseMessage) StoryLog() string {
+	if msg.response {
+		return "yes"
+	}
+	return "no"
+}
