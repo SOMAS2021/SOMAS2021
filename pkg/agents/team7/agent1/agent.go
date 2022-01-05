@@ -387,7 +387,39 @@ func (a *CustomAgent7) HandleResponse(msg messages.BoolResponseMessage) {
 }
 
 
-// //Treaties
+//Treaties
+
+func (a *CustomAgent7) RejectTreaty(msg messages.ProposeTreatyMessage) {
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
+	a.SendMessage(reply)
+	a.Log("Rejected treaty", infra.Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(), "treatyID": msg.TreatyID()})
+}
+
+
+func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
+	// The code below can be used to accept all treaties by default.
+	treaty := msg.Treaty()
+	treaty.SignTreaty()
+	a.activeTreaties[msg.TreatyID()] = treaty
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
+	a.SendMessage(reply)
+	a.Log("Accepted treaty", infra.Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(),
+		"treatyID": msg.TreatyID()})
+}
+
+// This implementation automatically increments the signature count of the treaty if it was accepted.
+func (a *CustomAgent7) HandleTreatyResponse(msg messages.TreatyResponseMessage) {
+	if msg.Response() {
+		treaty := a.activeTreaties[msg.TreatyID()]
+		treaty.SignTreaty()
+		a.activeTreaties[msg.TreatyID()] = treaty
+	}
+}
+
+func (a *CustomAgent7) HandlePropogate(msg messages.Message) {
+	a.SendMessage(msg)
+}
+
 
 // func (a *CustomAgent7) RejectTreaty(msg messages.ProposeTreatyMessage) {
 // 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
