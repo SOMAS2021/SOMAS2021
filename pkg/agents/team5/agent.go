@@ -93,7 +93,7 @@ func (a *CustomAgent5) checkForLeader() {
 	if diceRoll >= a.leadership {
 		a.Log("An agent has become a leader", infra.Fields{"dice roll": diceRoll, "leadership": a.leadership, "selfishness": a.selfishness, "floor": a.Floor()})
 		//TODO: Send treaties here about eating less food
-		hpLevel := a.currentAimHP - ((a.currentAimHP-a.HealthInfo().WeakLevel*2)/10)*(diceRoll-a.leadership)
+		hpLevel := a.currentAimHP - ((a.currentAimHP-a.HealthInfo().WeakLevel)/10)*(diceRoll-a.leadership)
 		a.currentProposal = messages.NewTreaty(messages.HP, hpLevel, messages.LeavePercentFood, 100, messages.GE, messages.EQ, 5, a.ID())
 		a.treatySendCounter = 1
 		a.Log("Agent is sending a treaty proposal", infra.Fields{"Proposed Max Hp": hpLevel})
