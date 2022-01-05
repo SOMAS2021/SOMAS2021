@@ -5,7 +5,6 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
 //Upon receipt of message define affected emotions
@@ -298,19 +297,143 @@ func (a *CustomAgent3) HandleTreatyResponse(msg messages.TreatyResponseMessage) 
 	}
 
 }
-func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
-	var reply messages.ResponseMessage
-	// calculate the benefit of the treaty to the agent - more complex func needed
-	// possible parameters: mood, food consumed history, number of friends,
 
-	if a.knowledge.foodMovingAvg >= food.FoodType(a.foodReqCalc(50, 50)) { // satiated
-		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.read()) // a.read() false "stubbornness" % of the time
-	} else { // unsatiated
-		if a.vars.mood > 50 {
-			reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.read()) // a.read() false "stubbornness" % of the time
-		} else {
-			reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), false) // a.read() false "stubbornness" % of the time
-		}
+// func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
+// 	var reply messages.ResponseMessage
+// 	// calculate the benefit of the treaty to the agent - more complex func needed
+// 	// possible parameters: stubbornness, mood, food consumed history, number of friends,
+
+// 	if a.knowledge.foodMovingAvg >= float64(a.foodReqCalc(50, 50)) { // satiated
+// 		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.read()) // a.read() false "stubbornness" % of the time
+// 	} else { // unsatiated
+// 		if a.vars.mood > 50 {
+// 			reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.read()) // a.read() false "stubbornness" % of the time
+// 		} else {
+// 			reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), false) // a.read() false "stubbornness" % of the time
+// 		}
+// 	}
+// 	a.SendMessage(reply)
+// }
+
+type AgentPosition int
+type FoodTaken int
+
+const (
+	Strong AgentPosition = iota + 1
+	Healthy
+	Average
+	Weak
+	SurvivalLevel
+)
+
+const (
+	VeryLarge FoodTaken = iota + 1
+	Large
+	Moderate
+	Little
+	SurvivalAmount
+	TooLittle
+)
+
+func (a *CustomAgent3) requiredHPLevel(treaty messages.Treaty) AgentPosition {
+	if treaty.ConditionOp() == messages.LT || treaty.ConditionOp() == messages.LE {
+		return SurvivalLevel
+	}
+	switch hp := treaty.ConditionValue(); {
+	case hp >= 75 && hp <= 100:
+		return Strong
+	case hp >= 55 && hp < 75:
+		return Healthy
+	case hp >= 35 && hp < 55:
+		return Average
+	case hp >= 10 && hp < 35:
+		return Weak
+	default:
+		return SurvivalLevel
+	}
+}
+
+// Determining if a given floor means an agent is in a good / bad position relies on knowledge that the agent has no access to.
+// Hence, initial approach is to assume the treaty is risky, and can activate at SurvivalLevel.
+func (a *CustomAgent3) requiredFloorLevel(treaty messages.Treaty) AgentPosition {
+	return SurvivalLevel
+}
+
+func (a *CustomAgent3) requiredAvailFoodLevel(treaty messages.Treaty) AgentPosition {
+	return SurvivalLevel
+}
+
+// Calculates food available to eat if request applied to current platform food, and uses this as an estimate for the general case.
+func (a *CustomAgent3) leaveAmountFoodEstimate(treaty messages.Treaty) FoodTaken {
+	switch foodToEat := int(int(a.CurrPlatFood()) - treaty.RequestValue()); {
+	case foodToEat > a.foodReqCalc(85, 85):
+		return VeryLarge
+	case foodToEat > a.foodReqCalc(60, 60):
+		return Large
+	case foodToEat > a.foodReqCalc(40, 40):
+		return Moderate
+	case foodToEat > a.foodReqCalc(a.HealthInfo().WeakLevel+15, a.HealthInfo().WeakLevel+15):
+		return Little
+	case foodToEat > a.foodReqCalc(a.HealthInfo().WeakLevel, a.HealthInfo().WeakLevel):
+		return SurvivalAmount
+	default:
+		return TooLittle
+	}
+}
+
+// Calculates food available to eat if request applied to current platform food, and uses this as an estimate for the general case.
+// Assumes leavePercentFood from 0 to 100.
+func (a *CustomAgent3) leavePercentFoodEstimate(treaty messages.Treaty) FoodTaken {
+	switch foodToEat := int(int(a.CurrPlatFood()) * (100 - treaty.RequestValue())); {
+	case foodToEat > a.foodReqCalc(85, 85):
+		return VeryLarge
+	case foodToEat > a.foodReqCalc(60, 60):
+		return Large
+	case foodToEat > a.foodReqCalc(40, 40):
+		return Moderate
+	case foodToEat > a.foodReqCalc(25, 25):
+		return Little
+	case foodToEat > a.foodReqCalc(10, 10):
+		return SurvivalAmount
+	default:
+		return TooLittle
+	}
+}
+
+func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
+	treaty := msg.Treaty()
+	var requiredAgentPosition AgentPosition
+	var foodTakenEstimate FoodTaken
+	var reply messages.ResponseMessage
+
+	switch treaty.Condition() {
+	case messages.HP:
+		requiredAgentPosition = a.requiredHPLevel(treaty)
+	case messages.Floor:
+		requiredAgentPosition = a.requiredFloorLevel(treaty)
+	case messages.AvailableFood:
+		requiredAgentPosition = a.requiredAvailFoodLevel(treaty)
+	}
+
+	switch treaty.Request() {
+	case messages.LeaveAmountFood:
+		foodTakenEstimate = a.leaveAmountFoodEstimate(treaty)
+	case messages.LeavePercentFood:
+		foodTakenEstimate = a.leavePercentFoodEstimate(treaty)
+	}
+
+	// If agent is in a bad mood, it will only accept treaties that take effect when it is in a strong position.
+	// If agent has low morality, it will only accept treaties that involve it taking large amounts of food.
+	agentVarsPassed := a.vars.mood > (20*int(requiredAgentPosition)-20) && a.vars.morality > (20*int(foodTakenEstimate)-20) && a.vars.morality < (20*int(foodTakenEstimate)+20)
+
+	//use agent variables, foodTakenEstimate, and requiredAgentPosition to accept/reject
+	if treaty.Request() == messages.Inform && treaty.Condition() == messages.HP { // accept HP inform requests
+		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), true)
+	} else if agentVarsPassed { // uses agent state and predicted benefit of treaty
+		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.read()) // accept "stubbornness" % of time
+	} else {
+		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), false) // reject
 	}
 	a.SendMessage(reply)
+
 }

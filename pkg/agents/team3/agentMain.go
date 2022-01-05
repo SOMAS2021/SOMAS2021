@@ -29,7 +29,7 @@ type team3Knowledge struct {
 	//Stores food last eaten
 	foodLastSeen food.FoodType
 	//Stores moving average of food consumed
-	foodMovingAvg food.FoodType
+	foodMovingAvg float64
 	//Stores how old (in days) the agent is
 	agentAge int
 	//Stores whether we already have a treaty with the person above
@@ -80,9 +80,10 @@ func (a *CustomAgent3) Run() {
 	//Update agent variables at the beginning of day (when we age)
 	if a.knowledge.agentAge < a.BaseAgent().Age() {
 		changeNewDay(a)
-		if a.knowledge.agentAge == 1 { //case need to initialise our moving average in day 1
-			a.knowledge.foodMovingAvg = food.FoodType(a.foodReqCalc(50, 50))
-		}
+	}
+
+	if a.knowledge.agentAge == 1 {
+		a.knowledge.foodMovingAvg = float64(a.foodReqCalc(50, 50))
 	}
 
 	//Update agent variables at the beginning of reshuffle (when floor has changed)
