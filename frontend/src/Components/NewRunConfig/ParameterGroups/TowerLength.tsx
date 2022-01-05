@@ -1,4 +1,4 @@
-import { FormGroup, H5, NumericInput, Switch } from "@blueprintjs/core";
+import { FormGroup, H5, NumericInput } from "@blueprintjs/core";
 import { Parameter } from "./ParameterLabels";
 
 export default function TowerLength(props: any) {

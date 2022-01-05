@@ -1,7 +1,6 @@
 import { Button } from "@blueprintjs/core";
 import { SimConfig } from "../../../Helpers/SimConfig";
 import "./Settings.css";
-import { useState } from "react";
 import { Simulate } from "../../../Helpers/API";
 import TowerFood from "../ParameterGroups/TowerFood";
 import TowerLength from "../ParameterGroups/TowerLength";
@@ -16,8 +15,6 @@ interface SettingsProps {
 
 export default function Settings(props: SettingsProps) {
   const { config, setConfig } = props;
-
-  const [disableTotalFood, setDisableTotalFood] = useState(Boolean);
 
   function configHandler<Key extends keyof SimConfig>(value: any, keyString: any) {
     var key: Key = keyString; // converting keyString to type Key

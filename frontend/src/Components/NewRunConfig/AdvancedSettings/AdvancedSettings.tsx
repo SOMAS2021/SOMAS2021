@@ -1,7 +1,6 @@
 import { Button, H3 } from "@blueprintjs/core";
 import { SimConfig } from "../../../Helpers/SimConfig";
 import "./AdvancedSettings.css";
-import { useState } from "react";
 import { Simulate } from "../../../Helpers/API";
 import TowerFood from "../ParameterGroups/TowerFood";
 import TowerLength from "../ParameterGroups/TowerLength";
