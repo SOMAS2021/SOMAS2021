@@ -324,6 +324,7 @@ const (
 	Average
 	Weak
 	SurvivalLevel
+	Reject
 )
 
 const (
@@ -349,27 +350,34 @@ func (a *CustomAgent3) requiredHPLevel(treaty messages.Treaty) AgentPosition {
 		return Average
 	case hp >= a.HealthInfo().WeakLevel:
 		return Weak
-	default:
+	case hp == a.HealthInfo().HPCritical:
 		return SurvivalLevel
+	default:
+		return Reject
 	}
 }
 
 // Determining if a given floor means an agent is in a good / bad position relies on knowledge that the agent has no access to.
 // Hence, initial approach is to assume the treaty is risky, and could possibly activate when the agent is at SurvivalLevel.
 func (a *CustomAgent3) requiredFloorLevel(treaty messages.Treaty) AgentPosition {
-	return SurvivalLevel
+	return Reject
 }
 
 // Same as Floor, initial approach is to assume the treaty is risky, and could possibly activate when the agent is at SurvivalLevel.
 func (a *CustomAgent3) requiredAvailFoodLevel(treaty messages.Treaty) AgentPosition {
-	return SurvivalLevel
+	return Reject
 }
 
 // Calculates food available to eat if request applied to current platform food, and uses this as an estimate for the general case.
 func (a *CustomAgent3) reqFoodTakenEstimate(treaty messages.Treaty, percentage bool) FoodTaken {
 	var foodToEatCalc int
+
+	if treaty.RequestOp() == messages.LT || treaty.RequestOp() == messages.LE || treaty.RequestValue() > a.CurrPlatFood() {
+		return TooLittle
+	}
+
 	if percentage {
-		foodToEatCalc = int(int(a.CurrPlatFood()) * (100 - treaty.RequestValue()))
+		foodToEatCalc = int(float64(a.CurrPlatFood()) * float64((100.0 - float64(treaty.RequestValue()))/100.0))
 	} else {
 		foodToEatCalc = int(int(a.CurrPlatFood()) - treaty.RequestValue())
 	}
@@ -395,7 +403,7 @@ func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
 	var requiredAgentPosition AgentPosition
 	var foodTakenEstimate FoodTaken
-	var reply messages.ResponseMessage
+	var reply messages.TreatyResponseMessage
 
 	switch treaty.Condition() {
 	case messages.HP:
