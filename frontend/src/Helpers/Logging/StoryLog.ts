@@ -1,3 +1,4 @@
+import { GetFile } from "../API";
 import { Log } from "./Log";
 
 export interface StoryLog extends Log {
@@ -27,4 +28,18 @@ export interface StoryDeathLog extends StoryLog, AgentState {}
 
 export interface StoryPlatformLog extends StoryLog {
   floor: number;
+}
+
+export function GetStoryLogs(filename: string): Promise<StoryLog[]> {
+  return new Promise<StoryLog[]>((resolve, reject) => {
+    GetFile(filename, "story")
+      .then((storylogs) =>
+        resolve(
+          storylogs.map(function (e: any) {
+            return e as StoryLog;
+          })
+        )
+      )
+      .catch((err) => reject(err));
+  });
 }
