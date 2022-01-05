@@ -64,7 +64,7 @@ func NewLogState(folderpath string, saveMainLog bool) *StateLog {
 	}
 }
 
-func (ls *StateLog) LogAgentDeath(simState *day.DayInfo, agentType agent.AgentType) {
+func (ls *StateLog) LogAgentDeath(simState *day.DayInfo, agentType agent.AgentType, age int) {
 	ls.deathCount++
 	ls.deathLogger.
 		WithFields(
@@ -73,6 +73,7 @@ func (ls *StateLog) LogAgentDeath(simState *day.DayInfo, agentType agent.AgentTy
 				"tick":             simState.CurrTick,
 				"agent_type":       agentType.String(),
 				"cumulativeDeaths": ls.deathCount,
+				"ageUponDeath": age,
 			}).Info()
 }
 
