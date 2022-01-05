@@ -44,10 +44,10 @@ function StoryController(props: StoryControllerProps) {
   const maxTick = Math.max(...story.map((e) => e.tick));
 
   return (
-    <div>
+    <div style={{overflow: "hidden"}}>
       <Ticker tick={tick} setTick={setTick} maxTick={maxTick} />
       <Divider />
-      <div>
+      <div style={{height: "45vh", overflowY: "scroll"}}>
         {story.map((log, index) => {
           if (log.tick === tick) {
             switch (log.msg) {
