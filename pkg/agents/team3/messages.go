@@ -434,7 +434,7 @@ func (a *CustomAgent3) requiredAvailFoodLevel(treaty messages.Treaty) AgentPosit
 func (a *CustomAgent3) reqFoodTakenEstimate(treaty messages.Treaty, percentage bool) FoodTaken {
 	var foodToEatCalc int
 
-	if treaty.RequestOp() == messages.LT || treaty.RequestOp() == messages.LE {
+	if treaty.RequestOp() == messages.LT || treaty.RequestOp() == messages.LE || treaty.RequestOp() == messages.EQ {
 		return VeryLarge
 	}
 
@@ -462,7 +462,7 @@ func (a *CustomAgent3) reqFoodTakenEstimate(treaty messages.Treaty, percentage b
 // 1. requiredAgentPosition evaluates the condition, 2. foodTakenEstimate evaluates the request,
 // 3. agentVarsPassed uses agent params with evaluations, 4. Reply sent which accepts/rejects the treaty
 func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
-	if len(a.ActiveTreaties()) == 0 {
+	if len(a.ActiveTreaties()) > 0 {
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
 		a.SendMessage(reply)
 	} else {
@@ -489,7 +489,7 @@ func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		agentVarsPassed := a.vars.mood > (20*int(minActivationLevel)-20) && a.vars.morality > (20*int(foodTakenEstimate)-20) && a.vars.morality < (20*int(foodTakenEstimate)+20)
 
 		//use agent variables, foodTakenEstimate, and requiredAgentPosition to accept/reject
-		if agentVarsPassed { // accept HP inform requests
+		if agentVarsPassed || treaty.Request() == messages.Inform { // accept HP inform requests
 			response = true
 			treaty.SignTreaty()
 			a.AddTreaty(treaty)
