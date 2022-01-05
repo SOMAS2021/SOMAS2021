@@ -76,28 +76,28 @@ function ResultDisplay(props: ResultDisplayProps) {
                 .toString()}
             />
           </div>
-        </div>
-        <div className="col-lg-6">
-          <ReportCard
-            description="Average agent age upon death"
-            title={Average(result.deaths.map((d) => d.ageUponDeath))
-              .toFixed(3)
-              .toString()}
-          />
-        </div>
-        <div className="col-lg-6">
-          <ReportCard
-            description="Max agent age upon death"
-            title={Max(result.deaths.map((d) => d.ageUponDeath))
-              .toString()}
-          />
-        </div>
-        <div className="col-lg-6">
-          <ReportCard
-            description="Min agent age upon death"
-            title={Min(result.deaths.map((d) => d.ageUponDeath))
-              .toString()}
-          />
+          <div className="col-lg-6">
+            <ReportCard
+              description="Average agent age upon death"
+              title={Average(result.deaths.map((d) => d.ageUponDeath))
+                .toFixed(3)
+                .toString()}
+            />
+          </div>
+          <div className="col-lg-6">
+            <ReportCard
+              description="Max agent age upon death"
+              title={Max(result.deaths.map((d) => d.ageUponDeath))
+                .toString()}
+            />
+          </div>
+          <div className="col-lg-6">
+            <ReportCard
+              description="Min agent age upon death"
+              title={Min(result.deaths.map((d) => d.ageUponDeath))
+                .toString()}
+            />
+          </div>
         </div>
       </div>
     </div>
