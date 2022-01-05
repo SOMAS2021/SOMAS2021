@@ -71,10 +71,11 @@ type OperationalMemory struct {
 
 type CustomAgent7 struct {
 	*infra.Base
-	personality team7Personalities
-	opMem       OperationalMemory
-	behaviour   CurrentBehaviour
-	Eaten       food.FoodType
+	personality    team7Personalities
+	opMem          OperationalMemory
+	behaviour      CurrentBehaviour
+	Eaten          food.FoodType
+	activeTreaties map[uuid.UUID]messages.Treaty
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
@@ -387,7 +388,6 @@ func (a *CustomAgent7) HandleResponse(msg messages.BoolResponseMessage) {
 	a.Log("I recieved a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": response})
 }
 
-
 //Treaties
 
 func (a *CustomAgent7) ActiveTreaties() map[uuid.UUID]messages.Treaty {
@@ -408,12 +408,12 @@ func (a *CustomAgent7) RejectTreaty(msg messages.ProposeTreatyMessage) {
 	a.Log("Rejected treaty", infra.Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(), "treatyID": msg.TreatyID()})
 }
 
-
 func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	// The code below can be used to accept all treaties by default.
 	treaty := msg.Treaty()
 	treaty.SignTreaty()
-	a.activeTreaties[msg.TreatyID()] = treaty
+	//a.AddTreaty(treaty)
+	//a.activeTreaties[msg.TreatyID()] = treaty
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
 	a.SendMessage(reply)
 	a.Log("Accepted treaty", infra.Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(),
@@ -432,7 +432,6 @@ func (a *CustomAgent7) HandleTreatyResponse(msg messages.TreatyResponseMessage) 
 func (a *CustomAgent7) HandlePropogate(msg messages.Message) {
 	a.SendMessage(msg)
 }
-
 
 // func (a *CustomAgent7) RejectTreaty(msg messages.ProposeTreatyMessage) {
 // 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
