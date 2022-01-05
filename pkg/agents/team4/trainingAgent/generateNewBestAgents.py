@@ -18,10 +18,10 @@ selfish_flag = sys.argv[7]
 selfless_flag = sys.argv[8]
 current_iteration = int(sys.argv[9])
 
-def generate_mutated_agent(agent, attribute): # We define a mutated angent from a select base agent in the previous iteration.
+def generate_mutated_agent(agent, attribute, population_size): # We define a mutated angent from a select base agent in the previous iteration.
     
     noise_multiplier_for_attribute = {
-        "FoodToEat": 22/math.sqrt(current_iteration), # Value will tend to 10
+        "FoodToEat": math.sqrt(population_size)*10/math.sqrt(current_iteration), # Value will tend to 10
         "DaysToWait": 2
     }
 
@@ -85,14 +85,14 @@ def generate_random_agent(): # We define an entirely new random agent
 # read bestAgent.config
 best_agents_file = open(best_agents_file_name)
 best_agents_list = json.load(best_agents_file)
-best_agents_file.close
+best_agents_file.close()
 
-# read the array of average time survied by each agent
+# read the array of average time survived by each agent
 agent_life_expectancies_file = open(agent_life_expectancies_file_name)
 performance_list_life = json.load(agent_life_expectancies_file)
 agent_life_expectancies_file.close()
 
-# read the array of average time survied by each agent of our type
+# read the array of average time survived by each agent of our type
 agent_our_life_expectancies_file = open(agent_our_life_expectancies_file_name)
 performance_list_our_life = json.load(agent_our_life_expectancies_file)
 agent_our_life_expectancies_file.close()
@@ -107,12 +107,12 @@ performance_list_death = json.load(agent_death_rate_file)
 agent_death_rate_file.close()
 
 # sort array but keep a track of index to obtain best agent
-perfomance_list_indices = range(len(performance_list_life))
+performance_list_indices = range(len(performance_list_life))
     
 if selfless_flag == "True":
     print("This is selfless") # TODO: this to change
     zipped_performance = zip(performance_list_other_life, performance_list_our_life,  performance_list_life,
-                             performance_list_death, perfomance_list_indices)
+                             performance_list_death, performance_list_indices)
     sorted_zipped_performance = sorted(zipped_performance, reverse=True)
     tuples = zip(*sorted_zipped_performance)
     sorted_performance_list_other_life, sorted_performance_list_our_life, sorted_performance_list_life, sorted_performance_list_death, sorted_performance_list_indices = [
@@ -120,7 +120,7 @@ if selfless_flag == "True":
 elif selfish_flag=="True":
     print("This is selfish")
     zipped_performance = zip(performance_list_our_life, performance_list_other_life, performance_list_life,
-                             performance_list_death, perfomance_list_indices)
+                             performance_list_death, performance_list_indices)
     sorted_zipped_performance = sorted(zipped_performance, reverse=True)
     tuples = zip(*sorted_zipped_performance)
     sorted_performance_list_our_life, sorted_performance_list_other_life, sorted_performance_list_life, sorted_performance_list_death, sorted_performance_list_indices = [
@@ -128,7 +128,7 @@ elif selfish_flag=="True":
 else:
     print("This is neutral")
     zipped_performance = zip(performance_list_life, performance_list_other_life, performance_list_our_life,
-                             performance_list_death, perfomance_list_indices)
+                             performance_list_death, performance_list_indices)
     sorted_zipped_performance = sorted(zipped_performance, reverse=True)
     tuples = zip(*sorted_zipped_performance)
     sorted_performance_list_life, sorted_performance_list_other_life, sorted_performance_list_our_life, sorted_performance_list_death, sorted_performance_list_indices = [
@@ -167,7 +167,7 @@ for i in range(len(agent_list)):
     number_of_best_agent = int((2/10) * len(agent_list))
     number_of_mixed_agents = int((4/10) * len(agent_list))
     number_of_mutated_agents = int((2/10) * len(agent_list))
-    number_of_random_agents = len(best_agents_list) - number_of_best_agent - number_of_mixed_agents - number_of_mutated_agents
+    number_of_random_agents = len(agent_list) - number_of_best_agent - number_of_mixed_agents - number_of_mutated_agents
 
     for j in range(number_of_best_agent):
         new_best_agents.append(agent_list[j])
@@ -176,13 +176,14 @@ for i in range(len(agent_list)):
         new_best_agents.append(generate_mixed_agent(agent_list, number_of_agents_to_use, attribute_arr))
 
     for j in range(number_of_mutated_agents):
-        new_best_agents.append(generate_mutated_agent(agent_list[j%3], attribute_arr))
+        new_best_agents.append(generate_mutated_agent(agent_list[j%3], attribute_arr, len(agent_list)))
 
     for j in range(number_of_random_agents):
         new_best_agents.append(generate_random_agent())
 
 for best_agent in new_best_agents:
     best_agent["FoodToEat"][0] = -1
+    best_agent["DaysToWait"][0] = -1
 
 best_agents_file = open(best_agents_file_name, 'w')
 best_agents_file.write(json.dumps(new_best_agents, indent=4))
