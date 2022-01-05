@@ -48,7 +48,7 @@ interface ResultDisplayProps {
 function ResultDisplay(props: ResultDisplayProps) {
   const { result } = props;
   return (
-    <div style={{ overflowY: "scroll", overflowX: "hidden", height: "95vh", textAlign: "left", padding: "10px" }}>
+    <div style={{ overflowY: "scroll", overflowX: "hidden", height: "95vh", textAlign: "left", padding: "20px 10px 30px 10px" }}>
       <H3>{result.title}</H3>
       <div>
         <Divider></Divider>
