@@ -26,9 +26,11 @@ for i in range(number_of_agents):
     # increase food to eat by increments of 20
     agent_config["FoodToEat"] = [(i % 5) * 20
                                  for _ in range(int(number_of_health_levels))]
+
     # set WaitProbability to a random number between 0 and 100
-    agent_config["WaitProbability"] = [random.randint(0, 100)
-                                       for _ in range(int(number_of_health_levels))]
+    agent_config["WaitProbability"] = sorted([random.randint(0, 100)
+                                              for _ in range(int(number_of_health_levels))])
+
     best_agents.append(agent_config)
 
 for best_agent in best_agents:

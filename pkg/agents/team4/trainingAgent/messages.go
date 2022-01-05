@@ -95,9 +95,11 @@ func (a *CustomAgentEvo) HandleAskIntendedFoodTaken(msg messages.AskIntendedFood
 }
 
 func (a *CustomAgentEvo) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
-	response := true
-	if a.params.globalTrust < a.params.globalTrustLimit {
-		response = false
+	amount := msg.Request()
+	response := false
+	//amount on platform - intended amount to take  >= request then respond true
+	if a.CurrPlatFood()-food.FoodType(a.params.foodToEat[a.params.healthStatus]) >= food.FoodType(amount) {
+		response = true
 	}
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), response) // TODO: Change for later dependent on circumstance
 	a.SendMessage(reply)

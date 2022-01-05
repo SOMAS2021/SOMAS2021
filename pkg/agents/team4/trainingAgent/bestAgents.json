@@ -2,391 +2,351 @@
     {
         "FoodToEat": [
             -1,
-            60,
-            24,
+            0,
+            0,
             0
         ],
         "WaitProbability": [
             -1,
-            63,
-            31,
-            74
-        ],
-        "life": 22.178571428571427,
-        "death": 10.0,
-        "our_life": 21.1,
-        "other_life": 22.41304347826087
-    },
-    {
-        "FoodToEat": [
-            -1,
-            29,
-            25,
-            2
-        ],
-        "WaitProbability": [
-            -1,
             39,
-            35,
-            92
+            55,
+            78
         ]
     },
     {
         "FoodToEat": [
             -1,
-            29,
-            25,
-            0
+            20,
+            20,
+            20
         ],
         "WaitProbability": [
             -1,
-            39,
-            35,
-            92
+            33,
+            63,
+            91
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            40,
+            40,
+            40
+        ],
+        "WaitProbability": [
+            -1,
+            41,
+            53,
+            76
         ]
     },
     {
         "FoodToEat": [
             -1,
             60,
-            24,
-            0
+            60,
+            60
         ],
         "WaitProbability": [
             -1,
-            63,
-            31,
-            74
-        ],
-        "life": 22.178571428571427,
-        "death": 10.0,
-        "our_life": 21.1,
-        "other_life": 22.41304347826087
+            37,
+            51,
+            65
+        ]
     },
     {
         "FoodToEat": [
             -1,
-            96,
-            16,
-            73
+            80,
+            80,
+            80
         ],
         "WaitProbability": [
             -1,
-            66,
-            54,
+            32,
+            78,
+            80
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            0,
+            0,
+            0
+        ],
+        "WaitProbability": [
+            -1,
+            38,
+            43,
+            47
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            20,
+            20,
+            20
+        ],
+        "WaitProbability": [
+            -1,
+            22,
+            35,
             87
         ]
     },
     {
         "FoodToEat": [
             -1,
-            60,
-            24,
-            0
+            40,
+            40,
+            40
         ],
         "WaitProbability": [
             -1,
-            63,
-            31,
-            74
-        ],
-        "life": 22.178571428571427,
-        "death": 10.0,
-        "our_life": 21.1,
-        "other_life": 22.41304347826087
-    },
-    {
-        "FoodToEat": [
-            -1,
-            20,
-            25,
-            0
-        ],
-        "WaitProbability": [
-            -1,
-            11,
-            49,
-            94
-        ]
-    },
-    {
-        "FoodToEat": [
-            -1,
-            20,
-            25,
-            0
-        ],
-        "WaitProbability": [
-            -1,
-            11,
-            54,
-            92
-        ]
-    },
-    {
-        "FoodToEat": [
-            -1,
-            60,
-            24,
-            0
-        ],
-        "WaitProbability": [
-            -1,
-            63,
-            31,
-            74
-        ],
-        "life": 22.178571428571427,
-        "death": 10.0,
-        "our_life": 21.1,
-        "other_life": 22.41304347826087
-    },
-    {
-        "FoodToEat": [
-            -1,
-            71,
-            45,
-            45
-        ],
-        "WaitProbability": [
-            -1,
-            44,
-            97,
-            63
-        ]
-    },
-    {
-        "FoodToEat": [
-            -1,
-            60,
-            24,
-            0
-        ],
-        "WaitProbability": [
-            -1,
-            63,
-            31,
-            74
-        ],
-        "life": 22.178571428571427,
-        "death": 10.0,
-        "our_life": 21.1,
-        "other_life": 22.41304347826087
-    },
-    {
-        "FoodToEat": [
-            -1,
-            15,
-            23,
-            0
-        ],
-        "WaitProbability": [
-            -1,
-            89,
-            49,
+            51,
+            78,
             100
         ]
     },
     {
         "FoodToEat": [
             -1,
-            15,
+            60,
+            60,
+            60
+        ],
+        "WaitProbability": [
+            -1,
+            26,
+            57,
+            72
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            80,
+            80,
+            80
+        ],
+        "WaitProbability": [
+            -1,
+            41,
+            78,
+            91
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            0,
             0,
             0
         ],
         "WaitProbability": [
             -1,
-            33,
-            36,
-            92
+            18,
+            19,
+            91
         ]
-    },
-    {
-        "FoodToEat": [
-            -1,
-            60,
-            24,
-            0
-        ],
-        "WaitProbability": [
-            -1,
-            63,
-            31,
-            74
-        ],
-        "life": 22.178571428571427,
-        "death": 10.0,
-        "our_life": 21.1,
-        "other_life": 22.41304347826087
-    },
-    {
-        "FoodToEat": [
-            -1,
-            88,
-            88,
-            78
-        ],
-        "WaitProbability": [
-            -1,
-            64,
-            6,
-            92
-        ]
-    },
-    {
-        "FoodToEat": [
-            -1,
-            60,
-            24,
-            0
-        ],
-        "WaitProbability": [
-            -1,
-            63,
-            31,
-            74
-        ],
-        "life": 22.178571428571427,
-        "death": 10.0,
-        "our_life": 21.1,
-        "other_life": 22.41304347826087
-    },
-    {
-        "FoodToEat": [
-            -1,
-            31,
-            29,
-            0
-        ],
-        "WaitProbability": [
-            -1,
-            89,
-            49,
-            92
-        ]
-    },
-    {
-        "FoodToEat": [
-            -1,
-            31,
-            0,
-            0
-        ],
-        "WaitProbability": [
-            -1,
-            89,
-            32,
-            92
-        ]
-    },
-    {
-        "FoodToEat": [
-            -1,
-            60,
-            24,
-            0
-        ],
-        "WaitProbability": [
-            -1,
-            63,
-            31,
-            74
-        ],
-        "life": 22.178571428571427,
-        "death": 10.0,
-        "our_life": 21.1,
-        "other_life": 22.41304347826087
-    },
-    {
-        "FoodToEat": [
-            -1,
-            70,
-            4,
-            62
-        ],
-        "WaitProbability": [
-            -1,
-            13,
-            51,
-            26
-        ]
-    },
-    {
-        "FoodToEat": [
-            -1,
-            60,
-            24,
-            0
-        ],
-        "WaitProbability": [
-            -1,
-            63,
-            31,
-            74
-        ],
-        "life": 22.178571428571427,
-        "death": 10.0,
-        "our_life": 21.1,
-        "other_life": 22.41304347826087
     },
     {
         "FoodToEat": [
             -1,
             20,
-            29,
-            3
+            20,
+            20
         ],
         "WaitProbability": [
             -1,
-            64,
-            34,
-            85
+            52,
+            69,
+            94
         ]
     },
     {
         "FoodToEat": [
             -1,
-            62,
-            29,
-            3
+            40,
+            40,
+            40
         ],
         "WaitProbability": [
             -1,
-            64,
-            49,
-            85
+            35,
+            69,
+            76
         ]
     },
     {
         "FoodToEat": [
             -1,
             60,
-            24,
-            0
+            60,
+            60
         ],
         "WaitProbability": [
             -1,
-            63,
             31,
-            74
-        ],
-        "life": 22.178571428571427,
-        "death": 10.0,
-        "our_life": 21.1,
-        "other_life": 22.41304347826087
+            48,
+            62
+        ]
     },
     {
         "FoodToEat": [
             -1,
-            22,
-            62,
-            72
+            80,
+            80,
+            80
         ],
         "WaitProbability": [
             -1,
-            63,
-            90,
-            63
+            28,
+            67,
+            70
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            0,
+            0,
+            0
+        ],
+        "WaitProbability": [
+            -1,
+            40,
+            41,
+            46
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            20,
+            20,
+            20
+        ],
+        "WaitProbability": [
+            -1,
+            75,
+            78,
+            94
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            40,
+            40,
+            40
+        ],
+        "WaitProbability": [
+            -1,
+            19,
+            28,
+            36
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            60,
+            60,
+            60
+        ],
+        "WaitProbability": [
+            -1,
+            57,
+            72,
+            98
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            80,
+            80,
+            80
+        ],
+        "WaitProbability": [
+            -1,
+            44,
+            46,
+            82
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            0,
+            0,
+            0
+        ],
+        "WaitProbability": [
+            -1,
+            23,
+            37,
+            51
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            20,
+            20,
+            20
+        ],
+        "WaitProbability": [
+            -1,
+            10,
+            39,
+            65
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            40,
+            40,
+            40
+        ],
+        "WaitProbability": [
+            -1,
+            56,
+            72,
+            96
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            60,
+            60,
+            60
+        ],
+        "WaitProbability": [
+            -1,
+            41,
+            69,
+            83
+        ]
+    },
+    {
+        "FoodToEat": [
+            -1,
+            80,
+            80,
+            80
+        ],
+        "WaitProbability": [
+            -1,
+            46,
+            74,
+            100
         ]
     }
 ]

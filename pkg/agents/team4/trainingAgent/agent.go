@@ -16,24 +16,26 @@ import (
 
 type CustomAgentEvoParams struct {
 	foodToEat       []int   // the amount of food to eat for various health levels
-	waitProbability []int   // probability the agent will wait to eat on any gien day
+	waitProbability []int   // probability the agent will wait to eat on any given day
 	ageLastEaten    int     // the age at which the agent last ate
 	morality        float64 // the morality of the agent that determines how selfishly or selflessly the agent will act
 	craving         int     // the amount of craving the agent has for food which effects the amount of food it is likely to eat
 
-	globalTrust      float32            // the overall trust the agent has in other agents in the tower
-	coefficients     []float32          // the amount trust score changes by for certain actions
-	lastFoodTaken    food.FoodType      // food taken on the previous day
-	sentMessages     []messages.Message // TODO: make it a map hashed by messageIDs
-	responseMessages []messages.Message // TODO: make it a map hashed by messageIDs
-	lastPlatFood     food.FoodType      // last seen food on the platform
-	lastTimeFoodSeen int                // number of days passed since seeing the desired amount of food on the platform
-	maxFoodLimit     food.FoodType      // maximum food we want to allow others to eat
-	messageCounter   int                // the total number of messages we send in a day
-	globalTrustLimit float32            // limit to check whether to be selfish or not
-	lastAge          int                // the age of the agent on the previous day
-	healthStatus     int
-	maxFloor         int
+	globalTrust              float32            // the overall trust the agent has in other agents in the tower
+	coefficients             []float32          // the amount trust score changes by for certain actions
+	lastFoodTaken            food.FoodType      // food taken on the previous day
+	sentMessages             []messages.Message // TODO: make it a map hashed by messageIDs
+	responseMessages         []messages.Message // TODO: make it a map hashed by messageIDs
+	requestLeaveFoodMessages []messages.Message
+	otherMessageBuffer       []messages.Message
+	lastPlatFood             food.FoodType // last seen food on the platform
+	lastTimeFoodSeen         int           // number of days passed since seeing the desired amount of food on the platform
+	maxFoodLimit             food.FoodType // maximum food we want to allow others to eat
+	messageCounter           int           // the total number of messages we send in a day
+	globalTrustLimit         float32       // limit to check whether to be selfish or not
+	lastAge                  int           // the age of the agent on the previous day
+	healthStatus             int
+	maxFloor                 int
 }
 
 type CustomAgentEvo struct {
@@ -61,22 +63,27 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 	data1.WaitProbability[0] = 0
 
 	return CustomAgentEvoParams{ //initialise the parameters of the agent
-		foodToEat:        data1.FoodToEat,
-		waitProbability:  data1.WaitProbability,
-		ageLastEaten:     0,
-		morality:         100 * rand.Float64(), // TODO: Use this properly
-		craving:          0,
-		healthStatus:     3,
+		foodToEat:       data1.FoodToEat,
+		waitProbability: data1.WaitProbability,
+		ageLastEaten:    0,
+		morality:        100 * rand.Float64(), // TODO: Use this properly
+		craving:         0,
+		healthStatus:    3,
+
 		globalTrust:      0.0,
+		globalTrustLimit: 75,
 		coefficients:     []float32{2, 4, 8}, // TODO: maybe train these co-efficients using evolutionary algorithm
 		lastFoodTaken:    0,
-		sentMessages:     []messages.Message{},
-		responseMessages: []messages.Message{},
+
+		messageCounter:           0,
+		sentMessages:             []messages.Message{},
+		responseMessages:         []messages.Message{},
+		requestLeaveFoodMessages: []messages.Message{},
+		otherMessageBuffer:       []messages.Message{},
+
 		lastPlatFood:     -1,
 		lastTimeFoodSeen: 0,
 		maxFoodLimit:     50,
-		messageCounter:   0,
-		globalTrustLimit: 75,
 		lastAge:          0,
 		maxFloor:         0,
 	}
@@ -123,35 +130,37 @@ func (a *CustomAgentEvo) UpdateLastTimeFoodSeen() {
 	}
 }
 
-func (a *CustomAgentEvo) Run() {
+////--------------------Message Parsing--------------------////
 
-	// update agent's perception of maxFloor
-	a.params.maxFloor = int(math.Max(float64(a.params.maxFloor), float64(a.Floor()))) // math.Max only take in floats while we require an integer floor.
-
-	if food.FoodType(a.CurrPlatFood()) != a.params.lastPlatFood && a.PlatformOnFloor() {
-		a.params.lastPlatFood = a.CurrPlatFood()
-	}
-
+func (a *CustomAgentEvo) GetMessage() { //move this function to messages.go
 	receivedMsg := a.ReceiveMessage()
+
 	if receivedMsg != nil {
-		receivedMsg.Visit(a)
-	} else {
-		a.Log("I got nothing")
+		if receivedMsg.MessageType() == messages.RequestLeaveFood {
+			a.params.requestLeaveFoodMessages = append(a.params.requestLeaveFoodMessages, receivedMsg)
+		} else {
+			a.params.otherMessageBuffer = append(a.params.otherMessageBuffer, receivedMsg)
+		}
 	}
+}
 
-	//TODO: Define a threshold limit for other agents to respond to our sent message.
-	a.SendingMessage()
+func (a *CustomAgentEvo) CallHandleMessage() { //move this function to messages.go
+	if a.PlatformOnFloor() && len(a.params.requestLeaveFoodMessages) > 0 {
+		a.params.requestLeaveFoodMessages[0].Visit(a)
+		remove(a.params.requestLeaveFoodMessages, 0)
+	} else if len(a.params.otherMessageBuffer) > 0 {
+		a.params.otherMessageBuffer[0].Visit(a)
+		remove(a.params.otherMessageBuffer, 0)
+	} else {
+		a.Log("I got no messages")
+	}
+}
 
-	// a.intendedFoodTaken = food.FoodType(int(int(a.CurrPlatFood()) * (100 - int(a.globalTrust)) / 100))
-	// a.lastFoodTaken, _ = a.TakeFood(a.intendedFoodTaken)
+////--------------------Message Parsing--------------------////
 
-	healthLevelSeparation := int(0.33 * float64(a.HealthInfo().MaxHP-a.HealthInfo().WeakLevel))
+func (a *CustomAgentEvo) UpdateHealthStatus(healthLevelSeparation int) {
 
 	if a.HP() <= a.HealthInfo().WeakLevel { //critical
-		// if a.PlatformOnFloor() {
-		// 	fmt.Println("IMA DIE")
-		// 	fmt.Println(a.CurrPlatFood())
-		// }
 		a.params.healthStatus = 0
 	} else if a.HP() <= a.HealthInfo().WeakLevel+healthLevelSeparation { //weak
 		a.params.healthStatus = 1
@@ -160,13 +169,10 @@ func (a *CustomAgentEvo) Run() {
 	} else { //strong
 		a.params.healthStatus = 3
 	}
+}
 
-	// update agents memory of the last time it saw food on the platform
-	if a.HasDayPassed() {
-		a.UpdateLastTimeFoodSeen()
-	}
+func (a *CustomAgentEvo) UpdateCraving() {
 
-	// update trauma values
 	if a.params.lastTimeFoodSeen > 0 {
 		a.params.craving += a.params.lastTimeFoodSeen
 	} else {
@@ -178,6 +184,34 @@ func (a *CustomAgentEvo) Run() {
 	} else if a.params.craving < 0 {
 		a.params.craving = 0
 	}
+}
+
+func (a *CustomAgentEvo) Run() {
+
+	// update agent's perception of maxFloor
+	a.params.maxFloor = int(math.Max(float64(a.params.maxFloor), float64(a.Floor()))) // math.Max only take in floats while we require an integer floor.
+
+	if food.FoodType(a.CurrPlatFood()) != a.params.lastPlatFood && a.PlatformOnFloor() {
+		a.params.lastPlatFood = a.CurrPlatFood()
+	}
+	healthLevelSeparation := int(0.33 * float64(a.HealthInfo().MaxHP-a.HealthInfo().WeakLevel))
+
+	// receive message
+	a.GetMessage()
+
+	// TODO: Define a threshold limit for other agents to respond to our sent message.
+	a.SendingMessage()
+
+	a.UpdateHealthStatus(healthLevelSeparation)
+	a.CallHandleMessage() //call the relevant message handler
+
+	// update agents memory of the last time it saw food on the platform
+	if a.HasDayPassed() {
+		a.UpdateLastTimeFoodSeen()
+	}
+
+	// update craving values
+	a.UpdateCraving()
 
 	var foodEaten food.FoodType
 	var err error
@@ -191,16 +225,12 @@ func (a *CustomAgentEvo) Run() {
 			a.params.ageLastEaten = a.Age()
 		}
 
+		// setting craving to 0 if we are fulfilled otherwise reduce the craving proportional to foodEaten
 		if a.params.foodToEat[a.params.healthStatus] != 0 {
 			a.params.craving -= a.params.craving * (int(foodEaten) / a.params.foodToEat[a.params.healthStatus])
 		} else {
 			a.params.craving = 0
 		}
-		// if a.PlatformOnFloor() {
-		// 	fmt.Println("EATING")
-		// 	fmt.Println(calculatedAmountToEat)
-		// 	fmt.Println(foodEaten)
-		// }
 
 		if err != nil {
 			switch err.(type) {
