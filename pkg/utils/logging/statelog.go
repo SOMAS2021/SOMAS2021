@@ -73,7 +73,7 @@ func (ls *StateLog) LogAgentDeath(simState *day.DayInfo, agentType agent.AgentTy
 				"tick":             simState.CurrTick,
 				"agent_type":       agentType.String(),
 				"cumulativeDeaths": ls.deathCount,
-				"ageUponDeath": age,
+				"ageUponDeath":     age,
 			}).Info()
 }
 
