@@ -22,7 +22,7 @@ def generate_mutated_agent(agent, attribute, population_size): # We define a mut
     
     noise_multiplier_for_attribute = {
         "FoodToEat": math.sqrt(population_size)*10/math.sqrt(current_iteration), # Value will tend to 10
-        "DaysToWait": 2
+        "WaitProbability": math.sqrt(population_size)*10/math.sqrt(current_iteration)
     }
 
     mu, sigma = 0, 1  # mean and standard deviation
@@ -32,7 +32,7 @@ def generate_mutated_agent(agent, attribute, population_size): # We define a mut
             rand = int(np.random.normal(mu, noise_multiplier_for_attribute[i]*sigma))
             agent[i][j] += rand
             
-            if (i == "FoodToEat" and agent[i][j] > 100):
+            if ( agent[i][j] > 100):
                 agent[i][j] = 100
             if (agent[i][j] < 0):
                 agent[i][j] = 0        
@@ -72,12 +72,12 @@ def generate_mixed_agent(agent_list, number_of_agents_to_use, attribute): # We d
 def generate_random_agent(): # We define an entirely new random agent
     random_mutation_agent = {
     "FoodToEat": [],
-    "DaysToWait": [],
+    "WaitProbability": [],
     }
 
     random_mutation_agent["FoodToEat"] = [random.randint(0, 100)
                                         for _ in range(int(number_of_health_levels))]
-    random_mutation_agent["DaysToWait"] = [random.randint(0, 7)
+    random_mutation_agent["WaitProbability"] = [random.randint(0, 100)
                                         for _ in range(int(number_of_health_levels))]
                                         
     return random_mutation_agent
@@ -142,7 +142,7 @@ for i in range(len(sorted_performance_list_indices)):
     agent_list.append(best_agents_list[sorted_performance_list_indices[i]])
 
 number_of_agents_to_use = int((2/5)*len(agent_list))
-attribute_arr = ["FoodToEat", "DaysToWait"]
+attribute_arr = ["FoodToEat", "WaitProbability"]
 
 ################################################################################################
 agents_of_time = agent_list
@@ -183,7 +183,7 @@ for i in range(len(agent_list)):
 
 for best_agent in new_best_agents:
     best_agent["FoodToEat"][0] = -1
-    best_agent["DaysToWait"][0] = -1
+    best_agent["WaitProbability"][0] = -1
 
 best_agents_file = open(best_agents_file_name, 'w')
 best_agents_file.write(json.dumps(new_best_agents, indent=4))

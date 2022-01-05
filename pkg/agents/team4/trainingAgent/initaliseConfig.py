@@ -18,14 +18,14 @@ best_agents = []
 # agent config template
 agent_config = {
     "FoodToEat": [],
-    "DaysToWait": [],
+    "WaitProbability": [],
 }
 for i in range(number_of_agents):
     # increase food to eat by increments of 20
     agent_config["FoodToEat"] = [(i % 5) * 20
                                  for _ in range(int(number_of_health_levels))]
-    # set DaysToWait to a random number between 0 and maximum days any agent can survive without eating
-    agent_config["DaysToWait"] = [random.randint(0, 7)
+    # set WaitProbability to a random number between 0 and 100
+    agent_config["WaitProbability"] = [random.randint(0, 100)
                                   for _ in range(int(number_of_health_levels))]
     best_agents.append(agent_config)
 
