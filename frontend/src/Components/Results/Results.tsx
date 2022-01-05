@@ -87,15 +87,13 @@ function ResultDisplay(props: ResultDisplayProps) {
           <div className="col-lg-6">
             <ReportCard
               description="Max agent age upon death"
-              title={Max(result.deaths.map((d) => d.ageUponDeath))
-                .toString()}
+              title={Max(result.deaths.map((d) => d.ageUponDeath)).toString()}
             />
           </div>
           <div className="col-lg-6">
             <ReportCard
               description="Min agent age upon death"
-              title={Min(result.deaths.map((d) => d.ageUponDeath))
-                .toString()}
+              title={Min(result.deaths.map((d) => d.ageUponDeath)).toString()}
             />
           </div>
         </div>
