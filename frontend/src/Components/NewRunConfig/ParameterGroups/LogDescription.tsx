@@ -9,7 +9,7 @@ export default function LogDescription(props: any) {
       <div className="row">
         <div className="col-lg-6 d-flex justify-content-center">
           <FormGroup>
-          <Switch
+            <Switch
               label="Save Main"
               onChange={(value) => {
                 configHandler((value.target as HTMLInputElement).checked, "LogMain");

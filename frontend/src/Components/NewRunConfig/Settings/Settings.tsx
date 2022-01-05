@@ -1,4 +1,4 @@
-import { Button} from "@blueprintjs/core";
+import { Button } from "@blueprintjs/core";
 import { SimConfig } from "../../../Helpers/SimConfig";
 import "./Settings.css";
 import { useState } from "react";
