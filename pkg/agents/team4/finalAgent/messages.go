@@ -95,9 +95,11 @@ func (a *CustomAgentEvo) HandleAskIntendedFoodTaken(msg messages.AskIntendedFood
 }
 
 func (a *CustomAgentEvo) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
-	response := true
-	if a.params.globalTrust < a.params.globalTrustLimit {
-		response = false
+	amount := msg.Request()
+	response := false
+	//amount on platform - intended amount to take  >= request then respond true
+	if a.CurrPlatFood()-food.FoodType(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) >= food.FoodType(amount) {
+		response = true
 	}
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), response) // TODO: Change for later dependent on circumstance
 	a.SendMessage(reply)
@@ -115,7 +117,7 @@ func (a *CustomAgentEvo) HandleRequestTakeFood(msg messages.RequestTakeFoodMessa
 func (a *CustomAgentEvo) HandleResponse(msg messages.BoolResponseMessage) {
 	response := msg.Response() // TODO: Change for later dependent on circumstance
 	if !msg.Response() {
-		a.AddToGlobalTrust(-a.params.coefficients[1]) // TODO: adapt for other conditions
+		a.SubFromGlobalTrust(a.params.coefficients[1]) // TODO: adapt for other conditions
 	} else {
 		a.CheckForResponse(msg)
 	}
@@ -126,7 +128,7 @@ func (a *CustomAgentEvo) HandleResponse(msg messages.BoolResponseMessage) {
 func (a *CustomAgentEvo) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
 	statement := msg.Statement()
 	if food.FoodType(statement) > a.params.maxFoodLimit {
-		a.AddToGlobalTrust(-a.params.coefficients[1])
+		a.SubFromGlobalTrust(a.params.coefficients[1])
 	} else {
 		a.AddToGlobalTrust(a.params.coefficients[1])
 	}
@@ -135,14 +137,14 @@ func (a *CustomAgentEvo) HandleStateFoodTaken(msg messages.StateFoodTakenMessage
 
 func (a *CustomAgentEvo) HandleStateHP(msg messages.StateHPMessage) {
 	statement := msg.Statement()
-	a.AddToGlobalTrust(a.params.coefficients[0])
+	//a.AddToGlobalTrust(a.params.coefficients[0])
 	a.Log("Team4 agent received a StateHP message from ", infra.Fields{"floor": msg.SenderFloor(), "hp": statement, "global_trust": a.params.globalTrust})
 }
 
 func (a *CustomAgentEvo) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
 	statement := msg.Statement()
 	if food.FoodType(statement) > a.params.maxFoodLimit {
-		a.AddToGlobalTrust(-a.params.coefficients[1])
+		a.SubFromGlobalTrust(a.params.coefficients[1])
 	} else {
 		a.AddToGlobalTrust(a.params.coefficients[1])
 	}
