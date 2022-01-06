@@ -1,6 +1,7 @@
 package team6
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 
@@ -79,8 +80,8 @@ func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food
 }
 
 func (a *CustomAgent6) foodRange() (int, int) {
-	mini := 0 //initial minimum value
-	maxi := 0 //maximum value to indicate no maximum
+	mini := 0           //initial minimum value
+	maxi := math.MaxInt //maximum value to indicate no maximum
 	for _, treaty := range a.ActiveTreaties() {
 		switch treaty.RequestOp() {
 		case 1:
@@ -105,8 +106,11 @@ func (a *CustomAgent6) foodRange() (int, int) {
 		default:
 			mini, maxi = -1, -1 //unknown op code
 		}
+
 	}
 
+	fmt.Println(mini)
+	fmt.Println(maxi)
 	return mini, maxi
 }
 
@@ -136,7 +140,7 @@ func (a *CustomAgent6) treatyValid(treaty messages.Treaty) bool {
 		}
 		return false
 	case 5:
-		if chkTrtyVal > mini && chkTrtyVal < maxi {
+		if chkTrtyVal > mini && chkTrtyVal <= maxi {
 			return true
 		}
 		return false
