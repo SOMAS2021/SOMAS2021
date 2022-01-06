@@ -8,6 +8,8 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
+type Memory []food.FoodType
+
 type behaviour float64
 
 // const (
@@ -35,11 +37,17 @@ type CustomAgent6 struct {
 	*infra.Base
 	config team6Config
 	//keep track of the lowest floor we've been to
-	maxFloorGuess      int
-	currBehaviour      behaviour
-	foodTakeDay        int
-	reqLeaveFoodAmount int
-	lastFoodTaken      food.FoodType
+	maxFloorGuess       int
+	currBehaviour       behaviour
+	foodTakeDay         int
+	reqLeaveFoodAmount  food.FoodType
+	lastFoodTaken       food.FoodType
+	longTermMemory      Memory
+	shortTermMemory     Memory
+	reassignNum         int
+	reassignPeriodGuess float64
+	platOnFloorCtr      int
+	prevFloor           int
 }
 
 type thresholdBehaviourPair struct {
@@ -67,11 +75,17 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
 		},
-		currBehaviour:      initialBehaviour,
-		maxFloorGuess:      baseAgent.Floor() + 2,
-		foodTakeDay:        0,
-		reqLeaveFoodAmount: -1,
-		lastFoodTaken:      0,
+		currBehaviour:       initialBehaviour,
+		maxFloorGuess:       baseAgent.Floor() + 2,
+		foodTakeDay:         0,
+		reqLeaveFoodAmount:  -1,
+		lastFoodTaken:       0,
+		longTermMemory:      Memory{},
+		shortTermMemory:     Memory{},
+		reassignNum:         0,
+		reassignPeriodGuess: 0,
+		platOnFloorCtr:      0,
+		prevFloor:           -1,
 	}, nil
 }
 
@@ -99,14 +113,23 @@ func (a *CustomAgent6) Run() {
 	a.RequestLeaveFood()
 
 	// Receiving messages
-	receivedMsg := a.ReceiveMessage()
-	if receivedMsg != nil {
-		receivedMsg.Visit(a)
-	} else {
-		a.Log("I got no thing")
-	}
+	// receivedMsg := a.ReceiveMessage()
+	// if receivedMsg != nil {
+	// 	receivedMsg.Visit(a)
+	// } else {
+	// 	a.Log("I got no thing")
+	// }
 
-	// a.Log("Custom agent 6 after update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
+	// MEMORY STUFF
+	if a.isReassigned() {
+		a.resetShortTermMemory()
+		a.updateReassignmentPeriodGuess()
+	} else if a.reassignNum == 0 { // Before any reassignment, reassignment period guess should be days elapsed
+		a.reassignPeriodGuess = float64(a.Age())
+		a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.reassignNum})
+		a.Log("Team 6 reassignment period guess:", infra.Fields{"guessReassign": a.reassignPeriodGuess})
+	}
+	a.addToMemory()
 
 	foodTaken, err := a.TakeFood(a.intendedFoodIntake())
 	if err != nil {
@@ -120,8 +143,8 @@ func (a *CustomAgent6) Run() {
 		a.lastFoodTaken = foodTaken
 	}
 
-	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
-	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
+	// a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
+	// a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
 
 	// fmt.Println(a.ActiveTreaties())
 
@@ -131,5 +154,7 @@ func (a *CustomAgent6) Run() {
 	// treatyMsg.Visit(a)
 
 	// fmt.Println(a.ActiveTreaties())
+
+	a.prevFloor = a.Floor() // keep at end of Run() function
 
 }
