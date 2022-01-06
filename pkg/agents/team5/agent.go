@@ -150,8 +150,9 @@ func (a *CustomAgent5) treatiesCanCoexist(t1 messages.Treaty, t2 messages.Treaty
 	}
 
 	// Otherwise, if the treaties are based on different conditions, or the conditions
-	// can occurr simultaneously, treaties of the same type should be rejected
-	if t1.Request() == t2.Request() {
+	// can occurr simultaneously, treaties of different types should be rejected
+	// because it is impossible to deduce if their requests can be fulfilled simultaneously
+	if t1.Request() != t2.Request() {
 		return false
 	}
 
