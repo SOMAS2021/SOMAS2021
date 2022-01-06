@@ -1,6 +1,10 @@
 package messages
 
-import "github.com/google/uuid"
+import (
+	"strconv"
+
+	"github.com/google/uuid"
+)
 
 type StateHPMessage struct {
 	*BaseMessage
@@ -25,4 +29,8 @@ func (msg *StateHPMessage) Visit(a Agent) {
 	} else {
 		a.HandleStateHP(*msg)
 	}
+}
+
+func (msg *StateHPMessage) StoryLog() string {
+	return strconv.Itoa(msg.hp)
 }

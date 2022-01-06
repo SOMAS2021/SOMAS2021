@@ -14,39 +14,39 @@ import (
 )
 
 type ConfigParameters struct {
-	FoodOnPlatform       food.FoodType `json:"FoodOnPlatform"`
-	FoodPerAgentRatio    int           `json:"FoodPerAgentRatio"`
-	UseFoodPerAgentRatio bool          `json:"UseFoodPerAgentRatio"`
-	Team1AgtOne          int           `json:"Team1AgtOne"`
-	Team1AgtTwo          int           `json:"Team1AgtTwo"`
-	Team2Agents          int           `json:"Team2Agents"`
-	Team3Agents          int           `json:"Team3Agents"`
-	Team4Agents          int           `json:"Team4Agents"`
-	Team5Agents          int           `json:"Team5Agents"`
-	Team6Agents          int           `json:"Team6Agents"`
-	Team7Agent1          int           `json:"Team7Agent1"`
-	RandomAgents         int           `json:"RandomAgents"`
-	AgentHP              int           `json:"AgentHP"`
-	AgentsPerFloor       int           `json:"AgentsPerFloor"`
-	TicksPerFloor        int           `json:"TicksPerFloor"`
-	SimDays              int           `json:"SimDays"`
-	ReshuffleDays        int           `json:"ReshuffleDays"`
-	MaxHP                int           `json:"maxHP"`
-	WeakLevel            int           `json:"weakLevel"`
-	Width                float64       `json:"width"`
-	Tau                  float64       `json:"tau"`
-	HpReqCToW            int           `json:"hpReqCToW"`
-	HpCritical           int           `json:"hpCritical"`
-	MaxDayCritical       int           `json:"maxDayCritical"`
-	HPLossBase           int           `json:"HPLossBase"`
-	HPLossSlope          float64       `json:"HPLossSlope"`
-	LogFolderName        string        `json:"LogFileName"`
-	LogMain              bool          `json:"LogMain"`
-	SimTimeoutSeconds    int           `json:"SimTimeoutSeconds"`
-	NumOfAgents          map[agent.AgentType]int
-	NumberOfFloors       int
-	TicksPerDay          int
-	DayInfo              *day.DayInfo
+	FoodOnPlatform       food.FoodType           `json:"FoodOnPlatform"`
+	FoodPerAgentRatio    int                     `json:"FoodPerAgentRatio"`
+	UseFoodPerAgentRatio bool                    `json:"UseFoodPerAgentRatio"`
+	Team1Agents          int                     `json:"Team1Agents"`
+	Team1Agents2         int                     `json:"Team1Agents2"`
+	Team2Agents          int                     `json:"Team2Agents"`
+	Team3Agents          int                     `json:"Team3Agents"`
+	Team4Agents          int                     `json:"Team4Agents"`
+	Team5Agents          int                     `json:"Team5Agents"`
+	Team6Agents          int                     `json:"Team6Agents"`
+	Team7Agents          int                     `json:"Team7Agents"`
+	RandomAgents         int                     `json:"RandomAgents"`
+	AgentHP              int                     `json:"AgentHP"`
+	AgentsPerFloor       int                     `json:"AgentsPerFloor"`
+	TicksPerFloor        int                     `json:"TicksPerFloor"`
+	SimDays              int                     `json:"SimDays"`
+	ReshuffleDays        int                     `json:"ReshuffleDays"`
+	MaxHP                int                     `json:"maxHP"`
+	WeakLevel            int                     `json:"weakLevel"`
+	Width                float64                 `json:"width"`
+	Tau                  float64                 `json:"tau"`
+	HpReqCToW            int                     `json:"hpReqCToW"`
+	HpCritical           int                     `json:"hpCritical"`
+	MaxDayCritical       int                     `json:"maxDayCritical"`
+	HPLossBase           int                     `json:"HPLossBase"`
+	HPLossSlope          float64                 `json:"HPLossSlope"`
+	LogFolderName        string                  `json:"LogFileName"`
+	LogMain              bool                    `json:"LogMain"`
+	SimTimeoutSeconds    int                     `json:"SimTimeoutSeconds"`
+	NumOfAgents          map[agent.AgentType]int `json:"-"`
+	NumberOfFloors       int                     `json:"-"`
+	TicksPerDay          int                     `json:"-"`
+	DayInfo              *day.DayInfo            `json:"-"`
 }
 
 type SimulateResponse struct { // used for HTTP response on /simulate
@@ -108,14 +108,14 @@ func CalculateDependentParameters(parameters *ConfigParameters) error {
 
 	//appending the sizes of the agents to the array
 	parameters.NumOfAgents = map[agent.AgentType]int{
-		agent.Team1Agent1: parameters.Team1AgtOne,
-		agent.Team1Agent2: parameters.Team1AgtTwo,
+		agent.Team1Agent1: parameters.Team1Agents,
+		agent.Team1Agent2: parameters.Team1Agents2,
 		agent.Team2:       parameters.Team2Agents,
 		agent.Team3:       parameters.Team3Agents,
 		agent.Team4:       parameters.Team4Agents,
 		agent.Team5:       parameters.Team5Agents,
 		agent.Team6:       parameters.Team6Agents,
-		agent.Team7:       parameters.Team7Agent1,
+		agent.Team7:       parameters.Team7Agents,
 		agent.RandomAgent: parameters.RandomAgents,
 	}
 

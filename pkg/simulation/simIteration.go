@@ -1,6 +1,7 @@
 package simulation
 
 import (
+	"context"
 	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
@@ -18,7 +19,7 @@ func (sE *SimEnv) World() world.World {
 	return sE.world
 }
 
-func (sE *SimEnv) simulationLoop(t *infra.Tower) {
+func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context, ch chan<- string) {
 	t.Reshuffle()
 	for sE.dayInfo.CurrTick <= sE.dayInfo.TotalTicks {
 		sE.Log("", Fields{"Current Simulation Tick": sE.dayInfo.CurrTick})
@@ -26,9 +27,18 @@ func (sE *SimEnv) simulationLoop(t *infra.Tower) {
 		sE.AgentsRun(t)
 		sE.TowerTick()
 		sE.replaceAgents(t)
-		t.TowerStateLog(" end of tick")
+		// t.TowerStateLog(" end of tick")
 		sE.dayInfo.CurrTick++
+
+		//returns if there is a timeout
+		//continously checks every tick since there is no way to kill a goroutine
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
 	}
+	ch <- "Simulation Finished"
 }
 
 func (sE *SimEnv) TowerTick() {
