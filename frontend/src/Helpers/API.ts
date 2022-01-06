@@ -1,7 +1,7 @@
 import { showToast } from "../Components/Toaster";
 import { DeathLog, GetDeathLogs } from "./Logging/Death";
 import { FoodLog, GetFoodLogs } from "./Logging/Food";
-import { GetStoryLogs, StoryLog } from "./Logging/StoryLog";
+import { GetStoryLogs, StoryLog, GetStoryMessageLogs, StoryMessageLog} from "./Logging/StoryLog";
 import { Result } from "./Result";
 import { GetSimConfig, SimConfig } from "./SimConfig";
 
@@ -62,6 +62,10 @@ export function GetResult(filename: string): Promise<Result> {
     var story: StoryLog[] = [];
     promises.push(GetStoryLogs(filename).then((s) => (story = s)));
 
+    var messages: StoryMessageLog[] = [];
+    promises.push(GetStoryMessageLogs(filename).then((m) => (messages = m)));
+
+
     // all
     Promise.all(promises).then((_) =>
       resolve({
@@ -70,6 +74,7 @@ export function GetResult(filename: string): Promise<Result> {
         food: foods,
         config: config,
         story: story,
+        messages: messages, 
       })
     );
   });

@@ -1,6 +1,6 @@
 import { DeathLog } from "./Logging/Death";
 import { FoodLog } from "./Logging/Food";
-import { StoryLog } from "./Logging/StoryLog";
+import { StoryLog, StoryMessageLog } from "./Logging/StoryLog";
 import { SimConfig } from "./SimConfig";
 
 export interface Result {
@@ -9,4 +9,5 @@ export interface Result {
   food: FoodLog[]
   config: SimConfig
   story: StoryLog[]
+  messages: StoryMessageLog[]
 }

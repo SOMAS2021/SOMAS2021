@@ -43,3 +43,34 @@ export function GetStoryLogs(filename: string): Promise<StoryLog[]> {
       .catch((err) => reject(err));
   });
 }
+
+
+
+
+export function GetStoryMessageLogs(filename: string): Promise<StoryMessageLog[]> {
+  return new Promise<StoryMessageLog[]>((resolve, reject) => {
+    GetFile(filename, "story")
+      .then((storymessagelogs) =>
+        resolve(
+          storymessagelogs.map(function (e: any) {
+            const m: StoryMessageLog = {
+              target: e["target"],
+              mtype: e["mtype"],
+              mcontent: e["mcontent"],
+              msg: e["msg"],
+              hp: e["hp"],
+              atype: e["atype"],
+              age: e["age"],
+              floor: e["floor"], 
+              state: e["state"],
+              tick: e["tick"],
+              day: e["day"],
+            };
+            return m;
+          })
+        )
+      )
+      .catch((err) => reject(err));
+  });
+}
+
