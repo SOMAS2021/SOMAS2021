@@ -78,36 +78,35 @@ func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food
 	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
 }
 
-func (a *CustomAgent6) foodRange(trty messages.Treaty) (int, int, bool) {
+func (a *CustomAgent6) incomingTreatyValidityAndFoodRange(trty messages.Treaty) (int, int, bool) {
 	chkTrtyVal := trty.RequestValue()
-	mini := 0
-	maxi := 0
-	out := false
-	eqFound := 0
-	eqVal := 0
-	noMaxi := 0
-	listActTrty := a.ActiveTreaties()
-	for _, value := range listActTrty {
+	mini := 0    //initial minimum value
+	maxi := 0    //maximum value to indicate no maximum
+	out := false //bool to indicate validity
+	eqFound := 0 //is there an equal requestOp
+	eqVal := 0   //equal requestOp requestValue
+	noMaxi := 0  //Indicator for no maximum
+	for _, value := range a.ActiveTreaties() {
 		switch value.RequestOp() {
 		case 0:
 			if value.RequestValue() > mini {
-				mini = value.RequestValue() + 1
+				mini = value.RequestValue() + 1 //If Greater than, then the max value is one larger
 			}
 		case 1:
 			if value.RequestValue() > mini {
-				mini = value.RequestValue()
+				mini = value.RequestValue() //If Greater or Equal, then the max value is itself
 			}
 		case 3:
 			if value.RequestValue() < maxi || maxi == 0 {
-				maxi = value.RequestValue()
+				maxi = value.RequestValue() //If Less than or Equal, then the max value is itself
 			}
 		case 4:
 			if value.RequestValue() < maxi || maxi == 0 {
-				maxi = value.RequestValue() - 1
+				maxi = value.RequestValue() - 1 //If Less than, then the max value is one smaller
 			}
 		case 2:
 			eqFound = 1
-			eqVal = value.RequestValue()
+			eqVal = value.RequestValue() //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
 		}
 	}
 	if maxi == 0 {
@@ -155,7 +154,7 @@ func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 
 	intendedFoodIntake := a.desiredFoodIntake()
 	if a.reqLeaveFoodAmount != -1 {
-		//intendedFoodIntake = min(a.tower.foodOnPlatform - a.reqLeaveFoodAmount, intendedFoodIntake)
+		intendedFoodIntake = food.FoodType(math.Min(float64(a.CurrPlatFood())-float64(a.reqLeaveFoodAmount), float64(intendedFoodIntake)))
 
 		//intendedFoodIntake = food.FoodType(a.reqLeaveFoodAmount) // to correct
 	}
