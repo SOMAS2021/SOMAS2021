@@ -3,7 +3,7 @@ package team6
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+	// "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
 // Request another agent to leave food on the platform
@@ -118,7 +118,7 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 	a.SendMessage(replyMessage)
 
 	if reply == true {
-		a.reqLeaveFoodAmount = food.FoodType(msg.Request())
+		a.reqLeaveFoodAmount = msg.Request()
 		a.Log("I received a requestLeaveFood message and my response was true")
 	} else {
 		a.reqLeaveFoodAmount = -1
@@ -133,7 +133,7 @@ func (a *CustomAgent6) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 	a.SendMessage(replyMessage)
 
 	if reply == true {
-		a.reqLeaveFoodAmount = food.FoodType(msg.Request())
+		a.reqLeaveFoodAmount = msg.Request()
 		a.Log("I received a requestTakeFood message and my response was true")
 	} else {
 		a.reqLeaveFoodAmount = -1

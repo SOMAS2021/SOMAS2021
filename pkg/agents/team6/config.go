@@ -40,7 +40,7 @@ type CustomAgent6 struct {
 	maxFloorGuess       int
 	currBehaviour       behaviour
 	foodTakeDay         int
-	reqLeaveFoodAmount  food.FoodType
+	reqLeaveFoodAmount  int
 	lastFoodTaken       food.FoodType
 	longTermMemory      Memory
 	shortTermMemory     Memory
