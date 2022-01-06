@@ -153,7 +153,7 @@ func (a *Base) setHP(newHP int) {
 
 // Modeled as a first order system step answer (see documentation for more information)
 func (a *Base) updateHP(foodTaken food.FoodType) {
-	hpChange := int(a.tower.healthInfo.Width * (1 - math.Pow(math.E, -float64(foodTaken)/a.tower.healthInfo.Tau)))
+	hpChange := int(math.Round(a.tower.healthInfo.Width * (1 - math.Pow(math.E, -float64(foodTaken)/a.tower.healthInfo.Tau))))
 	if a.hp >= a.tower.healthInfo.WeakLevel {
 		a.hp = a.hp + hpChange
 	} else {
@@ -164,7 +164,7 @@ func (a *Base) updateHP(foodTaken food.FoodType) {
 func (a *Base) hpDecay(healthInfo *health.HealthInfo) {
 	newHP := 0
 	if a.hp >= healthInfo.WeakLevel {
-		newHP = utilFunctions.MinInt(healthInfo.MaxHP, a.hp-(healthInfo.HPLossBase+int(float64(a.hp-healthInfo.WeakLevel)*healthInfo.HPLossSlope)))
+		newHP = utilFunctions.MinInt(healthInfo.MaxHP, a.hp-(healthInfo.HPLossBase+int(math.Round(float64(a.hp-healthInfo.WeakLevel)*healthInfo.HPLossSlope))))
 	} else {
 		if a.hp >= healthInfo.HPCritical+healthInfo.HPReqCToW {
 			newHP = healthInfo.WeakLevel
@@ -180,7 +180,7 @@ func (a *Base) hpDecay(healthInfo *health.HealthInfo) {
 	a.setHasEaten(false)
 	if a.daysAtCritical >= healthInfo.MaxDayCritical {
 		a.Log("Killing agent", Fields{"daysLived": a.Age(), "agentType": a.agentType})
-		a.tower.stateLog.LogAgentDeath(a.tower.dayInfo, a.agentType)
+		a.tower.stateLog.LogAgentDeath(a.tower.dayInfo, a.agentType, a.Age())
 		a.tower.stateLog.LogStoryAgentDied(a.tower.dayInfo, a.storyState())
 		newHP = 0
 	}
