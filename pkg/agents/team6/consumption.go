@@ -86,6 +86,7 @@ func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 
 	intendedFoodIntake := a.desiredFoodIntake()
 	if a.reqLeaveFoodAmount != -1 {
+
 		intendedFoodIntake = food.FoodType(math.Min(float64(a.CurrPlatFood())-float64(a.reqLeaveFoodAmount), float64(intendedFoodIntake)))
 
 		//intendedFoodIntake = food.FoodType(a.reqLeaveFoodAmount) // to correct
@@ -96,15 +97,3 @@ func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 func (a *CustomAgent6) updateAverageIntake(foodTaken food.FoodType) {
 	a.averageFoodIntake = (a.config.prevFoodDiscount * float64(foodTaken)) + (1.0-a.config.prevFoodDiscount)*a.averageFoodIntake
 }
-
-// func foodRequiredToStay(currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {
-// 	return tau*math.Log(currentLevel+levelWidth-currentHP) - tau*math.Log(math.Pow(math.E, -1)*levelWidth)
-// }
-
-// func foodRequiredToAscend(currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {
-// 	return tau*math.Log(currentLevel+levelWidth-currentHP) - tau*math.Log(math.Pow(math.E, -3)*levelWidth)
-// }
-
-// func hpFunc(x float64, currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {
-// 	return currentLevel + levelWidth - math.Exp(-x/tau)*(levelWidth+currentHP-currentLevel)
-// }
