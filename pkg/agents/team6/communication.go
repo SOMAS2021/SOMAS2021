@@ -16,7 +16,6 @@ func (a *CustomAgent6) RequestLeaveFood() {
 		weakLevel:    healthInfo.MaxHP * 1 / 10,
 	}
 
-	// reqAmount := -1
 	var reqAmount int
 	switch a.currBehaviour.String() {
 	case "Altruist":
