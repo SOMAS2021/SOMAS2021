@@ -9,15 +9,17 @@ body {
   scroll-behavior: smooth;
 }
 
-.modal.custom .modal-dialog {
-  position:fixed;
-  bottom:0;
-  right:0;
-  margin:2%;
-  z-index: -1;
+.modal-body {
+  columns: 2 auto;
+  column-gap: 10%;
 }
 
-.modal-open .modal {
-    width: 0;
-    margin: 0 auto;
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }

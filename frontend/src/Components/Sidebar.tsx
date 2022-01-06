@@ -1,6 +1,6 @@
-import { Menu, MenuDivider, MenuItem, Spinner } from "@blueprintjs/core";
+import { H6, Menu, MenuDivider, MenuItem, Spinner } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
-import { showToast } from "./Toaster";
+import { GetLogs } from "../Helpers/API";
 
 interface SideBarProps {
   activeLog: string;
@@ -13,24 +13,13 @@ export default function Sidebar(props: SideBarProps) {
   const [logs, setLogs] = useState<string[]>([]);
 
   useEffect(() => {
-    showToast("Loading logs in progress", "primary");
     setLoading(true);
-    fetch("http://localhost:9000/directory")
-      .then(async (res) => {
-        if (res.status !== 200) {
-          showToast(`Loading logs failed. (${res.status}) ${await res.text()}`, "danger", 5000);
-          setLoading(false);
-        }
-        res.json().then((res) => {
-          setLogs(res["FolderNames"]);
-          showToast("Loading logs completed", "success");
-          setLoading(false);
-        });
-      })
-      .catch((err) => {
-        showToast(`Loading logs: failed. ${err}`, "danger", 5000);
+    GetLogs()
+      .then((logs) => {
+        setLogs(logs);
         setLoading(false);
-      });
+      })
+      .catch((_) => setLoading(false));
   }, []);
   return (
     <div
@@ -40,8 +29,12 @@ export default function Sidebar(props: SideBarProps) {
         height: "95vh",
         textAlign: "left",
         padding: "10px 0px",
-        // backgroundColor: "#EBF1F5",
+        borderColor: "#EBF1F5",
+        borderWidth: 0,
+        borderRightWidth: 10,
+        borderStyle: "solid",
       }}
+      className="hide-scrollbar"
     >
       {!loading && (
         <Menu>
@@ -58,6 +51,9 @@ export default function Sidebar(props: SideBarProps) {
               <MenuDivider />
             </div>
           ))}
+          <H6 className="text-center" style={{ padding: 10 }}>
+            Congratulations! You've reached the end of the directory
+          </H6>
         </Menu>
       )}
       {loading && <Spinner intent="primary" />}

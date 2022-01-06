@@ -35,7 +35,7 @@ func TestFoodRequired(t *testing.T) {
 				currentHP: 100,
 				goalHP:    100,
 			},
-			want: 13,
+			want: 14,
 		},
 		{
 			name: "90 to 100",
@@ -43,7 +43,7 @@ func TestFoodRequired(t *testing.T) {
 				currentHP: 90,
 				goalHP:    100,
 			},
-			want: 24,
+			want: 25,
 		},
 		{
 			name: "100 to 90",

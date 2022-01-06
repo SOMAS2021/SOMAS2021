@@ -16,6 +16,7 @@ func (a *Base) ReceiveMessage() messages.Message {
 
 func (a *Base) SendMessage(msg messages.Message) {
 	a.tower.SendMessage(a.floor, msg)
+	a.tower.stateLog.LogStoryAgentSentMessage(a.tower.dayInfo, a.storyState(), msg)
 }
 
 func (a *Base) ActiveTreaties() map[uuid.UUID]messages.Treaty {

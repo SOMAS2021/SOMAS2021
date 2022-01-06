@@ -2,12 +2,15 @@ package team6
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
+
+type memory []food.FoodType
 
 type behaviour float64
 
@@ -17,6 +20,15 @@ type behaviour float64
 //  selfish
 //  narcissist
 // )
+
+type utilityParameters struct {
+	// Greediness
+	g float64
+	// Risk aversion
+	r float64
+	// community cost
+	c float64
+}
 
 type team6Config struct {
 	baseBehaviour behaviour
@@ -30,17 +42,26 @@ type team6Config struct {
 	lambda float64
 	//maximum behaviour score an agent can reach
 	maxBehaviourThreshold behaviour
+	//discount previous food intakes for EMA filter
+	prevFoodDiscount float64
 }
 
 type CustomAgent6 struct {
 	*infra.Base
 	config team6Config
 	//keep track of the lowest floor we've been to
-	maxFloorGuess      int
-	currBehaviour      behaviour
-	foodTakeDay        int
-	reqLeaveFoodAmount int
-	lastFoodTaken      food.FoodType
+	maxFloorGuess       int
+	currBehaviour       behaviour
+	foodTakeDay         int
+	reqLeaveFoodAmount  int
+	lastFoodTaken       food.FoodType
+	averageFoodIntake   float64
+	longTermMemory      memory  // Memory of food available throughout agent's lifetime
+	shortTermMemory     memory  // Memory of food available while agent is at a particular floor
+	numReassigned       int     // Number of times the agent has been reassigned
+	reassignPeriodGuess float64 // What the agent thinks the reassignment period is
+	platOnFloorCtr      int     // Counts how many ticks the platform is at the agent's floor for. Used to call functions only once when the platform arrives
+	prevFloor           int     // Keeps track of previous floor to see if agent has been reassigned
 }
 
 type thresholdBehaviourPair struct {
@@ -48,7 +69,10 @@ type thresholdBehaviourPair struct {
 	bType     string
 }
 
-type behaviourParameterWeights []float64
+type behaviourParameterWeights struct {
+	HPWeight    float64
+	floorWeight float64
+}
 
 var maxBehaviourThreshold behaviour = 10.0
 
@@ -64,16 +88,57 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			baseBehaviour:         initialBehaviour,
 			stubbornness:          0.0,
 			maxBehaviourSwing:     8,
-			paramWeights:          behaviourParameterWeights{0.7, 0.3}, //ensure sum of weights = max behaviour enum
+			paramWeights:          behaviourParameterWeights{HPWeight: 0.7, floorWeight: 0.3}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
+			prevFoodDiscount:      0.6,
 		},
-		currBehaviour:      initialBehaviour,
-		maxFloorGuess:      baseAgent.Floor() + 2,
-		foodTakeDay:        0,
-		reqLeaveFoodAmount: -1,
-		lastFoodTaken:      0,
+		currBehaviour:       initialBehaviour,
+		maxFloorGuess:       baseAgent.Floor() + 2,
+		foodTakeDay:         0,
+		reqLeaveFoodAmount:  -1,
+		lastFoodTaken:       0,
+		averageFoodIntake:   0.0,
+		longTermMemory:      memory{},
+		shortTermMemory:     memory{},
+		numReassigned:       0,
+		reassignPeriodGuess: 0,
+		platOnFloorCtr:      0,
+		prevFloor:           -1,
 	}, nil
+}
+
+// Todo: define some sensible values
+func NewUtilityParams(socialMotive string) utilityParameters {
+	switch socialMotive {
+	case "Altruist":
+		return utilityParameters{
+			g: 1.0,
+			r: 2.0,
+			c: 3.0,
+		}
+	case "Collectivist":
+		return utilityParameters{
+			g: 1.0,
+			r: 2.0,
+			c: 3.0,
+		}
+	case "Selfish":
+		return utilityParameters{
+			g: 1.0,
+			r: 2.0,
+			c: 3.0,
+		}
+	case "Narcissist":
+		return utilityParameters{
+			g: 1.0,
+			r: 2.0,
+			c: 3.0,
+		}
+	default:
+		// error
+		return utilityParameters{}
+	}
 }
 
 func (b behaviour) String() string {
@@ -100,14 +165,23 @@ func (a *CustomAgent6) Run() {
 	a.RequestLeaveFood()
 
 	// Receiving messages
-	receivedMsg := a.ReceiveMessage()
-	if receivedMsg != nil {
-		receivedMsg.Visit(a)
-	} else {
-		a.Log("I got no thing")
-	}
+	// receivedMsg := a.ReceiveMessage()
+	// if receivedMsg != nil {
+	// 	receivedMsg.Visit(a)
+	// } else {
+	// 	a.Log("I got no thing")
+	// }
 
-	// a.Log("Custom agent 6 after update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
+	// MEMORY STUFF
+	if a.isReassigned() {
+		a.resetShortTermMemory()
+		a.updateReassignmentPeriodGuess()
+	} else if a.numReassigned == 0 { // Before any reassignment, reassignment period guess should be days elapsed
+		a.reassignPeriodGuess = float64(a.Age())
+		a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.numReassigned})
+		a.Log("Team 6 reassignment period guess:", infra.Fields{"guessReassign": a.reassignPeriodGuess})
+	}
+	a.addToMemory()
 
 	foodTaken, err := a.TakeFood(a.intendedFoodIntake())
 	if err != nil {
@@ -121,8 +195,13 @@ func (a *CustomAgent6) Run() {
 		a.lastFoodTaken = foodTaken
 	}
 
-	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
-	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
+	//exponential moving average filter to average food taken whilst discounting previous food
+	a.updateAverageIntake(foodTaken)
+
+	// a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
+	// a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
+
+	a.updateBehaviourWeights()
 
 	//fmt.Println(a.ActiveTreaties())
 
@@ -131,4 +210,18 @@ func (a *CustomAgent6) Run() {
 
 	// treatyMsg.Visit(a).
 
+	a.prevFloor = a.Floor() // keep at end of Run() function
+
+}
+
+// The utility function with
+// x - food input
+// g - greediness
+// r - risk aversion
+// c - community cost
+// z - desired food (maximum of the function)
+func Utility(x, z float64, params utilityParameters) float64 {
+	// calculate the function scaling parameter a
+	a := (1 / z) * math.Pow((params.c*params.r)/params.g, params.r/(1-params.r))
+	return params.g*math.Pow(a*x, 1/params.r) - params.c*a*x
 }

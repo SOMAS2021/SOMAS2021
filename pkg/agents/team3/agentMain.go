@@ -4,6 +4,8 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+	"github.com/google/uuid"
 )
 
 type team3Variables struct {
@@ -20,12 +22,30 @@ type team3Knowledge struct {
 	floors []int
 	//We know the last HP
 	lastHP int
+	//We know who we have meet
+	//friends []string
+	//We know if we like or not the people we have met
+	//friendship []float64
+	//Stores who is in the floor below
+	floorBelow uuid.UUID
+	//Stores who is in the floor above
+	floorAbove uuid.UUID
+	//Stores food last eaten
+	foodLastEaten food.FoodType
+}
+
+type team3Decisions struct {
+	//Amount of food we decided to eat.
+	foodToEat int
+	//Amount of food we decided to leave in the platform.
+	foodToLeave int
 }
 
 type CustomAgent3 struct {
 	*infra.Base
 	vars      team3Variables
 	knowledge team3Knowledge
+	decisions team3Decisions
 	//and an array of tuples for friendships
 }
 
@@ -40,6 +60,15 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		knowledge: team3Knowledge{
 			floors: []int{},
 			lastHP: 100,
+			//friends:       []string{},
+			//friendship:    []float64{},
+			floorBelow:    uuid.Nil,
+			floorAbove:    uuid.Nil,
+			foodLastEaten: food.FoodType(0),
+		},
+		decisions: team3Decisions{
+			foodToEat:   -1,
+			foodToLeave: -1,
 		},
 	}, nil
 }
@@ -56,10 +85,8 @@ func (a *CustomAgent3) Run() {
 	}
 	a.Log("Custom agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "morality": a.vars.morality})
 
-	//receive Message
-
 	//eat
-	_, err := a.TakeFood(takeFoodCalculation(a))
+	foodTaken, err := a.TakeFood(food.FoodType((a.takeFoodCalculation())))
 	if err != nil {
 		switch err.(type) {
 		case *infra.FloorError:
@@ -67,7 +94,18 @@ func (a *CustomAgent3) Run() {
 		case *infra.AlreadyEatenError:
 		default:
 		}
+	} else {
+		//Update variables right after eating
+		a.knowledge.lastHP = a.HP()
+		a.knowledge.foodLastEaten = food.FoodType(foodTaken)
+		a.decisions.foodToEat = -1
+		a.decisions.foodToLeave = -1
 	}
+
+	a.message()
+
+	//eat
+
 	//send Message
 
 }

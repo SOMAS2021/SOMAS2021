@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type ConfigReadLog struct {
@@ -21,6 +23,7 @@ func LoadReadLogParamFromHTTPRequest(r *http.Request) (ConfigReadLog, error) {
 
 	err := json.NewDecoder(r.Body).Decode(&configReadLog)
 	if err != nil {
+		log.Error(err)
 		return configReadLog, err
 	}
 
