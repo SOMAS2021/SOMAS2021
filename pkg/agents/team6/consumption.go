@@ -81,10 +81,11 @@ func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food
 func (a *CustomAgent6) foodRange(trty messages.Treaty) (int, int, bool) {
 	chkTrtyVal := trty.RequestValue()
 	mini := 0
-	maxi := 100
+	maxi := 0
 	out := false
 	eqFound := 0
 	eqVal := 0
+	noMaxi := 0
 	listActTrty := a.ActiveTreaties()
 	for _, value := range listActTrty {
 		switch value.RequestOp() {
@@ -108,6 +109,10 @@ func (a *CustomAgent6) foodRange(trty messages.Treaty) (int, int, bool) {
 			eqFound = 1
 			eqVal = value.RequestValue()
 		}
+	}
+	if maxi == 0 {
+		maxi = chkTrtyVal
+		noMaxi = 1
 	}
 	switch trty.RequestOp() {
 	case 0:
@@ -135,7 +140,9 @@ func (a *CustomAgent6) foodRange(trty messages.Treaty) (int, int, bool) {
 			}
 		}
 	}
-
+	if noMaxi == 1 {
+		maxi = 0
+	}
 	return mini, maxi, out
 }
 
