@@ -60,12 +60,14 @@ type actionSpace struct {
 }
 type CustomAgent2 struct {
 	*infra.Base
-	stateSpace    [][][]int
-	actionSpace   actionSpace
-	policies      [][]float64
-	rTable        [][]float64
-	qTable        [][]float64
-	isPlatArrived bool
+	stateSpace            [][][][]int
+	actionSpace           actionSpace
+	policies              [][]float64
+	rTable                [][]float64
+	qTable                [][]float64
+	isPlatArrived         bool
+	daysAtCriticalCounter int
+	PreviousdayAtCritical int
 }
 
 func InitTable(numStates int, numActions int) [][]float64 {
@@ -77,19 +79,26 @@ func InitTable(numStates int, numActions int) [][]float64 {
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
-	stateSpace := InitStateSpace(3, 3, 3)
-	actionSpace := InitActionSpace()
-	policies := InitPolicies(27, 3)
-	rTable := InitTable(27, 3)
-	qTable := InitTable(27, 3)
+	hpStatesDim := baseAgent.HealthInfo().MaxHP + 1
+	actionDim := baseAgent.HealthInfo().MaxHP + 1
+	daysAtCriticalDim := baseAgent.HealthInfo().MaxDayCritical + 1
+
+	stateSpace := InitStateSpace(hpStatesDim, 3, 3, daysAtCriticalDim)
+	actionSpace := InitActionSpace(actionDim)
+	policies := InitPolicies(hpStatesDim*3*3*daysAtCriticalDim, actionDim)
+	rTable := InitTable(hpStatesDim*3*3*daysAtCriticalDim, actionDim)
+	qTable := InitTable(hpStatesDim*3*3*daysAtCriticalDim, actionDim)
+
 	return &CustomAgent2{
-		Base:          baseAgent,
-		stateSpace:    stateSpace,
-		actionSpace:   actionSpace,
-		policies:      policies,
-		rTable:        rTable,
-		qTable:        qTable,
-		isPlatArrived: false,
+		Base:                  baseAgent,
+		stateSpace:            stateSpace,
+		actionSpace:           actionSpace,
+		policies:              policies,
+		rTable:                rTable,
+		qTable:                qTable,
+		isPlatArrived:         false,
+		daysAtCriticalCounter: 0,
+		PreviousdayAtCritical: 0,
 	}, nil
 }
 
@@ -114,7 +123,7 @@ func (a *CustomAgent2) Run() {
 		oldHP := a.HP()
 		a.Log("Agent team2 before action:", infra.Fields{"floor": a.Floor(), "hp": oldHP, "food": a.CurrPlatFood(), "state": oldState})
 		action := a.SelectAction()
-		_, err := a.TakeFood(a.actionSpace.actionSet[action](oldHP)) //perform selected action
+		_, err := a.TakeFood(food.FoodType(a.actionSpace.actionId[action])) //perform selected action
 		if err != nil {
 			switch err.(type) {
 			case *infra.FloorError:
@@ -125,6 +134,13 @@ func (a *CustomAgent2) Run() {
 		}
 		a.Log("Agent team2:", infra.Fields{"selected and performed action": action})
 		a.Log("Agent team2 after action:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
+		if a.DaysAtCritical() > 0 && a.PreviousdayAtCritical != a.DaysAtCritical() {
+			a.PreviousdayAtCritical = a.DaysAtCritical()
+			a.daysAtCriticalCounter += 1
+			if a.DaysAtCritical() >= (a.HealthInfo().MaxDayCritical - 1) {
+				a.Log("Agent team2 at critical state", infra.Fields{"daysAtCriticalCounter": a.daysAtCriticalCounter, "floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
+			}
+		}
 		hpInc := a.HP() - oldHP
 		a.updateRTable(hpInc, oldState, action)
 		a.updateQTable(oldState, action)
