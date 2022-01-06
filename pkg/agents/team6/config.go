@@ -6,6 +6,9 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+
+	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
@@ -49,18 +52,24 @@ type CustomAgent6 struct {
 	*infra.Base
 	config team6Config
 	//keep track of the lowest floor we've been to
-	maxFloorGuess       int
-	currBehaviour       behaviour
-	foodTakeDay         int
-	reqLeaveFoodAmount  int
-	lastFoodTaken       food.FoodType
-	averageFoodIntake   float64
-	longTermMemory      memory  // Memory of food available throughout agent's lifetime
-	shortTermMemory     memory  // Memory of food available while agent is at a particular floor
-	numReassigned       int     // Number of times the agent has been reassigned
-	reassignPeriodGuess float64 // What the agent thinks the reassignment period is
-	platOnFloorCtr      int     // Counts how many ticks the platform is at the agent's floor for. Used to call functions only once when the platform arrives
-	prevFloor           int     // Keeps track of previous floor to see if agent has been reassigned
+	maxFloorGuess      int
+	currBehaviour      behaviour
+	foodTakeDay        int
+	reqLeaveFoodAmount int
+	lastFoodTaken      food.FoodType
+	averageFoodIntake  float64
+	// Memory of food available throughout agent's lifetime
+	longTermMemory memory
+	// Memory of food available while agent is at a particular floor
+	shortTermMemory memory
+	// Number of times the agent has been reassigned
+	numReassigned int
+	// What the agent thinks the reassignment period is
+	reassignPeriodGuess float64
+	// Counts how many ticks the platform is at the agent's floor for. Used to call functions only once when the platform arrives
+	platOnFloorCtr int
+	// Keeps track of previous floor to see if agent has been reassigned
+	prevFloor int
 }
 
 type thresholdBehaviourPair struct {
@@ -202,14 +211,16 @@ func (a *CustomAgent6) Run() {
 
 	a.updateBehaviourWeights()
 
-	// fmt.Println(a.ActiveTreaties())
+	//fmt.Println(a.ActiveTreaties())
 
-	// treaty := messages.NewTreaty(1, 1, 1, 1, 5, a.ID())
-	// treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
+	treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
+	min, max := a.foodRange()
+	valid := a.treatyValid(*treaty)
 
-	// treatyMsg.Visit(a)
+	a.Log("Team 6 processed treaty:", infra.Fields{"treaty": treaty, "range": max - min, "isValid:": valid})
+	// // treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
 
-	// fmt.Println(a.ActiveTreaties())
+	// treatyMsg.Visit(a).
 
 	a.prevFloor = a.Floor() // keep at end of Run() function
 

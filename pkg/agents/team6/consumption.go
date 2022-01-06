@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 )
@@ -77,6 +78,54 @@ func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food
 	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
 }
 
+func (a *CustomAgent6) foodRange() (int, int) {
+	mini := 0           //initial minimum value
+	maxi := math.MaxInt //maximum value to indicate no maximum
+	for _, treaty := range a.ActiveTreaties() {
+		switch treaty.RequestOp() {
+		case 1:
+			if treaty.RequestValue() > mini || treaty.RequestValue() == mini {
+				mini = treaty.RequestValue() + 1 //If Greater than, then the max value is one larger
+			}
+		case 2:
+			if treaty.RequestValue() > mini {
+				mini = treaty.RequestValue() //If Greater or Equal, then the max value is itself
+			}
+		case 3:
+			eqVal := treaty.RequestValue() //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
+			mini, maxi = eqVal, eqVal
+		case 4:
+			if treaty.RequestValue() < maxi || maxi == 0 {
+				maxi = treaty.RequestValue() //If Less than or Equal, then the max value is itself
+			}
+		case 5:
+			if treaty.RequestValue() < maxi || maxi == 0 {
+				maxi = treaty.RequestValue() - 1 //If Less than, then the max value is one smaller
+			}
+		default:
+			mini, maxi = -1, -1 //unknown op code
+		}
+
+	}
+	return mini, maxi
+}
+
+func (a *CustomAgent6) treatyValid(treaty messages.Treaty) bool {
+
+	if len(a.ActiveTreaties()) == 0 {
+		return true
+	}
+
+	chkTrtyVal := treaty.RequestValue()
+	mini, maxi := a.foodRange()
+
+	if chkTrtyVal >= mini && chkTrtyVal <= maxi {
+		return true
+	}
+	return false
+
+}
+
 func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 
 	//if a.tower
@@ -86,7 +135,6 @@ func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 
 	intendedFoodIntake := a.desiredFoodIntake()
 	if a.reqLeaveFoodAmount != -1 {
-
 		intendedFoodIntake = food.FoodType(math.Min(float64(a.CurrPlatFood())-float64(a.reqLeaveFoodAmount), float64(intendedFoodIntake)))
 
 		//intendedFoodIntake = food.FoodType(a.reqLeaveFoodAmount) // to correct
