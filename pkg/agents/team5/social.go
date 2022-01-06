@@ -79,9 +79,9 @@ func (a *CustomAgent5) calculateAverageFavour() int {
 
 func (a *CustomAgent5) incrementDaysSinceLastSeen() {
 	for id := range a.socialMemory {
-		temp := a.socialMemory[id]
-		temp.daysSinceLastSeen++
-		a.socialMemory[id] = temp
+		mem := a.socialMemory[id]
+		mem.daysSinceLastSeen++
+		a.socialMemory[id] = mem
 	}
 }
 
