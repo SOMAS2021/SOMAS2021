@@ -2,8 +2,8 @@ import { H3, H6, Divider, Spinner } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
 import { GetResult } from "../../Helpers/API";
 import { Result } from "../../Helpers/Result";
-import StoryViewer from "../Story/StoryViewer";
 import ConfigInfo from "./ConfigInfo";
+import StoryViewer from "../Story/StoryViewer";
 import StatsViewer from "./Stats";
 
 interface ResultsProps {
@@ -46,6 +46,7 @@ interface ResultDisplayProps {
 }
 function ResultDisplay(props: ResultDisplayProps) {
   const { result } = props;
+
   return (
     <div
       style={{
