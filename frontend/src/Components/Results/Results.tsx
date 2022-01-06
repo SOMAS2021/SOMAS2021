@@ -2,10 +2,9 @@ import { H3, H6, Divider, Spinner } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
 import { GetResult } from "../../Helpers/API";
 import { Result } from "../../Helpers/Result";
-import { Average } from "../../Helpers/Utils";
-import StoryViewer from "../Story/StoryViewer";
 import ConfigInfo from "./ConfigInfo";
-import ReportCard from "./ReportCard";
+import StoryViewer from "../Story/StoryViewer";
+import StatsViewer from "./Stats";
 
 interface ResultsProps {
   logName: string;
@@ -47,6 +46,7 @@ interface ResultDisplayProps {
 }
 function ResultDisplay(props: ResultDisplayProps) {
   const { result } = props;
+
   return (
     <div
       style={{
@@ -64,19 +64,7 @@ function ResultDisplay(props: ResultDisplayProps) {
         <Divider></Divider>
         <StoryViewer story={result.story} />
         <Divider></Divider>
-        <div className="row">
-          <div className="col-lg-6">
-            <ReportCard description="Total deaths" title={result.deaths.length.toString()} />
-          </div>
-          <div className="col-lg-6">
-            <ReportCard
-              description="Average food on platform per tick"
-              title={Average(result.food.map((f) => f.food))
-                .toFixed(3)
-                .toString()}
-            />
-          </div>
-        </div>
+        <StatsViewer result={result} />
       </div>
     </div>
   );
