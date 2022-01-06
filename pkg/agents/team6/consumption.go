@@ -111,6 +111,11 @@ func (a *CustomAgent6) foodRange() (int, int) {
 }
 
 func (a *CustomAgent6) treatyValid(treaty messages.Treaty) bool {
+
+	if len(a.ActiveTreaties()) == 0 {
+		return true
+	}
+
 	chkTrtyVal := treaty.RequestValue()
 	mini, maxi := a.foodRange()
 
