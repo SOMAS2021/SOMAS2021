@@ -12,12 +12,12 @@ import (
 		utilities.
     Observation:
         Observation               Min                     Max
-        hp			              0.0                     100.0
+        hp			  0.0                     100.0
         floor	                  1                       inf
         foodOnPlat                0    	                  100
 
 		Other observations should come from communication with other agents
-        savedAgents               0                       number of agent per florr
+        savedAgents               0                       number of agent per floor
 		Note: the particular combination of the observations correspond to a particular state of
 		the agent
 	State:
