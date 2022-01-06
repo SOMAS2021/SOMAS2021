@@ -7,6 +7,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/google/uuid"
 )
 
@@ -62,6 +63,7 @@ type OperationalMemory struct {
 	currentDayonFloor int
 	numOfDays         int
 	avgFood           int
+	currentFloorRisk  int
 	daysHungry        int
 	seenPlatform      bool
 	prevHP            int
@@ -108,6 +110,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			currentDayonFloor: 0,
 			numOfDays:         0,
 			avgFood:           0,
+			currentFloorRisk:  0,
 			daysHungry:        0,
 			seenPlatform:      false,
 			foodEaten:         0,
@@ -124,17 +127,12 @@ func (a *CustomAgent7) Run() {
 
 	// Operational Variables
 	// UserID := a.ID()
-	// currentHP := a.HP()
-
-	//****experimental
-	//TargetHP initialise by 70 +/- random scaling * +/- Neuroticism
-	//TargetHP := 70 //+/- Neurpticism Scaled
+	currentHP := a.HP()
 	healthInfo := a.HealthInfo()
-	//****
-
-	currentAvailFood := a.CurrPlatFood()
 	currentFloor := a.Floor()
 	// prevFloor := a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1]
+
+	// ------------------ Run Block A.1: Estimates the food available on the new floor based on past experience ------------------
 
 	//Check if floor has changed
 	if len(a.opMem.orderPrevFloors) == 0 || a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1] != currentFloor { //If day 1 or floor change
@@ -191,7 +189,7 @@ func (a *CustomAgent7) Run() {
 
 			}
 
-			//How the above impacts stuff
+			// ------------------ Run Block A.2: Adjusts mood w.r.t. change in floor and the expected food ------------------
 
 			//Update Behaviour
 			if currentFloor < a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1] {
@@ -205,8 +203,12 @@ func (a *CustomAgent7) Run() {
 				a.behaviour.kindness += (a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1] - currentFloor)
 			}
 			//greediness is effected by the amount of food expected on this floor as estimated from past experience
+			a.behaviour.greediness -= a.opMem.currentFloorRisk
 			if expectedFood < healthInfo.HPReqCToW { //greediness only begins to be effected once the expected food is below a crticial threshold
 				a.behaviour.greediness += (healthInfo.HPReqCToW - expectedFood)
+				a.opMem.currentFloorRisk = (healthInfo.HPReqCToW - expectedFood)
+			} else {
+				a.opMem.currentFloorRisk = 0
 			}
 
 		}
@@ -215,20 +217,8 @@ func (a *CustomAgent7) Run() {
 		a.opMem.currentDayonFloor++
 	}
 
-	//Average Food available per floor map
-	// If the number of days on floor is zero set num of days to 1 and add current avail food to average
-	if (a.opMem.prevFloors[currentFloor].numOfDays == 0) && (currentAvailFood != -1) && a.PlatformOnFloor() {
-		a.opMem.prevFloors[currentFloor] = floorInfo{1, int(currentAvailFood)}
-	} else if currentAvailFood != -1 && a.PlatformOnFloor() {
-		//otherwise update number of days on floor and calculate new average
-		tmp := a.opMem.prevFloors[currentFloor].avgFood * a.opMem.prevFloors[currentFloor].numOfDays
-		tmp = tmp + int(currentAvailFood)
-		newNumOfDays := a.opMem.prevFloors[currentFloor].numOfDays + 1
-		tmp = tmp / newNumOfDays
-		a.opMem.prevFloors[currentFloor] = floorInfo{tmp, newNumOfDays}
-	}
+	// ------------------ Run Block X: Receive messages ------------------
 
-	// Receive Messages
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
@@ -236,10 +226,29 @@ func (a *CustomAgent7) Run() {
 		a.Log("No Messages")
 	}
 
-	// Eat
+	// // Possible food to take: Food available on platform/Food required to go from ciritcal to weak, critical to healthy
 
-	//
-	if a.CurrPlatFood() != -1 && a.PlatformOnFloor() {
+	// // Influences on Food taking: greediness, kindness, memory map HOW???, Sanity [depends on messaging, extraversion???, neuroticism], activeness, morality,
+	// // so if your extraverted: less interaction leads to lowered sanity/More interaction better sanity
+	// // higher neuroticism -> fall faster into insanity, initialise sanity based on neuroticism, sanity = 100-neuroticism/ sanity bsaed on
+
+	if a.PlatformOnFloor() && !a.opMem.seenPlatform {
+
+		// ------------------ Run Block X: Calculates average food available on this floor ------------------
+
+		// If the number of days on floor is zero set num of days to 1 and add current avail food to average
+		if (a.opMem.prevFloors[a.Floor()].numOfDays == 0) && a.PlatformOnFloor() {
+			a.opMem.prevFloors[a.Floor()] = floorInfo{1, int(a.CurrPlatFood())}
+		} else if a.PlatformOnFloor() {
+			//otherwise update number of days on floor and calculate new average
+			tmp := a.opMem.prevFloors[a.Floor()].avgFood * a.opMem.prevFloors[a.Floor()].numOfDays
+			tmp = tmp + int(a.CurrPlatFood())
+			newNumOfDays := a.opMem.prevFloors[a.Floor()].numOfDays + 1
+			tmp = tmp / newNumOfDays
+			a.opMem.prevFloors[a.Floor()] = floorInfo{tmp, newNumOfDays}
+		}
+
+		// ------------------ Run Block D.1: Adjusting mood w.r.t. personality and randomness ------------------
 
 		r1 := rand.Intn(11) - 5
 		r2 := rand.Intn(11) - 5
@@ -261,69 +270,45 @@ func (a *CustomAgent7) Run() {
 			a.behaviour.greediness = 100
 		}
 
-		// ///******///
-		// currentHealth := a.HP()
+		// ------------------ Run Block D.2: Take food w.r.t. current health, mood, messages and treaties ------------------
 
-		// // Possible food to take: Food available on platform/Food required to go from ciritcal to weak, critical to healthy
+		var foodtotake food.FoodType
 
-		// FoodToWeakHP := healthInfo.HPReqCToW
-		// currentAvailFood := a.CurrPlatFood()
-
-		// // Influences on Food taking: greediness, kindness, memory map HOW???, Sanity [depends on messaging, extraversion???, neuroticism], activeness, morality,
-		// // so if your extraverted: less interaction leads to lowered sanity/More interaction better sanity
-		// // higher neuroticism -> fall faster into insanity, initialise sanity based on neuroticism, sanity = 100-neuroticism/ sanity bsaed on
-		// //
-
-		// if a.opMem.treaty {
-		// 	object = treay
-		// }
-
-		// switch object {
-		// case treaty
-		// }
-
-		// if treaty {
-		// 	foodtotake := 100 - foodtoleave + behavioural_adjustments
-		// } else if request {
-		// 	foodtotake := 100 - requested_leave_food
-		// } else {
-		// 	foodtotake := (foodreqCriticaltoWeak + weaktoHealthy) + behavioural_adjustments
-		// }
-
-		foodtotake := food.FoodType((100) - a.behaviour.kindness + a.behaviour.greediness)
-
-		// TREATIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// ///********///
-
-		// has the agent seen the platform
-		if a.CurrPlatFood() != -1 && a.PlatformOnFloor() {
-			//foodEaten, err := a.TakeFood(foodtotake)
-			Eaten, err := a.TakeFood(foodtotake)
-
-			if err != nil {
-				switch err.(type) {
-				case *infra.FloorError:
-				case *infra.NegFoodError:
-				case *infra.AlreadyEatenError:
-				default:
-				}
-			}
-			a.opMem.foodEaten = Eaten
-			if a.opMem.foodEaten > 0 {
-				a.opMem.daysHungry = 0
-			} else {
-				a.opMem.daysHungry++
-			}
-			a.Log("Team 7 has seen the platform:", infra.Fields{"foodEaten": a.opMem.foodEaten, "health": a.HP(), "daysHungry": a.opMem.daysHungry})
-			a.opMem.seenPlatform = true
+		// Cases
+		switch {
+		case currentHP <= healthInfo.HPCritical:
+			foodtotake = health.FoodRequired(currentHP, 60, healthInfo)
+		case healthInfo.WeakLevel <= currentHP && currentHP <= 60:
+			foodtotake = food.FoodType(100 - a.behaviour.greediness - a.behaviour.kindness)
+		default:
+			foodtotake = health.FoodRequired(currentHP, healthInfo.WeakLevel, healthInfo)
 		}
 
-		if (a.CurrPlatFood() == -1 && a.opMem.seenPlatform) || a.CurrPlatFood() == 100 {
-			//Get ready for new day
-			a.opMem.seenPlatform = false
-			a.opMem.prevHP = a.HP()
-		}
+		// Eat Food and Update Statuses
+		Eaten, err := a.TakeFood(foodtotake)
 
+		if err != nil {
+			switch err.(type) {
+			case *infra.FloorError:
+			case *infra.NegFoodError:
+			case *infra.AlreadyEatenError:
+			default:
+			}
+		}
+		a.opMem.foodEaten = Eaten
+		if a.opMem.foodEaten > 0 {
+			a.opMem.daysHungry = 0
+		} else {
+			a.opMem.daysHungry++
+		}
+		a.Log("Team 7 has seen the platform:", infra.Fields{"foodEaten": a.opMem.foodEaten, "health": a.HP(), "daysHungry": a.opMem.daysHungry})
+		a.opMem.seenPlatform = true
+	}
+
+	if a.PlatformOnFloor() && a.opMem.seenPlatform {
+		//Get ready for new day
+		a.opMem.seenPlatform = false
+		a.opMem.prevHP = a.HP()
 	}
 
 }
@@ -334,8 +319,6 @@ func (a *CustomAgent7) Run() {
 func (a *CustomAgent7) HandleAskHP(msg messages.AskHPMessage) {
 	a.Log("Recieved askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.HP())
-	// reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
-	// a.SendMessage(msg.SenderFloor()-a.Floor(), reply)
 	a.SendMessage(reply)
 }
 
