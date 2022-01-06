@@ -44,7 +44,7 @@ type CustomAgent5 struct {
 func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgent5{
 		Base:              baseAgent,
-		selfishness:       10,                           // of 0 to 10, with 10 being completely selfish, 0 being completely selfless
+		selfishness:       10,                           // Range from 0 to 10, with 10 being completely selfish, 0 being completely selfless
 		lastMeal:          0,                            // Stores value of the last amount of food taken
 		daysSinceLastMeal: 0,                            // Count of how many days since last eating
 		hpAfterEating:     baseAgent.HealthInfo().MaxHP, // Stores HP value after eating in a day
@@ -89,7 +89,8 @@ func (a *CustomAgent5) updateSatisfaction() {
 }
 
 func (a *CustomAgent5) checkForLeader() {
-	diceRoll := rand.Intn(10) + 3 - a.selfishness - a.Floor() //Random number between 3 and 12 generated, then the agent floor and selfishness are deducted from this
+	// Random number between 3 and 12 generated, then the agent floor and selfishness are deducted from this
+	diceRoll := rand.Intn(10) + 3 - a.selfishness - a.Floor()
 	if diceRoll >= a.leadership {
 		a.Log("An agent has become a leader", infra.Fields{"dice roll": diceRoll, "leadership": a.leadership, "selfishness": a.selfishness, "floor": a.Floor()})
 		//TODO: Send treaties here about eating less food
@@ -102,46 +103,86 @@ func (a *CustomAgent5) checkForLeader() {
 	}
 }
 
-func (a *CustomAgent5) statementsIntersect(op1 messages.Op, value1 int, op2 messages.Op, value2 int) bool {
+func statementsIntersect(op1 messages.Op, value1 int, op2 messages.Op, value2 int) bool {
 	switch op1 {
 	case messages.EQ:
-		return ((op2 == messages.EQ && value1 == value2) ||
-			(op2 == messages.LT && value1 < value2) ||
-			(op2 == messages.LE && value1 <= value2) ||
-			(op2 == messages.GT && value1 > value2) ||
-			(op2 == messages.GE && value1 >= value2))
+		switch op2 {
+		case messages.EQ:
+			return value1 == value2
+		case messages.LT:
+			return value1 < value2
+		case messages.LE:
+			return value1 <= value2
+		case messages.GT:
+			return value1 > value2
+		case messages.GE:
+			return value1 >= value2
+		default:
+			log.Error("Simulation - team5/agent.go: \t Reached unreachable code in statementsIntersect", op1, value1, op2, value2)
+			return true
+		}
+
 	case messages.LT:
-		return ((op2 == messages.EQ && value1 > value2) ||
-			op2 == messages.LT ||
-			op2 == messages.LE ||
-			(op2 == messages.GT && (value1-1) > value2) || // need the -1 here to disallow x<3 AND x>2
-			(op2 == messages.GE && value1 > value2))
+		switch op2 {
+		case messages.EQ, messages.GE:
+			return value1 > value2
+		case messages.LT, messages.LE:
+			return true
+		case messages.GT:
+			return value1-1 > value2
+		default:
+			log.Error("Simulation - team5/agent.go: \t Reached unreachable code in statementsIntersect", op1, value1, op2, value2)
+			return true
+		}
+
 	case messages.LE:
-		return ((op2 == messages.EQ && value1 > value2) ||
-			op2 == messages.LT ||
-			op2 == messages.LE ||
-			(op2 == messages.GT && value1 > value2) ||
-			(op2 == messages.GE && value1 >= value2))
+		switch op2 {
+		case messages.EQ, messages.GE:
+			return value1 >= value2
+		case messages.LT, messages.LE:
+			return true
+		case messages.GT:
+			return value1 > value2
+		default:
+			log.Error("Simulation - team5/agent.go: \t Reached unreachable code in statementsIntersect", op1, value1, op2, value2)
+			return true
+		}
+
 	case messages.GT:
-		return ((op2 == messages.EQ && value1 < value2) ||
-			(op2 == messages.LT && value1 < (value2-1)) ||
-			(op2 == messages.LE && value1 < value2) ||
-			op2 == messages.GT ||
-			op2 == messages.GE)
+		switch op2 {
+		case messages.EQ, messages.LE:
+			return value1 < value2
+		case messages.LT:
+			return value1 < value2-1
+		case messages.GT, messages.GE:
+			return true
+		default:
+			log.Error("Simulation - team5/agent.go: \t Reached unreachable code in statementsIntersect", op1, value1, op2, value2)
+			return true
+		}
+
 	case messages.GE:
-		return ((op2 == messages.EQ && value1 < value2) ||
-			(op2 == messages.LT && value1 < value2) ||
-			(op2 == messages.LE && value1 <= value2) ||
-			op2 == messages.GT ||
-			op2 == messages.GE)
+		switch op2 {
+		case messages.EQ, messages.LE:
+			return value1 <= value2
+		case messages.LT:
+			return value1 < value2
+		case messages.GT, messages.GE:
+			return true
+		default:
+			log.Error("Simulation - team5/agent.go: \t Reached unreachable code in statementsIntersect", op1, value1, op2, value2)
+			return true
+		}
+
 	default:
 		// It should be impossible to get here
+		log.Error("Simulation - team5/agent.go: \t Reached unreachable code in statementsIntersect", op1, value1, op2, value2)
 		return true
 	}
 }
 
 func (a *CustomAgent5) treatiesCanCoexist(t1 messages.Treaty, t2 messages.Treaty) bool {
-	conditionsIntersect := a.statementsIntersect(t1.ConditionOp(), t1.ConditionValue(), t2.ConditionOp(), t2.ConditionValue())
+	conditionsIntersect := statementsIntersect(t1.ConditionOp(), t1.ConditionValue(), t2.ConditionOp(), t2.ConditionValue())
 
 	// If the treaties are based on the same type of condition, they can coexist
 	// when the conditions are mutually exclusive (can never occurr simultaneously)
@@ -157,7 +198,7 @@ func (a *CustomAgent5) treatiesCanCoexist(t1 messages.Treaty, t2 messages.Treaty
 	}
 
 	// Otherwise, treaties can coexist only if the requests can be fulfilled simultaneously
-	return a.statementsIntersect(t1.RequestOp(), t1.RequestValue(), t2.RequestOp(), t2.RequestValue())
+	return statementsIntersect(t1.RequestOp(), t1.RequestValue(), t2.RequestOp(), t2.RequestValue())
 }
 
 func (a *CustomAgent5) treatyConflicts(treaty messages.Treaty) bool {
