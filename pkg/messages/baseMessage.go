@@ -43,6 +43,7 @@ type Agent interface {
 }
 
 type Message interface {
+	Base() *BaseMessage
 	MessageType() MessageType
 	SenderFloor() int
 	TargetFloor() int
@@ -98,6 +99,10 @@ func NewBaseMessage(senderID uuid.UUID, senderFloor int, targetFloor int, messag
 	return msg
 }
 
+func (msg *BaseMessage) Base() *BaseMessage {
+	return msg
+}
+
 func (msg *BaseMessage) MessageType() MessageType {
 	return msg.messageType
 }
@@ -113,6 +118,7 @@ func (msg *BaseMessage) TargetFloor() int {
 func (msg *BaseMessage) ID() uuid.UUID {
 	return msg.id
 }
+
 func (msg *BaseMessage) SenderID() uuid.UUID {
 	return msg.senderID
 }
