@@ -1,5 +1,5 @@
 import ReportCard from "./ReportCard";
-import { Average, DeathsPerAgent } from "../../Helpers/Utils";
+import { Average, DeathsPerAgent, Max, Min } from "../../Helpers/Utils";
 import { Result } from "../../Helpers/Result";
 import BarChart from "./Graphs/BarChart";
 import LineChart from "./Graphs/LineChart";
@@ -35,13 +35,13 @@ export default function StatsViewer(props: StatsViewerProps) {
       <div className="col-lg-6">
         <ReportCard
           description="Max agent age upon death"
-          title={result.deaths.length === 0 ? "0" : Math.max(...result.deaths.map((d) => d.ageUponDeath)).toString()}
+          title={Max(result.deaths.map((d) => d.ageUponDeath)).toString()}
         />
       </div>
       <div className="col-lg-6">
         <ReportCard
           description="Min agent age upon death"
-          title={result.deaths.length === 0 ? "0" : Math.min(...result.deaths.map((d) => d.ageUponDeath)).toString()}
+          title={Min(result.deaths.map((d) => d.ageUponDeath)).toString()}
         />
       </div>
       <div className="row">
