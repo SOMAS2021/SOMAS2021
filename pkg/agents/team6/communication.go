@@ -17,6 +17,7 @@ func (a *CustomAgent6) RequestLeaveFood() {
 	}
 
 	var reqAmount int
+
 	switch a.currBehaviour.String() {
 	case "Altruist":
 		reqAmount = -1
@@ -53,6 +54,7 @@ func (a *CustomAgent6) RequestLeaveFood() {
 func (a *CustomAgent6) RequestTakeFood() {
 
 	var reqAmount int
+
 	switch a.currBehaviour.String() {
 	case "Altruist":
 		reqAmount = -1
@@ -88,6 +90,7 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 	}
 
 	var reply bool
+
 	switch a.currBehaviour.String() {
 	case "Altruist":
 		reply = true
