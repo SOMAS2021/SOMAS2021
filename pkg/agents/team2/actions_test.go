@@ -2,6 +2,8 @@ package team2
 
 import (
 	"testing"
+
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
 /* TODO: Implement this test. This is old implementation, do not use
