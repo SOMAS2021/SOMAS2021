@@ -40,11 +40,11 @@ export default function Settings(props: SettingsInterface) {
           <div className="modal-body">
             <TowerFood config={config} configHandler={configHandler} />
             <Divider />
-            <TowerLength config={config} configHandler={configHandler} advanced={true} />
+            <TowerLength config={config} configHandler={configHandler} />
             <Divider />
             <AgentTypesParams config={config} configHandler={configHandler} />
             <Divider />
-            <AgentGeneral config={config} configHandler={configHandler} advanced={true} />
+            <AgentGeneral config={config} configHandler={configHandler} />
             <Divider />
             <FileName configHandler={configHandler} />
           </div>
