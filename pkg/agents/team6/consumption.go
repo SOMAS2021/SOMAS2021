@@ -81,26 +81,26 @@ func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food
 func (a *CustomAgent6) foodRange() (int, int) {
 	mini := 0 //initial minimum value
 	maxi := 0 //maximum value to indicate no maximum
-	for _, value := range a.ActiveTreaties() {
-		switch value.RequestOp() {
+	for _, treaty := range a.ActiveTreaties() {
+		switch treaty.RequestOp() {
 		case 0:
-			if value.RequestValue() > mini {
-				mini = value.RequestValue() + 1 //If Greater than, then the max value is one larger
+			if treaty.RequestValue() > mini {
+				mini = treaty.RequestValue() + 1 //If Greater than, then the max value is one larger
 			}
 		case 1:
-			if value.RequestValue() > mini {
-				mini = value.RequestValue() //If Greater or Equal, then the max value is itself
+			if treaty.RequestValue() > mini {
+				mini = treaty.RequestValue() //If Greater or Equal, then the max value is itself
 			}
 		case 3:
-			if value.RequestValue() < maxi || maxi == 0 {
-				maxi = value.RequestValue() //If Less than or Equal, then the max value is itself
+			if treaty.RequestValue() < maxi || maxi == 0 {
+				maxi = treaty.RequestValue() //If Less than or Equal, then the max value is itself
 			}
 		case 4:
-			if value.RequestValue() < maxi || maxi == 0 {
-				maxi = value.RequestValue() - 1 //If Less than, then the max value is one smaller
+			if treaty.RequestValue() < maxi || maxi == 0 {
+				maxi = treaty.RequestValue() - 1 //If Less than, then the max value is one smaller
 			}
 		case 2:
-			eqVal := value.RequestValue() //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
+			eqVal := treaty.RequestValue() //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
 			mini, maxi = eqVal, eqVal
 		default:
 			mini, maxi = -1, -1 //unknown op code
@@ -140,7 +140,6 @@ func (a *CustomAgent6) treatyValid(treaty messages.Treaty) bool {
 			return false
 		}
 		return true
-
 	default:
 		return false
 	}
@@ -154,27 +153,27 @@ func (a *CustomAgent6) treatyValid(treaty messages.Treaty) bool {
 // 	eqFound := 0 //is there an equal requestOp
 // 	eqVal := 0   //equal requestOp requestValue
 // 	noMaxi := 0  //Indicator for no maximum
-// 	for _, value := range a.ActiveTreaties() {
-// 		switch value.RequestOp() {
+// 	for _, treaty := range a.ActiveTreaties() {
+// 		switch treaty.RequestOp() {
 // 		case 0:
-// 			if value.RequestValue() > mini {
-// 				mini = value.RequestValue() + 1 //If Greater than, then the max value is one larger
+// 			if treaty.RequestValue() > mini {
+// 				mini = treaty.RequestValue() + 1 //If Greater than, then the max value is one larger
 // 			}
 // 		case 1:
-// 			if value.RequestValue() > mini {
-// 				mini = value.RequestValue() //If Greater or Equal, then the max value is itself
+// 			if treaty.RequestValue() > mini {
+// 				mini = treaty.RequestValue() //If Greater or Equal, then the max value is itself
 // 			}
 // 		case 3:
-// 			if value.RequestValue() < maxi || maxi == 0 {
-// 				maxi = value.RequestValue() //If Less than or Equal, then the max value is itself
+// 			if treaty.RequestValue() < maxi || maxi == 0 {
+// 				maxi = treaty.RequestValue() //If Less than or Equal, then the max value is itself
 // 			}
 // 		case 4:
-// 			if value.RequestValue() < maxi || maxi == 0 {
-// 				maxi = value.RequestValue() - 1 //If Less than, then the max value is one smaller
+// 			if treaty.RequestValue() < maxi || maxi == 0 {
+// 				maxi = treaty.RequestValue() - 1 //If Less than, then the max value is one smaller
 // 			}
 // 		case 2:
 // 			eqFound = 1
-// 			eqVal = value.RequestValue() //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
+// 			eqVal = treaty.RequestValue() //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
 // 		}
 // 	}
 // 	if maxi == 0 {
