@@ -65,9 +65,9 @@ type CustomAgent2 struct {
 	policies              [][]float64
 	rTable                [][]float64
 	qTable                [][]float64
-	isPlatArrived         bool
 	daysAtCriticalCounter int
 	PreviousdayAtCritical int
+	lastAge               int
 }
 
 func InitTable(numStates int, numActions int) [][]float64 {
@@ -96,9 +96,9 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		policies:              policies,
 		rTable:                rTable,
 		qTable:                qTable,
-		isPlatArrived:         false,
 		daysAtCriticalCounter: 0,
 		PreviousdayAtCritical: 0,
+		lastAge:               0,
 	}, nil
 }
 
@@ -111,14 +111,9 @@ func (a *CustomAgent2) Run() {
 		a.SendMessage(1, msg)
 	*/
 
-	//Perform the following only when platform arrives
-	//NOTE: should let infra team add a func to see whether the plaftfrom has arrived or not
-	if a.CheckState() != -1 {
-		a.isPlatArrived = true
-	} else {
-		a.isPlatArrived = false
-	}
-	if a.isPlatArrived {
+	//Perform the following only once per day when platform arrives
+
+	if a.PlatformOnFloor() && a.Age() > a.lastAge {
 		oldState := a.CheckState()
 		oldHP := a.HP()
 		a.Log("Agent team2 before action:", infra.Fields{"floor": a.Floor(), "hp": oldHP, "food": a.CurrPlatFood(), "state": oldState})
