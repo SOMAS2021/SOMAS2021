@@ -13,7 +13,7 @@ func (a *CustomAgent6) addToMemory() {
 			return
 		}
 		a.longTermMemory = append(a.longTermMemory[:], currPlatFood)
-		a.shortTermMemory = append(a.shortTermMemory[:], currPlatFood)
+		a.shortTermMemory = append(a.shortTermMemory, currPlatFood)
 
 		a.Log("Team 6 age:", infra.Fields{"Age": a.Age()})
 		a.Log("Team 6 food available:", infra.Fields{"CurrPlatFood": a.CurrPlatFood()})
