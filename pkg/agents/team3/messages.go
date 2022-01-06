@@ -537,14 +537,17 @@ func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 
 		foodTakenEstimate := a.reqFoodTakenEstimate(treaty, treaty.Request() == messages.LeavePercentFood)
 
-		// Maybe take the duration and signatures into account
-
 		// If agent is in a bad mood, it will only accept treaties that take effect when it is in a strong position.
 		// If agent has low morality, it will only accept treaties that involve it taking large amounts of food.
 		agentVarsPassed := a.vars.mood > (20*int(minActivationLevel)-20) && a.vars.morality > (20*int(foodTakenEstimate)-20) && a.vars.morality < (20*int(foodTakenEstimate)+20)
+		// Check duration is not too long, and use stubbornness to decide if an agent gives in and accepts treaties with at least 5 signatures
+		allChecksPassed := agentVarsPassed && treaty.Duration() < 2*a.knowledge.reshuffleEst
+		if treaty.SignatureCount() >= 5 && !allChecksPassed {
+			allChecksPassed = a.read()
+		}
 
 		//use agent variables, foodTakenEstimate, and requiredAgentPosition to accept/reject
-		if agentVarsPassed && treaty.Request() != messages.Inform { // dont accept HP inform requests
+		if allChecksPassed && treaty.Request() != messages.Inform { // dont accept HP inform requests
 			response = true
 			treaty.SignTreaty()
 			a.AddTreaty(treaty)
@@ -554,5 +557,4 @@ func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), response)
 		a.SendMessage(reply)
 	}
-
 }
