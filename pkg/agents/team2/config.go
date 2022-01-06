@@ -12,12 +12,12 @@ import (
 		utilities.
     Observation:
         Observation               Min                     Max
-        hp			  0.0                     100.0
+        hp			              0.0                     100.0
         floor	                  1                       inf
         foodOnPlat                0    	                  100
 
 		Other observations should come from communication with other agents
-        savedAgents               0                       number of agent per floor
+        savedAgents               0                       number of agent per florr
 		Note: the particular combination of the observations correspond to a particular state of
 		the agent
 	State:
@@ -60,12 +60,14 @@ type actionSpace struct {
 }
 type CustomAgent2 struct {
 	*infra.Base
-	stateSpace    [][][][]int
-	actionSpace   actionSpace
-	policies      [][]float64
-	rTable        [][]float64
-	qTable        [][]float64
-	isPlatArrived bool
+	stateSpace            [][][][]int
+	actionSpace           actionSpace
+	policies              [][]float64
+	rTable                [][]float64
+	qTable                [][]float64
+	isPlatArrived         bool
+	daysAtCriticalCounter int
+	PreviousdayAtCritical int
 }
 
 func InitTable(numStates int, numActions int) [][]float64 {
@@ -86,14 +88,17 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	policies := InitPolicies(hpStatesDim*3*3*daysAtCriticalDim, actionDim)
 	rTable := InitTable(hpStatesDim*3*3*daysAtCriticalDim, actionDim)
 	qTable := InitTable(hpStatesDim*3*3*daysAtCriticalDim, actionDim)
+
 	return &CustomAgent2{
-		Base:          baseAgent,
-		stateSpace:    stateSpace,
-		actionSpace:   actionSpace,
-		policies:      policies,
-		rTable:        rTable,
-		qTable:        qTable,
-		isPlatArrived: false,
+		Base:                  baseAgent,
+		stateSpace:            stateSpace,
+		actionSpace:           actionSpace,
+		policies:              policies,
+		rTable:                rTable,
+		qTable:                qTable,
+		isPlatArrived:         false,
+		daysAtCriticalCounter: 0,
+		PreviousdayAtCritical: 0,
 	}, nil
 }
 
@@ -129,6 +134,13 @@ func (a *CustomAgent2) Run() {
 		}
 		a.Log("Agent team2:", infra.Fields{"selected and performed action": action})
 		a.Log("Agent team2 after action:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
+		if a.DaysAtCritical() > 0 && a.PreviousdayAtCritical != a.DaysAtCritical() {
+			a.PreviousdayAtCritical = a.DaysAtCritical()
+			a.daysAtCriticalCounter += 1
+			if a.DaysAtCritical() >= (a.HealthInfo().MaxDayCritical - 1) {
+				a.Log("Agent team2 at critical state", infra.Fields{"daysAtCriticalCounter": a.daysAtCriticalCounter, "floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
+			}
+		}
 		hpInc := a.HP() - oldHP
 		a.updateRTable(hpInc, oldState, action)
 		a.updateQTable(oldState, action)
