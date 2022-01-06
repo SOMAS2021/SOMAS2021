@@ -54,7 +54,7 @@ type CustomAgent6 struct {
 	foodTakeDay         int
 	reqLeaveFoodAmount  int
 	lastFoodTaken       food.FoodType
-  averageFoodIntake  float64
+	averageFoodIntake   float64
 	longTermMemory      memory  // Memory of food available throughout agent's lifetime
 	shortTermMemory     memory  // Memory of food available while agent is at a particular floor
 	numReassigned       int     // Number of times the agent has been reassigned
@@ -97,7 +97,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		foodTakeDay:         0,
 		reqLeaveFoodAmount:  -1,
 		lastFoodTaken:       0,
-    averageFoodIntake:  0.0,
+		averageFoodIntake:   0.0,
 		longTermMemory:      memory{},
 		shortTermMemory:     memory{},
 		numReassigned:       0,
@@ -196,10 +196,9 @@ func (a *CustomAgent6) Run() {
 
 	//exponential moving average filter to average food taken whilst discounting previous food
 	a.updateAverageIntake(foodTaken)
-  
+
 	// a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
 	// a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
-
 
 	a.updateBehaviourWeights()
 
