@@ -63,7 +63,6 @@ func (a *CustomAgent3) askTakeFood(HPNeighbour int, direction int) { //direction
 		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, survivalFood)
 		a.SendMessage(msg)
 	}
-
 	a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
 
 }
@@ -82,25 +81,13 @@ func (a *CustomAgent3) askLeaveFood(direction int) { //direction 1 or -1
 }
 func (a *CustomAgent3) proposeTreatiesInmoral() {
 	randomFloor := rand.Intn(a.Floor()) + 1
-	tr := messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID())
-	r := rand.Intn(4)
-	switch r {
-	case 0:
-		tr = messages.NewTreaty(messages.HP, 20, messages.LeaveAmountFood, 20, messages.GT, messages.GT, 15, a.ID())
-	case 1:
-		tr = messages.NewTreaty(messages.HP, 60, messages.LeavePercentFood, 60, messages.GT, messages.GT, 5, a.ID())
-	case 2:
-		tr = messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID())
-	case 3:
-		tr = messages.NewTreaty(messages.Floor, a.Floor()+1, messages.LeavePercentFood, 99, messages.GT, messages.GT, 9, a.ID())
-	}
-	//generalise later
+	tr := messages.NewTreaty(messages.Floor, a.Floor()+1, messages.LeavePercentFood, 99, messages.GT, messages.GT, 9, a.ID())
 	a.knowledge.treatyProposed = *tr //remember the treaty we proposed
 	msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), randomFloor, *tr)
 	a.SendMessage(msg)
 	a.Log("I sent a treaty")
 }
-func (a *CustomAgent3) proposeTreatiesMoral(direction int) {
+func (a *CustomAgent3) proposeTreatiesMoral(direction int) { //troll treaties (then add some more b)
 	tr := messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID())
 	r := rand.Intn(3)
 	switch r {
@@ -110,6 +97,8 @@ func (a *CustomAgent3) proposeTreatiesMoral(direction int) {
 		tr = messages.NewTreaty(messages.HP, 60, messages.LeavePercentFood, 60, messages.GT, messages.GT, 5, a.ID())
 	case 2:
 		tr = messages.NewTreaty(messages.HP, 10, messages.LeavePercentFood, 95, messages.GT, messages.GT, 10, a.ID())
+	case 3:
+		tr = messages.NewTreaty(messages.AvailableFood, 50, messages.LeaveAmountFood, a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW), messages.LT, messages.GT, 5, a.ID())
 	}
 	//generalise later
 	a.knowledge.treatyProposed = *tr //remember the treaty we proposed
@@ -133,9 +122,18 @@ func (a *CustomAgent3) ticklyMessage() {
 		case 1:
 			a.askFoodTaken(direction)
 		case 2:
-			a.askTakeFood(50, direction)
+			a.askTakeFood(50, direction) //save HP knowledge
 		case 3:
 			a.askLeaveFood(direction)
+		case 4:
+			if a.treatyFull() || a.treatyPendingResponse() {
+				if a.vars.morality < 10 {
+					a.proposeTreatiesInmoral()
+				} else {
+					a.proposeTreatiesMoral(1)
+				}
+			}
+
 		}
 	}
 
