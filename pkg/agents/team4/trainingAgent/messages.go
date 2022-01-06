@@ -6,6 +6,30 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
+func (a *CustomAgentEvo) GetMessage() { //move this function to messages.go
+	receivedMsg := a.ReceiveMessage()
+
+	if receivedMsg != nil {
+		if receivedMsg.MessageType() == messages.RequestLeaveFood {
+			a.params.requestLeaveFoodMessages = append(a.params.requestLeaveFoodMessages, receivedMsg)
+		} else {
+			a.params.otherMessageBuffer = append(a.params.otherMessageBuffer, receivedMsg)
+		}
+	}
+}
+
+func (a *CustomAgentEvo) CallHandleMessage() { //move this function to messages.go
+	if a.PlatformOnFloor() && len(a.params.requestLeaveFoodMessages) > 0 {
+		a.params.requestLeaveFoodMessages[0].Visit(a)
+		remove(a.params.requestLeaveFoodMessages, 0)
+	} else if len(a.params.otherMessageBuffer) > 0 {
+		a.params.otherMessageBuffer[0].Visit(a)
+		remove(a.params.otherMessageBuffer, 0)
+	} else {
+		a.Log("I got no messages")
+	}
+}
+
 func (a *CustomAgentEvo) SendingMessage() {
 
 	var msg messages.Message
@@ -27,7 +51,7 @@ func (a *CustomAgentEvo) SendingMessage() {
 		a.params.sentMessages = append(a.params.sentMessages, msg)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 3:
-		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, 10) //need to change how much to request to leave
+		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, 10) //TODO: need to change how much to request to leave
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
@@ -56,13 +80,13 @@ func (a *CustomAgentEvo) SendingMessage() {
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 8:
 		floorToSend = a.Floor() - 1
-		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, 10) //need to change how much to request to leave
+		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, a.params.foodToEat[a.params.healthStatus]) //need to change how much to request to leave
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 9:
 		floorToSend = a.Floor() - 1
-		msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, 20) //need to change how much to request to take
+		msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, 60) //need to change how much to request to take
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})

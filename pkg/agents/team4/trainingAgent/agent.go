@@ -97,22 +97,6 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	}, nil
 }
 
-// Checks if neighbour below has eaten
-func (a *CustomAgentEvo) NeighbourFoodEaten() food.FoodType {
-	if a.CurrPlatFood() != -1 {
-		if !a.PlatformOnFloor() && a.CurrPlatFood() != a.params.lastPlatFood {
-			return a.params.lastPlatFood - a.CurrPlatFood()
-		}
-		return 0
-	}
-	return -1
-}
-
-// removes a specific message from a message array
-func remove(slice []messages.Message, s int) []messages.Message {
-	return append(slice[:s], slice[s+1:]...)
-}
-
 // Check if a day has passed
 func (a *CustomAgentEvo) HasDayPassed() bool {
 	if a.Age() != a.params.lastAge {
@@ -122,7 +106,7 @@ func (a *CustomAgentEvo) HasDayPassed() bool {
 	return false
 }
 
-func (a *CustomAgentEvo) UpdateLastTimeFoodSeen() {
+func (a *CustomAgentEvo) updateLastTimeFoodSeen() {
 	if a.CurrPlatFood() >= food.FoodType(a.params.foodToEat[0]) {
 		a.params.lastTimeFoodSeen++
 	} else {
@@ -130,35 +114,7 @@ func (a *CustomAgentEvo) UpdateLastTimeFoodSeen() {
 	}
 }
 
-////--------------------Message Parsing--------------------////
-
-func (a *CustomAgentEvo) GetMessage() { //move this function to messages.go
-	receivedMsg := a.ReceiveMessage()
-
-	if receivedMsg != nil {
-		if receivedMsg.MessageType() == messages.RequestLeaveFood {
-			a.params.requestLeaveFoodMessages = append(a.params.requestLeaveFoodMessages, receivedMsg)
-		} else {
-			a.params.otherMessageBuffer = append(a.params.otherMessageBuffer, receivedMsg)
-		}
-	}
-}
-
-func (a *CustomAgentEvo) CallHandleMessage() { //move this function to messages.go
-	if a.PlatformOnFloor() && len(a.params.requestLeaveFoodMessages) > 0 {
-		a.params.requestLeaveFoodMessages[0].Visit(a)
-		remove(a.params.requestLeaveFoodMessages, 0)
-	} else if len(a.params.otherMessageBuffer) > 0 {
-		a.params.otherMessageBuffer[0].Visit(a)
-		remove(a.params.otherMessageBuffer, 0)
-	} else {
-		a.Log("I got no messages")
-	}
-}
-
-////--------------------Message Parsing--------------------////
-
-func (a *CustomAgentEvo) UpdateHealthStatus(healthLevelSeparation int) {
+func (a *CustomAgentEvo) updateHealthStatus(healthLevelSeparation int) {
 
 	if a.HP() <= a.HealthInfo().WeakLevel { //critical
 		a.params.healthStatus = 0
@@ -171,7 +127,7 @@ func (a *CustomAgentEvo) UpdateHealthStatus(healthLevelSeparation int) {
 	}
 }
 
-func (a *CustomAgentEvo) UpdateCraving() {
+func (a *CustomAgentEvo) updateCraving() {
 
 	if a.params.lastTimeFoodSeen > 0 {
 		a.params.craving += a.params.lastTimeFoodSeen
@@ -191,7 +147,8 @@ func (a *CustomAgentEvo) Run() {
 	// update agents memory of the last time it saw food on the platform
 	// fmt.Println("The day passed value is ", check)
 	if a.HasDayPassed() {
-		a.UpdateLastTimeFoodSeen()
+		a.updateLastTimeFoodSeen()
+		a.updateCraving()
 	}
 
 	// update agent's perception of maxFloor
@@ -208,7 +165,7 @@ func (a *CustomAgentEvo) Run() {
 	// TODO: Define a threshold limit for other agents to respond to our sent message.
 	a.SendingMessage()
 
-	a.UpdateHealthStatus(healthLevelSeparation)
+	a.updateHealthStatus(healthLevelSeparation)
 	a.CallHandleMessage() //call the relevant message handler
 
 	var foodEaten food.FoodType

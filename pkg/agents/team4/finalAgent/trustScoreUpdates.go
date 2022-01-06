@@ -9,6 +9,17 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Checks if neighbour below has eaten
+func (a *CustomAgentEvo) neighbourFoodEaten() food.FoodType {
+	if a.CurrPlatFood() != -1 {
+		if !a.PlatformOnFloor() && a.CurrPlatFood() != a.params.lastPlatFood {
+			return a.params.lastPlatFood - a.CurrPlatFood()
+		}
+		return 0
+	}
+	return -1
+}
+
 func (a *CustomAgentEvo) typeAssertResponseMessage(responseMessage messages.Message) (messages.ResponseMessage, error) {
 	typeAsserted, ok := responseMessage.(messages.ResponseMessage)
 	if !ok {
@@ -51,12 +62,12 @@ func (a *CustomAgentEvo) updateGlobalTrustReqTakeFood(msg messages.BoolResponseM
 		log.Error(err)
 		return
 	}
-	if food.FoodType(reqMsg.Request()) >= a.NeighbourFoodEaten() {
-		a.Log("Team4: For Requested Food to Take greater then or equal neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.NeighbourFoodEaten(), "global_trust": a.params.globalTrust})
+	if food.FoodType(reqMsg.Request()) >= a.neighbourFoodEaten() {
+		a.Log("Team4: For Requested Food to Take greater then or equal neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.neighbourFoodEaten(), "global_trust": a.params.globalTrust})
 		a.AddToGlobalTrust(a.params.coefficients[1])
 		return
 	} else {
-		a.Log("Team4: For Requested Food to Take less than neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.NeighbourFoodEaten(), "global_trust": a.params.globalTrust})
+		a.Log("Team4: For Requested Food to Take less than neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.neighbourFoodEaten(), "global_trust": a.params.globalTrust})
 		a.AddToGlobalTrust(-a.params.coefficients[1])
 	}
 }

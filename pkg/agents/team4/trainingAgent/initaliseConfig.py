@@ -23,8 +23,8 @@ for i in range(number_of_agents):
         "WaitProbability": [],
     }
 
-    # increase food to eat by increments of 20
-    agent_config["FoodToEat"] = [(i % 5) * 20
+    # increase food to eat by increments of 10
+    agent_config["FoodToEat"] = [(i % 5) * 10
                                  for _ in range(int(number_of_health_levels))]
 
     # set WaitProbability to a random number between 0 and 100

@@ -43,14 +43,17 @@ type CustomAgentEvo struct {
 
 func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 	foodToEat := map[string][]int{
-		"selfish":  {baseAgent.HealthInfo().HPReqCToW, 61, 41, 0},  // TODO: to optimise more
-		"neutral":  {baseAgent.HealthInfo().HPReqCToW, 82, 68, 44}, // TODO: to optimise more
-		"selfless": {baseAgent.HealthInfo().HPReqCToW, 18, 0, 0},   // TODO: to optimise more
+		// "selfish":  {baseAgent.HealthInfo().HPReqCToW, 61, 41, 0},  // TODO: to optimise more
+		// "neutral":  {baseAgent.HealthInfo().HPReqCToW, 82, 68, 44}, // TODO: to optimise more
+		// "selfless": {baseAgent.HealthInfo().HPReqCToW, 18, 0, 0},   // TODO: to optimise more
+		"selfish":  {baseAgent.HealthInfo().HPReqCToW, 30, 40, 50},
+		"neutral":  {baseAgent.HealthInfo().HPReqCToW, 20, 30, 40},
+		"selfless": {baseAgent.HealthInfo().HPReqCToW, 10, 10, 0},
 	}
 	waitProbability := map[string][]int{
-		"selfish":  {0, 95, 72, 18}, // TODO: to optimise more int(baseAgent.HealthInfo().MaxDayCritical / 2)
-		"neutral":  {0, 63, 74, 37}, // TODO: to optimise more int(baseAgent.HealthInfo().MaxDayCritical / 2)
-		"selfless": {0, 98, 25, 47}, // TODO: to optimise more
+		"selfish":  {0, 15, 15, 75}, // TODO: to optimise more int(baseAgent.HealthInfo().MaxDayCritical / 2)
+		"neutral":  {0, 25, 30, 85}, // TODO: to optimise more int(baseAgent.HealthInfo().MaxDayCritical / 2)
+		"selfless": {0, 35, 50, 95}, // TODO: to optimise more
 	}
 
 	return CustomAgentEvoParams{ //initialise the parameters of the agent
@@ -89,17 +92,6 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	}, nil
 }
 
-// Checks if neighbour below has eaten
-func (a *CustomAgentEvo) NeighbourFoodEaten() food.FoodType {
-	if a.CurrPlatFood() != -1 {
-		if !a.PlatformOnFloor() && a.CurrPlatFood() != a.params.lastPlatFood {
-			return a.params.lastPlatFood - a.CurrPlatFood()
-		}
-		return 0
-	}
-	return -1
-}
-
 // removes a specific message from a message array
 func remove(slice []messages.Message, s int) []messages.Message {
 	return append(slice[:s], slice[s+1:]...)
@@ -115,7 +107,7 @@ func (a *CustomAgentEvo) HasDayPassed() bool {
 	return false
 }
 
-func (a *CustomAgentEvo) UpdateLastTimeFoodSeen() {
+func (a *CustomAgentEvo) updateLastTimeFoodSeen() {
 	if a.CurrPlatFood() >= food.FoodType(a.params.foodToEat[a.params.currentPersonality][0]) {
 		a.params.lastTimeFoodSeen++
 	} else {
@@ -123,35 +115,7 @@ func (a *CustomAgentEvo) UpdateLastTimeFoodSeen() {
 	}
 }
 
-////--------------------Message Parsing--------------------////
-
-func (a *CustomAgentEvo) GetMessage() { //move this function to messages.go
-	receivedMsg := a.ReceiveMessage()
-
-	if receivedMsg != nil {
-		if receivedMsg.MessageType() == messages.RequestLeaveFood {
-			a.params.requestLeaveFoodMessages = append(a.params.requestLeaveFoodMessages, receivedMsg)
-		} else {
-			a.params.otherMessageBuffer = append(a.params.otherMessageBuffer, receivedMsg)
-		}
-	}
-}
-
-func (a *CustomAgentEvo) CallHandleMessage() { //move this function to messages.go
-	if a.PlatformOnFloor() && len(a.params.requestLeaveFoodMessages) > 0 {
-		a.params.requestLeaveFoodMessages[0].Visit(a)
-		remove(a.params.requestLeaveFoodMessages, 0)
-	} else if len(a.params.otherMessageBuffer) > 0 {
-		a.params.otherMessageBuffer[0].Visit(a)
-		remove(a.params.otherMessageBuffer, 0)
-	} else {
-		a.Log("I got no messages")
-	}
-}
-
-////--------------------Message Parsing--------------------////
-
-func (a *CustomAgentEvo) UpdateHealthStatus(healthLevelSeparation int) {
+func (a *CustomAgentEvo) updateHealthStatus(healthLevelSeparation int) {
 
 	if a.HP() <= a.HealthInfo().WeakLevel { //critical
 		a.params.healthStatus = 0
@@ -164,7 +128,7 @@ func (a *CustomAgentEvo) UpdateHealthStatus(healthLevelSeparation int) {
 	}
 }
 
-func (a *CustomAgentEvo) UpdateCraving() {
+func (a *CustomAgentEvo) updateCraving() {
 
 	if a.params.lastTimeFoodSeen > 0 {
 		a.params.craving += a.params.lastTimeFoodSeen
@@ -179,7 +143,7 @@ func (a *CustomAgentEvo) UpdateCraving() {
 	}
 }
 
-func (a *CustomAgentEvo) SetPersonality() {
+func (a *CustomAgentEvo) setPersonality() {
 	// prev_personality := a.params.currentPersonality
 	if a.params.globalTrust < float64(a.params.globalTrustLimits[0]) {
 		a.params.currentPersonality = "selfish"
@@ -196,11 +160,13 @@ func (a *CustomAgentEvo) SetPersonality() {
 
 func (a *CustomAgentEvo) Run() {
 
+	// fmt.Println("Food Required ", health.FoodRequired(11, 44, a.HealthInfo()))
 	// update agents memory of the last time it saw food on the platform
 	// fmt.Println("The day passed value is ", check)
 	if a.HasDayPassed() {
-		a.UpdateLastTimeFoodSeen()
+		a.updateLastTimeFoodSeen()
 		a.params.globalTrust *= 0.85
+		a.updateCraving()
 	}
 
 	// update agent's perception of maxFloor
@@ -215,19 +181,19 @@ func (a *CustomAgentEvo) Run() {
 	a.GetMessage()
 
 	// TODO: Define a threshold limit for other agents to respond to our sent message.
-	a.SendingMessage()
 
-	a.UpdateHealthStatus(healthLevelSeparation)
+	a.updateHealthStatus(healthLevelSeparation)
+	a.SendingMessage()
 	a.CallHandleMessage() //call the relevant message handler
 
 	var foodEaten food.FoodType
 	var err error
 	var calculatedAmountToEat food.FoodType
 
-	a.SetPersonality()
+	a.setPersonality()
 
 	if rand.Intn(100) >= (a.params.waitProbability[a.params.currentPersonality][a.params.healthStatus]-a.params.craving) && !a.HasEaten() && a.PlatformOnFloor() {
-		calculatedAmountToEat = food.FoodType(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) // TODO: add floor
+		calculatedAmountToEat := food.FoodType(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) // TODO: add floor
 
 		foodEaten, err = a.TakeFood(calculatedAmountToEat)
 		if foodEaten > 0 {
@@ -253,8 +219,6 @@ func (a *CustomAgentEvo) Run() {
 			}
 		}
 	}
-	// identifier := a.ID().String()
-	// fmt.Printf("%s : Trust Score is  %f \n", identifier[0:2], a.params.globalTrust)
 
 	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "FoodToEat": calculatedAmountToEat, "WaitProbability": a.params.waitProbability, "foodEaten": foodEaten})
 }

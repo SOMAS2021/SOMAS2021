@@ -21,7 +21,7 @@ current_iteration = int(sys.argv[9])
 def generate_mutated_agent(agent, attribute, population_size): # We define a mutated angent from a select base agent in the previous iteration.
     
     noise_multiplier_for_attribute = {
-        "FoodToEat": math.sqrt(population_size)*10/math.sqrt(current_iteration), # Value will tend to 10
+        "FoodToEat": math.sqrt(population_size)*5/math.sqrt(current_iteration), # Value will tend to 10
         "WaitProbability": math.sqrt(population_size)*10/math.sqrt(current_iteration)
     }
 
@@ -32,8 +32,8 @@ def generate_mutated_agent(agent, attribute, population_size): # We define a mut
             rand = int(np.random.normal(mu, noise_multiplier_for_attribute[i]*sigma))
             agent[i][j] += rand
             
-            if ( agent[i][j] > 100):
-                agent[i][j] = 100
+            if ( agent[i][j] > 60):
+                agent[i][j] = 60
             if (agent[i][j] < 0):
                 agent[i][j] = 0        
     return agent
@@ -75,7 +75,7 @@ def generate_random_agent(): # We define an entirely new random agent
     "WaitProbability": [],
     }
 
-    random_mutation_agent["FoodToEat"] = [random.randint(0, 100)
+    random_mutation_agent["FoodToEat"] = [random.randint(0, 60)
                                         for _ in range(int(number_of_health_levels))]
     random_mutation_agent["WaitProbability"] = [random.randint(0, 100)
                                         for _ in range(int(number_of_health_levels))]
