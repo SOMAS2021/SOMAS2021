@@ -1,13 +1,11 @@
 package team5
 
 import (
-	"math"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -88,6 +86,21 @@ func (a *CustomAgent5) updateSatisfaction() {
 	}
 }
 
+func (a *CustomAgent5) checkForLeader() {
+	// Random number between 3 and 12 generated, then the agent floor and selfishness are deducted from this
+	diceRoll := rand.Intn(10) + 3 - a.selfishness - a.Floor()
+	if diceRoll >= a.leadership {
+		a.Log("An agent has become a leader", infra.Fields{"dice roll": diceRoll, "leadership": a.leadership, "selfishness": a.selfishness, "floor": a.Floor()})
+		//TODO: Send treaties here about eating less food
+		hpLevel := a.currentAimHP - ((a.currentAimHP-a.HealthInfo().WeakLevel)/10)*(diceRoll-a.leadership)
+		a.currentProposal = messages.NewTreaty(messages.HP, hpLevel, messages.LeavePercentFood, 100, messages.GE, messages.EQ, 5, a.ID())
+		a.treatySendCounter = 1
+		a.Log("Agent is sending a treaty proposal", infra.Fields{"Proposed Max Hp": hpLevel})
+		a.currentProposal.SignTreaty()
+		a.AddTreaty(*a.currentProposal)
+	}
+}
+
 func (a *CustomAgent5) dayPassed() {
 	a.updateFavour()
 	a.updateSelfishness()
@@ -112,15 +125,6 @@ func (a *CustomAgent5) dayPassed() {
 	a.messagingCounter = 0
 	a.rememberAge = a.Age()
 	a.attemptToEat = true
-}
-
-func (a *CustomAgent5) calculateAttemptFood() food.FoodType {
-	if a.HP() < a.HealthInfo().WeakLevel {
-		// TODO: UPDATE THIS VALUE TO A PARAMETER
-		return food.FoodType(3)
-	}
-	foodAttempt := health.FoodRequired(a.HP(), a.currentAimHP, a.HealthInfo())
-	return food.FoodType(math.Min(a.HealthInfo().Tau*3, float64(foodAttempt)))
 }
 
 func (a *CustomAgent5) Run() {
