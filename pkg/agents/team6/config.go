@@ -29,6 +29,8 @@ type team6Config struct {
 	lambda float64
 	//maximum behaviour score an agent can reach
 	maxBehaviourThreshold behaviour
+	//discount previous food intakes for EMA filter
+	prevFoodDiscount float64
 }
 
 type CustomAgent6 struct {
@@ -40,6 +42,7 @@ type CustomAgent6 struct {
 	foodTakeDay        int
 	reqLeaveFoodAmount int
 	lastFoodTaken      food.FoodType
+	averageFoodIntake  float64
 }
 
 type thresholdBehaviourPair struct {
@@ -47,7 +50,10 @@ type thresholdBehaviourPair struct {
 	bType     string
 }
 
-type behaviourParameterWeights []float64
+type behaviourParameterWeights struct {
+	HPWeight    float64
+	floorWeight float64
+}
 
 var maxBehaviourThreshold behaviour = 10.0
 
@@ -63,15 +69,17 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			baseBehaviour:         initialBehaviour,
 			stubbornness:          0.0,
 			maxBehaviourSwing:     8,
-			paramWeights:          behaviourParameterWeights{0.7, 0.3}, //ensure sum of weights = max behaviour enum
+			paramWeights:          behaviourParameterWeights{HPWeight: 0.7, floorWeight: 0.3}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
+			prevFoodDiscount:      0.6,
 		},
 		currBehaviour:      initialBehaviour,
 		maxFloorGuess:      baseAgent.Floor() + 2,
 		foodTakeDay:        0,
 		reqLeaveFoodAmount: -1,
 		lastFoodTaken:      0,
+		averageFoodIntake:  0.0,
 	}, nil
 }
 
@@ -120,8 +128,13 @@ func (a *CustomAgent6) Run() {
 		a.lastFoodTaken = foodTaken
 	}
 
+	//exponential moving average filter to average food taken whilst discounting previous food
+	a.updateAverageIntake(foodTaken)
+
 	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
 	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
+
+	a.updateBehaviourWeights()
 
 	// fmt.Println(a.ActiveTreaties())
 

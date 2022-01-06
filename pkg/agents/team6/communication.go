@@ -116,7 +116,7 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 	replyMessage := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), reply)
 	a.SendMessage(replyMessage)
 
-	if reply == true {
+	if reply {
 		a.reqLeaveFoodAmount = msg.Request()
 		a.Log("I received a requestLeaveFood message and my response was true")
 	} else {
@@ -131,7 +131,7 @@ func (a *CustomAgent6) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 	replyMessage := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), reply)
 	a.SendMessage(replyMessage)
 
-	if reply == true {
+	if reply {
 		a.reqLeaveFoodAmount = msg.Request()
 		a.Log("I received a requestTakeFood message and my response was true")
 	} else {

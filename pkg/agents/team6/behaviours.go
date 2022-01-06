@@ -19,14 +19,8 @@ func (a *CustomAgent6) updateBehaviour() {
 	fdDen := float64(aConf.lambda)
 	floorScore := math.Exp(fdNum) / math.Exp(fdDen)
 
-	behaviourParams := []float64{hpScore, floorScore}
-
 	weights := aConf.paramWeights
-	behaviourPrediction := 0.0
-
-	for i := range weights {
-		behaviourPrediction += behaviourParams[i] * weights[i]
-	}
+	behaviourPrediction := hpScore*weights.HPWeight + floorScore*weights.floorWeight
 
 	// Find new direction required to reach new behaviour prediction
 	updateDir := behaviour(behaviourPrediction)*aConf.maxBehaviourThreshold - a.currBehaviour
@@ -53,4 +47,16 @@ func (a *CustomAgent6) behaviourRange() (behaviourMax, behaviourMin behaviour) {
 	bMin := behaviour(math.Max(0, float64(aConf.baseBehaviour)-aConf.maxBehaviourSwing))
 
 	return bMax, bMin
+}
+
+func (a *CustomAgent6) updateBehaviourWeights() {
+	weights := &a.config.paramWeights
+	if a.HP() < 20 && weights.HPWeight <= 0.95 {
+		weights.HPWeight += 0.05
+		weights.floorWeight -= 0.05
+	}
+	if a.averageFoodIntake < 10 && weights.floorWeight <= 0.9 {
+		weights.HPWeight -= 0.1
+		weights.floorWeight += 0.1
+	}
 }
