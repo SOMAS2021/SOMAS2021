@@ -47,7 +47,7 @@ interface ResultDisplayProps {
 }
 function ResultDisplay(props: ResultDisplayProps) {
   const { result } = props;
-  let { agentTypes, cumulativeDeaths } = addCumulativeDeaths(result.deaths);
+  let deaths = DeathsPerAgent(result.deaths);
 
   return (
     <>
