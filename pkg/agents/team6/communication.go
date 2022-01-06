@@ -3,7 +3,6 @@ package team6
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	// "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
 // Request another agent to leave food on the platform
