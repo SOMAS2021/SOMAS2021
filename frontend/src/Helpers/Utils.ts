@@ -12,7 +12,6 @@ export function Max(arr: number[]): number {
 export function Min(arr: number[]): number {
   return arr.length > 0 ? Math.min(...arr) : 0;
 }
-
 // Deaths per agent
 export function DeathsPerAgent(deathLog: DeathLog[]): { [agentType: string]: number } {
   var deaths: { [agentType: string]: number } = {};
