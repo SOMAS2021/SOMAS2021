@@ -52,7 +52,6 @@ func (a *CustomAgent6) RequestLeaveFood() {
 // Request another agent to take a precise amount of food
 func (a *CustomAgent6) RequestTakeFood() {
 
-	// reqAmount := -1
 	var reqAmount int
 	switch a.currBehaviour.String() {
 	case "Altruist":
