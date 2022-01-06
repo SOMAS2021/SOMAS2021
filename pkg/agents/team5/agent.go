@@ -76,7 +76,7 @@ func (a *CustomAgent5) updateSatisfaction() {
 		a.satisfaction += 1
 	} else if a.lastFood*70.0/100.0 >= tmp {
 		a.satisfaction -= 2
-	} else if a.lastFood*8.0/100.0 >= tmp {
+	} else if a.lastFood*80.0/100.0 >= tmp {
 		a.satisfaction -= 1
 	}
 
@@ -167,7 +167,6 @@ func (a *CustomAgent5) Run() {
 			a.daysSinceLastMeal = 0
 		}
 		a.hpAfterEating = a.HP()
-		a.updateSatisfaction()
 
 		a.attemptToEat = false
 	}
