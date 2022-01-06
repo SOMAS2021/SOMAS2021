@@ -1,9 +1,5 @@
 import { showToast } from "../Components/Toaster";
-import { DeathLog, GetDeathLogs } from "./Logging/Death";
-import { FoodLog, GetFoodLogs } from "./Logging/Food";
-import { GetStoryLogs, StoryLog } from "./Logging/StoryLog";
-import { Result } from "./Result";
-import { GetSimConfig, SimConfig } from "./SimConfig";
+import { SimConfig } from "./SimConfig";
 
 function endpoint(req: string) {
   return (process.env.REACT_APP_DEV ? "http://localhost:9000/" : window.location) + req;
@@ -39,39 +35,6 @@ export function GetLogs(): Promise<string[]> {
         showToast(`Loading logs: failed. ${err}`, "danger", 5000);
         reject(err);
       });
-  });
-}
-
-export function GetResult(filename: string): Promise<Result> {
-  return new Promise<Result>(async (resolve, reject) => {
-    // promises
-    var promises: Promise<any>[] = [];
-    // deaths
-    var deaths: DeathLog[] = [];
-    promises.push(GetDeathLogs(filename).then((d) => (deaths = d)));
-
-    // foods
-    var foods: FoodLog[] = [];
-    promises.push(GetFoodLogs(filename).then((f) => (foods = f)));
-
-    // config
-    var config: SimConfig = undefined!;
-    promises.push(GetSimConfig(filename).then((c) => (config = c)));
-
-    // story
-    var story: StoryLog[] = [];
-    promises.push(GetStoryLogs(filename).then((s) => (story = s)));
-
-    // all
-    Promise.all(promises).then((_) =>
-      resolve({
-        title: filename,
-        deaths: deaths,
-        food: foods,
-        config: config,
-        story: story,
-      })
-    );
   });
 }
 
