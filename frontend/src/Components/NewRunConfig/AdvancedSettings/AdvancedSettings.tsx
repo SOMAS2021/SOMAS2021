@@ -1,13 +1,17 @@
 import { Button, Checkbox, FormGroup, NumericInput, Switch } from "@blueprintjs/core";
-import { SubmitSimulation } from "../NewRunState";
 import { advancedParams, params } from "../ParameterLabels";
 import { SimConfig } from "../../../Helpers/SimConfig";
 import "./AdvancedSettings.css";
 import { useState } from "react";
+import { Simulate } from "../../../Helpers/API";
 
-export default function AdvancedSettingsMenu(state: any) {
-  const config = state[0];
-  const setConfig = state[1];
+interface AdvancedSettingsProps {
+  config: SimConfig;
+  setConfig: React.Dispatch<React.SetStateAction<SimConfig>>;
+}
+
+export default function AdvancedSettings(props: AdvancedSettingsProps) {
+  const { config, setConfig } = props;
 
   const [disableTotalFood, setDisableTotalFood] = useState(Boolean);
 
@@ -15,11 +19,6 @@ export default function AdvancedSettingsMenu(state: any) {
     var key: Key = keyString; // converting keyString to type Key
     config[key] = value;
     setConfig(config);
-  }
-
-  function SubmitState() {
-    const configJSON = JSON.stringify(state[0]);
-    SubmitSimulation(configJSON);
   }
 
   return (
@@ -49,7 +48,7 @@ export default function AdvancedSettingsMenu(state: any) {
                 <FormGroup {...i} disabled={disableTotalFood}>
                   <NumericInput
                     disabled={disableTotalFood}
-                    placeholder={config[i.key]}
+                    placeholder={config[i.key].toString()}
                     onValueChange={(value) => configHandler(value, i.key)}
                     min={i.min}
                   />
@@ -58,7 +57,7 @@ export default function AdvancedSettingsMenu(state: any) {
                 <FormGroup {...i} disabled={!disableTotalFood}>
                   <NumericInput
                     disabled={!disableTotalFood}
-                    placeholder={config[i.key]}
+                    placeholder={config[i.key].toString()}
                     onValueChange={(value) => configHandler(value, i.key)}
                     min={i.min}
                   />
@@ -66,7 +65,7 @@ export default function AdvancedSettingsMenu(state: any) {
               ) : (
                 <FormGroup {...i}>
                   <NumericInput
-                    placeholder={config[i.key]}
+                    placeholder={config[i.key].toString()}
                     onValueChange={(value) => configHandler(value, i.key)}
                     min={i.min}
                   />
@@ -76,7 +75,7 @@ export default function AdvancedSettingsMenu(state: any) {
             {advancedParams.map((i) => (
               <FormGroup {...i}>
                 <NumericInput
-                  placeholder={config[i.key]}
+                  placeholder={config[i.key].toString()}
                   onValueChange={(value) => configHandler(value, i.key)}
                   min={i.min}
                 />
@@ -104,7 +103,7 @@ export default function AdvancedSettingsMenu(state: any) {
               icon="build"
               text="Submit job to backend"
               data-dismiss="modal"
-              onClick={() => SubmitState()}
+              onClick={() => Simulate(config)}
             />
           </div>
         </div>

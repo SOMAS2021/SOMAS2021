@@ -1,13 +1,17 @@
 import { Button, Checkbox, FormGroup, NumericInput, Switch } from "@blueprintjs/core";
-import { SubmitSimulation } from "../NewRunState";
 import { params } from "../ParameterLabels";
 import { SimConfig } from "../../../Helpers/SimConfig";
 import "./Settings.css";
 import { useState } from "react";
+import { Simulate } from "../../../Helpers/API";
 
-export default function Settings(state: any) {
-  const config = state[0];
-  const setConfig = state[1];
+interface SettingsProps {
+  config: SimConfig;
+  setConfig: React.Dispatch<React.SetStateAction<SimConfig>>;
+}
+
+export default function Settings(props: SettingsProps) {
+  const { config, setConfig } = props;
 
   const [disableTotalFood, setDisableTotalFood] = useState(Boolean);
 
@@ -16,11 +20,6 @@ export default function Settings(state: any) {
     config[key] = value;
     setConfig(config);
     console.log(config);
-  }
-
-  function SubmitState() {
-    const configJSON = JSON.stringify(config);
-    SubmitSimulation(configJSON);
   }
 
   return (
@@ -53,7 +52,7 @@ export default function Settings(state: any) {
                 <FormGroup {...i} disabled={disableTotalFood}>
                   <NumericInput
                     disabled={disableTotalFood}
-                    placeholder={config[i.key]}
+                    placeholder={config[i.key].toString()}
                     onValueChange={(value) => configHandler(value, i.key)}
                     min={i.min}
                   />
@@ -62,7 +61,7 @@ export default function Settings(state: any) {
                 <FormGroup {...i} disabled={!disableTotalFood}>
                   <NumericInput
                     disabled={!disableTotalFood}
-                    placeholder={config[i.key]}
+                    placeholder={config[i.key].toString()}
                     onValueChange={(value) => configHandler(value, i.key)}
                     min={i.min}
                   />
@@ -70,7 +69,7 @@ export default function Settings(state: any) {
               ) : (
                 <FormGroup {...i}>
                   <NumericInput
-                    placeholder={config[i.key]}
+                    placeholder={config[i.key].toString()}
                     onValueChange={(value) => configHandler(value, i.key)}
                     min={i.min}
                   />
@@ -99,7 +98,7 @@ export default function Settings(state: any) {
               icon="build"
               text="Submit job to backend"
               data-dismiss="modal"
-              onClick={() => SubmitState()}
+              onClick={() => Simulate(config)}
             />
           </div>
         </div>

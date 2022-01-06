@@ -35,3 +35,8 @@ func (msg *ProposeTreatyMessage) Visit(a Agent) {
 		a.HandleProposeTreaty(*msg)
 	}
 }
+
+// TODO: complete treaty details
+func (msg *ProposeTreatyMessage) StoryLog() string {
+	return "Treaty details"
+}

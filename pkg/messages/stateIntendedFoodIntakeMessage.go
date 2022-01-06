@@ -1,6 +1,10 @@
 package messages
 
-import "github.com/google/uuid"
+import (
+	"strconv"
+
+	"github.com/google/uuid"
+)
 
 type StateIntendedFoodIntakeMessage struct {
 	*BaseMessage
@@ -25,4 +29,8 @@ func (msg *StateIntendedFoodIntakeMessage) Visit(a Agent) {
 	} else {
 		a.HandleStateIntendedFoodTaken(*msg)
 	}
+}
+
+func (msg *StateIntendedFoodIntakeMessage) StoryLog() string {
+	return strconv.Itoa(msg.intendedFood)
 }
