@@ -72,6 +72,8 @@ func (t *Tower) Tick() {
 		t.ResetTower()
 		t.Log("-----------------END----OF----DAY-----------------", Fields{})
 	}
+	// Reset dead agent's HP to enable reincarnation
+	t.resetHP()
 }
 
 func (t *Tower) AddAgent(agent Agent) {
@@ -103,6 +105,17 @@ func (t *Tower) endOfDay() {
 		agent.hpDecay(t.healthInfo)
 		agent.increaseAge()
 		agent.updateTreaties()
+	}
+}
+
+func (t *Tower) resetHP() {
+	for _, agent := range t.Agents {
+		agent := agent.BaseAgent()
+		if !agent.IsAlive() {
+			agent.setHP(t.healthInfo.MaxHP)
+			agent.daysAtCritical = 0
+			agent.age = 0
+		}
 	}
 }
 
