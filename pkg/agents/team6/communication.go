@@ -89,7 +89,6 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 		weakLevel:    healthInfo.MaxHP * 1 / 10,
 	}
 
-	// reply := true
 	var reply bool
 	switch a.currBehaviour.String() {
 	case "Altruist":
