@@ -41,9 +41,9 @@ mkdir "pkg/agents/team4/trainingAgent/storedagents"
 
 numberOfHealthLevels=4 # health bands based on HP
 numberOfBestAgents=25 # number of agents in training population
-numberOfAgentsPerSim=16 # total number of agents in the simulation
-numberOfIterations=15 # number of training iterations
-numberOfRuns=3 # number of runs to average over per iteration
+numberOfAgentsPerSim=12 # total number of agents in the simulation
+numberOfIterations=10 # number of training iterations
+numberOfRuns=10 # number of runs to average over per iteration
 
 # Initialise parameters of initial agent polulation
 python3 pkg/agents/team4/trainingAgent/initaliseConfig.py $agentConfigFile $bestAgentsFile $numberOfHealthLevels $numberOfBestAgents 
