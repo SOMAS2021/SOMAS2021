@@ -6,6 +6,7 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/google/uuid"
 )
 
@@ -23,57 +24,121 @@ func (a *CustomAgent3) treatyPendingResponse() bool {
 	return !(a.knowledge.treatyProposed.ID() == uuid.Nil)
 }
 
-//case 0, we are going to check our hunger and propose a treaty or, if we already have one, ask about the people bellow's health (cause why not)
-func (a *CustomAgent3) sendMsgHPRelated() {
-	if a.knowledge.foodLastSeen < 10 && a.HP() < a.HealthInfo().HPReqCToW { //do this properly with Eds help
-		if a.treatyFull() || a.treatyPendingResponse() {
-			msg := messages.NewAskHPMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
-			a.SendMessage(msg)
-			a.Log("I sent a message", infra.Fields{"message": "AskHP"})
-		} else {
-			tr := messages.NewTreaty(messages.HP, 20, messages.LeaveAmountFood, 20, messages.GT, messages.GT, 20, a.ID()) //generalise later
-			a.knowledge.treatyProposed = *tr                                                                              //remember the treaty we proposed
-			msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, *tr)
-			a.SendMessage(msg)
-			a.Log("I sent a treaty")
-		}
-
-	} else {
-		msg := messages.NewAskHPMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1)
+func (a *CustomAgent3) requestHelpInCrit() {
+	if a.treatyFull() || a.treatyPendingResponse() {
+		msg := messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), a.Floor()+1, a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)) //to higher floor?
 		a.SendMessage(msg)
-		a.Log("I sent a message", infra.Fields{"message": "AskHP"})
+		a.Log("I sent a help message", infra.Fields{"message": "RequestLeaveFood"})
+	} else {
+		tr := messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID()) //generalise later
+		a.knowledge.treatyProposed = *tr                                                                              //remember the treaty we proposed
+		msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, *tr)
+		a.SendMessage(msg)
+		a.Log("I sent a treaty")
 	}
 }
 
-func (a *CustomAgent3) sendMsgFoodTaken() {
-	msg := messages.NewAskHPMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
+func (a *CustomAgent3) askHP(direction int) {
+	msg := messages.NewAskHPMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction)
 	a.SendMessage(msg)
 	a.Log("I sent a message", infra.Fields{"message": "AskHP"})
+
+}
+
+func (a *CustomAgent3) askFoodTaken(direction int) {
+	msg := messages.NewAskFoodTakenMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction)
+	a.SendMessage(msg)
+	a.Log("I sent a message", infra.Fields{"message": "AskFoodTaken"})
+
+}
+
+func (a *CustomAgent3) askTakeFood(HPNeighbour int, direction int) { //direction 1 or -1
+	survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
+	stayFood := a.foodReqCalc(a.HP(), a.HP())
+
+	if HPNeighbour < 40 {
+		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, stayFood)
+		a.SendMessage(msg)
+	} else {
+		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, survivalFood)
+		a.SendMessage(msg)
+	}
+
+	a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
+
+}
+
+func (a *CustomAgent3) askLeaveFood(direction int) { //direction 1 or -1
+	if direction == -1 {
+		survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
+		msg := messages.NewRequestLeaveFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, int(a.knowledge.foodLastSeen-food.FoodType(survivalFood)))
+		a.SendMessage(msg)
+	} else {
+		survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
+		msg := messages.NewRequestLeaveFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, int(a.knowledge.foodLastSeen+a.knowledge.foodLastEaten+(food.FoodType(survivalFood*4))))
+		a.SendMessage(msg)
+	}
+	a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
+}
+func (a *CustomAgent3) proposeTreatiesInmoral() {
+	randomFloor := rand.Intn(a.Floor()) + 1
+	tr := messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID())
+	r := rand.Intn(4)
+	switch r {
+	case 0:
+		tr = messages.NewTreaty(messages.HP, 20, messages.LeaveAmountFood, 20, messages.GT, messages.GT, 15, a.ID())
+	case 1:
+		tr = messages.NewTreaty(messages.HP, 60, messages.LeavePercentFood, 60, messages.GT, messages.GT, 5, a.ID())
+	case 2:
+		tr = messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID())
+	case 3:
+		tr = messages.NewTreaty(messages.Floor, a.Floor()+1, messages.LeavePercentFood, 99, messages.GT, messages.GT, 9, a.ID())
+	}
+	//generalise later
+	a.knowledge.treatyProposed = *tr //remember the treaty we proposed
+	msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), randomFloor, *tr)
+	a.SendMessage(msg)
+	a.Log("I sent a treaty")
+}
+func (a *CustomAgent3) proposeTreatiesMoral(direction int) {
+	tr := messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID())
+	r := rand.Intn(3)
+	switch r {
+	case 0:
+		tr = messages.NewTreaty(messages.HP, 20, messages.LeaveAmountFood, 20, messages.GT, messages.GT, 15, a.ID())
+	case 1:
+		tr = messages.NewTreaty(messages.HP, 60, messages.LeavePercentFood, 60, messages.GT, messages.GT, 5, a.ID())
+	case 2:
+		tr = messages.NewTreaty(messages.HP, 10, messages.LeavePercentFood, 95, messages.GT, messages.GT, 10, a.ID())
+	}
+	//generalise later
+	a.knowledge.treatyProposed = *tr //remember the treaty we proposed
+	msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, *tr)
+	a.SendMessage(msg)
+	a.Log("I sent a treaty")
 }
 
 func (a *CustomAgent3) ticklyMessage() {
-
-	r := rand.Intn(5)
-	switch r {
-	case 0:
-		a.sendMsgHPRelated()
-	case 1:
-		msg := messages.NewAskHPMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
-		a.SendMessage(msg)
-		a.Log("I sent a message", infra.Fields{"message": "AskHP"})
-	case 2:
-		msg := messages.NewAskIntendedFoodIntakeMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
-		a.SendMessage(msg)
-		a.Log("I sent a message", infra.Fields{"message": "AskIntendedFoodIntake"})
-	case 3:
-		msg := messages.NewRequestLeaveFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, a.requestLeaveFoodAmt())
-		a.SendMessage(msg)
-		a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
-	case 4:
-		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, a.requestTakeFoodAmt()) //make func to determine value
-		a.SendMessage(msg)
-		a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
+	if a.HP() == a.HealthInfo().HPCritical {
+		a.requestHelpInCrit()
+	} else {
+		direction := 1
+		if a.vars.morality > 50 {
+			direction = -1
+		}
+		r := rand.Intn(4)
+		switch r {
+		case 0:
+			a.askHP(direction)
+		case 1:
+			a.askFoodTaken(direction)
+		case 2:
+			a.askTakeFood(50, direction)
+		case 3:
+			a.askLeaveFood(direction)
+		}
 	}
+
 }
 func (a *CustomAgent3) message() {
 	receivedMsg := a.ReceiveMessage()
@@ -173,7 +238,7 @@ func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage) { //how are you ty
 			}
 		}
 
-		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.HP())
+		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), a.HP())
 		a.SendMessage(reply)
 		a.Log("I recieved an askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
 	}
@@ -208,7 +273,7 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 				//a.updateFriendship(msg.SenderID(), 1)
 			}
 		}
-		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), int(a.knowledge.foodLastEaten))
+		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), int(a.knowledge.foodLastEaten))
 		a.SendMessage(reply)
 		a.Log("I sent a replyFoodTaken message to ", infra.Fields{"floor": msg.SenderFloor()})
 	}
@@ -238,7 +303,7 @@ func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 		//}
 		//}
 		//add critical state effect
-		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.decisions.foodToEat)
+		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), a.decisions.foodToEat)
 		a.SendMessage(reply)
 		a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
 	}
@@ -272,7 +337,7 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 				//a.updateFriendship(msg.SenderID(), 1)
 			}
 		}
-		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), true)
+		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
 		a.SendMessage(reply)
 		a.Log("I recieved a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 	}
@@ -306,7 +371,7 @@ func (a *CustomAgent3) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 				a.updateFriendship(msg.SenderID(), -1)
 			}
 		}
-		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), true)
+		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
 		a.SendMessage(reply)
 		a.Log("I recieved a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 	}

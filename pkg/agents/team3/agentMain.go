@@ -94,28 +94,28 @@ func (a *CustomAgent3) Run() {
 	if len(a.knowledge.floors) == 0 || a.knowledge.floors[len(a.knowledge.floors)-1] != a.Floor() {
 		changeNewFloor(a)
 	}
-	a.Log("Agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "morality": a.vars.morality, "stubbornness": a.vars.stubbornness})
+	//a.Log("Agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "morality": a.vars.morality, "stubbornness": a.vars.stubbornness})
 
-	//check if platform is in our floor, if so, eat.
-	foodTaken, err := a.TakeFood(food.FoodType((a.takeFoodCalculation())))
-	if err != nil {
-		switch err.(type) {
-		case *infra.FloorError:
-		case *infra.NegFoodError:
-		case *infra.AlreadyEatenError:
-		default:
+	//Try to take food every time RIP
+	if a.CurrPlatFood() != -1 {
+		foodTaken, err := a.TakeFood(food.FoodType((a.takeFoodCalculation())))
+		if err != nil {
+			switch err.(type) {
+			case *infra.FloorError:
+			case *infra.NegFoodError:
+			case *infra.AlreadyEatenError:
+			default:
+			}
+		} else {
+			//Update variables right after eating
+			a.knowledge.foodLastSeen = a.BaseAgent().CurrPlatFood()
+			a.knowledge.lastHP = a.HP()
+			a.knowledge.foodLastEaten = food.FoodType(foodTaken)
+			a.decisions.foodToEat = -1
+			a.decisions.foodToLeave = -1
 		}
-	} else {
-		//Update variables right after eating
-		a.knowledge.foodLastSeen = a.BaseAgent().CurrPlatFood()
-		a.knowledge.lastHP = a.HP()
-		a.knowledge.foodLastEaten = food.FoodType(foodTaken)
-		a.decisions.foodToEat = -1
-		a.decisions.foodToLeave = -1
 	}
 
 	a.message()
-
-	//send Message
 
 }

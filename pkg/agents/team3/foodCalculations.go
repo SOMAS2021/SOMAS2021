@@ -23,7 +23,7 @@ func (a *CustomAgent3) targetHPCalc() int {
 // Returns a range from min to max, depending on the value of the metric
 func foodRange(metric int, min int, max int) int {
 	if max > min && max >= 0 && min >= 0 {
-		return int(float64(max) - math.Round((float64(metric) / (100.0 / float64(max-min)))))
+		return int(float64(max) - math.Round(float64(metric)/(100.0/float64(max-min))))
 	}
 	return -1
 }
@@ -103,20 +103,24 @@ func (a *CustomAgent3) takeFoodCalculation() int {
 
 		switch hp := a.HP(); {
 		case hp == a.HealthInfo().HPCritical:
+
 			survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
-			if a.DaysAtCritical() < 3 { //depend on morality
-				return foodRange(morality, a.DaysAtCritical()-1, survivalFood+a.DaysAtCritical()) // adaptive range
-			} else { // a.DaysAtCritical() == 3
+
+			if a.DaysAtCritical() < 2 { //depend on morality
+				//a.Log("HP is critical", infra.Fields{"hp: ": a.HP(), "Days at Crit:": a.DaysAtCritical(), "survivalFood: ": survivalFood, "food Intended: ": foodRange(morality, a.DaysAtCritical(), survivalFood+a.DaysAtCritical()+3)})
+				return foodRange(morality, a.DaysAtCritical(), survivalFood+a.DaysAtCritical()) // adaptive range
+			} else { // a.DaysAtCritical() == 2
+				//a.Log("HP is critical", infra.Fields{"hp: ": a.HP(), "Days at Crit:": a.DaysAtCritical(), "survivalFood: ": survivalFood, "food Intended: ": foodRange(morality, survivalFood, survivalFood+a.DaysAtCritical())})
 				return foodRange(morality, survivalFood, survivalFood+a.DaysAtCritical()) //range ensures survival if possible with foodToLeave
 			}
 		default: // 10 <= hp <= 100:
 			targetHP := a.targetHPCalc()
 			foodRequired := a.foodReqCalc(a.HP(), targetHP)
+			//a.Log("Case -1, HP is NOT critical", infra.Fields{"HP: ": a.HP(), "targetHP: ": targetHP, "Morality: ": morality, "foodRequired: ": foodRequired, "Scaled foodRequired: ": foodScale(foodRequired, morality, 0.0, 2.0)})
 			return foodScale(foodRequired, morality, 0.0, 2.0) // from foodRequired*0 (morality 100) to foodRequired*2 (morality 0)
 		}
 
 	case (-1 | foodToLeave): //uses platFood, HP, morality and foodToLeave
-
 		//Any Hp
 		targetHP := a.targetHPCalc()
 		foodRequired := a.foodReqCalc(a.HP(), targetHP)
@@ -125,10 +129,10 @@ func (a *CustomAgent3) takeFoodCalculation() int {
 		if platFood-foodToEat >= foodToLeave {
 			if a.HP() == a.HealthInfo().HPCritical {
 				survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
-				if a.DaysAtCritical() < 3 { //depend on morality
-					foodToEat = foodRange(morality, a.DaysAtCritical()-1, survivalFood+a.DaysAtCritical()) // adaptive range
+				if a.DaysAtCritical() < 2 { //depend on morality
+					foodToEat = foodRange(morality, 0, survivalFood+3) // adaptive range
 				} else { // a.DaysAtCritical() == 3
-					foodToEat = foodRange(morality, survivalFood, survivalFood+a.DaysAtCritical()) //range ensures survival if possible with foodToLeave
+					foodToEat = foodRange(morality, survivalFood, survivalFood*2) //range ensures survival if possible with foodToLeave
 				}
 				if platFood-foodToEat >= foodToLeave {
 					return foodToEat
@@ -146,7 +150,6 @@ func (a *CustomAgent3) takeFoodCalculation() int {
 		return foodToEat
 
 	default: //uses foodToEat and foodToLeave
-
 		if platFood-foodToLeave >= foodToEat {
 			return foodToEat
 		} else if platFood >= foodToLeave { //e.g. platFood=15, foodToLeave=10, foodToEat=10 --> if morality=100, take 5, if morality=0, take 10
