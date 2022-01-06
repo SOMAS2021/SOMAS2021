@@ -47,16 +47,16 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		selfishness:       10,                           // of 0 to 10, with 10 being completely selfish, 0 being completely selfless
 		lastMeal:          0,                            // Stores value of the last amount of food taken
 		daysSinceLastMeal: 0,                            // Count of how many days since last eating
-		hpAfterEating:     baseAgent.HealthInfo().MaxHP, //Stores HP value after eating in a day
-		currentAimHP:      baseAgent.HealthInfo().MaxHP, //Stores aim HP for a given day
-		attemptFood:       0,                            //Stores food agent will attempt to eat in a
+		hpAfterEating:     baseAgent.HealthInfo().MaxHP, // Stores HP value after eating in a day
+		currentAimHP:      baseAgent.HealthInfo().MaxHP, // Stores aim HP for a given day
+		attemptFood:       0,                            // Stores food agent will attempt to eat in a
 		satisfaction:      0,                            // Scale of -3 to 3, with 3 being satisfied and unsatisfied
 		rememberAge:       -1,                           // To check if a day has passed by our age increasing
-		rememberFloor:     0,                            //Store the floor we are on so we can see if we have been reshuffled
-		messagingCounter:  0,                            //Counter so that various messages are sent throughout the day
-		treatySendCounter: 0,                            //Counter so that treaty messages can be sent
+		rememberFloor:     0,                            // Store the floor we are on so we can see if we have been reshuffled
+		messagingCounter:  0,                            // Counter so that various messages are sent throughout the day
+		treatySendCounter: 0,                            // Counter so that treaty messages can be sent
 		attemptToEat:      true,                         // To check if we have already attempted to eat in a day. Needed because HasEaten() does not update if there is no food on the platform
-		leadership:        rand.Intn(10),                //Initilise a random leadership value for each agent, used to determine whether they try to cause change in the tower. 0 is more likely to become a leader
+		leadership:        rand.Intn(10),                // Initialise a random leadership value for each agent, used to determine whether they try to cause change in the tower. 0 is more likely to become a leader
 		socialMemory:      make(map[uuid.UUID]Memory),   // Memory of other agents, key is agent id
 		surroundingAgents: make(map[int]uuid.UUID),      // Map agent IDs of surrounding floors relative to current floor
 	}, nil
