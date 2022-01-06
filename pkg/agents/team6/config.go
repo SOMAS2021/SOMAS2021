@@ -8,7 +8,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
-type Memory []food.FoodType
+type memory []food.FoodType
 
 type behaviour float64
 
