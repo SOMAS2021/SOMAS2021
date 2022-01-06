@@ -5,6 +5,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
@@ -123,13 +124,45 @@ func (a *CustomAgent6) Run() {
 	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
 	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
 
-	// fmt.Println(a.ActiveTreaties())
+	//fmt.Println(a.ActiveTreaties())
 
 	// treaty := messages.NewTreaty(1, 1, 1, 1, 5, a.ID())
 	// treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
 
-	// treatyMsg.Visit(a)
+	// treatyMsg.Visit(a).
+
+	treaty := messages.NewTreaty(1, 1, 1, 0, 1, 0, 5, a.ID())
+
+	treaty.SignTreaty()
+	a.AddTreaty(*treaty)
+
+	treaty1 := messages.NewTreaty(1, 1, 1, 2, 1, 0, 5, a.ID())
+	treaty1.SignTreaty()
+	a.AddTreaty(*treaty1)
+	treaty2 := messages.NewTreaty(1, 1, 1, 10, 1, 4, 5, a.ID())
+	treaty2.SignTreaty()
+	a.AddTreaty(*treaty2)
+	treaty3 := messages.NewTreaty(1, 1, 1, 4, 1, 1, 5, a.ID())
+	treaty3.SignTreaty()
+	a.AddTreaty(*treaty3)
+	treaty4 := messages.NewTreaty(1, 1, 1, 11, 1, 3, 5, a.ID())
+	treaty4.SignTreaty()
+	a.AddTreaty(*treaty4)
+
+	treaty5 := messages.NewTreaty(1, 1, 1, 6, 1, 0, 5, a.ID())
+	//treaty5 := messages.NewTreaty(1, 1, 1, 12, 1, 0, 5, a.ID())
+
+	c, d, e := a.foodRange(*treaty5)
+
+	fmt.Println(c)
+	fmt.Println(d)
+	fmt.Println(e)
 
 	// fmt.Println(a.ActiveTreaties())
+	// fmt.Println(len(a.ActiveTreaties()))
 
+	b := 0
+	for b < 100 {
+
+	}
 }

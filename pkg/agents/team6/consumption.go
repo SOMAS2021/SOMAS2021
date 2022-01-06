@@ -1,8 +1,11 @@
 package team6
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
+	"reflect"
+	"testing"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -79,11 +82,11 @@ func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food
 }
 
 func (a *CustomAgent6) foodRange(trty messages.Treaty) (int, int, bool) {
-	trty_chk_val := trty.RequestValue()
+	chkTrtyVal := trty.RequestValue()
 	mini := 0
-	maxi := 0
+	maxi := 100
 	out := false
-	eq_found := 0
+	eqFound := 0
 	listActTrty := a.ActiveTreaties()
 	for _, value := range listActTrty {
 		switch value.RequestOp() {
@@ -96,45 +99,29 @@ func (a *CustomAgent6) foodRange(trty messages.Treaty) (int, int, bool) {
 				mini = value.RequestValue()
 			}
 		case 3:
-			if value.RequestValue() < maxi {
+			if value.RequestValue() < maxi || maxi == 0 {
 				maxi = value.RequestValue()
 			}
 		case 4:
-			if value.RequestValue() < maxi {
+			if value.RequestValue() < maxi || maxi == 0 {
 				maxi = value.RequestValue() - 1
 			}
 		case 2:
-			eq_found = 1
+			eqFound = 1
 		}
 	}
-	switch trty.RequestOp() {
-	case 0:
-		if trty_chk_val >= mini {
+	if chkTrtyVal >= mini && chkTrtyVal <= maxi {
+		out = true
+	}
+	if eqFound == 1 {
+		out = false
+	} else {
+		if chkTrtyVal >= mini && chkTrtyVal <= maxi {
 			out = true
-		}
-	case 1:
-		if trty_chk_val >= mini {
-			out = true
-		}
-	case 3:
-		if trty_chk_val <= maxi {
-			out = true
-		}
-	case 4:
-		if trty_chk_val <= maxi {
-			out = true
-		}
-	case 2:
-		if eq_found == 1 {
-			out = false
-		} else {
-			if trty_chk_val >= mini && trty_chk_val <= maxi {
-				out = true
-			}
 		}
 	}
 
-	return maxi, mini, out
+	return mini, maxi, out
 }
 
 func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
@@ -164,3 +151,18 @@ func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 // func hpFunc(x float64, currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {
 // 	return currentLevel + levelWidth - math.Exp(-x/tau)*(levelWidth+currentHP-currentLevel)
 // }
+
+func (a *CustomAgent6) TestRunn(t *testing.T) {
+
+	fmt.Println(a.ActiveTreaties())
+
+	treaty := messages.NewTreaty(1, 1, 1, 0, 1, 0, 5, a.ID())
+	fmt.Println(reflect.TypeOf(treaty))
+	// treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
+	//a.AddTreaty(treaty)
+	//treaty1 := messages.NewTreaty(1, 1, 1, 0, 1, 0, 5, a.ID())
+
+	// treatyMsg.Visit(a)
+
+	// fmt.Println(a.ActiveTreaties())
+}
