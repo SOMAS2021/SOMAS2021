@@ -2,7 +2,7 @@ import { H3, H6, Divider, Spinner } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
 import { GetResult } from "../../Helpers/API";
 import { Result } from "../../Helpers/Result";
-import { Average, addCumulativeDeaths } from "../../Helpers/Utils";
+import { Average, DeathsPerAgent } from "../../Helpers/Utils";
 import ConfigInfo from "./ConfigInfo";
 import ReportCard from "./ReportCard";
 import LineChart from "./Graphs/LineChart";
