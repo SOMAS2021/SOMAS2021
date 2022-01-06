@@ -52,18 +52,24 @@ type CustomAgent6 struct {
 	*infra.Base
 	config team6Config
 	//keep track of the lowest floor we've been to
-	maxFloorGuess       int
-	currBehaviour       behaviour
-	foodTakeDay         int
-	reqLeaveFoodAmount  int
-	lastFoodTaken       food.FoodType
-	averageFoodIntake   float64
-	longTermMemory      memory  // Memory of food available throughout agent's lifetime
-	shortTermMemory     memory  // Memory of food available while agent is at a particular floor
-	numReassigned       int     // Number of times the agent has been reassigned
-	reassignPeriodGuess float64 // What the agent thinks the reassignment period is
-	platOnFloorCtr      int     // Counts how many ticks the platform is at the agent's floor for. Used to call functions only once when the platform arrives
-	prevFloor           int     // Keeps track of previous floor to see if agent has been reassigned
+	maxFloorGuess      int
+	currBehaviour      behaviour
+	foodTakeDay        int
+	reqLeaveFoodAmount int
+	lastFoodTaken      food.FoodType
+	averageFoodIntake  float64
+	// Memory of food available throughout agent's lifetime
+	longTermMemory memory
+	// Memory of food available while agent is at a particular floor
+	shortTermMemory memory
+	// Number of times the agent has been reassigned
+	numReassigned int
+	// What the agent thinks the reassignment period is
+	reassignPeriodGuess float64
+	// Counts how many ticks the platform is at the agent's floor for. Used to call functions only once when the platform arrives
+	platOnFloorCtr int
+	// Keeps track of previous floor to see if agent has been reassigned
+	prevFloor int
 }
 
 type thresholdBehaviourPair struct {
