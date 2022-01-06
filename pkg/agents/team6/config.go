@@ -6,6 +6,8 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+
 	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
@@ -205,7 +207,11 @@ func (a *CustomAgent6) Run() {
 
 	//fmt.Println(a.ActiveTreaties())
 
-	// treaty := messages.NewTreaty(1, 1, 1, 1, 5, a.ID())
+	treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
+	min, max := a.foodRange()
+	valid := a.treatyValid(*treaty)
+
+	a.Log("Team 6 processed treaty:", infra.Fields{"treaty": treaty, "range": max - min, "isValid:": valid})
 	// treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
 
 	// treatyMsg.Visit(a).

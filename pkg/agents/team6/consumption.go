@@ -114,7 +114,6 @@ func (a *CustomAgent6) treatyValid(treaty messages.Treaty) bool {
 	chkTrtyVal := treaty.RequestValue()
 	mini, maxi := a.foodRange()
 
-	//ONLY ONE CASE RETURNS FALSE - MAKE THIS AN IF ELSE (unless you meant to add falses under the switch cases?)
 	switch treaty.RequestOp() {
 	case 0:
 		if chkTrtyVal > mini && chkTrtyVal < maxi {
@@ -145,15 +144,6 @@ func (a *CustomAgent6) treatyValid(treaty messages.Treaty) bool {
 	default:
 		return false
 	}
-
-	// if treaty.RequestOp() == 2 {
-	// 	if chkTrtyVal != mini {
-	// 		return false
-	// 	} else {
-	// 		return true
-	// 	}
-	// }
-	// return true
 }
 
 // func (a *CustomAgent6) incomingTreatyValidityAndFoodRange(trty messages.Treaty) (int, int, bool) {
