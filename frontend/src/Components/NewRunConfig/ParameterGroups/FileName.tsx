@@ -1,11 +1,11 @@
 import { H5, FormGroup, Switch } from "@blueprintjs/core";
 
-export default function LogDescription(props: any) {
+export default function FileName(props: any) {
   const { configHandler } = props;
 
   return (
     <div style={{ paddingTop: 20 }}>
-      <H5 className="text-center">Log Description</H5>
+      <H5 className="text-center">File Description</H5>
       <div className="row">
         <div className="col-lg-6 d-flex justify-content-center">
           <FormGroup>

@@ -6,7 +6,7 @@ import TowerFood from "../ParameterGroups/TowerFood";
 import TowerLength from "../ParameterGroups/TowerLength";
 import AgentTypesParams from "../ParameterGroups/AgentTypes";
 import AgentGeneral from "../ParameterGroups/AgentGeneral";
-import LogDescription from "../ParameterGroups/LogDescription";
+import FileName from "../ParameterGroups/FileName";
 
 interface AdvancedSettingsProps {
   config: SimConfig;
@@ -41,7 +41,7 @@ export default function AdvancedSettings(props: AdvancedSettingsProps) {
             <TowerLength config={config} configHandler={configHandler} advanced={true} />
             <AgentTypesParams config={config} configHandler={configHandler} />
             <AgentGeneral config={config} configHandler={configHandler} advanced={true} />
-            <LogDescription configHandler={configHandler} />
+            <FileName configHandler={configHandler} />
           </div>
           <div className="modal-footer">
             <Button intent="danger" className="close" icon="cross" text="Cancel" data-dismiss="modal" />
