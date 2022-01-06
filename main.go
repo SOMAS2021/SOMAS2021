@@ -83,7 +83,7 @@ func main() {
 			select {
 			case <-ch:
 				log.Info("Simulation " + logFolderName + " finished successfully")
-				err = logging.UpdateSimStatusJson(logFolderName, "finished succesfully")
+				err = logging.UpdateSimStatusJson(logFolderName, "finished")
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					log.Error("Unable to update status file: " + err.Error())
@@ -91,7 +91,7 @@ func main() {
 			case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
 				http.Error(w, "Simulation Timeout", http.StatusInternalServerError)
 				log.Error("Simulation " + logFolderName + " timed out")
-				err = logging.UpdateSimStatusJson(logFolderName, "timed out")
+				err = logging.UpdateSimStatusJson(logFolderName, "timedout")
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					log.Error("Unable to update status file: " + err.Error())
@@ -232,13 +232,13 @@ func main() {
 		select {
 		case <-ch:
 			log.Info("Simulation Finished Successfully")
-			err = logging.UpdateSimStatusJson(logFolderName, "finished successfully")
+			err = logging.UpdateSimStatusJson(logFolderName, "finished")
 			if err != nil {
 				log.Fatal("Unable to update status file: " + err.Error())
 				return
 			}
 		case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
-			err = logging.UpdateSimStatusJson(logFolderName, "timed out")
+			err = logging.UpdateSimStatusJson(logFolderName, "timedout")
 			if err != nil {
 				log.Fatal("Unable to update status file: " + err.Error())
 				return

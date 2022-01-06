@@ -10,8 +10,8 @@ body {
 }
 
 .modal-body {
-  columns: 2 auto;
-  column-gap: 10%;
+  max-height: calc(100vh - 210px);
+  overflow-y: auto;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
@@ -22,4 +22,30 @@ body {
 .hide-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* 360 rotations forever */
+.rotate-image {
+  animation: rotation 2s linear infinite;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+.infinite {
+  animation-iteration-count: infinite;
+}
+
+.linear {
+  animation-timing-function: linear;
+}
+
+.rotate {
+  animation: rotation 2s;
 }

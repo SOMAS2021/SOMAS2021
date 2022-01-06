@@ -8,18 +8,22 @@ type ConditionType int
 type RequestType int
 type Op int
 
+//go:generate go run golang.org/x/tools/cmd/stringer -type=ConditionType
+
 const (
 	HP ConditionType = iota + 1
 	Floor
 	AvailableFood
 )
 
+//go:generate go run golang.org/x/tools/cmd/stringer -type=RequestType
 const (
 	LeaveAmountFood RequestType = iota + 1
 	LeavePercentFood
 	Inform
 )
 
+//go:generate go run golang.org/x/tools/cmd/stringer -type=Op
 const (
 	GT Op = iota + 1
 	GE
