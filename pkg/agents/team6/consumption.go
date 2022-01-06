@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 )
@@ -77,6 +78,65 @@ func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food
 	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
 }
 
+func (a *CustomAgent6) foodRange(trty messages.Treaty) (int, int, bool) {
+	trty_chk_val := trty.RequestValue()
+	mini := 0
+	maxi := 0
+	out := false
+	eq_found := 0
+	listActTrty := a.ActiveTreaties()
+	for _, value := range listActTrty {
+		switch value.RequestOp() {
+		case 0:
+			if value.RequestValue() > mini {
+				mini = value.RequestValue() + 1
+			}
+		case 1:
+			if value.RequestValue() > mini {
+				mini = value.RequestValue()
+			}
+		case 3:
+			if value.RequestValue() < maxi {
+				maxi = value.RequestValue()
+			}
+		case 4:
+			if value.RequestValue() < maxi {
+				maxi = value.RequestValue() - 1
+			}
+		case 2:
+			eq_found = 1
+		}
+	}
+	switch trty.RequestOp() {
+	case 0:
+		if trty_chk_val >= mini {
+			out = true
+		}
+	case 1:
+		if trty_chk_val >= mini {
+			out = true
+		}
+	case 3:
+		if trty_chk_val <= maxi {
+			out = true
+		}
+	case 4:
+		if trty_chk_val <= maxi {
+			out = true
+		}
+	case 2:
+		if eq_found == 1 {
+			out = false
+		} else {
+			if trty_chk_val >= mini && trty_chk_val <= maxi {
+				out = true
+			}
+		}
+	}
+
+	return maxi, mini, out
+}
+
 func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 
 	//if a.tower
@@ -84,10 +144,9 @@ func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 	// else
 	//foodOnPlatform = lastFoodOnPlatform
 
-
 	intendedFoodIntake := a.desiredFoodIntake()
 	if a.reqLeaveFoodAmount != -1 {
-		intendedFoodIntake = min(a.tower.foodOnPlatform - a.reqLeaveFoodAmount, intendedFoodIntake)
+		//intendedFoodIntake = min(a.tower.foodOnPlatform - a.reqLeaveFoodAmount, intendedFoodIntake)
 
 		//intendedFoodIntake = food.FoodType(a.reqLeaveFoodAmount) // to correct
 	}
