@@ -87,6 +87,7 @@ func (a *CustomAgent6) foodRange(trty messages.Treaty) (int, int, bool) {
 	maxi := 100
 	out := false
 	eqFound := 0
+	eqVal := 0
 	listActTrty := a.ActiveTreaties()
 	for _, value := range listActTrty {
 		switch value.RequestOp() {
@@ -108,16 +109,33 @@ func (a *CustomAgent6) foodRange(trty messages.Treaty) (int, int, bool) {
 			}
 		case 2:
 			eqFound = 1
+			eqVal = value.RequestValue()
 		}
 	}
-	if chkTrtyVal >= mini && chkTrtyVal <= maxi {
-		out = true
-	}
-	if eqFound == 1 {
-		out = false
-	} else {
+	switch trty.RequestOp() {
+	case 0:
+		if chkTrtyVal > mini && chkTrtyVal < maxi {
+			out = true
+		}
+	case 1:
 		if chkTrtyVal >= mini && chkTrtyVal <= maxi {
 			out = true
+		}
+	case 3:
+		if chkTrtyVal >= mini && chkTrtyVal <= maxi {
+			out = true
+		}
+	case 4:
+		if chkTrtyVal > mini && chkTrtyVal < maxi {
+			out = true
+		}
+	case 2:
+		if (eqFound == 1) && (chkTrtyVal != eqVal) {
+			out = false
+		} else {
+			if chkTrtyVal >= mini && chkTrtyVal <= maxi {
+				out = true
+			}
 		}
 	}
 

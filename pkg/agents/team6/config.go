@@ -149,11 +149,10 @@ func (a *CustomAgent6) Run() {
 	treaty4.SignTreaty()
 	a.AddTreaty(*treaty4)
 
-	treaty5 := messages.NewTreaty(1, 1, 1, 6, 1, 0, 5, a.ID())
-	//treaty5 := messages.NewTreaty(1, 1, 1, 12, 1, 0, 5, a.ID())
+	//treaty5 := messages.NewTreaty(1, 1, 1, 4, 1, 4, 5, a.ID())
+	treaty5 := messages.NewTreaty(1, 1, 1, 9, 1, 1, 5, a.ID())
 
 	c, d, e := a.foodRange(*treaty5)
-
 	fmt.Println(c)
 	fmt.Println(d)
 	fmt.Println(e)
