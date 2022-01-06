@@ -1,7 +1,7 @@
 import { DeathLog } from "./Logging/Death";
 
 export function Average(arr: number[]): number {
-  return arr.reduce((a, b) => a + b) / arr.length;
+  return arr.length > 0 ? arr.reduce((a, b) => a + b) / arr.length : 0;
 }
 
 // Deaths per agent
