@@ -188,6 +188,12 @@ func (a *CustomAgentEvo) UpdateCraving() {
 
 func (a *CustomAgentEvo) Run() {
 
+	// update agents memory of the last time it saw food on the platform
+	// fmt.Println("The day passed value is ", check)
+	if a.HasDayPassed() {
+		a.UpdateLastTimeFoodSeen()
+	}
+
 	// update agent's perception of maxFloor
 	a.params.maxFloor = int(math.Max(float64(a.params.maxFloor), float64(a.Floor()))) // math.Max only take in floats while we require an integer floor.
 
@@ -204,14 +210,6 @@ func (a *CustomAgentEvo) Run() {
 
 	a.UpdateHealthStatus(healthLevelSeparation)
 	a.CallHandleMessage() //call the relevant message handler
-
-	// update agents memory of the last time it saw food on the platform
-	if a.HasDayPassed() {
-		a.UpdateLastTimeFoodSeen()
-	}
-
-	// update craving values
-	a.UpdateCraving()
 
 	var foodEaten food.FoodType
 	var err error
@@ -244,6 +242,8 @@ func (a *CustomAgentEvo) Run() {
 			}
 		}
 	}
+	// identifier := a.ID().String()
+	// fmt.Printf("%s : Trust Score is  %f \n", identifier[0:2], a.params.globalTrust)
 
 	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "FoodToEat": calculatedAmountToEat, "WaitProbability": a.params.waitProbability, "foodEaten": foodEaten})
 }
