@@ -33,6 +33,7 @@ type CustomAgent5 struct {
 	messagingCounter  int
 	attemptToEat      bool
 	leadership        int
+	lastFood          int
 	// Social network of other agents
 	socialMemory      map[uuid.UUID]Memory
 	surroundingAgents map[int]uuid.UUID
@@ -47,10 +48,11 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		hpAfterEating:     baseAgent.HealthInfo().MaxHP, //Stores HP value after eating in a day
 		currentAimHP:      baseAgent.HealthInfo().MaxHP, //Stores aim HP for a given day
 		attemptFood:       0,                            //Stores food agent will attempt to eat in a
-		satisfaction:      0,                            // Scale of -3 to 3, with 3 being satisfied and unsatisfied
+		satisfaction:      -10,                          // Scale of -50 to 50
 		rememberAge:       -1,                           // To check if a day has passed by our age increasing
 		rememberFloor:     0,                            //Store the floor we are on so we can see if we have been reshuffled
 		messagingCounter:  0,                            //Counter so that various messages are sent throughout the day
+		lastFood:          0,                            // How much food arrived at the platform on the previous day assuming that the agent is still on the same floor
 		attemptToEat:      true,                         // To check if we have already attempted to eat in a day. Needed because HasEaten() does not update if there is no food on the platform
 		leadership:        rand.Intn(10),                //Initilise a random leadership value for each agent, used to determine whether they try to cause change in the tower. 0 is more likely to become a leader
 		socialMemory:      make(map[uuid.UUID]Memory),   // Memory of other agents, key is agent id
@@ -67,17 +69,23 @@ func (a *CustomAgent5) updateSelfishness() {
 }
 
 func (a *CustomAgent5) updateSatisfaction() {
-	if PercentageHP(a) >= 100 {
-		a.satisfaction = 3
+	tmp := int(a.CurrPlatFood())
+	if a.lastFood*120.0/100.0 <= tmp {
+		a.satisfaction += 2
+	} else if a.lastFood*110.0/100.0 <= tmp {
+		a.satisfaction += 1
+	} else if a.lastFood*70.0/100.0 >= tmp {
+		a.satisfaction -= 2
+	} else if a.lastFood*8.0/100.0 >= tmp {
+		a.satisfaction -= 1
 	}
-	if a.lastMeal == 0 && a.satisfaction > -3 {
-		a.satisfaction--
+
+	if a.satisfaction > 50 {
+		a.satisfaction = 50
 	}
-	if PercentageHP(a) < 25 && a.satisfaction > -3 {
-		a.satisfaction--
-	}
-	if PercentageHP(a) > 75 && a.satisfaction < 3 {
-		a.satisfaction++
+
+	if a.satisfaction < -50 {
+		a.satisfaction = -50
 	}
 }
 
@@ -137,6 +145,10 @@ func (a *CustomAgent5) Run() {
 
 	// When platform reaches our floor and we haven't tried to eat, then try to eat
 	if a.CurrPlatFood() != -1 && a.attemptToEat {
+		if a.Floor() == a.rememberFloor { // if the agent is still on the same floor it can update its satisfaction
+			a.updateSatisfaction()
+		}
+		a.lastFood = int(a.CurrPlatFood())
 		lastMeal, err := a.TakeFood(a.attemptFood)
 		if err != nil {
 			switch err.(type) {
@@ -149,12 +161,14 @@ func (a *CustomAgent5) Run() {
 				log.Error("Simulation - team5/agent.go: \t Impossible error reached")
 			}
 		}
+
 		a.lastMeal = lastMeal
 		if a.lastMeal > 0 {
 			a.daysSinceLastMeal = 0
 		}
 		a.hpAfterEating = a.HP()
 		a.updateSatisfaction()
+
 		a.attemptToEat = false
 	}
 }
