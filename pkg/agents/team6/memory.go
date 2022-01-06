@@ -41,8 +41,8 @@ func (a *CustomAgent6) resetShortTermMemory() {
 func (a *CustomAgent6) updateReassignmentPeriodGuess() {
 	a.Log("Team 6 previous floor:", infra.Fields{"prevFloor": a.prevFloor})
 	a.Log("Team 6 current floor:", infra.Fields{"currFloor": a.Floor()})
-	a.reassignNum++
-	a.reassignPeriodGuess = float64(a.Age()) / float64(a.reassignNum)
-	a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.reassignNum})
+	a.numReassigned++
+	a.reassignPeriodGuess = float64(a.Age()) / float64(a.numReassigned)
+	a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.numReassigned})
 	a.Log("Team 6 reassignment period guess:", infra.Fields{"guessReassign": a.reassignPeriodGuess})
 }

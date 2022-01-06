@@ -42,12 +42,12 @@ type CustomAgent6 struct {
 	foodTakeDay         int
 	reqLeaveFoodAmount  int
 	lastFoodTaken       food.FoodType
-	longTermMemory      memory
-	shortTermMemory     memory
-	reassignNum         int
-	reassignPeriodGuess float64
-	platOnFloorCtr      int
-	prevFloor           int
+	longTermMemory      memory  // Memory of food available throughout agent's lifetime
+	shortTermMemory     memory  // Memory of food available while agent is at a particular floor
+	numReassigned       int     // Number of times the agent has been reassigned
+	reassignPeriodGuess float64 // What the agent thinks the reassignment period is
+	platOnFloorCtr      int     // Counts how many ticks the platform is at the agent's floor for. Used to call functions only once when the platform arrives
+	prevFloor           int     // Keeps track of previous floor to see if agent has been reassigned
 }
 
 type thresholdBehaviourPair struct {
@@ -82,7 +82,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		lastFoodTaken:       0,
 		longTermMemory:      memory{},
 		shortTermMemory:     memory{},
-		reassignNum:         0,
+		numReassigned:       0,
 		reassignPeriodGuess: 0,
 		platOnFloorCtr:      0,
 		prevFloor:           -1,
@@ -124,9 +124,9 @@ func (a *CustomAgent6) Run() {
 	if a.isReassigned() {
 		a.resetShortTermMemory()
 		a.updateReassignmentPeriodGuess()
-	} else if a.reassignNum == 0 { // Before any reassignment, reassignment period guess should be days elapsed
+	} else if a.numReassigned == 0 { // Before any reassignment, reassignment period guess should be days elapsed
 		a.reassignPeriodGuess = float64(a.Age())
-		a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.reassignNum})
+		a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.numReassigned})
 		a.Log("Team 6 reassignment period guess:", infra.Fields{"guessReassign": a.reassignPeriodGuess})
 	}
 	a.addToMemory()
