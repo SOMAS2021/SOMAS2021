@@ -91,6 +91,9 @@ func (a *CustomAgent6) foodRange() (int, int) {
 			if treaty.RequestValue() > mini {
 				mini = treaty.RequestValue() //If Greater or Equal, then the max value is itself
 			}
+		case 3:
+			eqVal := treaty.RequestValue() //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
+			mini, maxi = eqVal, eqVal
 		case 4:
 			if treaty.RequestValue() < maxi || maxi == 0 {
 				maxi = treaty.RequestValue() //If Less than or Equal, then the max value is itself
@@ -99,9 +102,6 @@ func (a *CustomAgent6) foodRange() (int, int) {
 			if treaty.RequestValue() < maxi || maxi == 0 {
 				maxi = treaty.RequestValue() - 1 //If Less than, then the max value is one smaller
 			}
-		case 3:
-			eqVal := treaty.RequestValue() //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
-			mini, maxi = eqVal, eqVal
 		default:
 			mini, maxi = -1, -1 //unknown op code
 		}
