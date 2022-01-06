@@ -12,7 +12,7 @@ func (a *CustomAgent6) addToMemory() {
 		if currPlatFood == -1 { // Infra returns -1 if a.CurrPlatFood() is called and the platform is not at the agent's floor
 			return
 		}
-		a.longTermMemory = append(a.longTermMemory[:], currPlatFood)
+		a.longTermMemory = append(a.longTermMemory, currPlatFood)
 		a.shortTermMemory = append(a.shortTermMemory, currPlatFood)
 
 		a.Log("Team 6 age:", infra.Fields{"Age": a.Age()})
