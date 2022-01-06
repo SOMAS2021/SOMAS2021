@@ -4,7 +4,6 @@ import { Result } from "../../Helpers/Result";
 import BarChart from "./Graphs/BarChart";
 import LineChart from "./Graphs/LineChart";
 
-
 interface StatsViewerProps {
   result: Result;
 }
@@ -12,7 +11,7 @@ interface StatsViewerProps {
 export default function StatsViewer(props: StatsViewerProps) {
   const { result } = props;
   let deaths = DeathsPerAgent(result.deaths);
-  let messages = MessagesPerAgent(result.messages)
+  let messages = MessagesPerAgent(result.messages);
   return (
     <div className="row">
       <div className="col-lg-6">
@@ -47,11 +46,8 @@ export default function StatsViewer(props: StatsViewerProps) {
         />
       </div>
       <div className="col-lg-6">
-        <ReportCard
-          description="Total messages sent"
-          title={result.messages.length.toString()}
-        />
-        </div>
+        <ReportCard description="Total messages sent" title={result.messages.length.toString()} />
+      </div>
       <div className="row">
         <div className="col-lg-6">
           <BarChart yAxis={Object.values(deaths)} xAxis={Object.keys(deaths)} graphTitle="Deaths per Agent type" />
@@ -66,7 +62,7 @@ export default function StatsViewer(props: StatsViewerProps) {
       </div>
       <div className="row">
         <div className="col-lg-6">
-        <BarChart
+          <BarChart
             yAxis={Object.values(messages)}
             xAxis={Object.keys(messages)}
             graphTitle="Number of messages sent per Agent"
