@@ -35,13 +35,13 @@ export default function StatsViewer(props: StatsViewerProps) {
       <div className="col-lg-6">
         <ReportCard
           description="Max agent age upon death"
-          title={Math.max(...result.deaths.map((d) => d.ageUponDeath)).toString()}
+          title={result.deaths.length === 0 ? "0" : Math.max(...result.deaths.map((d) => d.ageUponDeath)).toString()}
         />
       </div>
       <div className="col-lg-6">
         <ReportCard
           description="Min agent age upon death"
-          title={Math.min(...result.deaths.map((d) => d.ageUponDeath)).toString()}
+          title={result.deaths.length === 0 ? "0" : Math.min(...result.deaths.map((d) => d.ageUponDeath)).toString()}
         />
       </div>
       <div className="row">
