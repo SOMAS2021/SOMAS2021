@@ -98,7 +98,7 @@ function ResultHeader(props: ResultDisplayProps) {
             <H5 style={{ color: Colors.BLUE2 }}>
               <Icon className="rotate-image" icon="refresh" size={20} style={{ padding: "0 10px" }} intent="primary" />
               Simulation still running!
-              <Button text="Refresh" intent="primary" style={{ marginLeft: 10 }} onClick={reload}/>
+              <Button text="Refresh" intent="primary" style={{ marginLeft: 10 }} onClick={reload} />
             </H5>
           </>
         )}
