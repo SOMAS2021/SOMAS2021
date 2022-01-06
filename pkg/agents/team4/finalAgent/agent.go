@@ -179,10 +179,6 @@ func (a *CustomAgentEvo) UpdateCraving() {
 	}
 }
 
-// 0 -> 33 selfish
-// 34 -> 66 netural
-// 67 -> 100 selfless
-
 func (a *CustomAgentEvo) SetPersonality() {
 	// prev_personality := a.params.currentPersonality
 	if a.params.globalTrust < float32(a.params.globalTrustLimits[0]) {
