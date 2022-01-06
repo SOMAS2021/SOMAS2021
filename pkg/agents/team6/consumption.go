@@ -84,10 +84,9 @@ func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 	// else
 	//foodOnPlatform = lastFoodOnPlatform
 
-
 	intendedFoodIntake := a.desiredFoodIntake()
 	if a.reqLeaveFoodAmount != -1 {
-		intendedFoodIntake = min(a.tower.foodOnPlatform - a.reqLeaveFoodAmount, intendedFoodIntake)
+		intendedFoodIntake = food.FoodType(math.Min(float64(int(a.CurrPlatFood())-a.reqLeaveFoodAmount), float64(intendedFoodIntake)))
 
 		//intendedFoodIntake = food.FoodType(a.reqLeaveFoodAmount) // to correct
 	}
