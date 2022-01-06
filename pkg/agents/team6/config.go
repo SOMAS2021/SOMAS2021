@@ -8,7 +8,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
-type Memory []food.FoodType
+type memory []food.FoodType
 
 type behaviour float64
 
@@ -42,8 +42,8 @@ type CustomAgent6 struct {
 	foodTakeDay         int
 	reqLeaveFoodAmount  int
 	lastFoodTaken       food.FoodType
-	longTermMemory      Memory
-	shortTermMemory     Memory
+	longTermMemory      memory
+	shortTermMemory     memory
 	reassignNum         int
 	reassignPeriodGuess float64
 	platOnFloorCtr      int
@@ -80,8 +80,8 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		foodTakeDay:         0,
 		reqLeaveFoodAmount:  -1,
 		lastFoodTaken:       0,
-		longTermMemory:      Memory{},
-		shortTermMemory:     Memory{},
+		longTermMemory:      memory{},
+		shortTermMemory:     memory{},
 		reassignNum:         0,
 		reassignPeriodGuess: 0,
 		platOnFloorCtr:      0,

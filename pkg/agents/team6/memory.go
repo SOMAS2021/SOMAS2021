@@ -12,8 +12,8 @@ func (a *CustomAgent6) addToMemory() {
 		if currPlatFood == -1 { // Infra returns -1 if a.CurrPlatFood() is called and the platform is not at the agent's floor
 			return
 		}
-		a.longTermMemory = append(a.longTermMemory[:], currPlatFood)
-		a.shortTermMemory = append(a.shortTermMemory[:], currPlatFood)
+		a.longTermMemory = append(a.longTermMemory, currPlatFood)
+		a.shortTermMemory = append(a.shortTermMemory, currPlatFood)
 
 		a.Log("Team 6 age:", infra.Fields{"Age": a.Age()})
 		a.Log("Team 6 food available:", infra.Fields{"CurrPlatFood": a.CurrPlatFood()})
@@ -35,7 +35,7 @@ func (a *CustomAgent6) isReassigned() bool {
 }
 
 func (a *CustomAgent6) resetShortTermMemory() {
-	a.shortTermMemory = Memory{}
+	a.shortTermMemory = memory{}
 }
 
 func (a *CustomAgent6) updateReassignmentPeriodGuess() {
