@@ -4,6 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/google/uuid"
 )
@@ -33,7 +34,9 @@ type team3Knowledge struct {
 	//Stores how old (in days) the agent is
 	agentAge int
 	//Stores whether we already have a treaty with the person above
-	aboveFoodTreaty bool
+	treatyProposed messages.Treaty
+	//Stores our estimation of resshufle
+	reshuffleEst int
 }
 
 type team3Decisions struct {
@@ -60,14 +63,15 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			mood:         rand.Intn(100),
 		},
 		knowledge: team3Knowledge{
-			floors:          []int{},
-			lastHP:          100,
-			friends:         make(map[uuid.UUID]float64),
-			foodLastEaten:   food.FoodType(0),
-			foodLastSeen:    food.FoodType(-1),
-			foodMovingAvg:   0, //a.foodReqCalc(50, 50)
-			agentAge:        0,
-			aboveFoodTreaty: false,
+			floors:         []int{},
+			lastHP:         100,
+			friends:        make(map[uuid.UUID]float64),
+			foodLastEaten:  food.FoodType(0),
+			foodLastSeen:   food.FoodType(-1),
+			foodMovingAvg:  0, //a.foodReqCalc(50, 50)
+			agentAge:       0,
+			treatyProposed: *messages.NewTreaty(messages.HP, 0, messages.LeaveAmountFood, 0, messages.GT, messages.GT, 0, uuid.Nil),
+			reshuffleEst:   -1,
 		},
 		decisions: team3Decisions{
 			foodToEat:   -1,

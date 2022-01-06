@@ -1,10 +1,12 @@
 package team3
 
 import (
+	"math"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/google/uuid"
 )
 
 //Upon receipt of message define affected emotions
@@ -13,15 +15,24 @@ import (
 //Include if ack message same user ID occurs x+1 times, morale increase
 //If stubborness = y+1, discard, a.k.a. leave unread
 
+func (a *CustomAgent3) treatyFull() bool {
+	return len(a.ActiveTreaties()) > 0
+}
+
+func (a *CustomAgent3) treatyPendingResponse() bool {
+	return !(a.knowledge.treatyProposed.ID() == uuid.Nil)
+}
+
 //case 0, we are going to check our hunger and propose a treaty or, if we already have one, ask about the people bellow's health (cause why not)
 func (a *CustomAgent3) sendMsgHPRelated() {
 	if a.knowledge.foodLastSeen < 10 && a.HP() < a.HealthInfo().HPReqCToW { //do this properly with Eds help
-		if a.knowledge.aboveFoodTreaty {
+		if a.treatyFull() || a.treatyPendingResponse() {
 			msg := messages.NewAskHPMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1)
 			a.SendMessage(msg)
 			a.Log("I sent a message", infra.Fields{"message": "AskHP"})
 		} else {
 			tr := messages.NewTreaty(messages.HP, 20, messages.LeaveAmountFood, 20, messages.GT, messages.GT, 20, a.ID()) //generalise later
+			a.knowledge.treatyProposed = *tr                                                                              //remember the treaty we proposed
 			msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, *tr)
 			a.SendMessage(msg)
 			a.Log("I sent a treaty")
@@ -78,23 +89,14 @@ func (a *CustomAgent3) message() {
 }
 
 func max(x, y, z int) int {
-	if x < y && z < y {
-		return y
-	}
-	if x < z {
-		return z
-	}
-	return x
+	temp := math.Max(float64(x), float64(y))
+	return int(math.Max(float64(temp), float64(z)))
 }
 
 func min(x, y, z int) int {
-	if x > y && z > y {
-		return y
-	}
-	if x > z {
-		return z
-	}
-	return x
+	temp := math.Min(float64(x), float64(y))
+	return int(math.Min(float64(temp), float64(z)))
+
 }
 
 func (a *CustomAgent3) requestTakeFoodAmt() int {
@@ -348,6 +350,12 @@ func (a *CustomAgent3) HandleTreatyResponse(msg messages.TreatyResponseMessage) 
 		changeInMood(a, 5, 10, 1)
 		changeInMorality(a, 5, 10, 1)
 		changeInStubbornness(a, 5, -1)
+		if a.knowledge.treatyProposed.ID() != uuid.Nil { //check in case something went wrong.
+			treaty := a.knowledge.treatyProposed //signed our proposed treatry
+			treaty.SignTreaty()
+			a.AddTreaty(treaty)
+		}
+
 		//Add friendship level with agent who responded
 		//msg.RequestID()
 	} else {
@@ -357,25 +365,8 @@ func (a *CustomAgent3) HandleTreatyResponse(msg messages.TreatyResponseMessage) 
 		//Reduce friendship level with agent who responded
 		//msg.RequestID()
 	}
-
+	a.knowledge.treatyProposed = *messages.NewTreaty(messages.HP, 0, messages.LeaveAmountFood, 0, messages.GT, messages.GT, 0, uuid.Nil) //restart the sent treaty.
 }
-
-// func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
-// 	var reply messages.ResponseMessage
-// 	// calculate the benefit of the treaty to the agent - more complex func needed
-// 	// possible parameters: stubbornness, mood, food consumed history, number of friends,
-
-// 	if a.knowledge.foodMovingAvg >= float64(a.foodReqCalc(50, 50)) { // satiated
-// 		reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.read()) // a.read() false "stubbornness" % of the time
-// 	} else { // unsatiated
-// 		if a.vars.mood > 50 {
-// 			reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.read()) // a.read() false "stubbornness" % of the time
-// 		} else {
-// 			reply = msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor()-a.Floor(), false) // a.read() false "stubbornness" % of the time
-// 		}
-// 	}
-// 	a.SendMessage(reply)
-// }
 
 type AgentPosition int
 type FoodTaken int
@@ -462,7 +453,7 @@ func (a *CustomAgent3) reqFoodTakenEstimate(treaty messages.Treaty, percentage b
 // 1. requiredAgentPosition evaluates the condition, 2. foodTakenEstimate evaluates the request,
 // 3. agentVarsPassed uses agent params with evaluations, 4. Reply sent which accepts/rejects the treaty
 func (a *CustomAgent3) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
-	if len(a.ActiveTreaties()) > 0 {
+	if a.treatyFull() {
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
 		a.SendMessage(reply)
 	} else {

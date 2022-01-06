@@ -92,8 +92,19 @@ func changeNewDay(a *CustomAgent3) {
 	a.knowledge.foodMovingAvg = float64(a.knowledge.foodMovingAvg)*0.9 + float64(a.knowledge.foodLastEaten)*0.1
 }
 
+func (a *CustomAgent3) resshufleEstimator() {
+	if a.knowledge.reshuffleEst == -1 {
+		a.knowledge.reshuffleEst = a.Age()
+	} else {
+		if a.Age()-a.knowledge.reshuffleEst < a.knowledge.reshuffleEst { //attempt to correct in case we resshufle to same floor twice
+			a.knowledge.reshuffleEst = a.Age() - a.knowledge.reshuffleEst
+		}
+	}
+}
+
 // Function is called when the floor changes, changes the mood when we change floors
 func changeNewFloor(a *CustomAgent3) {
+
 	//Calculate mood based on what floors we have been in
 	if len(a.knowledge.floors) != 0 {
 		lastFloor := a.knowledge.floors[len(a.knowledge.floors)-1]
