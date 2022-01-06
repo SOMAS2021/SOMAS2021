@@ -1,11 +1,8 @@
 package team6
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
-	"reflect"
-	"testing"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -169,18 +166,3 @@ func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 // func hpFunc(x float64, currentHP float64, currentLevel float64, levelWidth float64, tau float64) float64 {
 // 	return currentLevel + levelWidth - math.Exp(-x/tau)*(levelWidth+currentHP-currentLevel)
 // }
-
-func (a *CustomAgent6) TestRunn(t *testing.T) {
-
-	fmt.Println(a.ActiveTreaties())
-
-	treaty := messages.NewTreaty(1, 1, 1, 0, 1, 0, 5, a.ID())
-	fmt.Println(reflect.TypeOf(treaty))
-	// treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
-	//a.AddTreaty(treaty)
-	//treaty1 := messages.NewTreaty(1, 1, 1, 0, 1, 0, 5, a.ID())
-
-	// treatyMsg.Visit(a)
-
-	// fmt.Println(a.ActiveTreaties())
-}
