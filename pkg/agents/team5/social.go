@@ -86,6 +86,13 @@ func (a *CustomAgent5) incrementDaysSinceLastSeen() {
 }
 
 // TODO: Consider adding check for exists and if not exists then add to memory.
+func (a *CustomAgent5) resetDaysSinceLastSeen(id uuid.UUID) {
+	mem := a.socialMemory[id]
+	mem.daysSinceLastSeen = 0
+	a.socialMemory[id] = mem
+}
+
+// TODO: Consider adding check for exists and if not exists then add to memory.
 func (a *CustomAgent5) resetSocialKnowledge(id uuid.UUID) {
 	mem := a.socialMemory[id]
 	mem.foodTaken = 100
@@ -94,9 +101,10 @@ func (a *CustomAgent5) resetSocialKnowledge(id uuid.UUID) {
 	a.socialMemory[id] = mem
 }
 
-// TODO: Consider adding check for exists and if not exists then add to memory.
-func (a *CustomAgent5) resetDaysSinceLastSeen(id uuid.UUID) {
-	mem := a.socialMemory[id]
-	mem.daysSinceLastSeen = 0
-	a.socialMemory[id] = mem
+func (a *CustomAgent5) updateSocialMemory(senderID uuid.UUID, senderFloor int) {
+	if !a.memoryIdExists(senderID) {
+		a.newMemory(senderID)
+	}
+	a.resetDaysSinceLastSeen(senderID)
+	a.surroundingAgents[senderFloor-a.Floor()] = senderID
 }
