@@ -2,7 +2,10 @@ import { H3, H5, H6, Divider, Spinner, Colors, Icon, Button } from "@blueprintjs
 import { useCallback, useEffect, useState } from "react";
 import { GetResult, Result, SimStatus } from "../../Helpers/Result";
 import StoryViewer from "../Story/StoryViewer";
+import { GetResult } from "../../Helpers/API";
+import { Result } from "../../Helpers/Result";
 import ConfigInfo from "./ConfigInfo";
+import StoryViewer from "../Story/StoryViewer";
 import StatsViewer from "./Stats";
 
 interface ResultsProps {
