@@ -70,7 +70,7 @@ function ResultDisplay(props: ResultDisplayProps) {
       </div>
       <div className="row">
         <div className="col-lg-6">
-          <BarChart yAxis={cumulativeDeaths} xAxis={agentTypes} graphTitle="Deaths per Agent type" />
+          <BarChart yAxis={Object.values(deaths)} xAxis={Object.keys(deaths)} graphTitle="Deaths per Agent type" />
         </div>
         <div className="col-lg-6">
           <LineChart
