@@ -20,7 +20,6 @@ export default function AdvancedSettings(props: AdvancedSettingsProps) {
     var key: Key = keyString; // converting keyString to type Key
     config[key] = value;
     setConfig(config);
-    console.log(config);
   }
 
   return (
