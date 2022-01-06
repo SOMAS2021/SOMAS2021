@@ -13,16 +13,10 @@ import (
 		utilities.
     Observation:
         Observation               Min                     Max
-<<<<<<< HEAD
         hp
 		foodOnPlatform
 		dayAtCritical
 		neighbourHP
-=======
-        hp			              0.0                     100.0
-        floor	                  1                       inf
-        foodOnPlat                0    	                  100
->>>>>>> 434c8b0 (update reward.go and log for config.go)
 
 		Other observations should come from communication with other agents
         savedAgents               0                       number of agent per florr
