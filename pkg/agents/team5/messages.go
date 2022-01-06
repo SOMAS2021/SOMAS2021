@@ -200,6 +200,8 @@ func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		fallthrough
 	case a.treatyConflicts(treaty):
 		fallthrough
+	case treaty.Request() == messages.LeavePercentFood && (treaty.RequestValue() > 100 || treaty.RequestValue() < 0):
+		fallthrough
 	case (treaty.Request() == messages.LeaveAmountFood && treaty.RequestOp() == messages.EQ) || treaty.RequestOp() == messages.LE || treaty.RequestOp() == messages.LT:
 		//Reject all treaties that ask you to leave less food, don't see why you would do this
 		//Reject any treaty that asks you to leave a specific amount of food as this would lead to multiple people just not eating as only 1 agent can eat and fufill that criteria

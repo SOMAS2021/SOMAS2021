@@ -107,7 +107,7 @@ func (a *CustomAgent5) treatiesCanCoexist(t1 messages.Treaty, t2 messages.Treaty
 	conditionsIntersect := statementsIntersect(t1.ConditionOp(), t1.ConditionValue(), t2.ConditionOp(), t2.ConditionValue())
 
 	// If the treaties are based on the same type of condition, they can coexist
-	// when the conditions are mutually exclusive (can never occurr simultaneously)
+	// when the conditions are mutually exclusive (can never occur simultaneously)
 	if t1.Condition() == t2.Condition() && !conditionsIntersect {
 		return true
 	}
