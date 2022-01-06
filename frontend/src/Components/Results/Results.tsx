@@ -1,7 +1,6 @@
-import { H3, H6, Divider, Spinner } from "@blueprintjs/core";
-import { useEffect, useState } from "react";
-import { GetResult, Result } from "../../Helpers/Result";
-import { Average } from "../../Helpers/Utils";
+import { H3, H5, H6, Divider, Spinner, Colors, Icon, Button } from "@blueprintjs/core";
+import { useCallback, useEffect, useState } from "react";
+import { GetResult, Result, SimStatus } from "../../Helpers/Result";
 import StoryViewer from "../Story/StoryViewer";
 import ConfigInfo from "./ConfigInfo";
 import StatsViewer from "./Stats";
@@ -15,7 +14,7 @@ export default function Results(props: ResultsProps) {
   const [result, setResult] = useState<Result>();
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  const LoadResult = useCallback(() => {
     if (logName === "") return;
     setLoading(true);
     GetResult(logName)
@@ -26,12 +25,16 @@ export default function Results(props: ResultsProps) {
       .catch((_) => setLoading(false));
   }, [logName]);
 
+  useEffect(() => {
+    LoadResult();
+  }, [logName, LoadResult]);
+
   return (
     <div>
       {loading && <Spinner intent="primary" />}
       {!loading &&
         (logName !== "" && result ? (
-          <ResultDisplay result={result} />
+          <ResultDisplay result={result} reload={() => LoadResult()} />
         ) : (
           <H6 style={{ paddingTop: 20 }}>
             <i>Select an existing simulation result to view results</i>
@@ -43,9 +46,10 @@ export default function Results(props: ResultsProps) {
 
 interface ResultDisplayProps {
   result: Result;
+  reload: () => void;
 }
 function ResultDisplay(props: ResultDisplayProps) {
-  const { result } = props;
+  const { result, reload } = props;
   return (
     <div
       style={{
@@ -56,7 +60,7 @@ function ResultDisplay(props: ResultDisplayProps) {
         padding: "20px 10px 30px 10px",
       }}
     >
-      <H3>{result.title}</H3>
+      <ResultHeader result={result} reload={reload} />
       <div>
         <Divider></Divider>
         <ConfigInfo config={result.config} />
@@ -64,6 +68,40 @@ function ResultDisplay(props: ResultDisplayProps) {
         <StoryViewer story={result.story} />
         <Divider></Divider>
         <StatsViewer result={result} />
+      </div>
+    </div>
+  );
+}
+
+function ResultHeader(props: ResultDisplayProps) {
+  const { result, reload } = props;
+  return (
+    <div className="row">
+      <div className="col-lg-6">
+        <H3>{result.title}</H3>
+      </div>
+      <div className="col-lg-6" style={{ textAlign: "right", paddingRight: "20px", height: 40 }}>
+        {result.status === SimStatus.timedout && (
+          <H5 style={{ color: Colors.ORANGE2 }}>
+            <Icon icon="warning-sign" size={20} style={{ paddingRight: 10 }} intent="warning" />
+            Simulation timed out!
+          </H5>
+        )}
+        {result.status === SimStatus.finished && (
+          <H5 style={{ color: Colors.GREEN2 }}>
+            <Icon icon="tick" size={20} style={{ paddingRight: 10 }} intent="success" />
+            Simulation completed!
+          </H5>
+        )}
+        {result.status === SimStatus.running && (
+          <>
+            <H5 style={{ color: Colors.BLUE2 }}>
+              <Icon className="rotate-image" icon="refresh" size={20} style={{ padding: "0 10px" }} intent="primary" />
+              Simulation still running!
+              <Button text="Refresh" intent="primary" style={{ marginLeft: 10 }} onClick={reload}/>
+            </H5>
+          </>
+        )}
       </div>
     </div>
   );
