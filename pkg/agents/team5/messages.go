@@ -229,43 +229,43 @@ func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	}
 
 	// Reject any inform treaties as I'm not sure what they are or how to handle them
-	if treaty.Request() == messages.Inform ||
-		// Reject treaty if it conflicts with any other active treaty
-		a.treatyConflicts(treaty) ||
+	// if treaty.Request() == messages.Inform ||
+	// 	// Reject treaty if it conflicts with any other active treaty
+	// 	a.treatyConflicts(treaty) ||
 
-		//Reject all treaties that ask you to leave less food, don't see why you would do this
-		//Reject any treaty that asks you to leave a specific amount of food as this would lead to multiple people just not eating as only 1 agent can eat and fufill that criteria
-		(treaty.Request() == messages.LeaveAmountFood && treaty.RequestOp() == messages.EQ) || treaty.RequestOp() == messages.LE || treaty.RequestOp() == messages.LT ||
+	// 	//Reject all treaties that ask you to leave less food, don't see why you would do this
+	// 	//Reject any treaty that asks you to leave a specific amount of food as this would lead to multiple people just not eating as only 1 agent can eat and fufill that criteria
+	// 	(treaty.Request() == messages.LeaveAmountFood && treaty.RequestOp() == messages.EQ) || treaty.RequestOp() == messages.LE || treaty.RequestOp() == messages.LT ||
 
-		//Reject treaties that have a condition of being less than something
-		// Why agree to treaty which is bounded by you having lower HP
-		// Why agree to treaty which is bounded by the amount of food on platform being low
-		// All of these are conditions where you will be desperate for food so shouldn't be limitting yourself if you do get the opurrtunity to eat
-		(treaty.ConditionOp() == messages.LE || treaty.ConditionOp() == messages.LT) && (treaty.Condition() == messages.HP || treaty.Condition() == messages.AvailableFood) ||
+	// 	//Reject treaties that have a condition of being less than something
+	// 	// Why agree to treaty which is bounded by you having lower HP
+	// 	// Why agree to treaty which is bounded by the amount of food on platform being low
+	// 	// All of these are conditions where you will be desperate for food so shouldn't be limitting yourself if you do get the opurrtunity to eat
+	// 	(treaty.ConditionOp() == messages.LE || treaty.ConditionOp() == messages.LT) && (treaty.Condition() == messages.HP || treaty.Condition() == messages.AvailableFood) ||
 
-		(treaty.ConditionOp() == messages.GE || treaty.ConditionOp() == messages.GT) && treaty.Condition() == messages.Floor ||
+	// 	(treaty.ConditionOp() == messages.GE || treaty.ConditionOp() == messages.GT) && treaty.Condition() == messages.Floor ||
 
-		//Reject any HP condition based treaty if the condition is too strict, and you would be put into critical by not eating
-		treaty.Condition() == messages.HP && treaty.ConditionValue() < a.HealthInfo().WeakLevel*2 ||
+	// 	//Reject any HP condition based treaty if the condition is too strict, and you would be put into critical by not eating
+	// 	treaty.Condition() == messages.HP && treaty.ConditionValue() < a.HealthInfo().WeakLevel*2 ||
 
-		//Reject any floor condition that involves us not being on the top floor and lasts for more than days you can survive in critical
-		//This is because there is a risk of signing your own death if you agree as you may be forced to eat no food with no get out condition.
-		treaty.Condition() == messages.Floor && treaty.ConditionValue() != 1 && treaty.Duration() >= a.HealthInfo().MaxDayCritical {
-		a.RejectTreaty(msg)
-		return
-	}
-	if treaty.Condition() == messages.AvailableFood {
-		if treaty.Request() == messages.LeaveAmountFood && treaty.ConditionValue()-treaty.RequestValue() < 3 {
-			// Reject treaty in which you would not be able to eat enough food to avoid critical level
-			a.RejectTreaty(msg)
-			return
-		}
-		if treaty.Request() == messages.LeavePercentFood && treaty.ConditionValue()*int(float64(100-treaty.RequestValue())/100) < 3 {
-			// Reject treaty in which you would not be able to eat enough food to avoid critical level
-			a.RejectTreaty(msg)
-			return
-		}
-	}
+	// 	//Reject any floor condition that involves us not being on the top floor and lasts for more than days you can survive in critical
+	// 	//This is because there is a risk of signing your own death if you agree as you may be forced to eat no food with no get out condition.
+	// 	treaty.Condition() == messages.Floor && treaty.ConditionValue() != 1 && treaty.Duration() >= a.HealthInfo().MaxDayCritical {
+	// 	a.RejectTreaty(msg)
+	// 	return
+	// }
+	// if treaty.Condition() == messages.AvailableFood {
+	// 	if treaty.Request() == messages.LeaveAmountFood && treaty.ConditionValue()-treaty.RequestValue() < 3 {
+	// 		// Reject treaty in which you would not be able to eat enough food to avoid critical level
+	// 		a.RejectTreaty(msg)
+	// 		return
+	// 	}
+	// 	if treaty.Request() == messages.LeavePercentFood && treaty.ConditionValue()*int(float64(100-treaty.RequestValue())/100) < 3 {
+	// 		// Reject treaty in which you would not be able to eat enough food to avoid critical level
+	// 		a.RejectTreaty(msg)
+	// 		return
+	// 	}
+	// }
 
 	// if a.treatyConflicts(treaty) {
 	// 	// Reject treaty if it conflicts with any other active treaty
