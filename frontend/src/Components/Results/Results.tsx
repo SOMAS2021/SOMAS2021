@@ -1,7 +1,7 @@
 import { H3, H6, Divider, Spinner } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
-import { GetResult } from "../../Helpers/API";
-import { Result } from "../../Helpers/Result";
+import { GetResult, Result } from "../../Helpers/Result";
+import { Average } from "../../Helpers/Utils";
 import StoryViewer from "../Story/StoryViewer";
 import ConfigInfo from "./ConfigInfo";
 import StatsViewer from "./Stats";
