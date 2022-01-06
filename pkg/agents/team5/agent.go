@@ -97,6 +97,8 @@ func (a *CustomAgent5) checkForLeader() {
 		a.currentProposal = messages.NewTreaty(messages.HP, hpLevel, messages.LeavePercentFood, 100, messages.GE, messages.EQ, 5, a.ID())
 		a.treatySendCounter = 1
 		a.Log("Agent is sending a treaty proposal", infra.Fields{"Proposed Max Hp": hpLevel})
+		a.currentProposal.SignTreaty()
+		a.AddTreaty(*a.currentProposal)
 	}
 }
 
@@ -192,21 +194,21 @@ func (a *CustomAgent5) treatyOverride() {
 	for _, treaty := range a.ActiveTreaties() {
 		switch {
 		case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.EQ && a.HP() == treaty.ConditionValue():
-			a.overrideCalculation(treaty)
+			fallthrough
 		case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.GT && a.HP() > treaty.ConditionValue():
-			a.overrideCalculation(treaty)
+			fallthrough
 		case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.GE && a.HP() >= treaty.ConditionValue():
-			a.overrideCalculation(treaty)
+			fallthrough
 		case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.EQ && a.Floor() == treaty.ConditionValue():
-			a.overrideCalculation(treaty)
+			fallthrough
 		case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.LT && a.Floor() < treaty.ConditionValue():
-			a.overrideCalculation(treaty)
+			fallthrough
 		case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.LE && a.Floor() <= treaty.ConditionValue():
-			a.overrideCalculation(treaty)
+			fallthrough
 		case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.EQ && a.CurrPlatFood() == food.FoodType(treaty.ConditionValue()):
-			a.overrideCalculation(treaty)
+			fallthrough
 		case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.GT && a.CurrPlatFood() > food.FoodType(treaty.ConditionValue()):
-			a.overrideCalculation(treaty)
+			fallthrough
 		case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.GE && a.CurrPlatFood() >= food.FoodType(treaty.ConditionValue()):
 			a.overrideCalculation(treaty)
 		}
