@@ -1,6 +1,8 @@
 package team4TrainingEvoAgent
 
 import (
+	"math/rand"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -51,12 +53,12 @@ func (a *CustomAgentEvo) SendingMessage() {
 		a.params.sentMessages = append(a.params.sentMessages, msg)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 3:
-		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, 10) //TODO: need to change how much to request to leave
+		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, rand.Intn(60)) //TODO: need to change how much to request to leave
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 	case 4:
-		msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, 20) //need to change how much to request to take
+		msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, int(int(a.CurrPlatFood())/a.Floor())) //need to change how much to request to take
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
