@@ -83,23 +83,23 @@ func (a *CustomAgent6) foodRange() (int, int) {
 	maxi := 0 //maximum value to indicate no maximum
 	for _, treaty := range a.ActiveTreaties() {
 		switch treaty.RequestOp() {
-		case 0:
-			if treaty.RequestValue() > mini {
+		case 1:
+			if treaty.RequestValue() > mini || treaty.RequestValue() == mini {
 				mini = treaty.RequestValue() + 1 //If Greater than, then the max value is one larger
 			}
-		case 1:
+		case 2:
 			if treaty.RequestValue() > mini {
 				mini = treaty.RequestValue() //If Greater or Equal, then the max value is itself
 			}
-		case 3:
+		case 4:
 			if treaty.RequestValue() < maxi || maxi == 0 {
 				maxi = treaty.RequestValue() //If Less than or Equal, then the max value is itself
 			}
-		case 4:
+		case 5:
 			if treaty.RequestValue() < maxi || maxi == 0 {
 				maxi = treaty.RequestValue() - 1 //If Less than, then the max value is one smaller
 			}
-		case 2:
+		case 3:
 			eqVal := treaty.RequestValue() //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
 			mini, maxi = eqVal, eqVal
 		default:
@@ -120,27 +120,27 @@ func (a *CustomAgent6) treatyValid(treaty messages.Treaty) bool {
 	mini, maxi := a.foodRange()
 
 	switch treaty.RequestOp() {
-	case 0:
-		if chkTrtyVal > mini && chkTrtyVal < maxi {
-			return true
-		}
-		return false
 	case 1:
-		if chkTrtyVal >= mini && chkTrtyVal <= maxi {
-			return true
-		}
-		return false
-	case 3:
-		if chkTrtyVal >= mini && chkTrtyVal <= maxi {
-			return true
-		}
-		return false
-	case 4:
 		if chkTrtyVal > mini && chkTrtyVal < maxi {
 			return true
 		}
 		return false
 	case 2:
+		if chkTrtyVal >= mini && chkTrtyVal <= maxi {
+			return true
+		}
+		return false
+	case 4:
+		if chkTrtyVal >= mini && chkTrtyVal <= maxi {
+			return true
+		}
+		return false
+	case 5:
+		if chkTrtyVal > mini && chkTrtyVal < maxi {
+			return true
+		}
+		return false
+	case 3:
 		if chkTrtyVal != mini {
 			return false
 		}
