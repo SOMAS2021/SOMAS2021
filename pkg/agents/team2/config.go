@@ -120,12 +120,8 @@ func (a *CustomAgent2) Run() {
 		action := a.SelectAction()
 		_, err := a.TakeFood(food.FoodType(a.actionSpace.actionId[action])) //perform selected action
 		if err != nil {
-			switch err.(type) {
-			case *infra.FloorError:
-			case *infra.NegFoodError:
-			case *infra.AlreadyEatenError:
-			default:
-			}
+			//if there's error, cease updating tables
+			return
 		}
 		a.Log("Agent team2:", infra.Fields{"selected and performed action": action})
 		a.Log("Agent team2 after action:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
@@ -140,6 +136,7 @@ func (a *CustomAgent2) Run() {
 		a.updateRTable(hpInc, oldState, action)
 		a.updateQTable(oldState, action)
 		a.updatePolicies(oldState)
+
 	}
 
 }
