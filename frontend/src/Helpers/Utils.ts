@@ -23,7 +23,6 @@ export function DeathsPerAgent(deathLog: DeathLog[]): { [agentType: string]: num
 }
 
 export function AverageUtilityPerAgent(utilityLogs: UtilityLog[]): { [agentType: string]: number } {
-  // Inputs: these are agent state logs with fields utility, hp, floor, agenttype
   // Return: the average utility per agent over its entire existence
   var utilities: { [agentType: string]: number } = {};
   var counts: { [agentType: string]: number } = {};
