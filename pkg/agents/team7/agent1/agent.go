@@ -8,7 +8,6 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
-	"github.com/google/uuid"
 )
 
 /*
@@ -73,11 +72,10 @@ type OperationalMemory struct {
 
 type CustomAgent7 struct {
 	*infra.Base
-	personality    team7Personalities
-	opMem          OperationalMemory
-	behaviour      CurrentBehaviour
-	Eaten          food.FoodType
-	activeTreaties map[uuid.UUID]messages.Treaty
+	personality team7Personalities
+	opMem       OperationalMemory
+	behaviour   CurrentBehaviour
+	// activeTreaties map[uuid.UUID]messages.Treaty
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
@@ -117,7 +115,6 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			prevHP:            100,
 			leaveFood:         0,
 		},
-		Eaten: 0,
 	}, nil
 }
 
@@ -270,16 +267,30 @@ func (a *CustomAgent7) Run() {
 			a.behaviour.greediness = 100
 		}
 
+		request := false
+		if a.opMem.leaveFood != 0 {
+			request = true
+		}
+
+		treaty := false
+		if false {
+			treaty = true
+		}
+
 		// ------------------ Run Block D.2: Take food w.r.t. current health, mood, messages and treaties ------------------
 
 		var foodtotake food.FoodType
 
-		// Cases
 		switch {
 		case currentHP <= healthInfo.HPCritical:
 			foodtotake = health.FoodRequired(currentHP, 60, healthInfo)
 		case healthInfo.WeakLevel <= currentHP && currentHP <= 60:
-			foodtotake = food.FoodType(100 - a.behaviour.greediness - a.behaviour.kindness)
+			target := health.FoodRequired(currentHP, 60, healthInfo)
+			foodtotake = target - food.FoodType(a.behaviour.greediness-a.behaviour.kindness)
+		case request:
+			foodtotake = food.FoodType(50)
+		case treaty:
+			foodtotake = food.FoodType(100)
 		default:
 			foodtotake = health.FoodRequired(currentHP, healthInfo.WeakLevel, healthInfo)
 		}
