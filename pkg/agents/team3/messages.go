@@ -309,6 +309,8 @@ func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 
 func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
 	friendship := a.knowledge.friends[msg.SenderID()]
+	request := msg.Request()
+	percentageDec := 0.8
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if friendship < 0.5 {
@@ -335,6 +337,59 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 				//a.updateFriendship(msg.SenderID(), 1)
 			}
 		}
+		if request > int(a.knowledge.foodLastSeen-a.knowledge.foodLastEaten) {
+			reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+			a.SendMessage(reply)
+			if a.HP() > a.knowledge.lastHP {
+				if friendship > 0.5 {
+					if a.vars.morality > 50 {
+						if a.vars.mood > 30 {
+							a.decisions.foodToEat = a.decisions.foodToEat * percentageDec
+						}
+					}
+				} else {
+					if a.vars.morality > 70 {
+						if a.vars.mood > 50 {
+							a.decisions.foodToEat = a.decisions.foodToEat * percentageDec
+						}
+					}
+				}
+			}
+		} else {
+			if a.HP() > a.knowledge.lastHP {
+				if friendship > 0.5 {
+					if a.vars.morality > 50 {
+						if a.vars.mood > 30 {
+							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
+							a.SendMessage(reply)
+						} else {
+							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+							a.SendMessage(reply)
+						}
+					} else {
+						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+						a.SendMessage(reply)
+					}
+				} else {
+					if a.vars.morality > 70 {
+						if a.vars.mood > 50 {
+							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
+							a.SendMessage(reply)
+						} else {
+							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+							a.SendMessage(reply)
+						}
+					} else {
+						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+						a.SendMessage(reply)
+					}
+				}
+			} else {
+				reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+				a.SendMessage(reply)
+			}
+		}
+
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
 		a.SendMessage(reply)
 		a.Log("I recieved a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
@@ -343,6 +398,7 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 
 func (a *CustomAgent3) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
 	friendship := a.knowledge.friends[msg.SenderID()]
+	request := msg.Request()
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if friendship < 0.5 {
@@ -369,8 +425,47 @@ func (a *CustomAgent3) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 				a.updateFriendship(msg.SenderID(), -1)
 			}
 		}
-		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
-		a.SendMessage(reply)
+		if float64(request) > a.knowledge.foodMovingAvg {
+			a.decisions.foodToEat = request
+			reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
+			a.SendMessage(reply)
+		} else {
+			if a.HP() > a.knowledge.lastHP {
+				if friendship > 0.5 {
+					if a.vars.morality > 50 {
+						if a.vars.mood > 30 {
+							a.decisions.foodToEat = request
+							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
+							a.SendMessage(reply)
+						} else {
+							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+							a.SendMessage(reply)
+						}
+					} else {
+						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+						a.SendMessage(reply)
+					}
+				} else {
+					if a.vars.morality > 70 {
+						if a.vars.mood > 50 {
+							a.decisions.foodToEat = request
+							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
+							a.SendMessage(reply)
+						} else {
+							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+							a.SendMessage(reply)
+						}
+					} else {
+						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+						a.SendMessage(reply)
+					}
+				}
+			} else {
+				reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+				a.SendMessage(reply)
+			}
+		}
+
 		a.Log("I recieved a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 	}
 }
