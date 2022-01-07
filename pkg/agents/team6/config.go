@@ -190,6 +190,7 @@ func (a *CustomAgent6) Run() {
 	}
 	a.addToMemory()
 
+	// SHOULD THIS NOT ONLY BE IF THERE IS FOOD ON THE PLATFORM???
 	foodTaken, err := a.TakeFood(a.intendedFoodIntake())
 	if err != nil {
 		switch err.(type) {
