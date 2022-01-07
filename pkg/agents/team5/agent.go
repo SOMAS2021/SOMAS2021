@@ -1,11 +1,11 @@
 package team5
 
 import (
-	"math"
+	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -30,6 +30,10 @@ type CustomAgent5 struct {
 	rememberAge       int
 	rememberFloor     int
 	messagingCounter  int
+	treatySendCounter int
+	currentProposal   *messages.Treaty
+	attemptToEat      bool
+	leadership        int
 	// Social network of other agents
 	socialMemory      map[uuid.UUID]Memory
 	surroundingAgents map[int]uuid.UUID
@@ -38,16 +42,21 @@ type CustomAgent5 struct {
 func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgent5{
 		Base:              baseAgent,
-		selfishness:       10, // of 0 to 10, with 10 being completely selfish, 0 being completely selfless
-		lastMeal:          0,  // Stores value of the last amount of food taken
-		daysSinceLastMeal: 0,  // Count of how many days since last eating
-		hpAfterEating:     baseAgent.HealthInfo().MaxHP,
-		currentAimHP:      baseAgent.HealthInfo().MaxHP,
-		attemptFood:       0,
-		satisfaction:      0,                          // Scale of -3 to 3, with 3 being satisfied and unsatisfied
-		rememberAge:       -1,                         // To check if a day has passed by our age increasing
-		socialMemory:      make(map[uuid.UUID]Memory), // Memory of other agents, key is agent id
-		surroundingAgents: make(map[int]uuid.UUID),    // Map agent IDs of surrounding floors relative to current floor
+		selfishness:       10,                           // Range from 0 to 10, with 10 being completely selfish, 0 being completely selfless
+		lastMeal:          0,                            // Stores value of the last amount of food taken
+		daysSinceLastMeal: 0,                            // Count of how many days since last eating
+		hpAfterEating:     baseAgent.HealthInfo().MaxHP, // Stores HP value after eating in a day
+		currentAimHP:      baseAgent.HealthInfo().MaxHP, // Stores aim HP for a given day
+		attemptFood:       0,                            // Stores food agent will attempt to eat in a
+		satisfaction:      0,                            // Scale of -3 to 3, with 3 being satisfied and unsatisfied
+		rememberAge:       -1,                           // To check if a day has passed by our age increasing
+		rememberFloor:     0,                            // Store the floor we are on so we can see if we have been reshuffled
+		messagingCounter:  0,                            // Counter so that various messages are sent throughout the day
+		treatySendCounter: 0,                            // Counter so that treaty messages can be sent
+		attemptToEat:      true,                         // To check if we have already attempted to eat in a day. Needed because HasEaten() does not update if there is no food on the platform
+		leadership:        rand.Intn(10),                // Initialise a random leadership value for each agent, used to determine whether they try to cause change in the tower. 0 is more likely to become a leader
+		socialMemory:      make(map[uuid.UUID]Memory),   // Memory of other agents, key is agent id
+		surroundingAgents: make(map[int]uuid.UUID),      // Map agent IDs of surrounding floors relative to current floor
 	}, nil
 }
 
@@ -56,7 +65,10 @@ func (a *CustomAgent5) updateAimHP() {
 }
 
 func (a *CustomAgent5) updateSelfishness() {
+	// Tit for tat strategy, agent will conform to the mean behaviour of their social network
 	a.selfishness = 10 - a.calculateAverageFavour()
+	// Make agent less selfish if going through tough times, lowers their expectations and makes them more sympathetic of others struggles
+	a.selfishness = a.restrictToRange(0, 10, a.selfishness-a.daysSinceLastMeal)
 }
 
 func (a *CustomAgent5) updateSatisfaction() {
@@ -74,11 +86,27 @@ func (a *CustomAgent5) updateSatisfaction() {
 	}
 }
 
+func (a *CustomAgent5) checkForLeader() {
+	// Random number between 3 and 12 generated, then the agent floor and selfishness are deducted from this
+	diceRoll := rand.Intn(10) + 3 - a.selfishness - a.Floor()
+	if diceRoll >= a.leadership {
+		a.Log("An agent has become a leader", infra.Fields{"dice roll": diceRoll, "leadership": a.leadership, "selfishness": a.selfishness, "floor": a.Floor()})
+		//TODO: Send treaties here about eating less food
+		hpLevel := a.currentAimHP - ((a.currentAimHP-a.HealthInfo().WeakLevel)/10)*(diceRoll-a.leadership)
+		a.currentProposal = messages.NewTreaty(messages.HP, hpLevel, messages.LeavePercentFood, 100, messages.GE, messages.EQ, 5, a.ID())
+		a.treatySendCounter = 1
+		a.Log("Agent is sending a treaty proposal", infra.Fields{"Proposed Max Hp": hpLevel})
+		a.currentProposal.SignTreaty()
+		a.AddTreaty(*a.currentProposal)
+	}
+}
+
 func (a *CustomAgent5) dayPassed() {
 	a.updateFavour()
 	a.updateSelfishness()
 	a.updateAimHP()
 	a.attemptFood = a.calculateAttemptFood()
+	a.checkForLeader()
 
 	// for id := range a.socialMemory {
 	// 	a.Log("Memory at end of day", infra.Fields{"favour": a.socialMemory[id].favour, "agentHP": a.socialMemory[id].agentHP, "foodTaken": a.socialMemory[id].foodTaken, "intent": a.socialMemory[id].intentionFood})
@@ -89,21 +117,14 @@ func (a *CustomAgent5) dayPassed() {
 
 	a.daysSinceLastMeal++
 	a.incrementDaysSinceLastSeen()
+	// Needs to be fixed: you can be reshuffled but end up on the same floor.
 	if a.rememberFloor != a.Floor() {
-		a.ResetSurroundingAgents()
+		a.resetSurroundingAgents()
 		a.rememberFloor = a.Floor()
 	}
 	a.messagingCounter = 0
 	a.rememberAge = a.Age()
-}
-
-func (a *CustomAgent5) calculateAttemptFood() food.FoodType {
-	if a.HP() < a.HealthInfo().WeakLevel {
-		// TODO: UPDATE THIS VALUE TO A PARAMETER
-		return food.FoodType(3)
-	}
-	foodAttempt := health.FoodRequired(a.HP(), a.currentAimHP, a.HealthInfo())
-	return food.FoodType(math.Min(a.HealthInfo().Tau*3, float64(foodAttempt)))
+	a.attemptToEat = true
 }
 
 func (a *CustomAgent5) Run() {
@@ -115,10 +136,15 @@ func (a *CustomAgent5) Run() {
 	}
 
 	a.getMessages()
-	a.dailyMessages()
+	if a.treatySendCounter == 0 {
+		a.dailyMessages()
+	} else {
+		a.treatyProposal()
+	}
 
 	// When platform reaches our floor and we haven't tried to eat, then try to eat
-	if a.CurrPlatFood() != -1 && !a.HasEaten() {
+	if a.CurrPlatFood() != -1 && a.attemptToEat {
+		a.treatyOverride()
 		lastMeal, err := a.TakeFood(a.attemptFood)
 		if err != nil {
 			switch err.(type) {
@@ -135,8 +161,8 @@ func (a *CustomAgent5) Run() {
 		if a.lastMeal > 0 {
 			a.daysSinceLastMeal = 0
 		}
-		a.updateSatisfaction()
 		a.hpAfterEating = a.HP()
-		//a.messagingCounter = 0
+		a.updateSatisfaction()
+		a.attemptToEat = false
 	}
 }
