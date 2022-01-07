@@ -5,22 +5,26 @@ import { GetLogs } from "../Helpers/API";
 interface SideBarProps {
   activeLog: string;
   setActiveLog: React.Dispatch<React.SetStateAction<string>>;
+  logsSub: boolean;
 }
 
 export default function Sidebar(props: SideBarProps) {
-  const { activeLog, setActiveLog } = props;
-  const [loading, setLoading] = useState(false);
+  const { activeLog, setActiveLog, logsSub } = props;
+  const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState<string[]>([]);
 
-  useEffect(() => {
-    setLoading(true);
-    GetLogs()
+  const updateLogs = () => {
+    GetLogs(loading)
       .then((logs) => {
         setLogs(logs);
         setLoading(false);
       })
       .catch((_) => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => {
+    updateLogs();
+  }, [logsSub]);
   return (
     <div
       style={{
