@@ -155,9 +155,8 @@ func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 
 func (a *CustomAgent5) HandleTreatyResponse(msg messages.TreatyResponseMessage) {
 	if msg.Response() {
-		_, ok := a.ActiveTreaties()[msg.TreatyID()]
+		treaty, ok := a.ActiveTreaties()[msg.TreatyID()]
 		if ok {
-			treaty := a.ActiveTreaties()[msg.TreatyID()]
 			treaty.SetCount(treaty.SignatureCount() + 1)
 			a.ActiveTreaties()[msg.TreatyID()] = treaty
 			a.addToSocialFavour(msg.SenderID(), a.socialMemory[msg.SenderID()].favour+2)
