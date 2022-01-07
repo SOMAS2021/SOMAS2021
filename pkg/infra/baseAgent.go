@@ -99,6 +99,10 @@ func (a *Base) Age() int {
 	return a.age
 }
 
+func (a *Base) Day() int {
+	return a.tower.dayInfo.CurrDay
+}
+
 func (a *Base) increaseAge() {
 	a.age++
 }
