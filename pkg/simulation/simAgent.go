@@ -1,7 +1,6 @@
 package simulation
 
 import (
-	"fmt"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
@@ -48,7 +47,6 @@ func (sE *SimEnv) replaceAgents(t *infra.Tower) {
 				indexRange := len(sE.activeAgentTypes)
 				newAgentIndex := rand.Intn(indexRange)
 				newAgentType := sE.activeAgentTypes[newAgentIndex]
-				fmt.Println("Agent Replacement from ", agent.AgentType(), " to ", newAgentType)
 				sE.createNewAgent(t, newAgentType, agent.Floor())
 			} else {
 				sE.createNewAgent(t, agent.AgentType(), agent.Floor())
