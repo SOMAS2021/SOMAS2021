@@ -1,4 +1,4 @@
-package team4TrainingEvoAgent
+package team4EvoAgent
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
