@@ -179,12 +179,18 @@ func (a *CustomAgent6) Run() {
 
 // The utility function with
 // x - food input
-// g - greediness
-// r - risk aversion
-// c - community cost
 // z - desired food (maximum of the function)
-func Utility(x, z float64, params utilityParameters) float64 {
+func Utility(x, z float64, socialMotive string) float64 {
+
+	params := NewUtilityParams(socialMotive)
 	// calculate the function scaling parameter a
-	a := (1 / z) * math.Pow((params.c*params.r)/params.g, params.r/(1-params.r))
-	return params.g*math.Pow(a*x, 1/params.r) - params.c*a*x
+
+	if socialMotive == "Altruist" /*|| socialMotive == "Nacissist"*/ {
+		// Don't scale depending on desired food
+		return params.g*math.Pow(x, 1/params.r) - params.c*x
+	} else {
+		a := (1 / z) * math.Pow((params.c*params.r)/params.g, params.r/(1-params.r))
+		return params.g*math.Pow(a*x, 1/params.r) - params.c*a*x
+	}
+
 }
