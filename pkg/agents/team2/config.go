@@ -130,6 +130,7 @@ func (a *CustomAgent2) Run() {
 			a.daysAtCriticalCounter += 1
 			if a.DaysAtCritical() >= (a.HealthInfo().MaxDayCritical - 1) {
 				a.Log("Agent team2 at critical state", infra.Fields{"daysAtCriticalCounter": a.daysAtCriticalCounter, "floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
+				//a.exportQTable()
 			}
 		}
 		hpInc := a.HP() - oldHP
