@@ -44,6 +44,14 @@ export default function StatsViewer(props: StatsViewerProps) {
           title={Min(result.deaths.map((d) => d.ageUponDeath)).toString()}
         />
       </div>
+      <div className="col-lg-6">
+        <ReportCard
+          description="Average agent utility upon death"
+          title={Average(result.agents.map((d) => d.utility))
+            .toFixed(3)
+            .toString()}
+        />
+      </div>
       <div className="row">
         <div className="col-lg-6">
           <BarChart yAxis={Object.values(deaths)} xAxis={Object.keys(deaths)} graphTitle="Deaths per Agent type" />

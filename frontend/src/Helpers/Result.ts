@@ -1,8 +1,10 @@
 import { GetFile } from "./API";
+import { AgentStateLog } from "./Logging/AgentState";
 import { DeathLog, GetDeathLogs } from "./Logging/Death";
 import { FoodLog, GetFoodLogs } from "./Logging/Food";
 import { GetStoryLogs, StoryLog } from "./Logging/StoryLog";
 import { GetSimConfig, SimConfig } from "./SimConfig";
+import { GetAgentStateLogs } from "./Logging/AgentState";
 
 export enum SimStatus {
   "finished",
@@ -17,6 +19,7 @@ export interface Result {
   config: SimConfig;
   story: StoryLog[];
   status: SimStatus;
+  agents: AgentStateLog[];
 }
 
 function GetSimStatus(filename: string): Promise<SimStatus> {
@@ -65,6 +68,10 @@ export function GetResult(filename: string): Promise<Result> {
     var story: StoryLog[] = [];
     promises.push(GetStoryLogs(filename).then((s) => (story = s)));
 
+    // Agent state
+    var agents: AgentStateLog[] = [];
+    promises.push(GetAgentStateLogs(filename).then((a) => (agents = a)));
+
     // all
     Promise.all(promises).then((_) =>
       resolve({
@@ -74,6 +81,7 @@ export function GetResult(filename: string): Promise<Result> {
         config: config,
         story: story,
         status: status,
+        agents: agents,
       })
     );
   });
