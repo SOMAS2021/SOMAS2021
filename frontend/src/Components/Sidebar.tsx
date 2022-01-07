@@ -13,18 +13,14 @@ export default function Sidebar(props: SideBarProps) {
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState<string[]>([]);
 
-  const updateLogs = () => {
+  useEffect(() => {
     GetLogs(loading)
       .then((logs) => {
         setLogs(logs);
         setLoading(false);
       })
       .catch((_) => setLoading(false));
-  };
-
-  useEffect(() => {
-    updateLogs();
-  }, [logsSub]);
+  }, [logsSub, loading]);
   return (
     <div
       style={{
