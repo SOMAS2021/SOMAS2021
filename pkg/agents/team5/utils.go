@@ -29,7 +29,7 @@ func (a *CustomAgent5) memoryIdExists(id uuid.UUID) bool {
 	return exists
 }
 
-func (a *CustomAgent5) ResetSurroundingAgents() {
+func (a *CustomAgent5) resetSurroundingAgents() {
 	a.surroundingAgents = make(map[int]uuid.UUID)
 }
 

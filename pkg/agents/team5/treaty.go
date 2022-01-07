@@ -87,7 +87,7 @@ func (a *CustomAgent5) treatyConflicts(treaty messages.Treaty) bool {
 	return false
 }
 
-func (a *CustomAgent5) RejectTreaty(msg messages.ProposeTreatyMessage) {
+func (a *CustomAgent5) rejectTreaty(msg messages.ProposeTreatyMessage) {
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
 	a.SendMessage(reply)
 	a.Log("Rejected treaty", infra.Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(), "treatyID": msg.TreatyID()})
@@ -129,7 +129,7 @@ func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		fallthrough
 	case treaty.Condition() == messages.AvailableFood && treaty.Request() == messages.LeavePercentFood && treaty.ConditionValue()*int(float64(100-treaty.RequestValue())/100) < 3:
 		// Reject treaty in which you would not be able to eat enough food to avoid critical level
-		a.RejectTreaty(msg)
+		a.rejectTreaty(msg)
 		return
 	}
 
@@ -149,7 +149,7 @@ func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		passItOn := messages.NewProposalMessage(a.ID(), a.Floor(), passingOnTo, treaty)
 		a.SendMessage(passItOn)
 	} else {
-		a.RejectTreaty(msg)
+		a.rejectTreaty(msg)
 	}
 }
 

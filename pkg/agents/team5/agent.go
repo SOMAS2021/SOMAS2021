@@ -119,7 +119,7 @@ func (a *CustomAgent5) dayPassed() {
 	a.incrementDaysSinceLastSeen()
 	// Needs to be fixed: you can be reshuffled but end up on the same floor.
 	if a.rememberFloor != a.Floor() {
-		a.ResetSurroundingAgents()
+		a.resetSurroundingAgents()
 		a.rememberFloor = a.Floor()
 	}
 	a.messagingCounter = 0
