@@ -12,11 +12,11 @@ import (
 type StateLog struct {
 	Logmanager *LogManager
 	// Loggers
-	foodLogger       *log.Logger
-	deathLogger      *log.Logger
-	storyLogger      *log.Logger
-	mainLogger       *log.Logger
-	agentStateLogger *log.Logger
+	foodLogger    *log.Logger
+	deathLogger   *log.Logger
+	storyLogger   *log.Logger
+	mainLogger    *log.Logger
+	utilityLogger *log.Logger
 	// Death state
 	deathCount int
 }
@@ -53,19 +53,19 @@ func NewLogState(folderpath string, saveMainLog bool) *StateLog {
 	handleNewLoggerErr(err)
 	storyLogger, err := l.AddLogger("story", "story.json")
 	handleNewLoggerErr(err)
-	agentStateLogger, err := l.AddLogger("agentState", "agentState.json")
+	utilityLogger, err := l.AddLogger("utility", "utility.json")
 	handleNewLoggerErr(err)
 	mainLogger, err := l.AddLogger("main", mainLogName)
 	handleNewLoggerErr(err)
 
 	return &StateLog{
-		Logmanager:       &l,
-		foodLogger:       foodLogger,
-		deathLogger:      deathLogger,
-		mainLogger:       mainLogger,
-		storyLogger:      storyLogger,
-		agentStateLogger: agentStateLogger,
-		deathCount:       0,
+		Logmanager:    &l,
+		foodLogger:    foodLogger,
+		deathLogger:   deathLogger,
+		mainLogger:    mainLogger,
+		storyLogger:   storyLogger,
+		utilityLogger: utilityLogger,
+		deathCount:    0,
 	}
 }
 
@@ -82,17 +82,15 @@ func (ls *StateLog) LogAgentDeath(simState *day.DayInfo, agentType agent.AgentTy
 			}).Info()
 }
 
-// Can extend this to include more fields
-func (ls *StateLog) LogAgentState(simState *day.DayInfo, agentType agent.AgentType, utility float64, hp int, floor int) {
-	ls.agentStateLogger.
+func (ls *StateLog) LogUtility(simState *day.DayInfo, agentType agent.AgentType, utility float64, isAlive bool) {
+	ls.utilityLogger.
 		WithFields(
 			log.Fields{
 				"day":        simState.CurrDay,
 				"tick":       simState.CurrTick,
 				"agent_type": agentType.String(),
 				"utility":    utility,
-				"hp":         hp,
-				"floor":      floor,
+				"isAlive":    isAlive,
 			}).Info()
 }
 

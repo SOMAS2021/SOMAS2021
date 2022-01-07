@@ -52,6 +52,8 @@ type Base struct {
 	activeTreaties map[uuid.UUID]messages.Treaty
 	totalFoodTaken food.FoodType
 	totalFoodSeen  food.FoodType
+	totalHPGained  int
+	totalHPLost    int
 }
 
 func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
@@ -77,6 +79,8 @@ func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, age
 		activeTreaties: make(map[uuid.UUID]messages.Treaty),
 		totalFoodTaken: 0,
 		totalFoodSeen:  0,
+		totalHPGained:  0,
+		totalHPLost:    0,
 	}, nil
 }
 
@@ -186,7 +190,7 @@ func (a *Base) hpDecay(healthInfo *health.HealthInfo) {
 		a.Log("Killing agent", Fields{"daysLived": a.Age(), "agentType": a.agentType})
 		a.tower.stateLog.LogAgentDeath(a.tower.dayInfo, a.agentType, a.Age())
 		a.tower.stateLog.LogStoryAgentDied(a.tower.dayInfo, a.storyState())
-		a.tower.stateLog.LogAgentState(a.tower.dayInfo, a.agentType, a.Utility(), a.HP(), a.Floor())
+		a.tower.stateLog.LogUtility(a.tower.dayInfo, a.agentType, a.Utility(), false)
 		newHP = 0
 	}
 	a.Log("Setting hp to " + fmt.Sprint(newHP))
@@ -236,10 +240,12 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 func (a *Base) Utility() float64 {
 	// TODO: Improve utility calculation
 	// Currently just use ratio between food taken and food seen
+	// Somehow also factor
 	// Ideas: piecewise/bounded function with log, concave quadratic
 	if a.totalFoodSeen == 0 {
 		return 0.0
 	}
+	//netHPGain := a.totalHPGained - a.totalHPLost // Unsure how to use this right now
 	return float64(a.totalFoodTaken) / float64(a.totalFoodSeen)
 }
 
