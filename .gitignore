@@ -26,3 +26,9 @@ logs/
 **/build
 
 .vs/
+
+# Team 4 training logs
+pkg/agents/team4/trainingAgent/storedagents/
+
+# Env
+.env

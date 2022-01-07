@@ -1,10 +1,8 @@
 import { showToast } from "../Components/Toaster";
-import { DeathLog, GetDeathLogs } from "./Logging/Death";
-import { FoodLog, GetFoodLogs } from "./Logging/Food";
-import { Result } from "./Result";
+import { SimConfig } from "./SimConfig";
 
 function endpoint(req: string) {
-  return (process.env.DEV ? "http://localhost:9000/" : window.location) + req;
+  return (process.env.REACT_APP_DEV ? "http://localhost:9000/" : window.location) + req;
 }
 
 function parseResponse(res: any, key: string) {
@@ -40,29 +38,6 @@ export function GetLogs(): Promise<string[]> {
   });
 }
 
-export function GetResult(filename: string): Promise<Result> {
-  return new Promise<Result>(async (resolve, reject) => {
-    // promises
-    var promises: Promise<any>[] = [];
-    // deaths
-    var deaths: DeathLog[] = [];
-    promises.push(GetDeathLogs(filename).then((d) => (deaths = d)));
-
-    // foods
-    var foods: FoodLog[] = [];
-    promises.push(GetFoodLogs(filename).then((f) => (foods = f)));
-
-    // all
-    Promise.all(promises).then((_) =>
-      resolve({
-        title: filename,
-        deaths: deaths,
-        food: foods,
-      })
-    );
-  });
-}
-
 export function GetFile(filename: string, logtype: string): Promise<any> {
   return new Promise<any>((resolve, reject) => {
     var requestOptions = {
@@ -79,6 +54,25 @@ export function GetFile(filename: string, logtype: string): Promise<any> {
       .then((result) => resolve(parseResponse(result, "Log")))
       .catch((error) => {
         showToast(`Loading file: failed. ${error}`, "danger", 5000);
+        reject(error);
+      });
+  });
+}
+
+export function Simulate(config: SimConfig): Promise<boolean> {
+  return new Promise<boolean>((resolve, reject) => {
+    const requestOptions = {
+      method: "POST",
+      body: JSON.stringify(config),
+    };
+    showToast("Job submitted successfully to backend!", "success");
+    fetch(endpoint("simulate"), requestOptions)
+      .then(function (response) {
+        response.json().then((res) => console.log(res));
+        resolve(true);
+      })
+      .catch(function (error) {
+        console.log("There has been a problem with submitting the simulation: " + error.message);
         reject(error);
       });
   });

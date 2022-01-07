@@ -4,6 +4,7 @@ import { Log } from "./Log";
 export interface DeathLog extends Log{
   cumulativeDeaths: number
   agentType: string
+  ageUponDeath: number
 }
 
 export function GetDeathLogs(filename: string): Promise<DeathLog[]> {
@@ -17,6 +18,7 @@ export function GetDeathLogs(filename: string): Promise<DeathLog[]> {
               agentType: e["agent_type"],
               tick: e["tick"],
               day: e["day"],
+              ageUponDeath: e["ageUponDeath"],
             };
             return d;
           })

@@ -1,29 +1,31 @@
-import { Button, Checkbox, FormGroup, NumericInput } from "@blueprintjs/core";
-import { SubmitSimulation } from "../NewRunState";
-import { params } from "../ParameterLabels";
+import { Button, Divider, H3 } from "@blueprintjs/core";
 import { SimConfig } from "../../../Helpers/SimConfig";
 import "./Settings.css";
+import { Simulate } from "../../../Helpers/API";
+import TowerFood from "../ParameterGroups/TowerFood";
+import TowerLength from "../ParameterGroups/TowerLength";
+import AgentTypesParams from "../ParameterGroups/AgentTypes";
+import AgentGeneral from "../ParameterGroups/AgentGeneral";
+import FileName from "../ParameterGroups/FileName";
 
-export default function Settings(state: any) {
-  const config = state[0];
-  const setConfig = state[1];
+interface SettingsInterface {
+  config: SimConfig;
+  setConfig: React.Dispatch<React.SetStateAction<SimConfig>>;
+}
+
+export default function Settings(props: SettingsInterface) {
+  const { config, setConfig } = props;
 
   function configHandler<Key extends keyof SimConfig>(value: any, keyString: any) {
     var key: Key = keyString; // converting keyString to type Key
     config[key] = value;
     setConfig(config);
-    console.log(config);
-  }
-
-  function SubmitState() {
-    const configJSON = JSON.stringify(config);
-    SubmitSimulation(configJSON);
   }
 
   return (
     <div
       className="modal custom fade"
-      id="exampleModal"
+      id="settingsModal"
       data-backdrop="false"
       tabIndex={-1}
       aria-labelledby="staticBackdropLabel"
@@ -32,29 +34,19 @@ export default function Settings(state: any) {
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="bp3-heading">New Run Configuration</h5>
+            <H3 className="bp3-heading config-title">New Run Configuration</H3>
             <Button className="bp3-minimal close" icon="cross" text="" data-dismiss="modal" aria-label="Close" />
           </div>
           <div className="modal-body">
-            {params.map((i) => (
-              <FormGroup {...i}>
-                <NumericInput placeholder={config[i.key]} onValueChange={(value) => configHandler(value, i.key)} />
-              </FormGroup>
-            ))}
-            <FormGroup>
-              <Checkbox
-                label="Save Main"
-                type="checkbox"
-                onChange={(value) => configHandler((value.target as HTMLInputElement).checked, "LogMain")}
-              />
-            </FormGroup>
-            <FormGroup label="File Name" labelFor="text-input" key="FileName">
-              <input
-                type="text"
-                onChange={(value) => configHandler(value.target.value, "LogFileName")}
-                placeholder="Simulation Run #"
-              />
-            </FormGroup>
+            <TowerFood config={config} configHandler={configHandler} />
+            <Divider />
+            <TowerLength config={config} configHandler={configHandler} />
+            <Divider />
+            <AgentTypesParams config={config} configHandler={configHandler} />
+            <Divider />
+            <AgentGeneral config={config} configHandler={configHandler} />
+            <Divider />
+            <FileName configHandler={configHandler} />
           </div>
           <div className="modal-footer">
             <Button intent="danger" className="close" icon="cross" text="Cancel" data-dismiss="modal" />
@@ -63,10 +55,11 @@ export default function Settings(state: any) {
               icon="build"
               text="Submit job to backend"
               data-dismiss="modal"
-              onClick={() => SubmitState()}
+              onClick={() => Simulate(config)}
             />
           </div>
         </div>
+        <div className="modal-footer"></div>
       </div>
     </div>
   );

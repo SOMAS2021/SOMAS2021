@@ -38,3 +38,11 @@ func (msg *TreatyResponseMessage) Visit(a Agent) {
 		a.HandleTreatyResponse(*msg)
 	}
 }
+
+// TODO: complete more info
+func (msg *TreatyResponseMessage) StoryLog() string {
+	if msg.response {
+		return "yes"
+	}
+	return "no"
+}

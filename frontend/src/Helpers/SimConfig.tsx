@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { GetFile } from "./API";
 
 export default function InitConfigState() {
   return useState<SimConfig>({
     FoodOnPlatform: 100,
+    FoodPerAgentRatio: 10,
+    UseFoodPerAgentRatio: false,
     Team1Agents: 2,
     Team2Agents: 2,
     Team3Agents: 2,
@@ -18,13 +21,13 @@ export default function InitConfigState() {
     ReshuffleDays: 1,
     maxHP: 100,
     weakLevel: 10,
-    width: 45,
-    tau: 10,
-    hpReqCToW: 2,
-    hpCritical: 5,
+    width: 48,
+    tau: 15,
+    hpReqCToW: 5,
+    hpCritical: 3,
     maxDayCritical: 3,
-    HPLossBase: 10,
-    HPLossSlope: 0.25,
+    HPLossBase: 5,
+    HPLossSlope: 0.2,
     LogFileName: "",
     LogMain: false,
     SimTimeoutSeconds: 10,
@@ -33,6 +36,8 @@ export default function InitConfigState() {
 
 export interface SimConfig {
   FoodOnPlatform: number;
+  FoodPerAgentRatio: number;
+  UseFoodPerAgentRatio: boolean;
   Team1Agents: number;
   Team2Agents: number;
   Team3Agents: number;
@@ -58,4 +63,14 @@ export interface SimConfig {
   LogFileName: string;
   LogMain: boolean;
   SimTimeoutSeconds: number;
+}
+
+export function GetSimConfig(filename: string): Promise<SimConfig> {
+  return new Promise<SimConfig>((resolve, reject) => {
+    GetFile(filename, "config")
+      .then((config) => {
+        resolve(config[0] as SimConfig);
+      })
+      .catch((err) => reject(err));
+  });
 }

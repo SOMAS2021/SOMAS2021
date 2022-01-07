@@ -10,6 +10,7 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/world"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/logging"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/utilFunctions"
 	"github.com/google/uuid"
@@ -152,7 +153,7 @@ func (a *Base) setHP(newHP int) {
 
 // Modeled as a first order system step answer (see documentation for more information)
 func (a *Base) updateHP(foodTaken food.FoodType) {
-	hpChange := int(a.tower.healthInfo.Width * (1 - math.Pow(math.E, -float64(foodTaken)/a.tower.healthInfo.Tau)))
+	hpChange := int(math.Round(a.tower.healthInfo.Width * (1 - math.Pow(math.E, -float64(foodTaken)/a.tower.healthInfo.Tau))))
 	if a.hp >= a.tower.healthInfo.WeakLevel {
 		a.hp = a.hp + hpChange
 	} else {
@@ -163,7 +164,7 @@ func (a *Base) updateHP(foodTaken food.FoodType) {
 func (a *Base) hpDecay(healthInfo *health.HealthInfo) {
 	newHP := 0
 	if a.hp >= healthInfo.WeakLevel {
-		newHP = utilFunctions.MinInt(healthInfo.MaxHP, a.hp-(healthInfo.HPLossBase+int(float64(a.hp-healthInfo.WeakLevel)*healthInfo.HPLossSlope)))
+		newHP = utilFunctions.MinInt(healthInfo.MaxHP, a.hp-(healthInfo.HPLossBase+int(math.Round(float64(a.hp-healthInfo.WeakLevel)*healthInfo.HPLossSlope))))
 	} else {
 		if a.hp >= healthInfo.HPCritical+healthInfo.HPReqCToW {
 			newHP = healthInfo.WeakLevel
@@ -179,7 +180,8 @@ func (a *Base) hpDecay(healthInfo *health.HealthInfo) {
 	a.setHasEaten(false)
 	if a.daysAtCritical >= healthInfo.MaxDayCritical {
 		a.Log("Killing agent", Fields{"daysLived": a.Age(), "agentType": a.agentType})
-		a.tower.stateLog.LogAgentDeath(a.tower.dayInfo.CurrDay, a.tower.dayInfo.CurrTick, a.agentType)
+		a.tower.stateLog.LogAgentDeath(a.tower.dayInfo, a.agentType, a.Age())
+		a.tower.stateLog.LogStoryAgentDied(a.tower.dayInfo, a.storyState())
 		newHP = 0
 	}
 	a.Log("Setting hp to " + fmt.Sprint(newHP))
@@ -213,9 +215,27 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 	a.tower.currPlatFood -= foodTaken
 	a.setHasEaten(foodTaken > 0)
 	a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
+	if foodTaken > 0 {
+		a.tower.stateLog.LogStoryAgentTookFood(
+			a.tower.dayInfo,
+			a.storyState(),
+			int(foodTaken),
+			int(a.tower.currPlatFood),
+		)
+	}
 	return foodTaken, nil
 }
 
 func (a *Base) HealthInfo() *health.HealthInfo {
 	return a.tower.healthInfo
+}
+
+func (a *Base) storyState() logging.AgentState {
+	return logging.AgentState{
+		HP:        a.hp,
+		AgentType: a.agentType,
+		Floor:     a.floor,
+		Age:       a.age,
+		Custom:    "",
+	}
 }
