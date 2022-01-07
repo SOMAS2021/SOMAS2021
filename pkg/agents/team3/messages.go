@@ -126,6 +126,17 @@ func (a *CustomAgent3) ticklyMessage() {
 				} else {
 					a.proposeTreatiesMoral(1)
 				}
+			} else {
+				randomFloor := rand.Intn(a.Floor()-1) + 1
+				if a.treatyFull() && !a.treatyPendingResponse() {
+					for _, tr := range a.ActiveTreaties() {
+						a.knowledge.treatyProposed = tr //remember the treaty we proposed
+						msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), randomFloor, tr)
+						a.SendMessage(msg)
+						a.Log("I sent a treaty")
+						break
+					}
+				}
 			}
 		}
 	}
@@ -150,21 +161,21 @@ func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage) { //how are you ty
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if friendship < 0.5 {
-				changeInMood(a, 1, 3, -1)
-				changeInMorality(a, 1, 3, -1)
+				a.changeInMood(1, 3, -1)
+				a.changeInMorality(1, 3, -1)
 			} else {
-				changeInMood(a, 1, 6, 1)
+				a.changeInMood(1, 6, 1)
 				a.updateFriendship(msg.SenderID(), 1)
 			}
 		} else {
 			if friendship < 0.5 {
-				changeInMood(a, 1, 3, 1)
-				changeInMorality(a, 1, 6, 1)
-				changeInStubbornness(a, 5, -1)
+				a.changeInMood(1, 3, 1)
+				a.changeInMorality(1, 6, 1)
+				a.changeInStubbornness(5, -1)
 				a.updateFriendship(msg.SenderID(), 1)
 			} else {
-				changeInMood(a, 1, 6, 1)
-				changeInStubbornness(a, 5, -1)
+				a.changeInMood(1, 6, 1)
+				a.changeInStubbornness(5, -1)
 				a.updateFriendship(msg.SenderID(), 1)
 			}
 		}
@@ -181,10 +192,10 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if friendship < 0.5 {
-				changeInMood(a, 1, 3, -1)
-				changeInMorality(a, 1, 3, -1)
+				a.changeInMood(1, 3, -1)
+				a.changeInMorality(1, 3, -1)
 			} else {
-				changeInMood(a, 1, 6, 1)
+				a.changeInMood(1, 6, 1)
 			}
 		} else {
 			if friendship < 0.5 {
@@ -214,25 +225,25 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if friendship < 0.5 {
-				changeInMood(a, 1, 6, 1)
-				changeInMorality(a, 1, 3, -1)
-				changeInStubbornness(a, 5, 1)
+				a.changeInMood(1, 6, 1)
+				a.changeInMorality(1, 3, -1)
+				a.changeInStubbornness(5, 1)
 				a.updateFriendship(msg.SenderID(), -1)
 			} else {
-				changeInMood(a, 1, 6, -1)
-				changeInMorality(a, 1, 6, -1)
-				changeInStubbornness(a, 5, 1)
+				a.changeInMood(1, 6, -1)
+				a.changeInMorality(1, 6, -1)
+				a.changeInStubbornness(5, 1)
 				a.updateFriendship(msg.SenderID(), -1)
 			}
 		} else {
 			if friendship < 0.5 {
-				changeInMood(a, 1, 9, 1)
-				changeInMorality(a, 1, 6, 1)
-				changeInStubbornness(a, 5, -1)
+				a.changeInMood(1, 9, 1)
+				a.changeInMorality(1, 6, 1)
+				a.changeInStubbornness(5, -1)
 				a.updateFriendship(msg.SenderID(), 1)
 			} else {
-				changeInMorality(a, 1, 6, 1)
-				changeInStubbornness(a, 5, -1)
+				a.changeInMorality(1, 6, 1)
+				a.changeInStubbornness(5, -1)
 			}
 		}
 		if request > int(a.knowledge.foodLastSeen-a.knowledge.foodLastEaten) {
@@ -296,20 +307,20 @@ func (a *CustomAgent3) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 	if a.read() {
 		if a.HP() < a.knowledge.lastHP {
 			if friendship < 0.5 {
-				changeInMood(a, 1, 6, -1)
-				changeInMorality(a, 1, 3, -1)
-				changeInStubbornness(a, 5, 1)
+				a.changeInMood(1, 6, -1)
+				a.changeInMorality(1, 3, -1)
+				a.changeInStubbornness(5, 1)
 				a.updateFriendship(msg.SenderID(), -1)
 			} else {
-				changeInMood(a, 1, 6, -1)
-				changeInMorality(a, 1, 6, -1)
-				changeInStubbornness(a, 5, 1)
+				a.changeInMood(1, 6, -1)
+				a.changeInMorality(1, 6, -1)
+				a.changeInStubbornness(5, 1)
 				a.updateFriendship(msg.SenderID(), -1)
 			}
 		} else {
 			if friendship > 0.5 {
-				changeInMood(a, 1, 6, -1)
-				changeInMorality(a, 1, 6, 1)
+				a.changeInMood(1, 6, -1)
+				a.changeInMorality(1, 6, 1)
 				a.updateFriendship(msg.SenderID(), -1)
 			}
 		}
@@ -352,140 +363,126 @@ func (a *CustomAgent3) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 		a.Log("I recieved a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 	}
 }
+func (a *CustomAgent3) feelingModifResponse(response bool, friendship float64, sender uuid.UUID) {
+	direction := -1
+	if response {
+		direction = 1
+	}
+	if friendship > 0.5 {
+		a.changeInMood(6, 12, direction)
+		a.changeInMorality(6, 12, direction)
+		a.changeInStubbornness(5, -1*direction)
+		a.updateFriendship(sender, direction)
+		a.updateFriendship(sender, direction)
+	} else {
+		a.changeInMood(1, 6, direction)
+		a.changeInMorality(1, 6, direction)
+		a.changeInStubbornness(5, -1*direction)
+		a.updateFriendship(sender, direction)
+	}
+}
 
 //HandleResponse handles responses
 func (a *CustomAgent3) HandleResponse(msg messages.BoolResponseMessage) {
-	friendship := a.knowledge.friends[msg.SenderID()]
-	response := msg.Response()
-	if response {
-		if friendship > 0.5 {
-			changeInMood(a, 6, 12, 1)
-			changeInMorality(a, 6, 12, 1)
-			changeInStubbornness(a, 5, -1)
-			a.updateFriendship(msg.SenderID(), 1)
-			a.updateFriendship(msg.SenderID(), 1)
+	a.feelingModifResponse(msg.Response(), a.knowledge.friends[msg.SenderID()], msg.SenderID())
+	a.Log("I recieved a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": msg.Response()})
+}
+
+func (a *CustomAgent3) feelingModifFoodTaken(statement int, friendship float64, sender uuid.UUID) {
+	if friendship < 0.5 {
+		if statement > a.decisions.foodToEat {
+			a.changeInMood(1, 6, -1)
+			a.changeInMorality(1, 6, -1)
+			a.changeInStubbornness(5, 1)
+			a.updateFriendship(sender, -1)
 		} else {
-			changeInMood(a, 1, 6, 1)
-			changeInMorality(a, 1, 6, 1)
-			changeInStubbornness(a, 5, -1)
-			a.updateFriendship(msg.SenderID(), 1)
+			a.changeInMood(1, 6, 1)
+			a.changeInMorality(1, 6, 1)
+			a.changeInStubbornness(5, -1)
+			a.updateFriendship(sender, 1)
 		}
 	} else {
-		if friendship > 0.5 {
-			changeInMood(a, 6, 12, -1)
-			changeInMorality(a, 6, 12, -1)
-			changeInStubbornness(a, 5, 1)
-			a.updateFriendship(msg.SenderID(), -1)
-			a.updateFriendship(msg.SenderID(), -1)
+		if statement > a.decisions.foodToEat {
+			a.changeInMorality(1, 3, -1)
 		} else {
-			changeInMood(a, 1, 6, -1)
-			changeInMorality(a, 1, 6, -1)
-			changeInStubbornness(a, 5, 1)
-			a.updateFriendship(msg.SenderID(), -1)
+			a.changeInMorality(1, 6, 1)
+			a.updateFriendship(sender, 1)
 		}
 	}
-
-	a.Log("I recieved a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": response})
 }
 
 //HandleStateFoodTaken handles a food taken statement
 func (a *CustomAgent3) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
-	statement := msg.Statement()
-	friendship := a.knowledge.friends[msg.SenderID()]
+	a.feelingModifFoodTaken(msg.Statement(), a.knowledge.friends[msg.SenderID()], msg.SenderID())
+	a.Log("I recieved a StateFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": msg.Statement()})
+}
+
+func (a *CustomAgent3) feelingModifStateHP(statement int, friendship float64) {
+	direction := 1
 	if friendship < 0.5 {
-		if statement > a.decisions.foodToEat {
-			changeInMood(a, 1, 6, -1)
-			changeInMorality(a, 1, 6, -1)
-			changeInStubbornness(a, 5, 1)
-			a.updateFriendship(msg.SenderID(), -1)
-		} else {
-			changeInMood(a, 1, 6, 1)
-			changeInMorality(a, 1, 6, 1)
-			changeInStubbornness(a, 5, -1)
-			a.updateFriendship(msg.SenderID(), 1)
+		if statement > a.HP() {
+			direction = -1
+			a.changeInMorality(1, 6, -1)
 		}
+		a.changeInMood(1, 6, direction)
+
 	} else {
-		if statement > a.decisions.foodToEat {
-			changeInMorality(a, 1, 3, -1)
-		} else {
-			changeInMorality(a, 1, 6, 1)
-			a.updateFriendship(msg.SenderID(), 1)
+		if statement < a.HP() {
+			direction = -1
 		}
+		a.changeInStubbornness(5, direction)
+		a.changeInMood(1, 3, direction)
+
 	}
-	a.Log("I recieved a StateFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": statement})
 }
 
 //HandleStateHP handles an HP statement
 func (a *CustomAgent3) HandleStateHP(msg messages.StateHPMessage) {
-	statement := msg.Statement()
-	friendship := a.knowledge.friends[msg.SenderID()]
 	if msg.SenderFloor() > a.Floor() {
-		a.knowledge.hpBelow = statement
+		a.knowledge.hpBelow = msg.Statement()
 	} else {
-		a.knowledge.hpAbove = statement
+		a.knowledge.hpAbove = msg.Statement()
 	}
+	a.feelingModifStateHP(msg.Statement(), a.knowledge.friends[msg.SenderID()])
+	a.Log("I recieved a StateHP message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": msg.Statement()})
+}
+
+func (a *CustomAgent3) feelingModifIntendedFoodTaken(statement int, friendship float64, sender uuid.UUID) {
 	if friendship < 0.5 {
-		if statement > a.decisions.foodToEat { // Look at this later.
-			changeInMood(a, 1, 6, -1)
-			changeInMorality(a, 1, 6, -1)
+		if statement > a.decisions.foodToEat {
+			a.changeInStubbornness(5, 1)
+			a.updateFriendship(sender, -1)
 		} else {
-			changeInMood(a, 1, 6, 1)
+			a.changeInMorality(1, 6, 1)
+			a.changeInStubbornness(5, -1)
+			a.updateFriendship(sender, 1)
 		}
 	} else {
 		if statement > a.decisions.foodToEat {
-			changeInStubbornness(a, 5, 1)
-			changeInMood(a, 1, 3, 1)
+			a.changeInMorality(1, 3, -1)
+			a.changeInStubbornness(5, 1)
+			a.updateFriendship(sender, -1)
 		} else {
-			changeInStubbornness(a, 5, -1)
-			changeInMood(a, 1, 3, -1)
+			a.changeInStubbornness(5, -1)
 		}
 	}
-	a.Log("I recieved a StateHP message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": statement})
 }
 
 //HandleStateIntendedFoodTaken handles an intender food taken statement
 func (a *CustomAgent3) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
-	statement := msg.Statement()
-	friendship := a.knowledge.friends[msg.SenderID()]
-	if friendship < 0.5 {
-		if statement > a.decisions.foodToEat {
-			changeInStubbornness(a, 5, 1)
-			a.updateFriendship(msg.SenderID(), -1)
-		} else {
-			changeInMorality(a, 1, 6, 1)
-			changeInStubbornness(a, 5, -1)
-			a.updateFriendship(msg.SenderID(), 1)
-		}
-	} else {
-		if statement > a.decisions.foodToEat {
-			changeInMorality(a, 1, 3, -1)
-			changeInStubbornness(a, 5, 1)
-			a.updateFriendship(msg.SenderID(), -1)
-		} else {
-			changeInStubbornness(a, 5, -1)
-		}
-	}
-	a.Log("I recieved a StateIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": statement})
+	a.feelingModifIntendedFoodTaken(msg.Statement(), a.knowledge.friends[msg.SenderID()], msg.SenderID())
+	a.Log("I recieved a StateIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "statement": msg.Statement()})
 }
 
 //HandleTreatyResponse handles the response of a treaty
 func (a *CustomAgent3) HandleTreatyResponse(msg messages.TreatyResponseMessage) {
 	if msg.Response() {
-		//	changeInMood(a, 5, 10, 1)
-		//	changeInMorality(a, 5, 10, 1)
-		//	changeInStubbornness(a, 5, -1)
 		if a.knowledge.treatyProposed.ID() != uuid.Nil { //check in case something went wrong.
 			treaty := a.knowledge.treatyProposed //signed our proposed treatry
 			treaty.SignTreaty()
 			a.AddTreaty(treaty)
 		}
-
 	}
-	//else {
-	//	changeInMood(a, 5, 10, -1)
-	//	changeInMorality(a, 5, 10, -1)
-	//	changeInStubbornness(a, 5, 1)
-	//}
 	a.knowledge.treatyProposed = *messages.NewTreaty(messages.HP, 0, messages.LeaveAmountFood, 0, messages.GT, messages.GT, 0, uuid.Nil) //restart the sent treaty.
 }
 

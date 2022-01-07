@@ -89,7 +89,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 func (a *CustomAgent3) Run() {
 	//Update agent variables at the beginning of day (when we age)
 	if a.knowledge.agentAge < a.BaseAgent().Age() {
-		changeNewDay(a)
+		a.changeNewDay()
 	}
 
 	if a.knowledge.agentAge == 1 {
@@ -98,7 +98,7 @@ func (a *CustomAgent3) Run() {
 
 	//Update agent variables at the beginning of reshuffle (when floor has changed)
 	if len(a.knowledge.floors) == 0 || a.knowledge.floors[len(a.knowledge.floors)-1] != a.Floor() {
-		changeNewFloor(a)
+		a.changeNewFloor()
 	}
 	//a.Log("Agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "morality": a.vars.morality, "stubbornness": a.vars.stubbornness})
 

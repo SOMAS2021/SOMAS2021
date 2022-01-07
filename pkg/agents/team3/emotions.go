@@ -17,7 +17,7 @@ func (a *CustomAgent3) read() bool {
 
 //Function updates friendship depending on factor change -1 to 1, negative reduces frienship, positive increases
 //If they are not in our list, we add them.
-func (a *CustomAgent3) updateFriendship(friend uuid.UUID, change float64) {
+func (a *CustomAgent3) updateFriendship(friend uuid.UUID, change int) {
 	level, found := a.knowledge.friends[friend]
 	var b float64 = 0.3
 	var c float64 = 0.4
@@ -34,7 +34,7 @@ func (a *CustomAgent3) updateFriendship(friend uuid.UUID, change float64) {
 }
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
-func changeInMood(a *CustomAgent3, pointsMin, pointsMax, direction int) {
+func (a *CustomAgent3) changeInMood(pointsMin, pointsMax, direction int) {
 	points := rand.Intn(pointsMax-pointsMin) + pointsMin
 	if direction < 0 {
 		a.vars.mood -= points
@@ -50,7 +50,7 @@ func changeInMood(a *CustomAgent3, pointsMin, pointsMax, direction int) {
 }
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
-func changeInMorality(a *CustomAgent3, pointsMin, pointsMax, direction int) {
+func (a *CustomAgent3) changeInMorality(pointsMin, pointsMax, direction int) {
 	points := rand.Intn(pointsMax-pointsMin) + pointsMin
 	if direction < 0 {
 		a.vars.morality -= points
@@ -65,7 +65,7 @@ func changeInMorality(a *CustomAgent3, pointsMin, pointsMax, direction int) {
 	}
 }
 
-func changeInStubbornness(a *CustomAgent3, change, direction int) {
+func (a *CustomAgent3) changeInStubbornness(change, direction int) {
 	if direction < 0 {
 		a.vars.stubbornness -= change
 		if a.vars.stubbornness < 0 {
@@ -80,21 +80,21 @@ func changeInStubbornness(a *CustomAgent3, change, direction int) {
 }
 
 // Updates mood and morality when the floor is changed. Called at the start of each day.
-func changeNewDay(a *CustomAgent3) {
+func (a *CustomAgent3) changeNewDay() {
 	a.knowledge.lastHP = a.HP()
 	a.knowledge.agentAge = a.BaseAgent().Age()
 	if a.HP() > 20 {
-		changeInMorality(a, 3, 7, -1)
-		changeInMood(a, 5, 10, -1)
+		a.changeInMorality(3, 7, -1)
+		a.changeInMood(5, 10, -1)
 	} else if a.HP() > 40 {
-		changeInMorality(a, 0, 4, -1)
-		changeInMood(a, 5, 10, -1)
+		a.changeInMorality(0, 4, -1)
+		a.changeInMood(5, 10, -1)
 	} else if a.HP() > 75 {
-		changeInMorality(a, 0, 4, 1)
-		changeInMood(a, 5, 10, 1)
+		a.changeInMorality(0, 4, 1)
+		a.changeInMood(5, 10, 1)
 	} else {
-		changeInMorality(a, 3, 7, 1)
-		changeInMood(a, 5, 10, 1)
+		a.changeInMorality(3, 7, 1)
+		a.changeInMood(5, 10, 1)
 	}
 	a.knowledge.foodMovingAvg = float64(a.knowledge.foodMovingAvg)*0.9 + float64(a.knowledge.foodLastEaten)*0.1
 }
@@ -110,7 +110,7 @@ func (a *CustomAgent3) resshufleEstimator() {
 }
 
 // Function is called when the floor changes, changes the mood when we change floors
-func changeNewFloor(a *CustomAgent3) {
+func (a *CustomAgent3) changeNewFloor() {
 
 	//Calculate mood based on what floors we have been in
 	if len(a.knowledge.floors) != 0 {
@@ -131,13 +131,13 @@ func changeNewFloor(a *CustomAgent3) {
 			}
 		}
 		if !beenInHigher {
-			changeInMood(a, 5, 10, 1)
+			a.changeInMood(5, 10, 1)
 		} else if !beenInLower {
-			changeInMood(a, 5, 15, -1) //Situation is specially bad, so we get more depressed
+			a.changeInMood(5, 15, -1) //Situation is specially bad, so we get more depressed
 		} else if currentFloor < lastFloor {
-			changeInMood(a, 0, 5, 1)
+			a.changeInMood(0, 5, 1)
 		} else {
-			changeInMood(a, 0, 5, -1)
+			a.changeInMood(0, 5, -1)
 		}
 	}
 	a.knowledge.floors = append(a.knowledge.floors, a.Floor())
