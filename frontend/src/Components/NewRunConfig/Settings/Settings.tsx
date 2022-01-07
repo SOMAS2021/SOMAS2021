@@ -11,10 +11,11 @@ import FileName from "../ParameterGroups/FileName";
 interface SettingsInterface {
   config: SimConfig;
   setConfig: React.Dispatch<React.SetStateAction<SimConfig>>;
+  onSubmit: () => void;
 }
 
 export default function Settings(props: SettingsInterface) {
-  const { config, setConfig } = props;
+  const { config, setConfig, onSubmit } = props;
 
   function configHandler<Key extends keyof SimConfig>(value: any, keyString: any) {
     var key: Key = keyString; // converting keyString to type Key
@@ -56,7 +57,10 @@ export default function Settings(props: SettingsInterface) {
               icon="build"
               text="Submit job to backend"
               data-dismiss="modal"
-              onClick={() => Simulate(config)}
+              onClick={() => {
+                Simulate(config);
+                onSubmit();
+              }}
             />
           </div>
         </div>
