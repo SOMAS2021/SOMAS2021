@@ -43,7 +43,7 @@ export default function TowerFood(props: any) {
                 />
               </FormGroup>
             </div>
-          ) :(
+          ) : (
             <div className="col-lg-6 d-flex justify-content-center" key={i.key}>
               <FormGroup {...i}>
                 <NumericInput
@@ -85,5 +85,4 @@ const foodParams: Parameter[] = [
     key: "FoodPerAgentRatio",
     min: 1,
   },
-  
 ];
