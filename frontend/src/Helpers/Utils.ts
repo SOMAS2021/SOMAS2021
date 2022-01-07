@@ -1,4 +1,5 @@
 import { DeathLog } from "./Logging/Death";
+import { UtilityLog } from "./Logging/Utility";
 
 export function Average(arr: number[]): number {
   return arr.length > 0 ? arr.reduce((a, b) => a + b) / arr.length : 0;
@@ -19,4 +20,31 @@ export function DeathsPerAgent(deathLog: DeathLog[]): { [agentType: string]: num
     deaths[death.agentType] = !deaths[death.agentType] ? 1 : deaths[death.agentType] + 1;
   });
   return deaths;
+}
+
+export function AverageUtilityPerAgent(utilityLogs: UtilityLog[]): { [agentType: string]: number } {
+  // Inputs: these are agent state logs with fields utility, hp, floor, agenttype
+  // Return: the average utility per agent over its entire existence
+  var utilities: { [agentType: string]: number } = {};
+  var counts: { [agentType: string]: number } = {};
+  // Sum utility and count num entries
+  utilityLogs.forEach((log) => {
+    let agentType = log.agentType;
+    utilities[agentType] = !utilities[agentType] ? log.utility : utilities[agentType] + log.utility;
+    counts[agentType] = !counts[agentType] ? 1 : counts[agentType] + 1;
+  });
+
+  // Get averages
+  for (var agentType in utilities) {
+    if (counts.hasOwnProperty(agentType)) {
+      utilities[agentType] /= counts[agentType];
+    }
+  }
+  return utilities;
+}
+
+export function UtilityOnDeath(utilities: UtilityLog[]): UtilityLog[] {
+  return utilities.filter((o) => {
+    return !o.isAlive;
+  });
 }
