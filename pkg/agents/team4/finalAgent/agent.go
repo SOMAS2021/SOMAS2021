@@ -18,6 +18,8 @@ type CustomAgentEvoParams struct {
 	morality          float64          // the morality of the agent that determines how selfishly or selflessly the agent will act
 	craving           int              // the amount of craving the agent has for food which effects the amount of food it is likely to eat
 
+	intendedFoodToTake food.FoodType
+
 	globalTrust              float64       // the overall trust the agent has in other agents in the tower
 	coefficients             []float64     // the amount trust score changes by for certain actions
 	lastFoodTaken            food.FoodType // food taken on the previous day
@@ -82,10 +84,11 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 		craving:           0,
 		healthStatus:      3,
 
-		globalTrust:       100.0,
-		globalTrustLimits: []int{40, 80},
-		coefficients:      []float64{2, 4, 8}, // TODO: maybe train these co-efficients using evolutionary algorithm
-		lastFoodTaken:     0,
+		globalTrust:        100.0,
+		globalTrustLimits:  []int{40, 80},
+		coefficients:       []float64{2, 4, 8}, // TODO: maybe train these co-efficients using evolutionary algorithm
+		lastFoodTaken:      0,
+		intendedFoodToTake: 0,
 
 		messageCounter:           0,
 		msgToSendBuffer:          []messages.Message{},
@@ -262,10 +265,12 @@ func (a *CustomAgentEvo) Run() {
 
 	a.params.intendedFoodToEat = 0
 	if rand.Intn(100) >= (a.params.waitProbability[a.params.currentPersonality][a.params.healthStatus]-a.params.craving) && !a.HasEaten() && a.PlatformOnFloor() {
-		calculatedAmountToEat := food.FoodType(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) // TODO: add floor
-		a.params.intendedFoodToEat = int(calculatedAmountToEat)
+		a.params.intendedFoodToTake = food.FoodType(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) // TODO: add floor
 
-		foodEaten, err = a.TakeFood(calculatedAmountToEat)
+		if a.params.healthStatus != 0 {
+			a.handleActiveTreatyConditions()
+		}
+		foodEaten, err = a.TakeFood(a.params.intendedFoodToTake)
 		if foodEaten > 0 {
 			a.params.ageLastEaten = a.Age()
 		}

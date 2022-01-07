@@ -1,6 +1,8 @@
 package team4TrainingEvoAgent
 
 import (
+	"math"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -155,12 +157,52 @@ func (a *CustomAgentEvo) handleActiveTreatyConditions() {
 	}
 }
 
+//messages.LeaveFoodAmt GT- check if a.currPlatFood - intended < request : foodtaken = a.currPlatFloor - request - 1
+//GE - foodtaken = a.currPlatFloor - request
+//LT - foodtaken = a.currPlatFood - request + 1
+//LE - foodtaken = a.currPlatFood - request
+//EQ - foodtaken = a.currPlatFood - request
+
+//messages.LeavePercentFood GT - check if a.currPlatFood - intended < a.currentPlatFood * foodpercen/100 : foodtaken = a.currPlatFloor - a.currplatfood * request/100  - 1
+//GE - foodtaken = a.currPlatFloor - request/100 * a.currentPlatFood
+//LT - foodtaken = a.currPlatFood - request/100 * a.currentPlatFood + 1
+//LE - foodtaken = a.currPlatFood - request/100 * a.currentPlatFood
+//EQ - foodtaken = a.currPlatFood - request/100 * a.currentPlatFood
+
 /*------------CHANGE THE AMOUNT OF FOOD WE TAKE DEPENDING ON THE ACTIVE TREATY CONDITIONS ------------*/
 func (a *CustomAgentEvo) UpdateFoodFromTreatyToAgent(treaty messages.Treaty) {
 	switch {
 	case treaty.Request() == messages.LeaveAmountFood:
+		if treaty.RequestOp() == messages.EQ {
+			a.params.intendedFoodToTake = a.CurrPlatFood() - food.FoodType(treaty.RequestValue())
+		} else if treaty.RequestOp() == messages.GT && a.CurrPlatFood()-a.params.intendedFoodToTake < food.FoodType(treaty.RequestValue()) {
+			a.params.intendedFoodToTake = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue())-1))) //TODO: make sure intended amount is not -ve. just put a max between 0 and that equation.
+
+		} else if treaty.RequestOp() == messages.GE && a.CurrPlatFood()-a.params.intendedFoodToTake <= food.FoodType(treaty.RequestValue()) {
+			a.params.intendedFoodToTake = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue()))))
+
+		} else if treaty.RequestOp() == messages.LT && a.CurrPlatFood()-a.params.intendedFoodToTake > food.FoodType(treaty.RequestValue()) {
+			a.params.intendedFoodToTake = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue())+1)))
+
+		} else if treaty.RequestOp() == messages.LE && a.CurrPlatFood()-a.params.intendedFoodToTake >= food.FoodType(treaty.RequestValue()) {
+			a.params.intendedFoodToTake = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue()))))
+		}
 
 	case treaty.Request() == messages.LeavePercentFood:
+		if treaty.RequestOp() == messages.EQ {
+			a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood()) * (1 - treaty.RequestValue()/100)))
 
+		} else if treaty.RequestOp() == messages.GT && a.CurrPlatFood()-a.params.intendedFoodToTake < a.CurrPlatFood()*food.FoodType(treaty.RequestValue())/100 {
+			a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood())*(1-treaty.RequestValue()/100) - 1))
+
+		} else if treaty.RequestOp() == messages.GE && a.CurrPlatFood()-a.params.intendedFoodToTake <= a.CurrPlatFood()*food.FoodType(treaty.RequestValue())/100 {
+			a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood()) * (1 - treaty.RequestValue()/100)))
+
+		} else if treaty.RequestOp() == messages.LT && a.CurrPlatFood()-a.params.intendedFoodToTake > a.CurrPlatFood()*food.FoodType(treaty.RequestValue())/100 {
+			a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood())*(1-treaty.RequestValue()/100) + 1))
+
+		} else if treaty.RequestOp() == messages.LE && a.CurrPlatFood()-a.params.intendedFoodToTake >= a.CurrPlatFood()*food.FoodType(treaty.RequestValue())/100 {
+			a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood()) * (1 - treaty.RequestValue()/100)))
+		}
 	}
 }
