@@ -194,7 +194,7 @@ func CheckParametersAreValid(parameters *ConfigParameters) error {
 	}
 
 	if parameters.MaxFoodIntake == 0 {
-		return errors.New("maxFoodIntake not initialised or set to 0")
+		return errors.New("MaxFoodIntake not initialised or set to 0")
 	}
 
 	if parameters.HpReqCToW == 0 {

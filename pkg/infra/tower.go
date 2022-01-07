@@ -15,7 +15,7 @@ import (
 
 type Tower struct {
 	currPlatFood   food.FoodType
-	maxPlatFood    food.FoodType
+	MaxPlatFood    food.FoodType
 	currPlatFloor  int
 	agentCount     int
 	Agents         map[uuid.UUID]Agent
@@ -39,11 +39,11 @@ func (t *Tower) TowerStateLog(timeOfTick string) {
 	t.stateLog.LogPlatFoodState(t.dayInfo, int(t.currPlatFood))
 }
 
-func NewTower(maxPlatFood food.FoodType, agentCount,
+func NewTower(MaxPlatFood food.FoodType, agentCount,
 	agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo, stateLog *logging.StateLog) *Tower {
 	return &Tower{
-		currPlatFood:   maxPlatFood,
-		maxPlatFood:    maxPlatFood,
+		currPlatFood:   MaxPlatFood,
+		MaxPlatFood:    MaxPlatFood,
 		currPlatFloor:  1,
 		agentCount:     agentCount,
 		Agents:         make(map[uuid.UUID]Agent),
@@ -124,7 +124,7 @@ func (t *Tower) SendMessage(senderFloor int, msg messages.Message) {
 }
 
 func (t *Tower) ResetTower() {
-	t.currPlatFood = t.maxPlatFood
+	t.currPlatFood = t.MaxPlatFood
 	t.currPlatFloor = 1
 	t.Log("Tower Reset", Fields{})
 }

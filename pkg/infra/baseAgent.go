@@ -210,7 +210,7 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 	if amountOfFood < 0 {
 		return 0, &NegFoodError{}
 	}
-	foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood), float64(a.tower.healthInfo.maxFoodIntake)))
+	foodTaken := food.FoodType(utilFunctions.MinInt(int(a.tower.currPlatFood), int(amountOfFood), int(a.tower.healthInfo.MaxFoodIntake)))
 	a.updateHP(foodTaken)
 	a.tower.currPlatFood -= foodTaken
 	a.setHasEaten(foodTaken > 0)
