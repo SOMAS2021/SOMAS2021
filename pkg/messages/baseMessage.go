@@ -48,6 +48,7 @@ type Message interface {
 	TargetFloor() int
 	ID() uuid.UUID
 	Visit(a Agent)
+	StoryLog() string
 }
 
 type AskMessage interface {
@@ -114,4 +115,10 @@ func (msg *BaseMessage) ID() uuid.UUID {
 }
 func (msg *BaseMessage) SenderID() uuid.UUID {
 	return msg.senderID
+}
+
+// Default a message does not have extra state info
+// All the info is in the message type
+func (msg *BaseMessage) StoryLog() string {
+	return ""
 }

@@ -12,9 +12,9 @@ export default function Nav() {
         <Button
           className="bp3-minimal"
           icon="search-around"
-          text="New Run"
+          text="New Run Submission"
           data-toggle="modal"
-          data-target="#exampleModal"
+          data-target="#settingsModal"
         />
       </Navbar.Group>
     </Navbar>

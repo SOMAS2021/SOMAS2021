@@ -9,15 +9,43 @@ body {
   scroll-behavior: smooth;
 }
 
-.modal.custom .modal-dialog {
-  position:fixed;
-  bottom:0;
-  right:0;
-  margin:2%;
-  z-index: -1;
+.modal-body {
+  max-height: calc(100vh - 210px);
+  overflow-y: auto;
 }
 
-.modal-open .modal {
-    width: 0;
-    margin: 0 auto;
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* 360 rotations forever */
+.rotate-image {
+  animation: rotation 2s linear infinite;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+.infinite {
+  animation-iteration-count: infinite;
+}
+
+.linear {
+  animation-timing-function: linear;
+}
+
+.rotate {
+  animation: rotation 2s;
 }

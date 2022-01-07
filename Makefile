@@ -1,6 +1,6 @@
 .PHONY: all dep lint test test-coverage build clean
  
-all: clean dep lint test-coverage build
+all: clean dep lint test-coverage build run
 
 dep: ## Get the dependencies
 	@go mod download

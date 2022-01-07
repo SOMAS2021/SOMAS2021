@@ -1,0 +1,35 @@
+.modal.custom#settingsModal .modal-dialog {
+  position:relative;
+  z-index: -1;
+}
+
+.modal-header{
+  width: 100%;
+  text-align: center;
+}
+
+.config-title{
+  width:100%;
+  text-align: center;
+  /* padding-top: 1%; */
+}
+
+.modal-open#settingsModal .modal {
+  width: 0;
+  margin: auto;
+}
+
+#settingsModal .modal-content{
+  width: 100%;
+}
+
+#settingsModal .modal-header{
+  margin:auto;
+}
+
+@media (min-width: 576px){
+  #settingsModal .modal-dialog {
+    max-width: 65%;
+    margin: 1.75rem auto;
+    }
+}

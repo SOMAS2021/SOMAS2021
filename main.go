@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"flag"
 	"io/ioutil"
@@ -10,11 +11,13 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/config"
 	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/logging"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -49,28 +52,50 @@ func main() {
 			}
 
 			rand.Seed(time.Now().UnixNano())
-			logFolderName, err := setupLogFile(parameters.LogFolderName, parameters.LogMain)
+			logFolderName, err := setupLogFile(parameters, parameters.LogMain)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				log.Error("Unable to setup log file: " + err.Error())
 			}
 
-			//channel and goroutine used for timeouts
-			c1 := make(chan string, 1)
+			err = logging.UpdateSimStatusJson(logFolderName, "running")
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Error("Unable to setup status file: " + err.Error())
+			}
+
+			//Timeout related stuff
+			//don't touch, don't ask me how it works
+			//https://stackoverflow.com/a/50579561
+
+			//context and channel are passed all the way down to simulation loop to check every tick if there was a timeout
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
+			ch := make(chan string, 1)
 
 			go func() {
 				log.Info("Simulation " + logFolderName + " started")
-				runNewSimulation(parameters, logFolderName)
-				c1 <- "Simulation Finished"
+				runNewSimulation(parameters, logFolderName, ctx, ch)
 			}()
 
 			// Listen on our channel AND a timeout channel - which ever happens first.
 			select {
-			case <-c1:
+			case <-ch:
 				log.Info("Simulation " + logFolderName + " finished successfully")
+				err = logging.UpdateSimStatusJson(logFolderName, "finished")
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					log.Error("Unable to update status file: " + err.Error())
+				}
 			case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
 				http.Error(w, "Simulation Timeout", http.StatusInternalServerError)
 				log.Error("Simulation " + logFolderName + " timed out")
+				err = logging.UpdateSimStatusJson(logFolderName, "timedout")
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					log.Error("Unable to update status file: " + err.Error())
+				}
 				return
 			}
 
@@ -143,10 +168,17 @@ func main() {
 			}
 			defer file.Close()
 			var response config.ReadLogResponse
+			response.Log = []string{}
 			scanner := bufio.NewScanner(file)
 			for scanner.Scan() {
 				response.Log = append(response.Log, scanner.Text())
 			}
+
+			// special files we know are a single json
+			if logParams.LogType == "config" {
+				response.Log = []string{strings.Join(response.Log[:], "")}
+			}
+
 			err = json.NewEncoder(w).Encode(response)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -169,40 +201,63 @@ func main() {
 		}
 
 		rand.Seed(time.Now().UnixNano())
-		logFolderName, err := setupLogFile(parameters.LogFolderName, parameters.LogMain)
+		logFolderName, err := setupLogFile(parameters, parameters.LogMain)
 		if err != nil {
 			log.Fatal("Unable to setup log file: " + err.Error())
 			return
 		}
 
-		//channel and goroutine used for timeout
-		c1 := make(chan string, 1)
+		err = logging.UpdateSimStatusJson(logFolderName, "running")
+		if err != nil {
+			log.Fatal("Unable to setup status file: " + err.Error())
+			return
+		}
+
+		//Timeout related stuff
+		//don't touch, don't ask me how it works
+		//https://stackoverflow.com/a/50579561
+
+		//context and channel are passed all the way down to simulation loop to check every tick if there was a timeout
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		ch := make(chan string, 1)
 
 		go func() {
-			runNewSimulation(parameters, logFolderName)
-			c1 <- "Simulation Finished"
+			log.Info("Simulation started")
+			runNewSimulation(parameters, logFolderName, ctx, ch)
 		}()
 
 		// Listen on our channel AND a timeout channel - which ever happens first.
 		select {
-		case <-c1:
+		case <-ch:
 			log.Info("Simulation Finished Successfully")
+			err = logging.UpdateSimStatusJson(logFolderName, "finished")
+			if err != nil {
+				log.Fatal("Unable to update status file: " + err.Error())
+				return
+			}
 		case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
+			err = logging.UpdateSimStatusJson(logFolderName, "timedout")
+			if err != nil {
+				log.Fatal("Unable to update status file: " + err.Error())
+				return
+			}
 			log.Fatal("Simulation Timeout")
 		}
 	}
 }
 
 // Returns the logfile name as it is needed in the HTTP response
-func runNewSimulation(parameters config.ConfigParameters, logFolderName string) {
+func runNewSimulation(parameters config.ConfigParameters, logFolderName string, ctx context.Context, ch chan<- string) {
 	healthInfo := health.NewHealthInfo(&parameters)
 	parameters.LogFolderName = logFolderName
 	// TODO: agentParameters - struct
 	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
-	simEnv.Simulate()
+	simEnv.Simulate(ctx, ch)
 }
 
-func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName string, err error) {
+func setupLogFile(parameters config.ConfigParameters, saveMainLog bool) (ffolderName string, err error) {
 	// setup logs folder if never created
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)
@@ -214,8 +269,8 @@ func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName st
 	// setup simulation run folder for logs
 	logFolderName := ""
 	// Check if the log folder name was set in config
-	if len(parameterLogFileName) != 0 {
-		logFolderName = filepath.Join("logs", parameterLogFileName)
+	if len(parameters.LogFolderName) != 0 {
+		logFolderName = filepath.Join("logs", parameters.LogFolderName)
 	} else {
 		logFolderName = filepath.Join("logs", time.Now().Format("2006-01-02-15-04-05"))
 	}
@@ -225,5 +280,16 @@ func setupLogFile(parameterLogFileName string, saveMainLog bool) (ffolderName st
 			return "", err
 		}
 	}
+
+	//save the config inside the folder
+	jsonConfig, err := json.MarshalIndent(parameters, "", "\t")
+	if err != nil {
+		return "", err
+	}
+	err = ioutil.WriteFile(filepath.Join(logFolderName, "config.json"), jsonConfig, 0644)
+	if err != nil {
+		return "", err
+	}
+
 	return logFolderName, nil
 }

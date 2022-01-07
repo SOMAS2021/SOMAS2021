@@ -16,7 +16,8 @@ func (a *CustomAgent6) RequestLeaveFood() {
 		weakLevel:    healthInfo.MaxHP * 1 / 10,
 	}
 
-	reqAmount := -1
+	var reqAmount int
+
 	switch a.currBehaviour.String() {
 	case "Altruist":
 		reqAmount = -1
@@ -52,7 +53,8 @@ func (a *CustomAgent6) RequestLeaveFood() {
 // Request another agent to take a precise amount of food
 func (a *CustomAgent6) RequestTakeFood() {
 
-	reqAmount := -1
+	var reqAmount int
+
 	switch a.currBehaviour.String() {
 	case "Altruist":
 		reqAmount = -1
@@ -87,7 +89,8 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 		weakLevel:    healthInfo.MaxHP * 1 / 10,
 	}
 
-	reply := true
+	var reply bool
+
 	switch a.currBehaviour.String() {
 	case "Altruist":
 		reply = true
@@ -116,7 +119,7 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 	replyMessage := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), reply)
 	a.SendMessage(replyMessage)
 
-	if reply == true {
+	if reply {
 		a.reqLeaveFoodAmount = msg.Request()
 		a.Log("I received a requestLeaveFood message and my response was true")
 	} else {
@@ -131,7 +134,7 @@ func (a *CustomAgent6) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 	replyMessage := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), reply)
 	a.SendMessage(replyMessage)
 
-	if reply == true {
+	if reply {
 		a.reqLeaveFoodAmount = msg.Request()
 		a.Log("I received a requestTakeFood message and my response was true")
 	} else {

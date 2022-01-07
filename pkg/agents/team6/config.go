@@ -6,8 +6,13 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+
+	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
+
+type memory []food.FoodType
 
 type behaviour float64
 
@@ -39,6 +44,8 @@ type team6Config struct {
 	lambda float64
 	//maximum behaviour score an agent can reach
 	maxBehaviourThreshold behaviour
+	//discount previous food intakes for EMA filter
+	prevFoodDiscount float64
 }
 
 type CustomAgent6 struct {
@@ -50,6 +57,19 @@ type CustomAgent6 struct {
 	foodTakeDay        int
 	reqLeaveFoodAmount int
 	lastFoodTaken      food.FoodType
+	averageFoodIntake  float64
+	// Memory of food available throughout agent's lifetime
+	longTermMemory memory
+	// Memory of food available while agent is at a particular floor
+	shortTermMemory memory
+	// Number of times the agent has been reassigned
+	numReassigned int
+	// What the agent thinks the reassignment period is
+	reassignPeriodGuess float64
+	// Counts how many ticks the platform is at the agent's floor for. Used to call functions only once when the platform arrives
+	platOnFloorCtr int
+	// Keeps track of previous floor to see if agent has been reassigned
+	prevFloor int
 }
 
 type thresholdBehaviourPair struct {
@@ -57,7 +77,10 @@ type thresholdBehaviourPair struct {
 	bType     string
 }
 
-type behaviourParameterWeights []float64
+type behaviourParameterWeights struct {
+	HPWeight    float64
+	floorWeight float64
+}
 
 var maxBehaviourThreshold behaviour = 10.0
 
@@ -73,15 +96,23 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			baseBehaviour:         initialBehaviour,
 			stubbornness:          0.0,
 			maxBehaviourSwing:     8,
-			paramWeights:          behaviourParameterWeights{0.7, 0.3}, //ensure sum of weights = max behaviour enum
+			paramWeights:          behaviourParameterWeights{HPWeight: 0.7, floorWeight: 0.3}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
+			prevFoodDiscount:      0.6,
 		},
-		currBehaviour:      initialBehaviour,
-		maxFloorGuess:      baseAgent.Floor() + 2,
-		foodTakeDay:        0,
-		reqLeaveFoodAmount: -1,
-		lastFoodTaken:      0,
+		currBehaviour:       initialBehaviour,
+		maxFloorGuess:       baseAgent.Floor() + 2,
+		foodTakeDay:         0,
+		reqLeaveFoodAmount:  -1,
+		lastFoodTaken:       0,
+		averageFoodIntake:   0.0,
+		longTermMemory:      memory{},
+		shortTermMemory:     memory{},
+		numReassigned:       0,
+		reassignPeriodGuess: 0,
+		platOnFloorCtr:      0,
+		prevFloor:           -1,
 	}, nil
 }
 
@@ -142,14 +173,23 @@ func (a *CustomAgent6) Run() {
 	a.RequestLeaveFood()
 
 	// Receiving messages
-	receivedMsg := a.ReceiveMessage()
-	if receivedMsg != nil {
-		receivedMsg.Visit(a)
-	} else {
-		a.Log("I got no thing")
-	}
+	// receivedMsg := a.ReceiveMessage()
+	// if receivedMsg != nil {
+	// 	receivedMsg.Visit(a)
+	// } else {
+	// 	a.Log("I got no thing")
+	// }
 
-	// a.Log("Custom agent 6 after update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
+	// MEMORY STUFF
+	if a.isReassigned() {
+		a.resetShortTermMemory()
+		a.updateReassignmentPeriodGuess()
+	} else if a.numReassigned == 0 { // Before any reassignment, reassignment period guess should be days elapsed
+		a.reassignPeriodGuess = float64(a.Age())
+		a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.numReassigned})
+		a.Log("Team 6 reassignment period guess:", infra.Fields{"guessReassign": a.reassignPeriodGuess})
+	}
+	a.addToMemory()
 
 	foodTaken, err := a.TakeFood(a.intendedFoodIntake())
 	if err != nil {
@@ -163,17 +203,26 @@ func (a *CustomAgent6) Run() {
 		a.lastFoodTaken = foodTaken
 	}
 
-	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
-	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
+	//exponential moving average filter to average food taken whilst discounting previous food
+	a.updateAverageIntake(foodTaken)
 
-	// fmt.Println(a.ActiveTreaties())
+	// a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
+	// a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
 
-	// treaty := messages.NewTreaty(1, 1, 1, 1, 5, a.ID())
-	// treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
+	a.updateBehaviourWeights()
 
-	// treatyMsg.Visit(a)
+	//fmt.Println(a.ActiveTreaties())
 
-	// fmt.Println(a.ActiveTreaties())
+	treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
+	min, max := a.foodRange()
+	valid := a.treatyValid(*treaty)
+
+	a.Log("Team 6 processed treaty:", infra.Fields{"treaty": treaty, "range": max - min, "isValid:": valid})
+	// // treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
+
+	// treatyMsg.Visit(a).
+
+	a.prevFloor = a.Floor() // keep at end of Run() function
 
 }
 
