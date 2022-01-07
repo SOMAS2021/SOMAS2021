@@ -4,6 +4,7 @@ import { GetFile } from "./API";
 export default function InitConfigState() {
   return useState<SimConfig>({
     FoodOnPlatform: 100,
+    MaxFoodIntake: 50,
     FoodPerAgentRatio: 10,
     UseFoodPerAgentRatio: false,
     Team1Agents: 2,
@@ -36,6 +37,7 @@ export default function InitConfigState() {
 
 export interface SimConfig {
   FoodOnPlatform: number;
+  MaxFoodIntake: number;
   FoodPerAgentRatio: number;
   UseFoodPerAgentRatio: boolean;
   Team1Agents: number;

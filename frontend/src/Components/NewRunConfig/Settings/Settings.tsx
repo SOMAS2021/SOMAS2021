@@ -20,6 +20,7 @@ export default function Settings(props: SettingsInterface) {
     var key: Key = keyString; // converting keyString to type Key
     config[key] = value;
     setConfig(config);
+    console.log(config)
   }
 
   return (
