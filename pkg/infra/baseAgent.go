@@ -50,6 +50,8 @@ type Base struct {
 	daysAtCritical int
 	age            int
 	activeTreaties map[uuid.UUID]messages.Treaty
+	totalFoodTaken food.FoodType
+	totalFoodSeen  food.FoodType
 }
 
 func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
@@ -73,6 +75,8 @@ func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, age
 		daysAtCritical: 0,
 		age:            0,
 		activeTreaties: make(map[uuid.UUID]messages.Treaty),
+		totalFoodTaken: 0,
+		totalFoodSeen:  0,
 	}, nil
 }
 
@@ -182,6 +186,7 @@ func (a *Base) hpDecay(healthInfo *health.HealthInfo) {
 		a.Log("Killing agent", Fields{"daysLived": a.Age(), "agentType": a.agentType})
 		a.tower.stateLog.LogAgentDeath(a.tower.dayInfo, a.agentType, a.Age())
 		a.tower.stateLog.LogStoryAgentDied(a.tower.dayInfo, a.storyState())
+		a.tower.stateLog.LogAgentState(a.tower.dayInfo, a.agentType, a.Utility(), a.HP(), a.Floor())
 		newHP = 0
 	}
 	a.Log("Setting hp to " + fmt.Sprint(newHP))
@@ -210,10 +215,12 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 	if amountOfFood < 0 {
 		return 0, &NegFoodError{}
 	}
+	a.totalFoodSeen += a.tower.currPlatFood
 	foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood)))
 	a.updateHP(foodTaken)
 	a.tower.currPlatFood -= foodTaken
 	a.setHasEaten(foodTaken > 0)
+	a.totalFoodTaken += foodTaken
 	a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
 	if foodTaken > 0 {
 		a.tower.stateLog.LogStoryAgentTookFood(
@@ -224,6 +231,16 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 		)
 	}
 	return foodTaken, nil
+}
+
+func (a *Base) Utility() float64 {
+	// TODO: Improve utility calculation
+	// Currently just use ratio between food taken and food seen
+	// Ideas: piecewise/bounded function with log, concave quadratic
+	if a.totalFoodSeen == 0 {
+		return 0.0
+	}
+	return float64(a.totalFoodTaken) / float64(a.totalFoodSeen)
 }
 
 func (a *Base) HealthInfo() *health.HealthInfo {
@@ -237,5 +254,6 @@ func (a *Base) storyState() logging.AgentState {
 		Floor:     a.floor,
 		Age:       a.age,
 		Custom:    "",
+		Utility:   a.Utility(),
 	}
 }
