@@ -11,11 +11,12 @@ import (
 )
 
 type CustomAgentEvoParams struct {
-	foodToEat       map[string][]int // the amount of food to eat for various health levels
-	waitProbability map[string][]int // probability the agent will wait to eat on any given day
-	ageLastEaten    int              // the age at which the agent last ate
-	morality        float64          // the morality of the agent that determines how selfishly or selflessly the agent will act
-	craving         int              // the amount of craving the agent has for food which effects the amount of food it is likely to eat
+	foodToEat         map[string][]int // the amount of food to eat for various health levels
+	intendedFoodToEat int
+	waitProbability   map[string][]int // probability the agent will wait to eat on any given day
+	ageLastEaten      int              // the age at which the agent last ate
+	morality          float64          // the morality of the agent that determines how selfishly or selflessly the agent will act
+	craving           int              // the amount of craving the agent has for food which effects the amount of food it is likely to eat
 
 	globalTrust              float64       // the overall trust the agent has in other agents in the tower
 	coefficients             []float64     // the amount trust score changes by for certain actions
@@ -73,12 +74,13 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 	// 	}
 
 	return CustomAgentEvoParams{ //initialise the parameters of the agent
-		foodToEat:       foodToEat,
-		waitProbability: waitProbability,
-		ageLastEaten:    0,
-		morality:        100 * rand.Float64(), // TODO: Use this properly
-		craving:         0,
-		healthStatus:    3,
+		foodToEat:         foodToEat,
+		intendedFoodToEat: 0,
+		waitProbability:   waitProbability,
+		ageLastEaten:      0,
+		morality:          100 * rand.Float64(), // TODO: Use this properly
+		craving:           0,
+		healthStatus:      3,
 
 		globalTrust:       100.0,
 		globalTrustLimits: []int{40, 80},
@@ -258,8 +260,10 @@ func (a *CustomAgentEvo) Run() {
 		a.verifyResponses()
 	}
 
+	a.params.intendedFoodToEat = 0
 	if rand.Intn(100) >= (a.params.waitProbability[a.params.currentPersonality][a.params.healthStatus]-a.params.craving) && !a.HasEaten() && a.PlatformOnFloor() {
 		calculatedAmountToEat := food.FoodType(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) // TODO: add floor
+		a.params.intendedFoodToEat = int(calculatedAmountToEat)
 
 		foodEaten, err = a.TakeFood(calculatedAmountToEat)
 		if foodEaten > 0 {
