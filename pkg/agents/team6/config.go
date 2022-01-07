@@ -214,7 +214,7 @@ func (a *CustomAgent6) Run() {
 
 	treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
 	min, max := a.foodRange()
-	valid := a.treatyValid(*treaty)
+	valid := a.treatyValid(treaty)
 
 	a.Log("Team 6 processed treaty:", infra.Fields{"treaty": treaty, "range": max - min, "isValid:": valid})
 	// // treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
