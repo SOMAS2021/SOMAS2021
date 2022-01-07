@@ -340,54 +340,49 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 		if request > int(a.knowledge.foodLastSeen-a.knowledge.foodLastEaten) {
 			reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
 			a.SendMessage(reply)
-			if a.HP() > a.knowledge.lastHP {
-				if friendship > 0.5 {
-					if a.vars.morality > 50 {
-						if a.vars.mood > 30 {
-							a.decisions.foodToEat = a.decisions.foodToEat * percentageDec
-						}
-					}
-				} else {
-					if a.vars.morality > 70 {
-						if a.vars.mood > 50 {
-							a.decisions.foodToEat = a.decisions.foodToEat * percentageDec
-						}
-					}
-				}
-			}
-		} else {
-			if a.HP() > a.knowledge.lastHP {
-				if friendship > 0.5 {
-					if a.vars.morality > 50 {
-						if a.vars.mood > 30 {
-							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
-							a.SendMessage(reply)
-						} else {
-							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
-							a.SendMessage(reply)
-						}
-					} else {
-						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
-						a.SendMessage(reply)
-					}
-				} else {
-					if a.vars.morality > 70 {
-						if a.vars.mood > 50 {
-							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
-							a.SendMessage(reply)
-						} else {
-							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
-							a.SendMessage(reply)
-						}
-					} else {
-						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
-						a.SendMessage(reply)
+			if friendship > 0.5 {
+				if a.vars.morality > 50 {
+					if a.vars.mood > 30 {
+						a.decisions.foodToEat = int(float64(a.decisions.foodToEat) * percentageDec)
 					}
 				}
 			} else {
-				reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
-				a.SendMessage(reply)
+				if a.vars.morality > 70 {
+					if a.vars.mood > 50 {
+						a.decisions.foodToEat = int(float64(a.decisions.foodToEat) * percentageDec)
+					}
+				}
 			}
+
+		} else {
+			if friendship > 0.5 {
+				if a.vars.morality > 50 {
+					if a.vars.mood > 30 {
+						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
+						a.SendMessage(reply)
+					} else {
+						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+						a.SendMessage(reply)
+					}
+				} else {
+					reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+					a.SendMessage(reply)
+				}
+			} else {
+				if a.vars.morality > 70 {
+					if a.vars.mood > 50 {
+						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
+						a.SendMessage(reply)
+					} else {
+						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+						a.SendMessage(reply)
+					}
+				} else {
+					reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+					a.SendMessage(reply)
+				}
+			}
+
 		}
 
 		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
@@ -430,39 +425,34 @@ func (a *CustomAgent3) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 			reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
 			a.SendMessage(reply)
 		} else {
-			if a.HP() > a.knowledge.lastHP {
-				if friendship > 0.5 {
-					if a.vars.morality > 50 {
-						if a.vars.mood > 30 {
-							a.decisions.foodToEat = request
-							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
-							a.SendMessage(reply)
-						} else {
-							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
-							a.SendMessage(reply)
-						}
+			if friendship > 0.5 {
+				if a.vars.morality > 50 {
+					if a.vars.mood > 30 {
+						a.decisions.foodToEat = request
+						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
+						a.SendMessage(reply)
 					} else {
 						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
 						a.SendMessage(reply)
 					}
 				} else {
-					if a.vars.morality > 70 {
-						if a.vars.mood > 50 {
-							a.decisions.foodToEat = request
-							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
-							a.SendMessage(reply)
-						} else {
-							reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
-							a.SendMessage(reply)
-						}
+					reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+					a.SendMessage(reply)
+				}
+			} else {
+				if a.vars.morality > 70 {
+					if a.vars.mood > 50 {
+						a.decisions.foodToEat = request
+						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
+						a.SendMessage(reply)
 					} else {
 						reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
 						a.SendMessage(reply)
 					}
+				} else {
+					reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
+					a.SendMessage(reply)
 				}
-			} else {
-				reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), false)
-				a.SendMessage(reply)
 			}
 		}
 
