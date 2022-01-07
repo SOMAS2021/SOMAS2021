@@ -38,7 +38,7 @@ func (a *CustomAgentEvo) typeAssertRequestMessage(requestMessage messages.Messag
 	return typeAsserted, nil
 }
 
-func (a *CustomAgentEvo) updateGlobalTrustReqLeaveFood(msg messages.BoolResponseMessage, sentMsg messages.Message) {
+func (a *CustomAgentEvo) UpdateGlobalTrustReqLeaveFood(msg messages.ResponseMessage, sentMsg messages.Message) {
 	a.Log("Team4 reponse message received", infra.Fields{"sentMsg_Type": sentMsg.MessageType().String(), "senderFloor": msg.SenderFloor()})
 	reqMsg, err := a.typeAssertRequestMessage(sentMsg)
 	if err != nil {
@@ -55,7 +55,7 @@ func (a *CustomAgentEvo) updateGlobalTrustReqLeaveFood(msg messages.BoolResponse
 	}
 }
 
-func (a *CustomAgentEvo) updateGlobalTrustReqTakeFood(msg messages.BoolResponseMessage, sentMsg messages.Message) {
+func (a *CustomAgentEvo) UpdateGlobalTrustReqTakeFood(msg messages.ResponseMessage, sentMsg messages.Message) {
 	a.Log("Team4 reponse message received", infra.Fields{"sentMsg_Type": sentMsg.MessageType().String(), "senderFloor": msg.SenderFloor()})
 	reqMsg, err := a.typeAssertRequestMessage(sentMsg)
 	if err != nil {
@@ -73,29 +73,28 @@ func (a *CustomAgentEvo) updateGlobalTrustReqTakeFood(msg messages.BoolResponseM
 }
 
 func (a *CustomAgentEvo) CheckForResponse(msg messages.BoolResponseMessage) {
-	if len(a.params.responseMessages) > 0 {
-		for i, respMsg := range a.params.responseMessages { // Iterate through each response message
-			resMsg, err := a.typeAssertResponseMessage(respMsg)
-			if err != nil {
-				log.Error(err)
-			} else {
-				for j, sentMsg := range a.params.sentMessages { // Iterate through each sent message
-					if resMsg.RequestID() == sentMsg.ID() {
-						if a.PlatformOnFloor() && sentMsg.MessageType() == messages.RequestLeaveFood && a.Floor()-msg.SenderFloor() == 1 { // Check if there are any responses messages.
-							a.updateGlobalTrustReqLeaveFood(msg, sentMsg)
-
-						} else if a.params.lastFoodTaken+a.CurrPlatFood() != a.params.lastPlatFood && sentMsg.MessageType() == messages.RequestTakeFood && a.Floor()-msg.SenderFloor() == -1 {
-							a.updateGlobalTrustReqTakeFood(msg, sentMsg)
-						}
-						a.params.sentMessages = remove(a.params.sentMessages, j) // Remove the accessed response/sent messages from memory
-						a.params.responseMessages = remove(a.params.responseMessages, i)
-						break
-					}
-				}
-			}
-		}
-		return
-	}
+	// if len(a.params.responseMessages) > 0 {
+	// 	for i, respMsg := range a.params.responseMessages { // Iterate through each response message
+	// 		resMsg, err := a.typeAssertResponseMessage(respMsg)
+	// 		if err != nil {
+	// 			log.Error(err)
+	// 		} else {
+	// 			for j, sentMsg := range a.params.sentMessages { // Iterate through each sent message
+	// 				if resMsg.RequestID() == sentMsg.ID() {
+	// 					if a.PlatformOnFloor() && sentMsg.MessageType() == messages.RequestLeaveFood && a.Floor()-msg.SenderFloor() == 1 { // Check if there are any responses messages.
+	// 						a.updateGlobalTrustReqLeaveFood(resMsg, sentMsg)
+	// 					} else if a.params.lastFoodTaken+a.CurrPlatFood() != a.params.lastPlatFood && sentMsg.MessageType() == messages.RequestTakeFood && a.Floor()-msg.SenderFloor() == -1 {
+	// 						a.updateGlobalTrustReqTakeFood(resMsg, sentMsg)
+	// 					}
+	// 					a.params.sentMessages = remove(a.params.sentMessages, j) // Remove the accessed response/sent messages from memory
+	// 					a.params.responseMessages = remove(a.params.responseMessages, i)
+	// 					break
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	return
+	// }
 	for _, sentMsg := range a.params.sentMessages {
 		if msg.RequestID() == sentMsg.ID() {
 			a.Log("Team4 received a message", infra.Fields{"sender_uuid": msg.ID(), "sentmessage_uuid": sentMsg.ID()})

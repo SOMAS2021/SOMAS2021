@@ -1,14 +1,12 @@
 package team4EvoAgent
 
 import (
-	"math/rand"
-
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
-func (a *CustomAgentEvo) GetMessage() { //move this function to messages.go
+func (a *CustomAgentEvo) GetMessage() {
 	receivedMsg := a.ReceiveMessage()
 
 	if receivedMsg != nil {
@@ -20,85 +18,102 @@ func (a *CustomAgentEvo) GetMessage() { //move this function to messages.go
 	}
 }
 
-func (a *CustomAgentEvo) CallHandleMessage() { //move this function to messages.go
+func (a *CustomAgentEvo) CallHandleMessage() {
 	if a.PlatformOnFloor() && len(a.params.requestLeaveFoodMessages) > 0 {
 		a.params.requestLeaveFoodMessages[0].Visit(a)
-		remove(a.params.requestLeaveFoodMessages, 0)
+		a.params.requestLeaveFoodMessages = remove(a.params.requestLeaveFoodMessages, 0)
 	} else if len(a.params.otherMessageBuffer) > 0 {
 		a.params.otherMessageBuffer[0].Visit(a)
-		remove(a.params.otherMessageBuffer, 0)
+		a.params.otherMessageBuffer = remove(a.params.otherMessageBuffer, 0)
 	} else {
 		a.Log("I got no messages")
 	}
 }
 
+func (a *CustomAgentEvo) GenerateMessagesToSend() {
+	if a.params.healthStatus == 0 {
+		floorToSend := a.Floor() - 1
+		msg := messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) //TODO: need to change how much to request to leave
+		a.params.msgToSendBuffer = append(a.params.msgToSendBuffer, msg)
+	}
+}
+
 func (a *CustomAgentEvo) SendingMessage() {
 
-	var msg messages.Message
-	floorToSend := a.Floor() + 1
-	switch a.params.messageCounter {
-	case 0:
-		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), floorToSend)
+	if len(a.params.msgToSendBuffer) > 0 {
+		msg := a.params.msgToSendBuffer[0]
 		a.SendMessage(msg)
 		a.params.sentMessages = append(a.params.sentMessages, msg)
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	case 1:
-		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), floorToSend)
-		a.SendMessage(msg)
-		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	case 2:
-		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), floorToSend)
-		a.SendMessage(msg)
-		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	case 3:
-		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, rand.Intn(60)) //TODO: need to change how much to request to leave
-		a.SendMessage(msg)
-		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	case 4:
-		msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, int(int(a.CurrPlatFood())/a.Floor())) //need to change how much to request to take
-		a.SendMessage(msg)
-		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	case 5:
-		floorToSend = a.Floor() - 1
-		msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), floorToSend)
-		a.SendMessage(msg)
-		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	case 6:
-		floorToSend = a.Floor() - 1
-		msg = messages.NewAskHPMessage(a.ID(), a.Floor(), floorToSend)
-		a.SendMessage(msg)
-		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	case 7:
-		floorToSend = a.Floor() - 1
-		msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), floorToSend)
-		a.SendMessage(msg)
-		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	case 8:
-		floorToSend = a.Floor() - 1
-		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) //need to change how much to request to leave
-		a.SendMessage(msg)
-		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	case 9:
-		floorToSend = a.Floor() - 1
-		msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, 60) //need to change how much to request to take
-		a.SendMessage(msg)
-		a.params.sentMessages = append(a.params.sentMessages, msg)
-		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	default:
+		a.params.msgToSendBuffer = remove(a.params.msgToSendBuffer, 0)
 	}
 
-	if a.HasDayPassed() {
-		a.params.messageCounter = 0
-	}
-	a.params.messageCounter++
+	// var msg messages.Message
+	// floorToSend := a.Floor() + 1
+
+	// switch a.params.messageCounter {
+	// case 0:
+	// 	msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), floorToSend)
+	// 	a.SendMessage(msg)
+	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
+	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+	// case 1:
+	// 	msg = messages.NewAskHPMessage(a.ID(), a.Floor(), floorToSend)
+	// 	a.SendMessage(msg)
+	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
+	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+	// case 2:
+	// 	msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), floorToSend)
+	// 	a.SendMessage(msg)
+	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
+	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+	// case 3:
+	// 	msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, rand.Intn(60)) //TODO: need to change how much to request to leave
+	// 	a.SendMessage(msg)
+	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
+	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+	// case 4:
+	// 	msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, int(int(a.CurrPlatFood())/a.Floor())) //need to change how much to request to take
+	// 	a.SendMessage(msg)
+	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
+	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+	// case 5:
+	// 	floorToSend = a.Floor() - 1
+	// 	msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), floorToSend)
+	// 	a.SendMessage(msg)
+	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
+	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+	// case 6:
+	// 	floorToSend = a.Floor() - 1
+	// 	msg = messages.NewAskHPMessage(a.ID(), a.Floor(), floorToSend)
+	// 	a.SendMessage(msg)
+	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
+	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+	// case 7:
+	// 	floorToSend = a.Floor() - 1
+	// 	msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), floorToSend)
+	// 	a.SendMessage(msg)
+	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
+	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+	// case 8:
+	// 	floorToSend = a.Floor() - 1
+	// 	msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) //need to change how much to request to leave
+	// 	a.SendMessage(msg)
+	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
+	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+	// case 9:
+	// 	floorToSend = a.Floor() - 1
+	// 	msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, 60) //need to change how much to request to take
+	// 	a.SendMessage(msg)
+	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
+	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
+	// default:
+	// }
+
+	// if a.HasDayPassed() {
+	// 	a.params.messageCounter = 0
+	// }
+	// a.params.messageCounter++
 }
 
 //FOR HONEST AGENTS
