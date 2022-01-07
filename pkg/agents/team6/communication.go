@@ -167,7 +167,7 @@ func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
 
 	// check if treaty complies with other active treaties and if we benefit from it
-	if(a.treatyValid(&treaty) && a.considerTreaty(&treaty)) {
+	if(a.considerTreaty(&treaty)) {
 		treaty.SignTreaty()
 		a.AddTreaty(treaty)
 

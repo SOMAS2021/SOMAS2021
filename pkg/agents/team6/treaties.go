@@ -40,21 +40,22 @@ func (a *CustomAgent6) foodRange() (int, int) {
 	return mini, maxi
 }
 
-func (a *CustomAgent6) treatyValid(treaty *messages.Treaty) bool {
+// !!! We only accept treaties that say leave ≥,> of food available. Hence there will never be a invalid treaty.
+// func (a *CustomAgent6) treatyValid(treaty *messages.Treaty) bool {
 
-	if len(a.ActiveTreaties()) == 0 {
-		return true
-	}
+// 	if len(a.ActiveTreaties()) == 0 {
+// 		return true
+// 	}
 
-	chkTrtyVal := treaty.RequestValue()
-	mini, maxi := a.foodRange()
+// 	chkTrtyVal := treaty.RequestValue()
+// 	mini, maxi := a.foodRange()
 
-	if chkTrtyVal >= mini && chkTrtyVal <= maxi {
-		return true
-	}
-	return false
+// 	if chkTrtyVal >= mini && chkTrtyVal <= maxi {
+// 		return true
+// 	}
+// 	return false
 
-}
+// }
 
 // The utility function with
 // x - food input
@@ -171,10 +172,20 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	} else {
 		// The treaty is of the form "Take X (or more) food"
 
+		// !!! Accepting treaties of this form would potentially lead to situations where it is impossible to satisfy all treaties.
+		// E.g. 
+		// If you agree to leave more than an absolute amount (eg. 50) (1)
+
+		// You also agree to leave less than a relative amount (50%) (2)
+
+		// ! At proposal, we estimate 50% of the food to be 60 -> we can take less than 60 and more than 50 to satisfy this.
+
+		// However, we actually get only 80 (instead of 120), wherefore 50% = 40 and we can't satisfy both (1) and (2).
+
 		// - collectivist --> accept treaty if estimatedTakeFood less than (hoping to get others to eat at least the critical level)
-		if a.currBehaviour.String() == "Collectivist" {
-			return estimatedTakeFood <= 2.0 // the amount of food we need to get others to eat
-		}
+		// if a.currBehaviour.String() == "Collectivist" {
+		// 	return estimatedTakeFood <= 2.0 // the amount of food we need to get others to eat
+		// }
 		// All other social motives will allways reject
 		// - altruist wants to avoid eating anyhing to save more for others
 		// - selfish / narcissist doesn't want others to eat more than they want
