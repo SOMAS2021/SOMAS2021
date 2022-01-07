@@ -81,7 +81,7 @@ func (a *CustomAgent3) askLeaveFood(direction int) { //direction 1 or -1
 
 func (a *CustomAgent3) proposeTreatiesInmoral() {
 	randomFloor := rand.Intn(a.Floor()) + 1
-	tr := messages.NewTreaty(messages.Floor, a.Floor()+1, messages.LeavePercentFood, 99, messages.GT, messages.GT, 9, a.ID())
+	tr := messages.NewTreaty(messages.Floor, a.Floor()+1, messages.LeavePercentFood, 99, messages.GT, messages.GT, a.knowledge.reshuffleEst/2, a.ID())
 	a.knowledge.treatyProposed = *tr //remember the treaty we proposed
 	msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), randomFloor, *tr)
 	a.SendMessage(msg)
@@ -101,8 +101,13 @@ func (a *CustomAgent3) ticklyMessage() {
 		a.requestHelpInCrit()
 	} else {
 		direction := 1
+		hpRecorded := a.knowledge.hpAbove
 		if a.vars.morality > 50 {
 			direction = -1
+			hpRecorded = a.knowledge.hpBelow
+		}
+		if hpRecorded == -1 { //check in case
+			hpRecorded = 50
 		}
 		r := rand.Intn(4)
 		switch r {
@@ -111,7 +116,7 @@ func (a *CustomAgent3) ticklyMessage() {
 		case 1:
 			a.askFoodTaken(direction)
 		case 2:
-			a.askTakeFood(50, direction) //save HP knowledge
+			a.askTakeFood(hpRecorded, direction) //save HP knowledge
 		case 3:
 			a.askLeaveFood(direction)
 		case 4:
@@ -180,7 +185,6 @@ func (a *CustomAgent3) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 				changeInMorality(a, 1, 3, -1)
 			} else {
 				changeInMood(a, 1, 6, 1)
-
 			}
 		} else {
 			if friendship < 0.5 {
@@ -386,8 +390,13 @@ func (a *CustomAgent3) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) 
 func (a *CustomAgent3) HandleStateHP(msg messages.StateHPMessage) {
 	statement := msg.Statement()
 	friendship := a.knowledge.friends[msg.SenderID()]
+	if msg.SenderFloor() > a.Floor() {
+		a.knowledge.hpBelow = statement
+	} else {
+		a.knowledge.hpAbove = statement
+	}
 	if friendship < 0.5 {
-		if statement > a.decisions.foodToEat {
+		if statement > a.decisions.foodToEat { // Look at this later.
 			changeInMood(a, 1, 6, -1)
 			changeInMorality(a, 1, 6, -1)
 		} else {

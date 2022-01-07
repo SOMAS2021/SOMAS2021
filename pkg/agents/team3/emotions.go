@@ -78,15 +78,20 @@ func changeInStubbornness(a *CustomAgent3, change, direction int) {
 }
 
 // Updates mood and morality when the floor is changed. Called at the start of each day.
-//TO DO: Trial this and do sth different.
 func changeNewDay(a *CustomAgent3) {
 	a.knowledge.lastHP = a.HP()
 	a.knowledge.agentAge = a.BaseAgent().Age()
-	if a.HP() < 50 {
+	if a.HP() > 20 {
+		changeInMorality(a, 3, 7, -1)
+		changeInMood(a, 5, 10, -1)
+	} else if a.HP() > 40 {
 		changeInMorality(a, 0, 4, -1)
 		changeInMood(a, 5, 10, -1)
-	} else {
+	} else if a.HP() > 75 {
 		changeInMorality(a, 0, 4, 1)
+		changeInMood(a, 5, 10, 1)
+	} else {
+		changeInMorality(a, 3, 7, 1)
 		changeInMood(a, 5, 10, 1)
 	}
 	a.knowledge.foodMovingAvg = float64(a.knowledge.foodMovingAvg)*0.9 + float64(a.knowledge.foodLastEaten)*0.1
@@ -132,7 +137,6 @@ func changeNewFloor(a *CustomAgent3) {
 		} else {
 			changeInMood(a, 0, 5, -1)
 		}
-
 	}
 	a.knowledge.floors = append(a.knowledge.floors, a.Floor())
 }

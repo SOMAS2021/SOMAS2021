@@ -37,6 +37,10 @@ type team3Knowledge struct {
 	treatyProposed messages.Treaty
 	//Stores our estimation of resshufle
 	reshuffleEst int
+	//Neighbours HP above
+	hpAbove int
+	//Neighbours HP below
+	hpBelow int
 }
 
 type team3Decisions struct {
@@ -72,6 +76,8 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			agentAge:       0,
 			treatyProposed: *messages.NewTreaty(messages.HP, 0, messages.LeaveAmountFood, 0, messages.GT, messages.GT, 0, uuid.Nil),
 			reshuffleEst:   -1,
+			hpAbove:        -1,
+			hpBelow:        -1,
 		},
 		decisions: team3Decisions{
 			foodToEat:   -1,
