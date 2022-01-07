@@ -19,13 +19,15 @@ func (a *CustomAgent3) read() bool {
 //If they are not in our list, we add them.
 func (a *CustomAgent3) updateFriendship(friend uuid.UUID, change float64) {
 	level, found := a.knowledge.friends[friend]
+	var b float64 = 0.3
+	var c float64 = 0.4
 	if !found {
 		a.knowledge.friends[friend] = 0.4 + (float64(a.vars.morality)/100)*0.2
 	} else {
 		if change < 0 {
-			level = level - change*(level)
+			level = level - b*(level)
 		} else {
-			level = level + change*(1-level)
+			level = level + c*(1-level)
 		}
 		a.knowledge.friends[friend] = level
 	}

@@ -355,7 +355,36 @@ func (a *CustomAgent3) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 
 //HandleResponse handles responses
 func (a *CustomAgent3) HandleResponse(msg messages.BoolResponseMessage) {
+	friendship := a.knowledge.friends[msg.SenderID()]
 	response := msg.Response()
+	if response {
+		if friendship > 0.5 {
+			changeInMood(a, 6, 12, 1)
+			changeInMorality(a, 6, 12, 1)
+			changeInStubbornness(a, 5, -1)
+			a.updateFriendship(msg.SenderID(), 1)
+			a.updateFriendship(msg.SenderID(), 1)
+		} else {
+			changeInMood(a, 1, 6, 1)
+			changeInMorality(a, 1, 6, 1)
+			changeInStubbornness(a, 5, -1)
+			a.updateFriendship(msg.SenderID(), 1)
+		}
+	} else {
+		if friendship > 0.5 {
+			changeInMood(a, 6, 12, -1)
+			changeInMorality(a, 6, 12, -1)
+			changeInStubbornness(a, 5, 1)
+			a.updateFriendship(msg.SenderID(), -1)
+			a.updateFriendship(msg.SenderID(), -1)
+		} else {
+			changeInMood(a, 1, 6, -1)
+			changeInMorality(a, 1, 6, -1)
+			changeInStubbornness(a, 5, 1)
+			a.updateFriendship(msg.SenderID(), -1)
+		}
+	}
+
 	a.Log("I recieved a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": response})
 }
 
