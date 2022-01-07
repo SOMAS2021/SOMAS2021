@@ -162,3 +162,13 @@ func (a *CustomAgent6) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 	a.SendMessage(reply)
 	a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 }
+
+func (a *CustomAgent6) HandleProposeTreaty(msg *messages.ProposeTreatyMessage) {
+	treaty := msg.Treaty()
+
+	// check if treaty complies with other active treaties
+	if(a.treatyValid(&treaty) && a.considerTreaty(&treaty)) {
+		a.AddTreaty(treaty)
+		a.Log("I accepted a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
+	}
+}
