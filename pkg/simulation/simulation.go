@@ -29,20 +29,25 @@ type Fields = log.Fields
 type AgentNewFunc func(base *infra.Base) (infra.Agent, error)
 
 type SimEnv struct {
-	FoodOnPlatform food.FoodType
-	AgentCount     map[agent.AgentType]int
-	AgentHP        int
-	AgentsPerFloor int
-	logger         log.Entry
-	dayInfo        *day.DayInfo
-	healthInfo     *health.HealthInfo
-	Tower          world.World
-	stateLog       *logging.StateLog
-	agentNewFuncs  map[agent.AgentType]AgentNewFunc
+	FoodOnPlatform   food.FoodType
+	AgentCount       map[agent.AgentType]int
+	AgentHP          int
+	AgentsPerFloor   int
+	logger           log.Entry
+	dayInfo          *day.DayInfo
+	healthInfo       *health.HealthInfo
+	Tower            world.World
+	stateLog         *logging.StateLog
+	agentNewFuncs    map[agent.AgentType]AgentNewFunc
+	activeAgentTypes []agent.AgentType
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
 	stateLog := logging.NewLogState(parameters.LogFolderName, parameters.LogMain, parameters.LogStory, parameters.CustomLog)
+	activeAgentTypesList := make([]agent.AgentType, 0)
+	if parameters.RandomReplacementAgents == true {
+		activeAgentTypesList = listOfNonZeroAgentsTypes(parameters.NumOfAgents)
+	}
 	return &SimEnv{
 		FoodOnPlatform: parameters.FoodOnPlatform,
 		AgentCount:     parameters.NumOfAgents,
@@ -63,6 +68,7 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 			agent.Team7:       team7agent1.New,
 			agent.RandomAgent: randomAgent.New,
 		},
+		activeAgentTypes: activeAgentTypesList,
 	}
 }
 
@@ -110,4 +116,14 @@ func (sE *SimEnv) Log(message string, fields ...Fields) {
 		fields = append(fields, Fields{})
 	}
 	sE.logger.WithFields(fields[0]).Info(message)
+}
+
+func listOfNonZeroAgentsTypes(AgentCount map[agent.AgentType]int) []agent.AgentType {
+	activeAgentsList := make([]agent.AgentType, 0)
+	for agentType, count := range AgentCount {
+		if count > 0 {
+			activeAgentsList = append(activeAgentsList, agentType)
+		}
+	}
+	return activeAgentsList
 }
