@@ -26,7 +26,7 @@ type HealthInfo struct {
 	// HP loss slope w.r.t currentHP - weakLevel
 	HPLossSlope float64
 	// Maximal amount of food on the platform
-	MaxPlatFood food.FoodType
+	maxPlatFood food.FoodType
 	// Maximal amount of food the agents can physically take from the platform
 	MaxFoodIntake food.FoodType
 }
@@ -42,7 +42,7 @@ func NewHealthInfo(parameters *config.ConfigParameters) *HealthInfo {
 		MaxDayCritical: parameters.MaxDayCritical,
 		HPLossBase:     parameters.HPLossBase,
 		HPLossSlope:    parameters.HPLossSlope,
-		MaxPlatFood:    parameters.FoodOnPlatform,
+		maxPlatFood:    parameters.FoodOnPlatform,
 		MaxFoodIntake:  parameters.MaxFoodIntake,
 	}
 }
@@ -61,7 +61,7 @@ func FoodRequired(currentHP int, goalHP int, healthInfo *HealthInfo) food.FoodTy
 		if goalHP < currentHP {
 			return 0
 		}
-		return healthInfo.MaxPlatFood
+		return healthInfo.maxPlatFood
 	}
 	return food
 }

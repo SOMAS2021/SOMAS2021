@@ -18,7 +18,7 @@ func TestFoodRequired(t *testing.T) {
 		MaxDayCritical: 3,
 		HPLossBase:     5,
 		HPLossSlope:    0.2,
-		MaxPlatFood:    100,
+		maxPlatFood:    100,
 	}
 	type args struct {
 		currentHP int
@@ -59,7 +59,7 @@ func TestFoodRequired(t *testing.T) {
 				currentHP: 15,
 				goalHP:    100,
 			},
-			want: healthInfo.MaxPlatFood,
+			want: healthInfo.maxPlatFood,
 		},
 		{
 			name: "big loss",
