@@ -112,6 +112,9 @@ func (a *CustomAgent2) Run() {
 	*/
 
 	//Perform the following only once per day when platform arrives
+	if a.Day() == 5000 {
+		a.exportQTable()
+	}
 
 	if a.PlatformOnFloor() && a.Age() > a.lastAge {
 		oldState := a.CheckState()
@@ -130,7 +133,6 @@ func (a *CustomAgent2) Run() {
 			a.daysAtCriticalCounter += 1
 			if a.DaysAtCritical() >= (a.HealthInfo().MaxDayCritical - 1) {
 				a.Log("Agent team2 at critical state", infra.Fields{"daysAtCriticalCounter": a.daysAtCriticalCounter, "floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
-				//a.exportQTable()
 			}
 		}
 		hpInc := a.HP() - oldHP

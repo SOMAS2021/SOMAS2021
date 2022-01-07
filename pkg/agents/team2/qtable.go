@@ -6,6 +6,7 @@ import (
 	"os"
 	"log"
 	"fmt"
+	//"time"
 )
 
 type maxQAction struct {
@@ -42,8 +43,9 @@ func (a *CustomAgent2) updateQTable(state int, action int) {
 }
 
 func (a *CustomAgent2) exportQTable() {
-	os.Remove("qtable.csv")
-	f, err := os.OpenFile("qtable.csv", os.O_WRONLY|os.O_CREATE, 0600)
+	//currentTime := time.Now()
+	//f, err := os.OpenFile(fmt.Sprintf("%s%s",currentTime.Format(time.RFC3339), ".csv"), os.O_WRONLY|os.O_CREATE, 0600)
+	f, err := os.OpenFile("qtable.csv", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		panic(err)
 	}
@@ -51,18 +53,20 @@ func (a *CustomAgent2) exportQTable() {
 
 	w := csv.NewWriter(f)
 	qTable := a.qTable
+	// make string table
 	sQTable := make([][]string, len(qTable))
 	for i := 0; i < len(qTable); i++ {
 		sQTable[i] = make([]string, len(qTable[0]))
 	}
-	//w.WriteAll(a.qTable)
 
+	// convert float64 qtable to string qtable
 	for i := 0; i < len(qTable); i++ {
 		for j := 0; j < len(qTable[0]); j++ {
 			sQTable[i][j] = fmt.Sprint(qTable[i][j])
 		}
 	}
-	fmt.Println("rows:", len(sQTable), "columns:", len(sQTable[0]))
+
+	//fmt.Println("rows:", len(sQTable), "columns:", len(sQTable[0]))
 	w.WriteAll(sQTable)
 
 	if err := w.Error(); err != nil {
