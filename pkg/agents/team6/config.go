@@ -241,5 +241,103 @@ func Utility(x, z float64, socialMotive string) float64 {
 		a := (1 / z) * math.Pow((params.c*params.r)/params.g, params.r/(1-params.r))
 		return params.g*math.Pow(a*x, 1/params.r) - params.c*a*x
 	}
+}
 
+func min(x, y food.FoodType) food.FoodType {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+// Evaluate our agents current utility based on the current desired food
+func (a *CustomAgent6) evaluateUtility(mem memory) float64 {
+	sum := food.FoodType(0)
+	for _, foodAvailable := range mem {
+		sum += food.FoodType(Utility(float64(min(foodAvailable, a.desiredFoodIntake())), float64(a.desiredFoodIntake()), a.currBehaviour.String()))
+	}
+
+	return float64(sum) / math.Max(float64(len(mem)), 1.0)
+}
+
+func (a *CustomAgent6) rateTreaty(t *messages.Treaty) bool { // TODO: change name
+
+	// Calculate estimated food intake from treaty
+	// -> Calculate average available food
+	sum := food.FoodType(0)
+	for _, food := range a.shortTermMemory {
+		sum += food
+	}
+	averageFoodAvailable := float64(sum) / math.Max(float64(len(a.shortTermMemory)), 1.0)
+
+	// Request Type
+	estimatedTakeFood := 0.0
+	switch t.Request() {
+	case messages.LeaveAmountFood:
+		estimatedTakeFood = averageFoodAvailable - float64(t.RequestValue())
+	case messages.LeavePercentFood:
+		estimatedTakeFood = averageFoodAvailable * (1.0 - float64(t.RequestValue()))
+	case messages.Inform:
+		return false
+	default:
+		return false
+	}
+
+	// Request operator
+	if /*t.ConditionOp() == messages.EQ || */ t.ConditionOp() == messages.GE || t.ConditionOp() == messages.GT { // eat max estimated take food
+
+		// Compare current utility to expected utilit when signing the treaty
+		treatyTrustFactor := 0.8 // TODO: Include population value
+		treatyUtility := treatyTrustFactor * Utility(estimatedTakeFood, float64(a.desiredFoodIntake()), a.currBehaviour.String())
+
+		currentShortTermUtility := a.evaluateUtility(a.shortTermMemory)
+		currentLongTermUtility := a.evaluateUtility(a.longTermMemory)
+		shortTermBenefit := treatyUtility - currentShortTermUtility
+		longTermBenefit := treatyUtility - currentLongTermUtility
+
+		estmatedPeriod := len(a.longTermMemory)
+		if a.numReassigned != 0 {
+			estmatedPeriod /= a.numReassigned
+		}
+
+		// only think in the short term if
+		// - the duration is shorter than the time left in estimated reassignment period
+		// or - we only have short term experience
+		benefit := 0.0
+		if t.Duration() < estmatedPeriod-len(a.shortTermMemory) ||
+			len(a.shortTermMemory) == len(a.longTermMemory) ||
+			a.HP() <= a.HealthInfo().HPCritical {
+			benefit = shortTermBenefit
+		} else {
+			// For example estimatedPeriod = 1, duration = 2 --> shortTermFocus 50/50
+			// --> The treaty counts as much for the short term as the time after
+			shortTermFocus := float64(estmatedPeriod) / float64(t.Duration())
+			benefit = shortTermFocus*shortTermBenefit + (1.0-shortTermFocus)*longTermBenefit
+		}
+
+		if benefit > 0.0 {
+			return true
+		} else {
+			return false
+		}
+
+	} else {
+		// Eat at least a certain amount makes no sense
+		// altruistic doesn't eat anyhing
+		// collectivist --> if estimatedTakeFood less than desired than accept
+		// selfish / narcissist--> doesn't want others to eat
+		if a.currBehaviour.String() == "Collectivist" {
+			if estimatedTakeFood <= float64(a.desiredFoodIntake()) { // TODO: desired food will be 0 some of the days (instead 2??)
+				return true
+			} else {
+				return false
+			}
+		} else { // All other social motives will allways reject
+			return false
+		}
+	}
+
+	// Reject everything that is unreasonable
+
+	return false
 }
