@@ -13,11 +13,7 @@ function App() {
       <div style={{ height: 50 }}></div>
       <div className="row">
         <div className="col-lg-2">
-          <Sidebar
-            activeLog={activeLog}
-            setActiveLog={setActiveLog}
-            logsSub={logsChange}
-          />
+          <Sidebar activeLog={activeLog} setActiveLog={setActiveLog} logsSub={logsChange} />
         </div>
         <div className="col-lg-10">
           <Results logName={activeLog} />
