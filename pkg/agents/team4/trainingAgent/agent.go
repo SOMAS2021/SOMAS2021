@@ -21,8 +21,8 @@ type CustomAgentEvoParams struct {
 	morality        float64 // the morality of the agent that determines how selfishly or selflessly the agent will act
 	craving         int     // the amount of craving the agent has for food which effects the amount of food it is likely to eat
 
-	globalTrust              float32            // the overall trust the agent has in other agents in the tower
-	coefficients             []float32          // the amount trust score changes by for certain actions
+	globalTrust              float64            // the overall trust the agent has in other agents in the tower
+	coefficients             []float64          // the amount trust score changes by for certain actions
 	lastFoodTaken            food.FoodType      // food taken on the previous day
 	sentMessages             []messages.Message // TODO: make it a map hashed by messageIDs
 	responseMessages         []messages.Message // TODO: make it a map hashed by messageIDs
@@ -32,7 +32,7 @@ type CustomAgentEvoParams struct {
 	lastTimeFoodSeen         int           // number of days passed since seeing the desired amount of food on the platform
 	maxFoodLimit             food.FoodType // maximum food we want to allow others to eat
 	messageCounter           int           // the total number of messages we send in a day
-	globalTrustLimit         float32       // limit to check whether to be selfish or not
+	globalTrustLimits        []int         // limit to check whether to be selfish or not
 	lastAge                  int           // the age of the agent on the previous day
 	healthStatus             int
 	maxFloor                 int
@@ -70,10 +70,10 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 		craving:         0,
 		healthStatus:    3,
 
-		globalTrust:      0.0,
-		globalTrustLimit: 75,
-		coefficients:     []float32{2, 4, 8}, // TODO: maybe train these co-efficients using evolutionary algorithm
-		lastFoodTaken:    0,
+		globalTrust:       0.0,
+		globalTrustLimits: []int{40, 80},
+		coefficients:      []float64{2, 4, 8}, // TODO: maybe train these co-efficients using evolutionary algorithm
+		lastFoodTaken:     0,
 
 		messageCounter:           0,
 		sentMessages:             []messages.Message{},

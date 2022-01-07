@@ -117,14 +117,14 @@ func (a *CustomAgentEvo) CheckForResponse(msg messages.BoolResponseMessage) {
 	}
 }
 
-func (a *CustomAgentEvo) AddToGlobalTrust(coeff float32) {
+func (a *CustomAgentEvo) AddToGlobalTrust(coeff float64) {
 	a.params.globalTrust += coeff
 	if a.params.globalTrust > 100 {
 		a.params.globalTrust = 100
 	}
 }
 
-func (a *CustomAgentEvo) SubFromGlobalTrust(coeff float32) {
+func (a *CustomAgentEvo) SubFromGlobalTrust(coeff float64) {
 	a.params.globalTrust -= coeff
 	if a.params.globalTrust < 0 {
 		a.params.globalTrust = 0
