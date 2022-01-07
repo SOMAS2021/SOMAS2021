@@ -111,6 +111,7 @@ func changeNewFloor(a *CustomAgent3) {
 		currentFloor := a.Floor()
 		beenInHigher := false
 		beenInLower := false
+		a.resshufleEstimator()
 
 		for _, floor := range a.knowledge.floors {
 			if floor > currentFloor {

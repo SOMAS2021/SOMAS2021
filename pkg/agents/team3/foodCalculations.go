@@ -36,6 +36,7 @@ func foodScale(number int, metric int, minScale float64, maxScale float64) int {
 	return -1
 }
 
+// OpSolver returns a range from number*minScale to number*maxScale, depending on the value of the metric
 func OpSolver(r int, l int, op messages.Op) bool {
 	switch op {
 	case (messages.GT):
@@ -103,20 +104,16 @@ func (a *CustomAgent3) takeFoodCalculation() int {
 
 		switch hp := a.HP(); {
 		case hp == a.HealthInfo().HPCritical:
-
 			survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
 
 			if a.DaysAtCritical() < 2 { //depend on morality
-				//a.Log("HP is critical", infra.Fields{"hp: ": a.HP(), "Days at Crit:": a.DaysAtCritical(), "survivalFood: ": survivalFood, "food Intended: ": foodRange(morality, a.DaysAtCritical(), survivalFood+a.DaysAtCritical()+3)})
 				return foodRange(morality, a.DaysAtCritical(), survivalFood+a.DaysAtCritical()) // adaptive range
-			} else { // a.DaysAtCritical() == 2
-				//a.Log("HP is critical", infra.Fields{"hp: ": a.HP(), "Days at Crit:": a.DaysAtCritical(), "survivalFood: ": survivalFood, "food Intended: ": foodRange(morality, survivalFood, survivalFood+a.DaysAtCritical())})
-				return foodRange(morality, survivalFood, survivalFood+a.DaysAtCritical()) //range ensures survival if possible with foodToLeave
 			}
+			return foodRange(morality, survivalFood, survivalFood+a.DaysAtCritical()) //range ensures survival if possible with foodToLeave // a.DaysAtCritical() == 2
+
 		default: // 10 <= hp <= 100:
 			targetHP := a.targetHPCalc()
 			foodRequired := a.foodReqCalc(a.HP(), targetHP)
-			//a.Log("Case -1, HP is NOT critical", infra.Fields{"HP: ": a.HP(), "targetHP: ": targetHP, "Morality: ": morality, "foodRequired: ": foodRequired, "Scaled foodRequired: ": foodScale(foodRequired, morality, 0.0, 2.0)})
 			return foodScale(foodRequired, morality, 0.0, 2.0) // from foodRequired*0 (morality 100) to foodRequired*2 (morality 0)
 		}
 
@@ -154,7 +151,7 @@ func (a *CustomAgent3) takeFoodCalculation() int {
 			return foodToEat
 		} else if platFood >= foodToLeave { //e.g. platFood=15, foodToLeave=10, foodToEat=10 --> if morality=100, take 5, if morality=0, take 10
 			return foodRange(morality, platFood-foodToLeave, foodToEat)
-		} //e.g. platFood=300, foodToLeave=310, foodToEat=10, take less if moral since you "should" leave a high amount.
+		}
 		return foodRange(morality, 0, foodToEat) // Cannot satisfy platform requirement
 
 	}
