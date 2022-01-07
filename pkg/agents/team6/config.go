@@ -172,12 +172,12 @@ func (a *CustomAgent6) Run() {
 	a.RequestLeaveFood()
 
 	// Receiving messages
-	// receivedMsg := a.ReceiveMessage()
-	// if receivedMsg != nil {
-	// 	receivedMsg.Visit(a)
-	// } else {
-	// 	a.Log("I got no thing")
-	// }
+	receivedMsg := a.ReceiveMessage()
+	if receivedMsg != nil {
+		receivedMsg.Visit(a)
+	} else {
+		// a.Log("I got no thing")
+	}
 
 	// MEMORY STUFF
 	if a.isReassigned() {
@@ -213,11 +213,11 @@ func (a *CustomAgent6) Run() {
 
 	//fmt.Println(a.ActiveTreaties())
 
-	treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
-	min, max := a.foodRange()
-	valid := a.treatyValid(treaty)
+	// treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
+	// min, max := a.foodRange()
+	// valid := a.treatyValid(treaty)
 
-	a.Log("Team 6 processed treaty:", infra.Fields{"treaty": treaty, "range": max - min, "isValid:": valid})
+	// a.Log("Team 6 processed treaty:", infra.Fields{"treaty": treaty, "range": max - min, "isValid:": valid})
 	// // treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
 
 	// treatyMsg.Visit(a).

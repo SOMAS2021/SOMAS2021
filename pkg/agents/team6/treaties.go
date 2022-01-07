@@ -8,35 +8,42 @@ import (
 )
 
 
-func (a *CustomAgent6) foodRange() (int, int) {
-	mini := 0           //initial minimum value
-	maxi := math.MaxInt //maximum value to indicate no maximum
+func (a *CustomAgent6) foodRange() (food.FoodType, food.FoodType) {
+	mini := food.FoodType(0)           //initial minimum value
+	maxi := food.FoodType(math.MaxInt) //maximum value to indicate no maximum
 	for _, treaty := range a.ActiveTreaties() {
+		// TODO: check if we actually know the amount of food on the platform every time foodRange is called
+		takefoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue())
+		foodAmount := a.CurrPlatFood() - takefoodAmount
+
+		// deal with different request types
 		switch treaty.RequestOp() {
-		case 1:
-			if treaty.RequestValue() > mini || treaty.RequestValue() == mini {
-				mini = treaty.RequestValue() + 1 //If Greater than, then the max value is one larger
+		case 1: // GE
+			if foodAmount > mini || foodAmount == mini {
+				mini = foodAmount + 1 //If Greater than, then the max value is one larger
 			}
 		case 2:
-			if treaty.RequestValue() > mini {
-				mini = treaty.RequestValue() //If Greater or Equal, then the max value is itself
+			if foodAmount > mini {
+				mini = foodAmount //If Greater or Equal, then the max value is itself
 			}
 		case 3:
-			eqVal := treaty.RequestValue() //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
+			eqVal := foodAmount //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
 			mini, maxi = eqVal, eqVal
 		case 4:
-			if treaty.RequestValue() < maxi || maxi == 0 {
-				maxi = treaty.RequestValue() //If Less than or Equal, then the max value is itself
+			if foodAmount < maxi || maxi == 0 {
+				maxi = foodAmount //If Less than or Equal, then the max value is itself
 			}
 		case 5:
-			if treaty.RequestValue() < maxi || maxi == 0 {
-				maxi = treaty.RequestValue() - 1 //If Less than, then the max value is one smaller
+			if foodAmount < maxi || maxi == 0 {
+				maxi = foodAmount - 1 //If Less than, then the max value is one smaller
 			}
 		default:
 			mini, maxi = -1, -1 //unknown op code
 		}
 
 	}
+
+	// TODO: iterate over all mesages as well
 	return mini, maxi
 }
 
@@ -47,7 +54,7 @@ func (a *CustomAgent6) foodRange() (int, int) {
 // 		return true
 // 	}
 
-// 	chkTrtyVal := treaty.RequestValue()
+// 	chkTrtyVal := foodAmount
 // 	mini, maxi := a.foodRange()
 
 // 	if chkTrtyVal >= mini && chkTrtyVal <= maxi {
@@ -91,6 +98,26 @@ func (a *CustomAgent6) evaluateUtility(mem memory) float64 {
 	return float64(sum) / math.Max(float64(len(mem)), 1.0)
 }
 
+// convert different message "Request types" to an equivalent "food intake" value
+func (a *CustomAgent6) convertToTakeFoodAmount(foodAvailable float64 , requestType messages.RequestType, requestValue int) (food.FoodType) {
+
+	takeFood := 0.0
+	switch requestType {
+	case messages.LeaveAmountFood:
+		takeFood = foodAvailable - float64(requestValue)
+	case messages.LeavePercentFood:
+		takeFood = foodAvailable * (1.0 - float64(requestValue))
+	// case messages.TakeAmountFood:
+	// 	takeFood = float64(requestValue)
+	case messages.Inform:
+		takeFood = -1
+	default:
+		takeFood = -1
+	}
+
+	return food.FoodType(takeFood)
+}
+
 // Decides if to accept or reject a treaty
 func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 
@@ -104,16 +131,8 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	averageFoodAvailable := float64(sum) / math.Max(float64(len(a.shortTermMemory)), 1.0)
 
 	// convert different treaty "Request types" to a "food intake"
-	estimatedTakeFood := 0.0
-	switch t.Request() {
-	case messages.LeaveAmountFood:
-		estimatedTakeFood = averageFoodAvailable - float64(t.RequestValue())
-	case messages.LeavePercentFood:
-		estimatedTakeFood = averageFoodAvailable * (1.0 - float64(t.RequestValue()))
-	case messages.Inform:
-		// TODO: Handel this form of treaty
-		return false
-	default:
+	estimatedTakeFood := a.convertToTakeFoodAmount(averageFoodAvailable , t.Request(), t.RequestValue())
+	if estimatedTakeFood == -1 {
 		return false
 	}
 
