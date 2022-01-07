@@ -1,4 +1,4 @@
-import { H5, FormGroup, NumericInput } from "@blueprintjs/core";
+import { H5, FormGroup, NumericInput, Switch } from "@blueprintjs/core";
 import { Parameter } from "./ParameterLabels";
 
 export default function AgentTypesParams(props: any) {
@@ -18,6 +18,16 @@ export default function AgentTypesParams(props: any) {
             </FormGroup>
           </div>
         ))}
+        <div className="col-lg-4 d-flex justify-content-center" key="RandomReplacementAgents">
+        <FormGroup style={{padding:20}}>
+            <Switch
+              label="Random Replacement Agents"
+              onChange={(value) => {
+                configHandler((value.target as HTMLInputElement).checked, "RandomReplacementAgents");
+              }}
+            />
+          </FormGroup>
+          </div>
       </div>
     </div>
   );

@@ -33,6 +33,7 @@ export default function InitConfigState() {
     LogMain: false,
     LogStory: false,
     SimTimeoutSeconds: 300,
+    RandomReplacementAgents: false,
   });
 }
 
@@ -67,6 +68,7 @@ export interface SimConfig {
   LogMain: boolean;
   LogStory: boolean;
   SimTimeoutSeconds: number;
+  RandomReplacementAgents: boolean;
 }
 
 export function GetSimConfig(filename: string): Promise<SimConfig> {
