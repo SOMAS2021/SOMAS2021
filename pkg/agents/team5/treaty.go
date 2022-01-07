@@ -33,25 +33,27 @@ func (a *CustomAgent5) treatyProposal() {
 
 func (a *CustomAgent5) treatyOverride() {
 	for _, treaty := range a.ActiveTreaties() {
-		switch {
-		case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.EQ && a.HP() == treaty.ConditionValue():
-			fallthrough
-		case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.GT && a.HP() > treaty.ConditionValue():
-			fallthrough
-		case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.GE && a.HP() >= treaty.ConditionValue():
-			fallthrough
-		case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.EQ && a.Floor() == treaty.ConditionValue():
-			fallthrough
-		case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.LT && a.Floor() < treaty.ConditionValue():
-			fallthrough
-		case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.LE && a.Floor() <= treaty.ConditionValue():
-			fallthrough
-		case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.EQ && a.CurrPlatFood() == food.FoodType(treaty.ConditionValue()):
-			fallthrough
-		case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.GT && a.CurrPlatFood() > food.FoodType(treaty.ConditionValue()):
-			fallthrough
-		case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.GE && a.CurrPlatFood() >= food.FoodType(treaty.ConditionValue()):
-			a.overrideCalculation(treaty)
+		if treaty.SignatureCount() > 1 {
+			switch {
+			case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.EQ && a.HP() == treaty.ConditionValue():
+				fallthrough
+			case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.GT && a.HP() > treaty.ConditionValue():
+				fallthrough
+			case treaty.Condition() == messages.HP && treaty.ConditionOp() == messages.GE && a.HP() >= treaty.ConditionValue():
+				fallthrough
+			case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.EQ && a.Floor() == treaty.ConditionValue():
+				fallthrough
+			case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.LT && a.Floor() < treaty.ConditionValue():
+				fallthrough
+			case treaty.Condition() == messages.Floor && treaty.ConditionOp() == messages.LE && a.Floor() <= treaty.ConditionValue():
+				fallthrough
+			case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.EQ && a.CurrPlatFood() == food.FoodType(treaty.ConditionValue()):
+				fallthrough
+			case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.GT && a.CurrPlatFood() > food.FoodType(treaty.ConditionValue()):
+				fallthrough
+			case treaty.Condition() == messages.AvailableFood && treaty.ConditionOp() == messages.GE && a.CurrPlatFood() >= food.FoodType(treaty.ConditionValue()):
+				a.overrideCalculation(treaty)
+			}
 		}
 	}
 }
@@ -153,8 +155,12 @@ func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 
 func (a *CustomAgent5) HandleTreatyResponse(msg messages.TreatyResponseMessage) {
 	if msg.Response() {
-		treaty := a.ActiveTreaties()[msg.TreatyID()]
-		a.ActiveTreaties()[msg.TreatyID()] = treaty
-		a.addToSocialFavour(msg.SenderID(), a.socialMemory[msg.SenderID()].favour+2)
+		_, ok := a.ActiveTreaties()[msg.TreatyID()]
+		if ok {
+			treaty := a.ActiveTreaties()[msg.TreatyID()]
+			treaty.SetCount(treaty.SignatureCount() + 1)
+			a.ActiveTreaties()[msg.TreatyID()] = treaty
+			a.addToSocialFavour(msg.SenderID(), a.socialMemory[msg.SenderID()].favour+2)
+		}
 	}
 }
