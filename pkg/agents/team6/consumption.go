@@ -79,18 +79,14 @@ func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food
 
 func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 
-	//if a.tower
-	//foodOnPlatform := foodOnPlatform
-	// else
-	//foodOnPlatform = lastFoodOnPlatform
+	desiredFoodIntake := a.desiredFoodIntake()
+	maxAllowedFood := a.maxAllowedFood()
 
-	intendedFoodIntake := a.desiredFoodIntake()
-	if a.reqLeaveFoodAmount != -1 {
-		intendedFoodIntake = food.FoodType(math.Min(float64(a.CurrPlatFood())-float64(a.reqLeaveFoodAmount), float64(intendedFoodIntake)))
-
-		//intendedFoodIntake = food.FoodType(a.reqLeaveFoodAmount) // to correct
+	if maxAllowedFood >= desiredFoodIntake {
+		return desiredFoodIntake
+	} else {
+		return maxAllowedFood
 	}
-	return intendedFoodIntake
 }
 
 func (a *CustomAgent6) updateAverageIntake(foodTaken food.FoodType) {

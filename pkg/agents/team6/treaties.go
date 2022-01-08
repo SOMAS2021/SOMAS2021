@@ -7,44 +7,63 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
+// func (a *CustomAgent6) foodRange() (food.FoodType, food.FoodType) {
+// 	mini := food.FoodType(0)           //initial minimum value
+// 	maxi := food.FoodType(math.MaxInt) //maximum value to indicate no maximum
+// 	for _, treaty := range a.ActiveTreaties() {
+// 		// TODO: check if we actually know the amount of food on the platform every time foodRange is called
+// 		takefoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue())
+// 		foodAmount := a.CurrPlatFood() - takefoodAmount
 
-func (a *CustomAgent6) foodRange() (food.FoodType, food.FoodType) {
-	mini := food.FoodType(0)           //initial minimum value
-	maxi := food.FoodType(math.MaxInt) //maximum value to indicate no maximum
+// 		// deal with different request types
+// 		switch treaty.RequestOp() {
+// 		case 1: // GE
+// 			if foodAmount > mini || foodAmount == mini {
+// 				mini = foodAmount + 1 //If Greater than, then the max value is one larger
+// 			}
+// 		case 2:
+// 			if foodAmount > mini {
+// 				mini = foodAmount //If Greater or Equal, then the max value is itself
+// 			}
+// 		case 3:
+// 			eqVal := foodAmount //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
+// 			mini, maxi = eqVal, eqVal
+// 		case 4:
+// 			if foodAmount < maxi || maxi == 0 {
+// 				maxi = foodAmount //If Less than or Equal, then the max value is itself
+// 			}
+// 		case 5:
+// 			if foodAmount < maxi || maxi == 0 {
+// 				maxi = foodAmount - 1 //If Less than, then the max value is one smaller
+// 			}
+// 		default:
+// 			mini, maxi = -1, -1 //unknown op code
+// 		}
+
+// 	}
+
+func (a *CustomAgent6) maxAllowedFood() food.FoodType {
+	max := a.CurrPlatFood() //maximum value to indicate no maximum
+
+	// Iterate through ActiveTreaties
 	for _, treaty := range a.ActiveTreaties() {
-		// TODO: check if we actually know the amount of food on the platform every time foodRange is called
-		takefoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue())
-		foodAmount := a.CurrPlatFood() - takefoodAmount
+		// convert LeaveFoodAmount and LeavePercentFood to an equivalent takeFood value
+		takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue()) - 1 // -1 to make sure GT is fulfilled
 
-		// deal with different request types
-		switch treaty.RequestOp() {
-		case 1: // GE
-			if foodAmount > mini || foodAmount == mini {
-				mini = foodAmount + 1 //If Greater than, then the max value is one larger
-			}
-		case 2:
-			if foodAmount > mini {
-				mini = foodAmount //If Greater or Equal, then the max value is itself
-			}
-		case 3:
-			eqVal := foodAmount //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
-			mini, maxi = eqVal, eqVal
-		case 4:
-			if foodAmount < maxi || maxi == 0 {
-				maxi = foodAmount //If Less than or Equal, then the max value is itself
-			}
-		case 5:
-			if foodAmount < maxi || maxi == 0 {
-				maxi = foodAmount - 1 //If Less than, then the max value is one smaller
-			}
-		default:
-			mini, maxi = -1, -1 //unknown op code
+		if takeFoodAmount <= max {
+			max = takeFoodAmount
 		}
-
 	}
 
-	// TODO: iterate over all mesages as well
-	return mini, maxi
+	// Check the RequestLeaveFood message
+	if a.reqLeaveFoodAmount != -1 {
+		takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), messages.LeaveAmountFood, a.reqLeaveFoodAmount) - 1
+		if takeFoodAmount <= max {
+			max = takeFoodAmount
+		}
+	}
+
+	return max
 }
 
 // !!! We only accept treaties that say leave ≥,> of food available. Hence there will never be a invalid treaty.
@@ -99,7 +118,7 @@ func (a *CustomAgent6) evaluateUtility(mem memory) float64 {
 }
 
 // convert different message "Request types" to an equivalent "food intake" value
-func (a *CustomAgent6) convertToTakeFoodAmount(foodAvailable float64 , requestType messages.RequestType, requestValue int) (food.FoodType) {
+func (a *CustomAgent6) convertToTakeFoodAmount(foodAvailable float64, requestType messages.RequestType, requestValue int) food.FoodType {
 
 	takeFood := 0.0
 	switch requestType {
@@ -131,7 +150,7 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	averageFoodAvailable := float64(sum) / math.Max(float64(len(a.shortTermMemory)), 1.0)
 
 	// convert different treaty "Request types" to a "food intake"
-	estimatedTakeFood := a.convertToTakeFoodAmount(averageFoodAvailable , t.Request(), t.RequestValue())
+	estimatedTakeFood := a.convertToTakeFoodAmount(averageFoodAvailable, t.Request(), t.RequestValue())
 	if estimatedTakeFood == -1 {
 		return false
 	}
@@ -141,15 +160,15 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 		// The treaty is of the form "Take X (or less) food"
 
 		// 2. Calculate the agent's utility given different outcomes (accept or reject treaty)
-		
+
 		// a. estimated expected utility when accepting the treaty
 		treatyTrustFactor := 1.0
-		treatyUtility := treatyTrustFactor * Utility(estimatedTakeFood, float64(a.desiredFoodIntake()), a.currBehaviour.String())
-		
+		treatyUtility := treatyTrustFactor * Utility(float64(estimatedTakeFood), float64(a.desiredFoodIntake()), a.currBehaviour.String())
+
 		// b. estimated utility when rejecting the treaty
 		currentShortTermUtility := a.evaluateUtility(a.shortTermMemory) // estimated utility on the current floor
-		currentLongTermUtility := a.evaluateUtility(a.longTermMemory) // estimated utility over the entire time in the tower
-		
+		currentLongTermUtility := a.evaluateUtility(a.longTermMemory)   // estimated utility over the entire time in the tower
+
 		// benefit of signing the treaty (> 0 == beneficial)
 		shortTermBenefit := treatyUtility - currentShortTermUtility
 		longTermBenefit := treatyUtility - currentLongTermUtility
@@ -180,7 +199,7 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 			// 		--> The treaty counts as much on this level as for the time after
 			// (3) time left on this level = 1, duration = 100 --> shortTermFocus 1%
 			// 		--> The treaty mostly matters in the long term
-			
+
 			shortTermFocus := float64(estimatedTimeLeft) / float64(t.Duration())
 			benefit = shortTermFocus*shortTermBenefit + (1.0-shortTermFocus)*longTermBenefit
 		}
@@ -192,7 +211,7 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 		// The treaty is of the form "Take X (or more) food"
 
 		// !!! Accepting treaties of this form would potentially lead to situations where it is impossible to satisfy all treaties.
-		// E.g. 
+		// E.g.
 		// If you agree to leave more than an absolute amount (eg. 50) (1)
 
 		// You also agree to leave less than a relative amount (50%) (2)

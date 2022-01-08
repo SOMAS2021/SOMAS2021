@@ -158,7 +158,7 @@ func (a *CustomAgent6) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 }
 
 func (a *CustomAgent6) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
-	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.intendedFoodIntake()))
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.lastFoodTaken))
 	a.SendMessage(reply)
 	a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 }
@@ -167,7 +167,7 @@ func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
 
 	// check if we benefit from a treaty
-	if(a.considerTreaty(&treaty)) {
+	if a.considerTreaty(&treaty) {
 		treaty.SignTreaty()
 		a.AddTreaty(treaty)
 
@@ -177,6 +177,6 @@ func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 
 		a.Log("I accepted a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 	} else {
-		a.Log("I rejected a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})				
+		a.Log("I rejected a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 	}
 }

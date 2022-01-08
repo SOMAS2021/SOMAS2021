@@ -5,7 +5,6 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 
 	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -206,8 +205,8 @@ func (a *CustomAgent6) Run() {
 	//exponential moving average filter to average food taken whilst discounting previous food
 	a.updateAverageIntake(foodTaken)
 
-	// a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
-	// a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
+	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
+	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
 
 	a.updateBehaviourWeights()
 
