@@ -107,7 +107,7 @@ func (a *CustomAgent5) calculateExpectedFood() float64 {
 }
 
 func (a *CustomAgent5) calculateFavourBelow(belowID uuid.UUID) int {
-	sens := float64(a.sensitivity)
+	sens := a.sensitivity
 	foodIntent := float64(a.attemptFood)
 	hpSelf := float64(a.HP())
 
