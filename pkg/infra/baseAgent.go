@@ -171,11 +171,7 @@ func (a *Base) updateHP(foodTaken food.FoodType) {
 
 	// For utility calculation
 	hpDiff := a.hp - hpOld
-	if hpDiff < 0 {
-		a.totalHPLost -= hpDiff
-	} else {
-		a.totalHPGained += hpDiff
-	}
+	a.UpdateHPChange(hpDiff)
 }
 
 func (a *Base) hpDecay(healthInfo *health.HealthInfo) {
@@ -232,12 +228,11 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 	if amountOfFood < 0 {
 		return 0, &NegFoodError{}
 	}
-	a.totalFoodSeen += a.tower.currPlatFood
 	foodTaken := food.FoodType(math.Min(float64(a.tower.currPlatFood), float64(amountOfFood)))
 	a.updateHP(foodTaken)
 	a.tower.currPlatFood -= foodTaken
 	a.setHasEaten(foodTaken > 0)
-	a.totalFoodTaken += foodTaken
+	a.UpdateFoodTaken(foodTaken)
 	a.Log("An agent has taken food", Fields{"floor": a.floor, "amount": foodTaken})
 	if foodTaken > 0 {
 		a.tower.stateLog.LogStoryAgentTookFood(
@@ -250,7 +245,23 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 	return foodTaken, nil
 }
 
-func (a *Base) Utility() float64 {
+func (a *Base) UpdateFoodSeen(amountSeen food.FoodType) {
+	a.totalFoodSeen += amountSeen
+}
+
+func (a *Base) UpdateFoodTaken(intake food.FoodType) {
+	a.totalFoodTaken += intake
+}
+
+func (a *Base) UpdateHPChange(change int) {
+	if change < 0 {
+		a.totalHPLost -= change
+	} else {
+		a.totalHPGained += change
+	}
+}
+
+func (a *Base) utility() float64 {
 	// TODO: Improve utility calculation
 	// Currently just use ratio between food taken and food seen
 	// Somehow also factor
@@ -332,6 +343,6 @@ func (a *Base) storyState() logging.AgentState {
 		Floor:     a.floor,
 		Age:       a.age,
 		Custom:    "",
-		Utility:   a.Utility(),
+		Utility:   a.utility(),
 	}
 }
