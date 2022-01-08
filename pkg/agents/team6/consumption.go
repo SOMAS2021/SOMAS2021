@@ -84,11 +84,15 @@ func (a *CustomAgent6) maxAllowedFood() food.FoodType {
 	// Iterate through ActiveTreaties
 	for _, treaty := range a.ActiveTreaties() {
 		// convert LeaveFoodAmount and LeavePercentFood to an equivalent takeFood value
-		takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue()) - 1 // -1 to make sure GT is fulfilled
+		if a.conditionApplies(&treaty) {
 
-		if takeFoodAmount <= max {
-			max = takeFoodAmount
+			takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue()) - 1 // -1 to make sure GT is fulfilled
+
+			if takeFoodAmount <= max {
+				max = takeFoodAmount
+			}
 		}
+
 	}
 
 	// Check the RequestLeaveFood message

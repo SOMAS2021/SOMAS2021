@@ -206,3 +206,74 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 		return false
 	}
 }
+
+func (a *CustomAgent6) conditionApplies(t *messages.Treaty) bool {
+
+	switch t.Condition() {
+	// Condition : HP
+	case 1:
+		switch t.ConditionOp() {
+		// GT
+		case 1:
+			return a.HP() > t.ConditionValue()
+		//GE
+		case 2:
+			return a.HP() >= t.ConditionValue()
+		//EQ
+		case 3:
+			return a.HP() == t.ConditionValue()
+		// LE
+		case 4:
+			return a.HP() <= t.ConditionValue()
+		// LT
+		case 5:
+			return a.HP() < t.ConditionValue()
+		default:
+			return true
+		}
+	// Condition : floor
+	case 2:
+		switch t.ConditionOp() {
+		// GT
+		case 1:
+			return a.Floor() > t.ConditionValue()
+		//GE
+		case 2:
+			return a.Floor() >= t.ConditionValue()
+		//EQ
+		case 3:
+			return a.Floor() == t.ConditionValue()
+		// LE
+		case 4:
+			return a.Floor() <= t.ConditionValue()
+		// LT
+		case 5:
+			return a.Floor() < t.ConditionValue()
+		default:
+			return true
+		}
+	// Condition : AvailableFood
+	case 3:
+		switch t.ConditionOp() {
+		// GT
+		case 1:
+			return int(a.CurrPlatFood()) > t.ConditionValue()
+		//GE
+		case 2:
+			return int(a.CurrPlatFood()) >= t.ConditionValue()
+		//EQ
+		case 3:
+			return int(a.CurrPlatFood()) == t.ConditionValue()
+		// LE
+		case 4:
+			return int(a.CurrPlatFood()) <= t.ConditionValue()
+		// LT
+		case 5:
+			return int(a.CurrPlatFood()) < t.ConditionValue()
+		default:
+			return true
+		}
+	default:
+		return true
+	}
+}
