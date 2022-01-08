@@ -83,15 +83,15 @@ func (a *CustomAgent3) changeInStubbornness(change, direction int) {
 func (a *CustomAgent3) changeNewDay() {
 	a.knowledge.lastHP = a.HP()
 	a.knowledge.agentAge = a.BaseAgent().Age()
-	if a.HP() > 20 {
+	if a.HP() < 20 {
 		a.changeInMorality(3, 7, -1)
 		a.changeInMood(5, 10, -1)
-	} else if a.HP() > 40 {
+	} else if a.HP() < 40 {
 		a.changeInMorality(0, 4, -1)
-		a.changeInMood(5, 10, -1)
-	} else if a.HP() > 75 {
+		a.changeInMood(1, 6, -1)
+	} else if a.HP() < 75 {
 		a.changeInMorality(0, 4, 1)
-		a.changeInMood(5, 10, 1)
+		a.changeInMood(1, 6, 1)
 	} else {
 		a.changeInMorality(3, 7, 1)
 		a.changeInMood(5, 10, 1)
