@@ -389,24 +389,30 @@ func (a *CustomAgent3) HandleResponse(msg messages.BoolResponseMessage) {
 }
 
 func (a *CustomAgent3) feelingModifFoodTaken(statement int, friendship float64, sender uuid.UUID) {
+	percentageDec := 0.9
+	percentageInc := 1.3
 	if friendship < 0.5 {
 		if statement > a.decisions.foodToEat {
 			a.changeInMood(1, 6, -1)
 			a.changeInMorality(1, 6, -1)
 			a.changeInStubbornness(5, 1)
 			a.updateFriendship(sender, -1)
+			a.decisions.foodToEat = statement
 		} else {
 			a.changeInMood(1, 6, 1)
 			a.changeInMorality(1, 6, 1)
 			a.changeInStubbornness(5, -1)
 			a.updateFriendship(sender, 1)
+			a.decisions.foodToEat = int(float64(a.decisions.foodToEat) * percentageDec)
 		}
 	} else {
 		if statement > a.decisions.foodToEat {
 			a.changeInMorality(1, 3, -1)
+			a.decisions.foodToEat = int(float64(a.decisions.foodToEat) * percentageInc)
 		} else {
 			a.changeInMorality(1, 6, 1)
 			a.updateFriendship(sender, 1)
+			a.decisions.foodToEat = int(float64(a.decisions.foodToEat) * percentageDec)
 		}
 	}
 }
@@ -448,22 +454,29 @@ func (a *CustomAgent3) HandleStateHP(msg messages.StateHPMessage) {
 }
 
 func (a *CustomAgent3) feelingModifIntendedFoodTaken(statement int, friendship float64, sender uuid.UUID) {
+	percentageDec := 0.9
+	percentageInc := 1.3
 	if friendship < 0.5 {
 		if statement > a.decisions.foodToEat {
 			a.changeInStubbornness(5, 1)
 			a.updateFriendship(sender, -1)
+			a.decisions.foodToEat = statement
 		} else {
 			a.changeInMorality(1, 6, 1)
 			a.changeInStubbornness(5, -1)
 			a.updateFriendship(sender, 1)
+			a.decisions.foodToEat = int(float64(a.decisions.foodToEat) * percentageDec)
+
 		}
 	} else {
-		if statement > a.decisions.foodToEat {
+		if statement > a.decisions.foodToEat { //could incorporate a max function
 			a.changeInMorality(1, 3, -1)
 			a.changeInStubbornness(5, 1)
 			a.updateFriendship(sender, -1)
+			a.decisions.foodToEat = int(float64(a.decisions.foodToEat) * percentageInc)
 		} else {
 			a.changeInStubbornness(5, -1)
+			a.decisions.foodToEat = int(float64(a.decisions.foodToEat) * percentageDec)
 		}
 	}
 }
