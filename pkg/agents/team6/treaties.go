@@ -42,30 +42,6 @@ import (
 
 // 	}
 
-func (a *CustomAgent6) maxAllowedFood() food.FoodType {
-	max := a.CurrPlatFood() //maximum value to indicate no maximum
-
-	// Iterate through ActiveTreaties
-	for _, treaty := range a.ActiveTreaties() {
-		// convert LeaveFoodAmount and LeavePercentFood to an equivalent takeFood value
-		takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue()) - 1 // -1 to make sure GT is fulfilled
-
-		if takeFoodAmount <= max {
-			max = takeFoodAmount
-		}
-	}
-
-	// Check the RequestLeaveFood message
-	if a.reqLeaveFoodAmount != -1 {
-		takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), messages.LeaveAmountFood, a.reqLeaveFoodAmount) - 1
-		if takeFoodAmount <= max {
-			max = takeFoodAmount
-		}
-	}
-
-	return max
-}
-
 // !!! We only accept treaties that say leave ≥,> of food available. Hence there will never be a invalid treaty.
 // func (a *CustomAgent6) treatyValid(treaty *messages.Treaty) bool {
 
@@ -156,7 +132,7 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	}
 
 	// check the exact request condition
-	if t.ConditionOp() == messages.GE || t.ConditionOp() == messages.GT /*t.ConditionOp() == messages.EQ || */ {
+	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT /*t.ConditionOp() == messages.EQ || */ {
 		// The treaty is of the form "Take X (or less) food"
 
 		// 2. Calculate the agent's utility given different outcomes (accept or reject treaty)

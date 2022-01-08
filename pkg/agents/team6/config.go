@@ -170,7 +170,7 @@ func (a *CustomAgent6) Run() {
 	// Sending messages
 	a.RequestLeaveFood()
 
-	// Receiving messages
+	// Receiving messages and treaties
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
@@ -202,11 +202,20 @@ func (a *CustomAgent6) Run() {
 		a.lastFoodTaken = foodTaken
 	}
 
+	// Reset the reqLeaveFoodAmount to nothing once the agent eated
+	if a.HasEaten() {
+		a.reqLeaveFoodAmount = -1
+	}
+
 	//exponential moving average filter to average food taken whilst discounting previous food
 	a.updateAverageIntake(foodTaken)
 
-	a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
+	// LOG
+	a.Log("Team 6 agent has floor:", infra.Fields{"floor": a.Floor()})
 	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
+	a.Log("Team 6 agent desired to take:", infra.Fields{"desiredFood": a.desiredFoodIntake()})
+	a.Log("Team 6 agent intended to take:", infra.Fields{"intendedFood": a.intendedFoodIntake()})
+	a.Log("Team 6 agent took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
 
 	a.updateBehaviourWeights()
 

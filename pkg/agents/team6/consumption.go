@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 )
@@ -75,6 +76,30 @@ func (a *CustomAgent6) desiredFoodIntake() food.FoodType {
 func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food.FoodType {
 	denom := healthInfo.Width - float64(goalHP) + (1-healthInfo.HPLossSlope)*float64(currentHP) - float64(healthInfo.HPLossBase) + healthInfo.HPLossSlope*float64(healthInfo.WeakLevel)
 	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
+}
+
+func (a *CustomAgent6) maxAllowedFood() food.FoodType {
+	max := a.CurrPlatFood() //maximum value to indicate no maximum
+
+	// Iterate through ActiveTreaties
+	for _, treaty := range a.ActiveTreaties() {
+		// convert LeaveFoodAmount and LeavePercentFood to an equivalent takeFood value
+		takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue()) - 1 // -1 to make sure GT is fulfilled
+
+		if takeFoodAmount <= max {
+			max = takeFoodAmount
+		}
+	}
+
+	// Check the RequestLeaveFood message
+	if a.reqLeaveFoodAmount != -1 {
+		takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), messages.LeaveAmountFood, a.reqLeaveFoodAmount) - 1
+		if takeFoodAmount <= max {
+			max = takeFoodAmount
+		}
+	}
+
+	return max
 }
 
 func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
