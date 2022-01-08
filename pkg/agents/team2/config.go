@@ -112,10 +112,8 @@ func (a *CustomAgent2) Run() {
 	*/
 
 	//Perform the following only once per day when platform arrives
-	if a.Day() == 500 {
-		a.exportQTable()
-		a.exportPolicies()
-	}
+	//a.exportQTable()
+	//a.exportPolicies()
 
 	if a.PlatformOnFloor() && a.Age() > a.lastAge {
 		oldState := a.CheckState()
