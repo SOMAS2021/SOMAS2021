@@ -19,7 +19,7 @@ export default function AgentTypesParams(props: any) {
           </div>
         ))}
         <div className="col-lg-4 d-flex justify-content-center" key="RandomReplacementAgents">
-        <FormGroup style={{padding:20}}>
+          <FormGroup style={{ padding: 20 }}>
             <Switch
               label="Random Replacement Agents"
               onChange={(value) => {
@@ -27,7 +27,7 @@ export default function AgentTypesParams(props: any) {
               }}
             />
           </FormGroup>
-          </div>
+        </div>
       </div>
     </div>
   );
