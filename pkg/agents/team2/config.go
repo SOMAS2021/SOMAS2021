@@ -68,6 +68,9 @@ type CustomAgent2 struct {
 	neiboughHP            int
 	lastAction            int
 	lastFoodTaken         food.FoodType
+	daysAtCriticalCounter int
+	PreviousdayAtCritical int
+	lastAge               int
 }
 
 func InitTable(numStates int, numActions int) [][]float64 {
@@ -114,12 +117,10 @@ func (a *CustomAgent2) Run() {
 	a.CheckNeighbourHP()
 
 	//Perform the following only once per day when platform arrives
-	if a.Day() == 500 {
-		a.exportQTable()
-		a.exportPolicies()
-	}
+	//a.exportQTable()
+	//a.exportPolicies()
 
-	if a.PlatformOnFloor() && a.isNewDay() {
+	if a.PlatformOnFloor() && a.Age() > a.lastAge {
 		oldState := a.CheckState()
 		oldHP := a.HP()
 		a.Log("Agent team2 before action:", infra.Fields{"floor": a.Floor(), "hp": oldHP, "food": a.CurrPlatFood(), "state": oldState})

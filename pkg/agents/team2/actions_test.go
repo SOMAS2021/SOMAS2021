@@ -11,9 +11,9 @@ func TestInitActionSpace(t *testing.T) {
 	}
 
 	var initActionSpaceTests = []initActionSpaceTest{
-		initActionSpaceTest{0, 0},
-		initActionSpaceTest{3, 3},
-		initActionSpaceTest{99999, 99999},
+		{0, 0},
+		{3, 3},
+		{99999, 99999},
 	}
 	for _, test := range initActionSpaceTests {
 		// Check number of actions is correct

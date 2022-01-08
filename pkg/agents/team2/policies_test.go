@@ -7,17 +7,17 @@ import (
 func TestInitPolicies(t *testing.T) {
 	type initPoliciesTest struct {
 		arg1, arg2, expected1, expected2 int
-		expected3 float64
+		expected3                        float64
 	}
 
 	var initPoliciesTests = []initPoliciesTest{
-		initPoliciesTest{3, 3, 3, 3, 1.0/3.0},
-		initPoliciesTest{10, 1, 10, 1, 1.0/1.0},
-		initPoliciesTest{50, 100, 50, 100, 1.0/100.0},
+		{3, 3, 3, 3, 1.0 / 3.0},
+		{10, 1, 10, 1, 1.0},
+		{50, 100, 50, 100, 1.0 / 100.0},
 	}
 
 	// Check dimensions of policy table are correct and check uniform distribution is correct
-	for _, test := range initPoliciesTests{
+	for _, test := range initPoliciesTests {
 		output := InitPolicies(test.arg1, test.arg2)
 		if len(output) != test.expected1 {
 			t.Errorf("Length %d not equal to expected %d", len(output), test.expected1)
@@ -40,6 +40,6 @@ func TestUpdatePolicies(t *testing.T) {
 	// TODO: Implement this test if considered appropriate
 }
 
-func TestAdjustPolicies() {
+func TestAdjustPolicies(t *testing.T) {
 	// TODO: Implement this test if considered appropriate
 }
