@@ -103,7 +103,7 @@ func (a *CustomAgent7) HandleTreatyResponse(msg messages.TreatyResponseMessage) 
 // 	return !(a.knowledge.treatyProposed.ID() == uuid.Nil)
 // }
 
-func (a *CustomAgent7) requestHelpInCrit() {
+func (a *CustomAgent7) SendTreaty() {
 	tr := messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID()) //generalise later
 	//a.knowledge.treatyProposed = *tr                                                                              //remember the treaty we proposed
 	msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, *tr)
