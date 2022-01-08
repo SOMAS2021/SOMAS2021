@@ -9,9 +9,9 @@ import (
 
 func (a *CustomAgent5) newMemory(id uuid.UUID) {
 	a.socialMemory[id] = Memory{
-		foodTaken:         100,
-		agentHP:           a.HealthInfo().MaxHP,
-		intentionFood:     100,
+		foodTaken:         50,
+		agentHP:           a.HealthInfo().MaxHP / 2,
+		intentionFood:     50,
 		favour:            0,
 		daysSinceLastSeen: 0,
 	}
@@ -72,6 +72,26 @@ func (a *CustomAgent5) updateFavour() {
 	}
 }
 
+func (a *CustomAgent5) updateFavourAbove() {
+	if agentAbove, agentAboveKnown := a.surroundingAgents[1]; agentAboveKnown {
+
+		H_above := float64(a.socialMemory[agentAbove].agentHP)
+		F_above := float64(a.socialMemory[agentAbove].foodTaken)
+		F_expected := float64(a.avgPlatFood)
+		S := float64(a.sensitivity)
+		F_take := float64(a.attemptFood)
+		H_self := float64(PercentageHP(a))
+		F_plat := float64(a.CurrPlatFood())
+
+		F_expectedComponent := math.Exp(F_plat/((3.0*F_expected)+15.0)) * (F_plat - F_expected) / (50 * S)
+		H_aboveScoreComponent := -2.0 * S * H_above * math.Pow(F_above, 2) / math.Pow(float64(a.HealthInfo().MaxHP), 3)
+		H_ourScoreComponent := 2.0 * S * math.Pow(F_take, 1.3) * math.Pow(H_self, 1.7) / math.Pow(float64(a.HealthInfo().MaxHP), 3)
+
+		C := int((math.Round(F_expectedComponent + H_aboveScoreComponent + H_ourScoreComponent)))
+		a.addToSocialFavour(agentAbove, C)
+		a.resetSocialKnowledge(agentAbove)
+}
+
 func (a *CustomAgent5) calculateAverageFavour() int {
 	sum := 0
 	count := 0
@@ -107,9 +127,9 @@ func (a *CustomAgent5) resetSocialKnowledge(id uuid.UUID) {
 		a.newMemory(id)
 	}
 	mem := a.socialMemory[id]
-	mem.foodTaken = 100
-	mem.agentHP = a.HealthInfo().MaxHP
-	mem.intentionFood = 100
+	mem.foodTaken = 50
+	mem.agentHP = a.HealthInfo().MaxHP / 2
+	mem.intentionFood = 50
 	a.socialMemory[id] = mem
 }
 

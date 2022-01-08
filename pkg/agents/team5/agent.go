@@ -35,6 +35,9 @@ type CustomAgent5 struct {
 	attemptToEat      bool
 	leadership        int
 	lastSeenFood      food.FoodType
+	sensitivity       int
+	avgPlatFood       food.FoodType
+	daysSinceShuffle  int
 	// Social network of other agents
 	socialMemory      map[uuid.UUID]Memory
 	surroundingAgents map[int]uuid.UUID
@@ -57,6 +60,9 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		attemptToEat:      true,                         // To check if we have already attempted to eat in a day. Needed because HasEaten() does not update if there is no food on the platform
 		leadership:        rand.Intn(10),                // Initialise a random leadership value for each agent, used to determine whether they try to cause change in the tower. 0 is more likely to become a leader
 		lastSeenFood:      0,                            // How much food arrived at the platform on the previous day assuming that the agent is still on the same floor
+		sensitivity:       2 + rand.Intn(8),             // Set personality trait, basically determines amplification of change in favour for nearby agents
+		avgPlatFood:       0,                            // Average food arriving on platform
+		daysSinceShuffle:  0,                            // days since last shuffle
 		socialMemory:      make(map[uuid.UUID]Memory),   // Memory of other agents, key is agent id
 		surroundingAgents: make(map[int]uuid.UUID),      // Map agent IDs of surrounding floors relative to current floor
 	}, nil
@@ -88,6 +94,11 @@ func (a *CustomAgent5) updateSatisfaction() {
 	}
 
 	a.satisfaction = restrictToRange(-50, 50, newSatisfaction)
+}
+
+func (a *CustomAgent5) updateAveragePlatFood() {
+	a.avgPlatFood = ((a.avgPlatFood * food.FoodType(a.daysSinceShuffle)) + a.CurrPlatFood()) / food.FoodType(a.daysSinceShuffle+1)
+	a.updateFavourAbove()
 }
 
 func (a *CustomAgent5) checkForLeader() {
@@ -125,6 +136,8 @@ func (a *CustomAgent5) dayPassed() {
 	if a.rememberFloor != a.Floor() {
 		a.resetSurroundingAgents()
 		a.rememberFloor = a.Floor()
+		a.daysSinceShuffle = 0
+		a.avgPlatFood = 0
 	}
 	a.messagingCounter = 0
 	a.rememberAge = a.Age()
@@ -151,6 +164,8 @@ func (a *CustomAgent5) Run() {
 		a.treatyOverride()
 		if a.Floor() == a.rememberFloor { // if the agent is still on the same floor it can update its satisfaction
 			a.updateSatisfaction()
+			a.updateAveragePlatFood()
+			a.daysSinceShuffle++
 		}
 		a.lastSeenFood = a.CurrPlatFood()
 		lastMeal, err := a.TakeFood(a.attemptFood)
