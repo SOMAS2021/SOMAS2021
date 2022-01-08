@@ -40,6 +40,6 @@ func TestUpdatePolicies(t *testing.T) {
 	// TODO: Implement this test if considered appropriate
 }
 
-func TestAdjustPolicies() {
+func TestAdjustPolicies(t *testing.T) {
 	// TODO: Implement this test if considered appropriate
 }
