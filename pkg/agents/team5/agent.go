@@ -34,7 +34,7 @@ type CustomAgent5 struct {
 	currentProposal   *messages.Treaty
 	attemptToEat      bool
 	leadership        int
-	lastFood          food.FoodType
+	lastSeenFood      food.FoodType
 	// Social network of other agents
 	socialMemory      map[uuid.UUID]Memory
 	surroundingAgents map[int]uuid.UUID
@@ -56,7 +56,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		treatySendCounter: 0,                            // Counter so that treaty messages can be sent
 		attemptToEat:      true,                         // To check if we have already attempted to eat in a day. Needed because HasEaten() does not update if there is no food on the platform
 		leadership:        rand.Intn(10),                // Initialise a random leadership value for each agent, used to determine whether they try to cause change in the tower. 0 is more likely to become a leader
-		lastFood:          0,                            // How much food arrived at the platform on the previous day assuming that the agent is still on the same floor
+		lastSeenFood:      0,                            // How much food arrived at the platform on the previous day assuming that the agent is still on the same floor
 		socialMemory:      make(map[uuid.UUID]Memory),   // Memory of other agents, key is agent id
 		surroundingAgents: make(map[int]uuid.UUID),      // Map agent IDs of surrounding floors relative to current floor
 	}, nil
@@ -70,28 +70,24 @@ func (a *CustomAgent5) updateSelfishness() {
 	// Tit for tat strategy, agent will conform to the mean behaviour of their social network
 	a.selfishness = 10 - a.calculateAverageFavour()
 	// Make agent less selfish if going through tough times, lowers their expectations and makes them more sympathetic of others struggles
-	a.selfishness = a.restrictToRange(0, 10, a.selfishness-a.daysSinceLastMeal)
+	a.selfishness = restrictToRange(0, 10, a.selfishness-a.daysSinceLastMeal)
 }
 
 func (a *CustomAgent5) updateSatisfaction() {
-	tmp := a.CurrPlatFood()
-	if a.lastFood*120.0/100.0 <= tmp {
-		a.satisfaction += 2
-	} else if a.lastFood*110.0/100.0 <= tmp {
-		a.satisfaction += 1
-	} else if a.lastFood*70.0/100.0 >= tmp {
-		a.satisfaction -= 2
-	} else if a.lastFood*80.0/100.0 >= tmp {
-		a.satisfaction -= 1
+	seenFood := a.CurrPlatFood()
+	newSatisfaction := a.satisfaction
+
+	if seenFood >= a.lastSeenFood*12/10 {
+		newSatisfaction += 2
+	} else if seenFood >= a.lastSeenFood*11/10 {
+		newSatisfaction += 1
+	} else if seenFood <= a.lastSeenFood*8/10 {
+		newSatisfaction -= 1
+	} else if seenFood <= a.lastSeenFood*7/10 {
+		newSatisfaction -= 2
 	}
 
-	if a.satisfaction > 50 {
-		a.satisfaction = 50
-	}
-
-	if a.satisfaction < -50 {
-		a.satisfaction = -50
-	}
+	a.satisfaction = restrictToRange(-50, 50, newSatisfaction)
 }
 
 func (a *CustomAgent5) checkForLeader() {
@@ -156,7 +152,7 @@ func (a *CustomAgent5) Run() {
 		if a.Floor() == a.rememberFloor { // if the agent is still on the same floor it can update its satisfaction
 			a.updateSatisfaction()
 		}
-		a.lastFood = a.CurrPlatFood()
+		a.lastSeenFood = a.CurrPlatFood()
 		lastMeal, err := a.TakeFood(a.attemptFood)
 		if err != nil {
 			switch err.(type) {

@@ -49,7 +49,7 @@ func (a *CustomAgent5) addToSocialFavour(id uuid.UUID, change int) {
 		a.newMemory(id)
 	}
 	mem := a.socialMemory[id]
-	mem.favour = a.restrictToRange(0, 10, mem.favour+change)
+	mem.favour = restrictToRange(0, 10, mem.favour+change)
 	a.socialMemory[id] = mem
 }
 
