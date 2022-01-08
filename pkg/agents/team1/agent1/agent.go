@@ -5,6 +5,7 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	log "github.com/sirupsen/logrus"
 )
 
 type CustomAgent1 struct {
@@ -129,4 +130,8 @@ func (a *CustomAgent1) HandleStateHP(msg messages.StateHPMessage) {
 func (a *CustomAgent1) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
 	statement := msg.Statement()
 	a.Log("I recieved a StateIntendedFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "statement": statement, "myFloor": a.Floor()})
+}
+
+func (a *CustomAgent1) CustomLogs() {
+	log.Info("I can export or CSV or do something if --log=Team1Agent1 !")
 }
