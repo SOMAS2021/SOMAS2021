@@ -40,7 +40,7 @@ func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		return
 	}
 
-	if treaty.Condition() == messages.Floor && treaty.ConditionValue() != 1 && treaty.Duration() >= (a.HealthInfo().MaxDayCritical-2) {
+	if treaty.Condition() == messages.Floor && treaty.ConditionValue() != 1 && treaty.Duration() >= (a.HealthInfo().MaxDayCritical - 2) {
 		a.RejectTreaty(msg)
 		return
 	}
@@ -61,7 +61,7 @@ func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		return
 	}
 
-	if treaty.Request() == messages.LeavePercentFood && int(float64(treaty.RequestValue())/100) > 50 {
+	if treaty.Request() == messages.LeavePercentFood && treaty.RequestValue() > 50 {
 		a.RejectTreaty(msg)
 		return
 	}
@@ -72,7 +72,7 @@ func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		return
 	}
 
-	if a.HP() <= a.HealthInfo().HPCritical && a.opMem.daysCritical >= a.HealthInfo().MaxDayCritical-3 {
+	if (a.HP() <= a.HealthInfo().HPCritical && a.opMem.daysCritical >= a.HealthInfo().MaxDayCritical - 3) {
 		a.RejectTreaty(msg)
 		return
 	}
@@ -109,8 +109,8 @@ func (a *CustomAgent7) HandleTreatyResponse(msg messages.TreatyResponseMessage) 
 // }
 
 func (a *CustomAgent7) SendTreaty() {
-	tr := messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID())
-	//a.knowledge.treatyProposed = *tr                                                                            
+	tr := messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID()) //generalise later
+	//a.knowledge.treatyProposed = *tr                                                                              //remember the treaty we proposed
 	msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, *tr)
 	a.SendMessage(msg)
 	a.Log("I sent a treaty")
