@@ -9,7 +9,7 @@ export interface UtilityLog extends Log {
 
 export function GetUtilityLogs(filename: string): Promise<UtilityLog[]> {
   return new Promise<UtilityLog[]>((resolve, reject) => {
-    GetFile(filename, "Utility")
+    GetFile(filename, "utility")
       .then((u) =>
         resolve(
           u.map(function (e: any) {
