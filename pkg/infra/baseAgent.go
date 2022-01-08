@@ -259,12 +259,12 @@ func (a *Base) Utility() float64 {
 
 	hpGainFactor := netHPGainFactor(a.totalHPGained, a.totalHPLost, a.tower.healthInfo.MaxHP)
 	foodIntakeFactor := foodIntakeFactor(a.totalFoodTaken, a.totalFoodSeen)
-
 	// this means the multiplcation of these values can be larger than 1
 	return simpleQuadraticUtility(hpGainFactor * foodIntakeFactor)
 }
 
 /*
+HP Gain Factor.
 inputs:
 - gain >= 0
 - loss >= 0
@@ -278,24 +278,25 @@ key values:
 - > 1: agent gaining hp on average
 - when loss is 0, default to percentage difference between gain and loss. Acknowledge that HP gain should increase utility
 */
-// func calculateHpGainRatioUsingGLRatio(gain, loss, maxhp int) float64 {
-// 	if loss == 0 {
-// 		return float64(1 + gain/maxhp)
-// 	}
-// 	return float64(gain / loss)
-// }
+func hpGainFactor(gain, loss, maxhp int) float64 {
+	if loss == 0 {
+		return 1 + float64(gain)/float64(maxhp)
+	}
+	return float64(gain) / float64(loss)
+}
 
 /*
+Net HP Gain Factor.
 This one uses net hp gain as opposed to hp gain/loss ratio.
 */
 func netHPGainFactor(gain, loss, maxhp int) float64 {
 	netHPGain := gain - loss
-	multiplier := float64(1 + netHPGain/maxhp) // reward positive net hp gain, punish otherwise
+	multiplier := 1 + float64(netHPGain)/float64(maxhp) // reward positive net hp gain, punish otherwise
 	return utilFunctions.RestrictToRange(0, math.Inf(1), multiplier)
 }
 
 /*
-foodIntakeRatio
+Food Intake Factor.
 inputs:
 - intake >= 0
 - total >= 0
@@ -307,7 +308,7 @@ func foodIntakeFactor(intake, seen food.FoodType) float64 {
 	if seen == 0 {
 		return 0
 	}
-	return float64(intake / seen)
+	return float64(intake) / float64(seen)
 }
 
 // Quadratic function standard form: a(x-h)^2+k
