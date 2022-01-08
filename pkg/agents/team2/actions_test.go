@@ -1,8 +1,8 @@
 package team2
 
 import (
-	"testing"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
+	"testing"
 )
 
 func TestInitActionSpace(t *testing.T) {
@@ -11,14 +11,14 @@ func TestInitActionSpace(t *testing.T) {
 	}
 
 	var initActionSpaceTests = []initActionSpaceTest{
-		initActionSpaceTest{0, 0},
-		initActionSpaceTest{3, 3},
-		initActionSpaceTest{99999, 99999},
+		{0, 0},
+		{3, 3},
+		{99999, 99999},
 	}
-	for _, test := range initActionSpaceTests{
+	for _, test := range initActionSpaceTests {
 		// Check number of actions is correct
 		if output := InitActionSpace(test.arg1); len(output.actionId) == test.expected {
-		// Check that action IDs are correct
+			// Check that action IDs are correct
 			for i := 0; i < test.arg1; i++ {
 				if output.actionId[i] != i {
 					t.Errorf("Output %d not equal to expected %d", len(output.actionId), test.expected)
@@ -32,16 +32,16 @@ func TestInitActionSpace(t *testing.T) {
 
 func TestDisFood(t *testing.T) {
 	type disFoodTest struct {
-		arg1 int
+		arg1     int
 		expected food.FoodType
 	}
 
 	var disFoodTests = []disFoodTest{
-		disFoodTest{0, 0},
-		disFoodTest{50, 0},
-		disFoodTest{100, 0},
+		{0, 0},
+		{50, 0},
+		{100, 0},
 	}
-	for _, test := range disFoodTests{
+	for _, test := range disFoodTests {
 		// Check no food is returned
 		if output := DisFood(test.arg1); output != test.expected {
 			t.Errorf("Output %d not equal to expected %d", output, test.expected)
@@ -51,17 +51,17 @@ func TestDisFood(t *testing.T) {
 
 func TestSatisfice(t *testing.T) {
 	type satisficeTest struct {
-		arg1 int
+		arg1     int
 		expected food.FoodType
 	}
 
 	var satisficeTests = []satisficeTest{
-		satisficeTest{0, 20},
-		satisficeTest{15, 20},
-		satisficeTest{50, 1},
-		satisficeTest{100, 1},
+		{0, 20},
+		{15, 20},
+		{50, 1},
+		{100, 1},
 	}
-	for _, test := range satisficeTests{
+	for _, test := range satisficeTests {
 		// Check food value is 20 if hp <= 20 else 1
 		if output := Satisfice(test.arg1); output != test.expected {
 			t.Errorf("Output %d not equal to expected %d", output, test.expected)
@@ -71,17 +71,17 @@ func TestSatisfice(t *testing.T) {
 
 func TestSatisfy(t *testing.T) {
 	type satisfyTest struct {
-		arg1 int
+		arg1     int
 		expected food.FoodType
 	}
 
 	var satisfyTests = []satisfyTest{
-		satisfyTest{0, 100},
-		satisfyTest{15, 85},
-		satisfyTest{50, 50},
-		satisfyTest{100, 0},
+		{0, 100},
+		{15, 85},
+		{50, 50},
+		{100, 0},
 	}
-	for _, test := range satisfyTests{
+	for _, test := range satisfyTests {
 		// Check food value returned is 100 - hp
 		if output := Satisfy(test.arg1); output != test.expected {
 			t.Errorf("Output %d not equal to expected %d", output, test.expected)

@@ -2,9 +2,9 @@ package team2
 
 import (
 	"encoding/csv"
-	"os"
-	"log"
 	"fmt"
+	"log"
+	"os"
 )
 
 func InitPolicies(numStates int, numActions int) [][]float64 {
@@ -71,9 +71,9 @@ func (a *CustomAgent2) exportPolicies() {
 		}
 	}
 
-	w.WriteAll(sPolicies)
+	err = w.WriteAll(sPolicies)
 
-	if err := w.Error(); err != nil {
+	if err != nil {
 		log.Fatalln("error writing csv:", err)
 	}
 }

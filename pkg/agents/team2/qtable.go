@@ -1,11 +1,11 @@
 package team2
 
 import (
-	"math"
 	"encoding/csv"
-	"os"
-	"log"
 	"fmt"
+	"log"
+	"math"
+	"os"
 	//"time"
 )
 
@@ -67,9 +67,9 @@ func (a *CustomAgent2) exportQTable() {
 	}
 
 	//fmt.Println("rows:", len(sQTable), "columns:", len(sQTable[0]))
-	w.WriteAll(sQTable)
+	err = w.WriteAll(sQTable)
 
-	if err := w.Error(); err != nil {
+	if err != nil {
 		log.Fatalln("error writing csv:", err)
 	}
 }
