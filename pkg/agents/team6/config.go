@@ -125,7 +125,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		platOnFloorCtr:      0,
 		prevFloor:           -1,
 		trustTeams:          make(trust),
-		neighbours:          neighbours{},
+		neighbours:          neighbours{above: uuid.Nil, below: uuid.Nil},
 	}, nil
 }
 
