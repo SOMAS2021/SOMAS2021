@@ -26,24 +26,24 @@ rootdirpath="../../../../"
 cd $rootdirpath
 
 # Initialising config files
-agentConfigFile="pkg/agents/team4/trainingAgent/agentConfig.json"
-bestAgentsFile="pkg/agents/team4/trainingAgent/bestAgents.json"
-agentLifeExpectanciesFile="pkg/agents/team4/trainingAgent/agentLifeExpectancies.json"
-agentOurLifeExpectanciesFile="pkg/agents/team4/trainingAgent/agentOurLifeExpectancies.json"
-agentOtherLifeExpectanciesFile="pkg/agents/team4/trainingAgent/agentOtherLifeExpectancies.json"
-agentDeathRateFile="pkg/agents/team4/trainingAgent/agentDeathRate.json"
+agentConfigFile="pkg/agents/team4/trainingAgent/configs/agentConfig.json"
+bestAgentsFile="pkg/agents/team4/trainingAgent/configs/bestAgents.json"
+agentLifeExpectanciesFile="pkg/agents/team4/trainingAgent/configs/agentLifeExpectancies.json"
+agentOurLifeExpectanciesFile="pkg/agents/team4/trainingAgent/configs/agentOurLifeExpectancies.json"
+agentOtherLifeExpectanciesFile="pkg/agents/team4/trainingAgent/configs/agentOtherLifeExpectancies.json"
+agentDeathRateFile="pkg/agents/team4/trainingAgent/configs/agentDeathRate.json"
 
 #removing old files and creating new files
-rm $agentConfigFile $bestAgentsFile
+rm -rf "pkg/agents/team4/trainingAgent/configs"
+mkdir "pkg/agents/team4/trainingAgent/configs"
 touch $agentConfigFile $bestAgentsFile
-rm -rf "pkg/agents/team4/trainingAgent/storedagents"
-mkdir "pkg/agents/team4/trainingAgent/storedagents"
+mkdir "pkg/agents/team4/trainingAgent/configs/storedConfigs"
 
 numberOfHealthLevels=4 # health bands based on HP
-numberOfBestAgents=25 # number of agents in training population
-numberOfAgentsPerSim=12 # total number of agents in the simulation
-numberOfIterations=10 # number of training iterations
-numberOfRuns=10 # number of runs to average over per iteration
+numberOfBestAgents=5 # number of agents in training population
+numberOfAgentsPerSim=16 # total number of agents in the simulation
+numberOfIterations=3 # number of training iterations
+numberOfRuns=2 # number of runs to average over per iteration
 
 # Initialise parameters of initial agent polulation
 python3 pkg/agents/team4/trainingAgent/initaliseConfig.py $agentConfigFile $bestAgentsFile $numberOfHealthLevels $numberOfBestAgents 

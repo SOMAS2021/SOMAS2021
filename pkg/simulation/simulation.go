@@ -8,8 +8,8 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team3"
-	team4EvoAgent "github.com/SOMAS2021/SOMAS2021/pkg/agents/team4/finalAgent"
 
+	team4EvoAgent "github.com/SOMAS2021/SOMAS2021/pkg/agents/team4/finalAgent"
 	team5 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team5"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
 	team7agent1 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team7/agent1"

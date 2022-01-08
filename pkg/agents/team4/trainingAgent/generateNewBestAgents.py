@@ -154,7 +154,7 @@ for i in range(len(agents_of_time)):
 
 timestamp = datetime.now(tz=None)
 file_name_out = "pkg/agents/team4/trainingAgent/"+"{0}/{1}_{2}_{3}.json".format(
-    "storedagents", timestamp, performance_list_life[0], performance_list_death[0])
+    "configs/storedConfigs", timestamp, performance_list_life[0], performance_list_death[0])
 file_name_out = file_name_out.replace(" ", "_")
 old_agents_file = open(file_name_out, 'w')
 old_agents_file.write(json.dumps(agents_of_time, indent=4))

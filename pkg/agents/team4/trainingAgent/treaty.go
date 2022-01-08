@@ -31,48 +31,7 @@ import (
 // If request is leave food amount or leave percent food and we are asked to leave 100% of the food then reject cause we would need to eat.
 
 func (a *CustomAgentEvo) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
-	treaty := msg.Treaty()
-
-	// Switch Case for rejecting treaties
-	switch {
-	case len(a.ActiveTreaties()) > 0: // If one treaty already signed then we reject any other incoming ones TODO: Implement more robust method of multi-treaty handling
-		fallthrough
-	case treaty.Request() == messages.Inform: //TODO no idea what inform actually does/how to use it
-		fallthrough
-	case treaty.Condition() == messages.HP && treaty.ConditionValue() <= a.HealthInfo().HPReqCToW*2:
-		fallthrough
-	case treaty.Condition() == messages.HP && (treaty.ConditionOp() == messages.LT || treaty.ConditionOp() == messages.LE): // Reject any case where they want us to accept treaties with less than any health %
-		fallthrough
-	case treaty.Request() == messages.LeavePercentFood && (treaty.RequestValue() >= 100 || treaty.RequestValue() <= 0):
-		fallthrough
-	case treaty.Condition() == messages.AvailableFood && treaty.ConditionValue() <= a.HealthInfo().HPReqCToW*2:
-		fallthrough
-	case treaty.Condition() == messages.AvailableFood && treaty.Request() == messages.LeaveAmountFood && treaty.ConditionValue()-treaty.RequestValue() <= a.HealthInfo().HPReqCToW*2:
-		fallthrough
-	case treaty.Condition() == messages.AvailableFood && treaty.Request() == messages.LeavePercentFood && int(float64(100-treaty.RequestValue()/100))*treaty.ConditionValue() <= a.HealthInfo().HPReqCToW*2:
-		fallthrough
-	case treaty.Condition() == messages.AvailableFood && (treaty.ConditionOp() == messages.LT || treaty.ConditionOp() == messages.LE):
-		fallthrough
-	case treaty.Condition() == messages.Floor && (treaty.ConditionOp() == messages.GT || treaty.ConditionOp() == messages.GE):
-		fallthrough
-	case a.HP() < a.HealthInfo().HPCritical: // Reject all treaties at that point in time when we're below critical health (all treaty requests are relevant to food only so this applies).
-		fallthrough
-	case treaty.Duration() >= a.HealthInfo().MaxDayCritical:
-		fallthrough
-	case int(a.params.globalTrust) < a.params.globalTrustLimits[0]:
-		a.rejectTreaty(msg)
-		return
-	}
-
-	// If it passes our conditions above then we accept the treaty
-	treaty.SignTreaty()
-	a.AddTreaty(treaty)
-	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
-	a.SendMessage(reply)
-	a.Log("Accepted treaty", infra.Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(), "treatyID": msg.TreatyID()})
-
-	// We propogate the treaty to the floor above/below
-	a.propogateTreaty(msg)
+	a.rejectTreaty(msg)
 }
 
 /*------------------------REJECT A TREATY------------------------*/
@@ -81,18 +40,6 @@ func (a *CustomAgentEvo) rejectTreaty(msg messages.ProposeTreatyMessage) { // ch
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
 	a.SendMessage(reply)
 	a.Log("Rejected treaty", infra.Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(), "treatyID": msg.TreatyID()})
-}
-
-/*------------------------PROPOGATE A TREATY TO THE FLOOR ABOVE AND BELOW------------------------*/
-
-func (a *CustomAgentEvo) propogateTreaty(msg messages.ProposeTreatyMessage) {
-	treaty := msg.Treaty()
-	toFloor := a.Floor() + 1
-	if msg.SenderFloor() > a.Floor() {
-		toFloor = a.Floor() - 1
-	}
-	propogateTreaty := messages.NewProposalMessage(a.ID(), a.Floor(), toFloor, treaty)
-	a.SendMessage(propogateTreaty)
 }
 
 /*------------------------HANDLING OTHER AGENTS REPSONSES TO OUR TREATY PROPOSALS------------------------*/
