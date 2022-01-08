@@ -68,6 +68,8 @@ type CustomAgent6 struct {
 	platOnFloorCtr int
 	// Keeps track of previous floor to see if agent has been reassigned
 	prevFloor int
+	// Ticks counter
+	countTick int
 }
 
 type thresholdBehaviourPair struct {
@@ -111,6 +113,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		reassignPeriodGuess: 0,
 		platOnFloorCtr:      0,
 		prevFloor:           -1,
+		countTick:           1,
 	}, nil
 }
 
@@ -167,8 +170,13 @@ func (a *CustomAgent6) Run() {
 
 	a.updateBehaviour()
 
-	// Sending messages
-	a.RequestLeaveFood()
+	// Sending messages / proposing treaties every 2 ticks
+	if a.countTick%2 == 0 {
+		if a.currBehaviour.String() == "Collectivist" || a.currBehaviour.String() == "Selfish" {
+			a.ProposeTreaty()
+		}
+		a.RequestLeaveFood()
+	}
 
 	// Receiving messages and treaties
 	receivedMsg := a.ReceiveMessage()
@@ -231,5 +239,8 @@ func (a *CustomAgent6) Run() {
 	// treatyMsg.Visit(a).
 
 	a.prevFloor = a.Floor() // keep at end of Run() function
+
+	// add one tick to the counter
+	a.countTick++
 
 }

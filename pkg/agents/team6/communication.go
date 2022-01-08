@@ -26,7 +26,7 @@ func (a *CustomAgent6) RequestLeaveFood() {
 		if currentHP >= levels.weakLevel {
 			reqAmount = -1
 		} else {
-			reqAmount = int(FoodRequired(currentHP, a.HealthInfo().HPCritical+a.HealthInfo().HPReqCToW, a.HealthInfo()))
+			reqAmount = 2 // to is what is needed to go from the critical state to the weak level
 		}
 
 	case "Selfish":
@@ -167,7 +167,7 @@ func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
 
 	// check if we benefit from a treaty
-	if a.considerTreaty(&treaty) {
+	if a.considerTreatyUsingUtility(&treaty) {
 		treaty.SignTreaty()
 		a.AddTreaty(treaty)
 

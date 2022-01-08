@@ -3,6 +3,7 @@ package team6
 import (
 	"math"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
@@ -359,4 +360,30 @@ func (a *CustomAgent6) conditionApplies(t *messages.Treaty) bool {
 	default:
 		return true
 	}
+}
+
+func (a *CustomAgent6) ProposeTreaty() {
+	// Health levels
+	levels := levelsData{
+		strongLevel:  a.HealthInfo().MaxHP * 3 / 5,
+		healthyLevel: a.HealthInfo().MaxHP * 3 / 10,
+		weakLevel:    a.HealthInfo().WeakLevel,
+		critLevel:    0,
+	}
+	proposedTreaty := messages.NewTreaty(1, a.HealthInfo().MaxHP, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
+	// Altruist and Narcissist do not propose treaties
+	switch a.currBehaviour.String() {
+	case "Collectivist":
+		// ConditionType, conditionValue, RequestType, requestValue, cop, rop, duration, proposerID
+		proposedTreaty = messages.NewTreaty(1, a.HealthInfo().WeakLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
+
+	case "Selfish":
+		proposedTreaty = messages.NewTreaty(1, levels.strongLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
+	}
+
+	targetFloor := a.Floor() - 1
+	msg := messages.NewProposalMessage(a.ID(), a.Floor(), targetFloor, *proposedTreaty)
+	a.SendMessage(msg)
+	a.Log("I propose a treaty", infra.Fields{"message": "proposeTreaty", "floor": a.Floor()})
+
 }
