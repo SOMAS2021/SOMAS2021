@@ -173,6 +173,14 @@ func (a *CustomAgent6) HandlePropagate(msg messages.ProposeTreatyMessage) {
 
 }
 
+func (a *CustomAgent6) HandleTreatyResponse(msg messages.TreatyResponseMessage) {
+	if msg.Response() {
+		treaty := a.ActiveTreaties()[msg.TreatyID()]
+		treaty.SignTreaty()
+		a.ActiveTreaties()[msg.TreatyID()] = treaty
+	}
+}
+
 func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
 
