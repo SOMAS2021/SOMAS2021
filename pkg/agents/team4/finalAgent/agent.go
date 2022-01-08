@@ -1,8 +1,11 @@
 package team4EvoAgent
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
+
+	"github.com/google/uuid"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -11,14 +14,16 @@ import (
 )
 
 type CustomAgentEvoParams struct {
-	foodToEat         map[string][]int // the amount of food to eat for various health levels
-	intendedFoodToEat int
-	waitProbability   map[string][]int // probability the agent will wait to eat on any given day
-	ageLastEaten      int              // the age at which the agent last ate
-	morality          float64          // the morality of the agent that determines how selfishly or selflessly the agent will act
-	craving           int              // the amount of craving the agent has for food which effects the amount of food it is likely to eat
-
+	foodToEat       map[string][]int // the amount of food to eat for various health levels
+	waitProbability map[string][]int // probability the agent will wait to eat on any given day
+	ageLastEaten    int              // the age at which the agent last ate
+	morality        float64          // the morality of the agent that determines how selfishly or selflessly the agent will act
+	craving         int              // the amount of craving the agent has for food which effects the amount of food it is likely to eat
+	//reshuffleDays      int
+	previousFloor      int
 	intendedFoodToTake food.FoodType
+
+	agentResponseMemory map[uuid.UUID][]int
 
 	globalTrust              float64       // the overall trust the agent has in other agents in the tower
 	coefficients             []float64     // the amount trust score changes by for certain actions
@@ -30,6 +35,7 @@ type CustomAgentEvoParams struct {
 	otherMessageBuffer       []messages.Message
 	lastPlatFood             food.FoodType // last seen food on the platform
 	lastTimeFoodSeen         int           // number of days passed since seeing the desired amount of food on the platform
+	receivedMessagesCount    int
 	maxFoodLimit             food.FoodType // maximum food we want to allow others to eat
 	messageCounter           int           // the total number of messages we send in a day
 	globalTrustLimits        []int         // limit to check what personality to choose
@@ -76,19 +82,22 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 	// 	}
 
 	return CustomAgentEvoParams{ //initialise the parameters of the agent
-		foodToEat:         foodToEat,
-		intendedFoodToEat: 0,
-		waitProbability:   waitProbability,
-		ageLastEaten:      0,
-		morality:          100 * rand.Float64(), // TODO: Use this properly
-		craving:           0,
-		healthStatus:      3,
+		foodToEat:       foodToEat,
+		waitProbability: waitProbability,
+		ageLastEaten:    0,
+		morality:        100 * rand.Float64(), // TODO: Use this properly
+		craving:         0,
+		healthStatus:    3,
+		//reshuffleDays:     -1,
+		previousFloor: -1,
 
-		globalTrust:        100.0,
+		globalTrust:        60,
 		globalTrustLimits:  []int{40, 80},
-		coefficients:       []float64{2, 4, 8}, // TODO: maybe train these co-efficients using evolutionary algorithm
+		coefficients:       []float64{2, 4, 8},
 		lastFoodTaken:      0,
 		intendedFoodToTake: 0,
+
+		agentResponseMemory: make(map[uuid.UUID][]int),
 
 		messageCounter:           0,
 		msgToSendBuffer:          []messages.Message{},
@@ -96,13 +105,14 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 		responseMessages:         []messages.Message{},
 		requestLeaveFoodMessages: []messages.Message{},
 		otherMessageBuffer:       []messages.Message{},
+		receivedMessagesCount:    0,
 
 		lastPlatFood:       -1,
 		lastTimeFoodSeen:   0,
 		maxFoodLimit:       50,
 		lastAge:            -1,
 		maxFloor:           0,
-		currentPersonality: "selfless",
+		currentPersonality: "neutral",
 	}
 }
 
@@ -137,17 +147,18 @@ func (a *CustomAgentEvo) updateLastTimeFoodSeen() {
 	}
 }
 
-func (a *CustomAgentEvo) updateHealthStatus(healthLevelSeparation int) {
-
-	if a.HP() <= a.HealthInfo().WeakLevel { //critical
-		a.params.healthStatus = 0
-	} else if a.HP() <= a.HealthInfo().WeakLevel+healthLevelSeparation { //weak
-		a.params.healthStatus = 1
-	} else if a.HP() <= a.HealthInfo().WeakLevel+2*healthLevelSeparation { //normal
-		a.params.healthStatus = 2
+func getHealthStatus(a *CustomAgentEvo, healthLevelSeparation int, currentHp int) int {
+	// a.HP()
+	if currentHp <= a.HealthInfo().WeakLevel { //critical
+		return 0
+	} else if currentHp <= a.HealthInfo().WeakLevel+healthLevelSeparation { //weak
+		return 1
+	} else if currentHp <= a.HealthInfo().WeakLevel+2*healthLevelSeparation { //normal
+		return 2
 	} else { //strong
-		a.params.healthStatus = 3
+		return 3
 	}
+
 }
 
 func (a *CustomAgentEvo) updateCraving() {
@@ -224,15 +235,60 @@ func (a *CustomAgentEvo) verifyResponses() {
 	}
 }
 
+// a.prevfloor = -1
+
+func (a *CustomAgentEvo) hasReshuffled() bool {
+	// a.params.reshuffleDays == -1 && a.Floor() != a.params.previousFloor && a.params.previousFloor == -1
+	if a.params.previousFloor != a.Floor() {
+		a.params.previousFloor = a.Floor()
+		//a.params.reshuffleDays = a.Age()
+		return true
+	}
+	return false
+}
+
+func (a *CustomAgentEvo) checkAgentResponseMemory() {
+
+	for id, item := range a.params.agentResponseMemory {
+		if item[0] != -1 && item[1] != -1 {
+			healthLevelSeparation := int(0.33 * float64(a.HealthInfo().MaxHP-a.HealthInfo().WeakLevel))
+			HPstatus := getHealthStatus(a, healthLevelSeparation, item[0])
+			if item[1] > a.params.foodToEat["selfish"][HPstatus] {
+				a.AddToGlobalTrust(-a.params.coefficients[1])
+				fmt.Println("Team4 Global Trust reduced", a.ID().String()[:2], " ", a.params.globalTrust)
+			} else if item[1] <= a.params.foodToEat["selfless"][HPstatus] {
+				a.AddToGlobalTrust(a.params.coefficients[1])
+				fmt.Println("Team4 Global Trust increased", a.ID().String()[:2], " ", a.params.globalTrust)
+			}
+			delete(a.params.agentResponseMemory, id)
+		}
+	}
+}
+
 func (a *CustomAgentEvo) Run() {
 
 	// fmt.Println("Food Required ", health.FoodRequired(11, 44, a.HealthInfo()))
 	// update agents memory of the last time it saw food on the platform
 	// fmt.Println("The day passed value is ", check)
+
+	if a.hasReshuffled() {
+		timesBlanked := len(a.params.sentMessages) - a.params.receivedMessagesCount
+		a.AddToGlobalTrust(-a.params.coefficients[0] * float64(timesBlanked))
+		if timesBlanked > 0 {
+			fmt.Println("Team4 got blanked so Global Trust decreased", a.ID().String()[:2], " ", a.params.globalTrust, " Blanked Times: ", timesBlanked, " Messages sent: ", len(a.params.sentMessages))
+		}
+		a.params.agentResponseMemory = make(map[uuid.UUID][]int)
+		a.params.msgToSendBuffer = []messages.Message{}
+		a.params.sentMessages = []messages.Message{}
+		a.params.responseMessages = []messages.Message{}
+		a.params.requestLeaveFoodMessages = []messages.Message{}
+		a.params.otherMessageBuffer = []messages.Message{}
+		a.params.receivedMessagesCount = 0
+	}
+
 	if a.HasDayPassed() {
 		a.GenerateMessagesToSend()
 		a.updateLastTimeFoodSeen()
-		a.params.globalTrust *= 1.0
 		a.updateCraving()
 	}
 
@@ -249,13 +305,14 @@ func (a *CustomAgentEvo) Run() {
 
 	// TODO: Define a threshold limit for other agents to respond to our sent message.
 
-	a.updateHealthStatus(healthLevelSeparation)
+	a.params.healthStatus = getHealthStatus(a, healthLevelSeparation, a.HP())
+	a.CallHandleMessage()
 	a.SendingMessage()
-	a.CallHandleMessage() //call the relevant message handler
+	//call the relevant message handler
+	a.checkAgentResponseMemory()
 
 	var foodEaten food.FoodType
 	var err error
-	var calculatedAmountToEat food.FoodType
 
 	a.setPersonality()
 
@@ -263,7 +320,6 @@ func (a *CustomAgentEvo) Run() {
 		a.verifyResponses()
 	}
 
-	a.params.intendedFoodToEat = 0
 	if rand.Intn(100) >= (a.params.waitProbability[a.params.currentPersonality][a.params.healthStatus]-a.params.craving) && !a.HasEaten() && a.PlatformOnFloor() {
 		a.params.intendedFoodToTake = food.FoodType(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) // TODO: add floor
 
@@ -295,5 +351,5 @@ func (a *CustomAgentEvo) Run() {
 		}
 	}
 
-	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "FoodToEat": calculatedAmountToEat, "WaitProbability": a.params.waitProbability, "foodEaten": foodEaten})
+	a.Log("team4EvoAgent reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "FoodToEat": a.params.intendedFoodToTake, "WaitProbability": a.params.waitProbability, "foodEaten": foodEaten})
 }
