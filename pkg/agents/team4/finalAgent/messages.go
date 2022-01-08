@@ -6,7 +6,9 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
-func (a *CustomAgentEvo) GetMessage() {
+// ---------- RECEIVE MESSAGE ---------//
+
+func (a *CustomAgentEvo) getMessage() {
 	receivedMsg := a.ReceiveMessage()
 
 	if receivedMsg != nil {
@@ -19,7 +21,9 @@ func (a *CustomAgentEvo) GetMessage() {
 	}
 }
 
-func (a *CustomAgentEvo) CallHandleMessage() {
+// ----------- CALL THE RELEVANT MESSAGE HANDLER ---------//
+
+func (a *CustomAgentEvo) callHandleMessage() {
 	if a.PlatformOnFloor() && len(a.params.requestLeaveFoodMessages) > 0 {
 		a.params.requestLeaveFoodMessages[0].Visit(a)
 		a.params.requestLeaveFoodMessages = remove(a.params.requestLeaveFoodMessages, 0)
@@ -31,13 +35,15 @@ func (a *CustomAgentEvo) CallHandleMessage() {
 	}
 }
 
-func (a *CustomAgentEvo) GenerateMessagesToSend() {
+/*------------------------HANDLING MESSAGES TO BE SENT ------------------------*/
+
+func (a *CustomAgentEvo) generateMessagesToSend() {
 	var msg messages.Message
 
 	// Request Agent above us to leave critical food amount when we have critical HP.
 	if a.params.healthStatus == 0 {
 		floorToSend := a.Floor() - 1
-		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) //TODO: need to change how much to request to leave
+		msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus])
 		a.params.msgToSendBuffer = append(a.params.msgToSendBuffer, msg)
 	}
 
@@ -53,7 +59,7 @@ func (a *CustomAgentEvo) GenerateMessagesToSend() {
 	a.params.msgToSendBuffer = append(a.params.msgToSendBuffer, msg)
 }
 
-func (a *CustomAgentEvo) SendingMessage() {
+func (a *CustomAgentEvo) sendingMessage() {
 
 	if len(a.params.msgToSendBuffer) > 0 {
 		msg := a.params.msgToSendBuffer[0]
@@ -62,76 +68,10 @@ func (a *CustomAgentEvo) SendingMessage() {
 		a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
 		a.params.msgToSendBuffer = remove(a.params.msgToSendBuffer, 0)
 	}
-
-	// var msg messages.Message
-	// floorToSend := a.Floor() + 1
-
-	// switch a.params.messageCounter {
-	// case 0:
-	// 	msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), floorToSend)
-	// 	a.SendMessage(msg)
-	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
-	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	// case 1:
-	// 	msg = messages.NewAskHPMessage(a.ID(), a.Floor(), floorToSend)
-	// 	a.SendMessage(msg)
-	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
-	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	// case 2:
-	// 	msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), floorToSend)
-	// 	a.SendMessage(msg)
-	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
-	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	// case 3:
-	// 	msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, rand.Intn(60)) //TODO: need to change how much to request to leave
-	// 	a.SendMessage(msg)
-	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
-	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	// case 4:
-	// 	msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, int(int(a.CurrPlatFood())/a.Floor())) //need to change how much to request to take
-	// 	a.SendMessage(msg)
-	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
-	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	// case 5:
-	// 	floorToSend = a.Floor() - 1
-	// 	msg = messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), floorToSend)
-	// 	a.SendMessage(msg)
-	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
-	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	// case 6:
-	// 	floorToSend = a.Floor() - 1
-	// 	msg = messages.NewAskHPMessage(a.ID(), a.Floor(), floorToSend)
-	// 	a.SendMessage(msg)
-	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
-	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	// case 7:
-	// 	floorToSend = a.Floor() - 1
-	// 	msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), floorToSend)
-	// 	a.SendMessage(msg)
-	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
-	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	// case 8:
-	// 	floorToSend = a.Floor() - 1
-	// 	msg = messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), floorToSend, a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus]) //need to change how much to request to leave
-	// 	a.SendMessage(msg)
-	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
-	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	// case 9:
-	// 	floorToSend = a.Floor() - 1
-	// 	msg = messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), floorToSend, 60) //need to change how much to request to take
-	// 	a.SendMessage(msg)
-	// 	a.params.sentMessages = append(a.params.sentMessages, msg)
-	// 	a.Log("Team4 agent sent a message", infra.Fields{"message": msg.MessageType()})
-	// default:
-	// }
-
-	// if a.HasDayPassed() {
-	// 	a.params.messageCounter = 0
-	// }
-	// a.params.messageCounter++
 }
 
-//FOR HONEST AGENTS
+/*------------------------HANDLING RECEIVED MESSAGES ------------------------*/
+
 func (a *CustomAgentEvo) HandleAskHP(msg messages.AskHPMessage) {
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
 	a.SendMessage(reply)
@@ -153,7 +93,6 @@ func (a *CustomAgentEvo) HandleAskIntendedFoodTaken(msg messages.AskIntendedFood
 func (a *CustomAgentEvo) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
 	amount := msg.Request()
 	response := false
-	//amount on platform - intended amount to take  >= request then respond true
 	if a.CurrPlatFood()-a.params.intendedFoodToTake >= food.FoodType(amount) {
 		response = true
 	}
@@ -173,19 +112,19 @@ func (a *CustomAgentEvo) HandleRequestTakeFood(msg messages.RequestTakeFoodMessa
 func (a *CustomAgentEvo) HandleResponse(msg messages.BoolResponseMessage) {
 	response := msg.Response()
 	if !msg.Response() {
-		a.AddToGlobalTrust(-a.params.coefficients[1])
+		a.addToGlobalTrust(-a.params.trustCoefficients[1])
 	} else {
-		a.CheckForResponse(msg)
+		a.checkForResponse(msg)
 	}
 	a.Log("Team4 agent received a Response message from ", infra.Fields{"floor": msg.SenderFloor(), "response": response, "global_trust": a.params.globalTrust})
 }
 
 func (a *CustomAgentEvo) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
 	statement := msg.Statement()
-	if food.FoodType(statement) > a.params.maxFoodLimit {
-		a.AddToGlobalTrust(-a.params.coefficients[1])
+	if food.FoodType(statement) > food.FoodType(a.params.foodToEat["selfish"][2]) {
+		a.addToGlobalTrust(-a.params.trustCoefficients[1])
 	} else {
-		a.AddToGlobalTrust(a.params.coefficients[1])
+		a.addToGlobalTrust(a.params.trustCoefficients[1])
 	}
 	a.Log("Team4 agent received a StateFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": statement, "global_trust": a.params.globalTrust})
 }
@@ -195,11 +134,10 @@ func (a *CustomAgentEvo) HandleStateHP(msg messages.StateHPMessage) {
 
 	_, exists := a.params.agentResponseMemory[msg.SenderID()]
 	if !exists {
-		a.params.agentResponseMemory[msg.SenderID()] = []int{-1, -1}
+		a.params.agentResponseMemory[msg.SenderID()] = []int{-1, -1} // initialise the map if sender not in map
 	}
 	a.params.agentResponseMemory[msg.SenderID()][0] = statement
 
-	//a.AddToGlobalTrust(a.params.coefficients[0])
 	a.Log("Team4 agent received a StateHP message from ", infra.Fields{"floor": msg.SenderFloor(), "hp": statement, "global_trust": a.params.globalTrust})
 }
 
@@ -208,14 +146,9 @@ func (a *CustomAgentEvo) HandleStateIntendedFoodTaken(msg messages.StateIntended
 
 	_, exists := a.params.agentResponseMemory[msg.SenderID()]
 	if !exists {
-		a.params.agentResponseMemory[msg.SenderID()] = []int{-1, -1}
+		a.params.agentResponseMemory[msg.SenderID()] = []int{-1, -1} // initialise the map if sender not in map
 	}
 	a.params.agentResponseMemory[msg.SenderID()][1] = statement
 
-	// if food.FoodType(statement) > a.params.maxFoodLimit {
-	// 	a.AddToGlobalTrust(-a.params.coefficients[1])
-	// } else {
-	// 	a.AddToGlobalTrust(a.params.coefficients[1])
-	// }
 	a.Log("Team4 agent received a StateIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": statement, "global_trust": a.params.globalTrust})
 }
