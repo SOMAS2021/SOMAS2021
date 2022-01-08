@@ -47,7 +47,7 @@ type CurrentBehaviour struct { //determines directly the food taken
 	greediness     int
 	kindness       int // likehood to read and send messages // affacted by openess and extraversion
 	responsiveness int // affected by days on floor, days hungry // changes less frequently than stability
-	stability      int
+	// stability      int
 	// lower stability -> less logical behaviour -> (ex: no food taken when starving ?)
 }
 
@@ -63,7 +63,7 @@ type OperationalMemory struct {
 	prevHP            int
 	foodEaten         food.FoodType
 	daysCritical      int
-	recievedReq       bool
+	receivedReq       bool
 	leaveFood         int
 	takeFood          int
 	// activeTreaties map[uuid.UUID]messages.Treaty
@@ -95,9 +95,9 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			neuroticism:       neuroticism,
 		},
 		behaviour: CurrentBehaviour{
-			greediness:     100 - agreeableness,
-			kindness:       agreeableness,
-			stability:      100 - neuroticism,
+			greediness: 100 - agreeableness,
+			kindness:   agreeableness,
+			//stability:      100 - neuroticism,
 			responsiveness: (agreeableness + openness + extraversion) / 3,
 		},
 		opMem: OperationalMemory{
@@ -112,7 +112,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			prevHP:            100,
 			foodEaten:         0,
 			daysCritical:      0,
-			recievedReq:       false,
+			receivedReq:       false,
 			leaveFood:         0,
 			takeFood:          0,
 		},
@@ -263,11 +263,11 @@ func (a *CustomAgent7) Run() {
 
 		r1 := rand.Intn(11) - 5
 		r2 := rand.Intn(11) - 5
-		r3 := rand.Intn(11) - 5
+		// r3 := rand.Intn(11) - 5
 
 		a.behaviour.kindness += (a.personality.neuroticism * r1) / 50
 		a.behaviour.greediness += (a.personality.neuroticism * r2) / 50
-		a.behaviour.stability += (a.personality.neuroticism * r3) / 50 //also factor in total_messages*a.personality.extraversion !!!
+		//a.behaviour.stability += (a.personality.neuroticism * r3) / 50 //also factor in total_messages*a.personality.extraversion !!!
 
 		if a.behaviour.kindness < 0 {
 			a.behaviour.kindness = 0
@@ -305,9 +305,11 @@ func (a *CustomAgent7) Run() {
 			foodtotake = targetHealthyFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
 
 		// Fulfilling message requests are given high priority
-		case a.opMem.recievedReq:
+		case a.opMem.leaveFood >= 0:
 			foodtotake = a.CurrPlatFood() - food.FoodType(a.opMem.leaveFood)
 
+		case a.opMem.takeFood >= 0:
+			foodtotake = food.FoodType(a.opMem.takeFood)
 		// Fulfilling treaties is given high priority
 		case treaty:
 			// foodtotake = a.opMem.treatyTake
@@ -322,6 +324,7 @@ func (a *CustomAgent7) Run() {
 
 			kindnessAdjuster := float64(a.behaviour.kindness/1000) * float64(targetHealthyFood-targetWeakFood)
 			greedinessAdjuster := float64(a.behaviour.greediness/100) * float64(targetFullFood-targetHealthyFood)
+
 			foodtotake = targetHealthyFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
 
 		// Lowest priority case - it is the standard case, in the absence of messages and treaties, and the agent is not critical
@@ -334,8 +337,9 @@ func (a *CustomAgent7) Run() {
 			greedinessAdjuster := float64(a.behaviour.greediness/100) * float64(targetFullFood-targetHealthyFood)
 
 			foodtotake = targetHealthyFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
+
 		default:
-			foodtotake = food.FoodType(0)
+			foodtotake = food.FoodType(5)
 		}
 
 		// Eat Food and Update Statuses
@@ -368,6 +372,7 @@ func (a *CustomAgent7) Run() {
 		//Get ready for new day
 		a.opMem.seenPlatform = false
 		a.opMem.prevHP = a.HP()
+		a.opMem.receivedReq = false
 	}
 
 	//End of Run()
@@ -412,16 +417,39 @@ func (a *CustomAgent7) HandleStateIntendedFoodTaken(msg messages.StateIntendedFo
 
 // Requests
 func (a *CustomAgent7) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
-	reply := msg.Reply(a.ID(), msg.SenderFloor()-a.Floor(), a.Floor(), true)
-	a.SendMessage(reply)
-	a.opMem.leaveFood = int(msg.Request())
-	a.Log("Recieved requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
+	//check health, if above critical check greediness/kindness, if critical do not leave food
+	if a.HP() <= a.HealthInfo().HPCritical {
+		reply := msg.Reply(a.ID(), msg.SenderFloor()-a.Floor(), a.Floor(), false)
+		a.SendMessage(reply)
+	} else if a.behaviour.greediness > a.behaviour.kindness {
+		reply := msg.Reply(a.ID(), msg.SenderFloor()-a.Floor(), a.Floor(), false)
+		a.SendMessage(reply)
+	} else {
+		reply := msg.Reply(a.ID(), msg.SenderFloor()-a.Floor(), a.Floor(), true)
+		a.SendMessage(reply)
+		a.opMem.receivedReq = true
+		a.opMem.leaveFood = int(msg.Request())
+		a.Log("Recieved requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
+	}
+
 }
 
 func (a *CustomAgent7) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
-	a.Log("Recieved requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
-	reply := msg.Reply(a.ID(), msg.SenderFloor()-a.Floor(), a.Floor(), true)
-	a.SendMessage(reply)
+	//check health, if above critical check greediness/kindness, if critical do not leave food
+	if a.HP() <= a.HealthInfo().HPCritical {
+		reply := msg.Reply(a.ID(), msg.SenderFloor()-a.Floor(), a.Floor(), false)
+		a.SendMessage(reply)
+	} else if a.behaviour.greediness > a.behaviour.kindness {
+		reply := msg.Reply(a.ID(), msg.SenderFloor()-a.Floor(), a.Floor(), false)
+		a.SendMessage(reply)
+	} else {
+		reply := msg.Reply(a.ID(), msg.SenderFloor()-a.Floor(), a.Floor(), true)
+		a.SendMessage(reply)
+		a.opMem.receivedReq = true
+		a.opMem.leaveFood = int(msg.Request())
+		a.Log("Recieved requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
+	}
+
 }
 
 // Responses
