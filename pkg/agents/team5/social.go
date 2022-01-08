@@ -100,7 +100,6 @@ func (a *CustomAgent5) updateFavourForNeighbours() {
 		F_expected := float64(a.lastMeal)
 		for _, uuid := range a.surroundingAgents {
 			F_expected += float64(a.socialMemory[uuid].foodTaken)
-			fmt.Println(uuid, F_expected)
 		}
 		F_expected = F_expected / float64(len(a.surroundingAgents)+1)
 		if F_expected == 0 {
