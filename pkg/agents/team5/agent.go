@@ -35,7 +35,7 @@ type CustomAgent5 struct {
 	attemptToEat      bool
 	leadership        int
 	lastSeenFood      food.FoodType
-	sensitivity       int
+	sensitivity       float64
 	avgPlatFood       food.FoodType
 	daysSinceShuffle  int
 	// Social network of other agents
@@ -60,7 +60,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		attemptToEat:      true,                         // To check if we have already attempted to eat in a day. Needed because HasEaten() does not update if there is no food on the platform
 		leadership:        rand.Intn(10),                // Initialise a random leadership value for each agent, used to determine whether they try to cause change in the tower. 0 is more likely to become a leader
 		lastSeenFood:      0,                            // How much food arrived at the platform on the previous day assuming that the agent is still on the same floor
-		sensitivity:       2 + rand.Intn(8),             // Set personality trait, basically determines amplification of change in favour for nearby agents
+		sensitivity:       float64(2 + rand.Intn(8)),    // Set personality trait, basically determines amplification of change in favour for nearby agents
 		avgPlatFood:       0,                            // Average food arriving on platform
 		daysSinceShuffle:  0,                            // days since last shuffle
 		socialMemory:      make(map[uuid.UUID]Memory),   // Memory of other agents, key is agent id
