@@ -204,7 +204,6 @@ func (a *Base) hpDecay(healthInfo *health.HealthInfo) {
 		a.Log("Killing agent", Fields{"daysLived": a.Age(), "agentType": a.agentType})
 		a.tower.stateLog.LogAgentDeath(a.tower.dayInfo, a.agentType, a.Age())
 		a.tower.stateLog.LogStoryAgentDied(a.tower.dayInfo, a.storyState())
-		a.tower.stateLog.LogUtility(a.tower.dayInfo, a.agentType, a.Utility(), false)
 		newHP = 0
 	}
 	a.Log("Setting hp to " + fmt.Sprint(newHP))
