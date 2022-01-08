@@ -34,7 +34,7 @@ type CustomAgent5 struct {
 	currentProposal   *messages.Treaty
 	attemptToEat      bool
 	leadership        int
-	lastFood          int
+	lastFood          food.FoodType
 	// Social network of other agents
 	socialMemory      map[uuid.UUID]Memory
 	surroundingAgents map[int]uuid.UUID
@@ -74,7 +74,7 @@ func (a *CustomAgent5) updateSelfishness() {
 }
 
 func (a *CustomAgent5) updateSatisfaction() {
-	tmp := int(a.CurrPlatFood())
+	tmp := a.CurrPlatFood()
 	if a.lastFood*120.0/100.0 <= tmp {
 		a.satisfaction += 2
 	} else if a.lastFood*110.0/100.0 <= tmp {
@@ -156,7 +156,7 @@ func (a *CustomAgent5) Run() {
 		if a.Floor() == a.rememberFloor { // if the agent is still on the same floor it can update its satisfaction
 			a.updateSatisfaction()
 		}
-		a.lastFood = int(a.CurrPlatFood())
+		a.lastFood = a.CurrPlatFood()
 		lastMeal, err := a.TakeFood(a.attemptFood)
 		if err != nil {
 			switch err.(type) {
