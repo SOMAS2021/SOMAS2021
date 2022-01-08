@@ -42,7 +42,7 @@ type SimEnv struct {
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
-	stateLog := logging.NewLogState(parameters.LogFolderName, parameters.LogMain)
+	stateLog := logging.NewLogState(parameters.LogFolderName, parameters.LogMain, parameters.CustomLog)
 	return &SimEnv{
 		FoodOnPlatform: parameters.FoodOnPlatform,
 		AgentCount:     parameters.NumOfAgents,
@@ -95,6 +95,13 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	for agentID, agent := range t.Agents {
 		agent := agent.BaseAgent()
 		sE.Log("Agent survives till the end of the simulation", infra.Fields{"agentID": agentID, "agentType": agent.AgentType().String(), "agentAge": agent.Age()})
+	}
+
+	// custom loggers
+	for _, agent := range t.Agents {
+		if agent.BaseAgent().AgentType().String() == sE.stateLog.CustomLog {
+			agent.CustomLogs()
+		}
 	}
 }
 
