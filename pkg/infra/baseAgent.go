@@ -278,12 +278,12 @@ key values:
 - > 1: agent gaining hp on average
 - when loss is 0, default to percentage difference between gain and loss. Acknowledge that HP gain should increase utility
 */
-func hpGainFactor(gain, loss, maxhp int) float64 {
-	if loss == 0 {
-		return 1 + float64(gain)/float64(maxhp)
-	}
-	return float64(gain) / float64(loss)
-}
+// func hpGainFactor(gain, loss, maxhp int) float64 {
+// 	if loss == 0 {
+// 		return 1 + float64(gain)/float64(maxhp)
+// 	}
+// 	return float64(gain) / float64(loss)
+// }
 
 /*
 Net HP Gain Factor.
