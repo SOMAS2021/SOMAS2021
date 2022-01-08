@@ -98,7 +98,7 @@ func (a *CustomAgent5) updateSatisfaction() {
 
 func (a *CustomAgent5) updateAveragePlatFood() {
 	a.avgPlatFood = ((a.avgPlatFood * food.FoodType(a.daysSinceShuffle)) + a.CurrPlatFood()) / food.FoodType(a.daysSinceShuffle+1)
-	a.updateFavourAbove()
+	a.updateFavourForNeighbours()
 }
 
 func (a *CustomAgent5) checkForLeader() {

@@ -72,16 +72,16 @@ func (a *CustomAgent5) updateFavour() {
 	}
 }
 
-func (a *CustomAgent5) updateFavourAbove() {
-	if agentAbove, agentAboveKnown := a.surroundingAgents[1]; agentAboveKnown {
+func (a *CustomAgent5) updateFavourForNeighbours() {
+	S := float64(a.sensitivity)
+	F_take := float64(a.attemptFood)
+	H_self := float64(PercentageHP(a))
+	F_plat := float64(a.CurrPlatFood())
 
+	if agentAbove, agentAboveKnown := a.surroundingAgents[1]; agentAboveKnown {
 		H_above := float64(a.socialMemory[agentAbove].agentHP)
 		F_above := float64(a.socialMemory[agentAbove].foodTaken)
 		F_expected := float64(a.avgPlatFood)
-		S := float64(a.sensitivity)
-		F_take := float64(a.attemptFood)
-		H_self := float64(PercentageHP(a))
-		F_plat := float64(a.CurrPlatFood())
 
 		F_expectedComponent := math.Exp(F_plat/((3.0*F_expected)+15.0)) * (F_plat - F_expected) / (50 * S)
 		H_aboveScoreComponent := -2.0 * S * H_above * math.Pow(F_above, 2) / math.Pow(float64(a.HealthInfo().MaxHP), 3)
@@ -90,6 +90,32 @@ func (a *CustomAgent5) updateFavourAbove() {
 		C := int((math.Round(F_expectedComponent + H_aboveScoreComponent + H_ourScoreComponent)))
 		a.addToSocialFavour(agentAbove, C)
 		a.resetSocialKnowledge(agentAbove)
+	}
+	if agentBelow, agentBelowKnown := a.surroundingAgents[-1]; agentBelowKnown {
+		H_below := float64(a.socialMemory[agentBelow].agentHP)
+		F_below := float64(a.socialMemory[agentBelow].foodTaken)
+		F_asked := float64(a.socialMemory[agentBelow].intentionFood)
+
+		// average of food taken by agents around our agent, including our agent
+		F_expected := float64(a.lastMeal)
+		for _, uuid := range a.surroundingAgents {
+			F_expected += float64(a.socialMemory[uuid].foodTaken)
+			fmt.Println(uuid, F_expected)
+		}
+		F_expected = F_expected / float64(len(a.surroundingAgents)+1)
+		if F_expected == 0 {
+			F_expected = float64(a.attemptFood) // to avoid favour shooting extremely high
+		}
+
+		F_expectedComponent := math.Exp(F_asked/((3.0*F_expected)+1.0)) * (F_asked - F_expected) / 10
+		H_belowScoreComponent := -2.0 * S * math.Pow(H_below, 1.7) * math.Pow(F_below, 1.3) / math.Pow(float64(a.HealthInfo().MaxHP), 3)
+		H_ourScoreComponent := 2.0 * S * math.Pow(F_take, 1.3) * math.Pow(H_self, 1.7) / math.Pow(float64(a.HealthInfo().MaxHP), 3)
+
+		C := int((math.Round(F_expectedComponent + H_belowScoreComponent + H_ourScoreComponent)))
+		a.addToSocialFavour(agentBelow, C)
+		a.resetSocialKnowledge(agentBelow)
+		a.updateIntentionFoodMemory(agentBelow, food.FoodType(F_expected))
+	}
 }
 
 func (a *CustomAgent5) calculateAverageFavour() int {
