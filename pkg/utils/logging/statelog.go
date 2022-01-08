@@ -19,6 +19,8 @@ type StateLog struct {
 	utilityLogger *log.Logger
 	// Death state
 	deathCount int
+	// Custom log
+	CustomLog string
 }
 
 type AgentState struct {
@@ -36,7 +38,7 @@ func handleNewLoggerErr(err error) {
 	}
 }
 
-func NewLogState(folderpath string, saveMainLog bool) *StateLog {
+func NewLogState(folderpath string, saveMainLog bool, customLog string) *StateLog {
 	// init manager
 	l := NewLogger(folderpath)
 
@@ -66,6 +68,7 @@ func NewLogState(folderpath string, saveMainLog bool) *StateLog {
 		storyLogger:   storyLogger,
 		utilityLogger: utilityLogger,
 		deathCount:    0,
+		CustomLog:     customLog,
 	}
 }
 

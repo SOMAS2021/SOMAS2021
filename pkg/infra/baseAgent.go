@@ -34,6 +34,7 @@ type Agent interface {
 	HandleProposeTreaty(msg messages.ProposeTreatyMessage)
 	HandleTreatyResponse(msg messages.TreatyResponseMessage)
 	HandlePropogate(msg messages.Message)
+	CustomLogs()
 }
 
 type Fields = log.Fields
@@ -346,3 +347,5 @@ func (a *Base) storyState() logging.AgentState {
 		Utility:   a.utility(),
 	}
 }
+
+func (a *Base) CustomLogs() {}
