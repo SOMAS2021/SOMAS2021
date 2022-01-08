@@ -310,9 +310,178 @@ func (a *CustomAgent7) Run() {
 
 		// Fulfilling treaties is given high priority
 		case treaty:
-			// foodtotake = a.opMem.treatyTake
-			//
-			foodtotake = a.CurrPlatFood() - food.FoodType(a.opMem.leaveFood)
+			for _, t_active := range a.ActiveTreaties() {
+
+				if t_active.Request() == messages.LeaveAmountFood {
+					// case t_active.condition
+					switch t_active.Condition() {
+					// check HP condition
+					case messages.HP:
+						switch t_active.ConditionOp() {
+						case messages.GT:
+							if a.HP() > t_active.ConditionValue() {
+								if foodtotake <= food.FoodType(t_active.RequestValue()) {
+									foodtotake = food.FoodType(t_active.RequestValue()) + 1
+								}
+							}
+						case messages.GE:
+							if a.HP() >= t_active.ConditionValue() {
+								if foodtotake < food.FoodType(t_active.RequestValue()) {
+									foodtotake = food.FoodType(t_active.RequestValue())
+								}
+							}
+						case messages.EQ:
+							if a.HP() == t_active.ConditionValue() {
+								if foodtotake != food.FoodType(t_active.RequestValue()) {
+									foodtotake = food.FoodType(t_active.RequestValue())
+								}
+							}
+						}
+					// check Floor Condition
+					case messages.Floor:
+						switch t_active.ConditionOp() {
+						case messages.LT:
+							if a.Floor() < t_active.ConditionValue() {
+								if foodtotake >= food.FoodType(t_active.RequestValue()) {
+									foodtotake = food.FoodType(t_active.RequestValue()) - 1
+								}
+							}
+						case messages.LE:
+							if a.Floor() <= t_active.ConditionValue() {
+								if foodtotake > food.FoodType(t_active.RequestValue()) {
+									foodtotake = food.FoodType(t_active.RequestValue())
+								}
+							}
+						case messages.EQ:
+							if a.Floor() == t_active.ConditionValue() {
+								if foodtotake != food.FoodType(t_active.RequestValue()) {
+									foodtotake = food.FoodType(t_active.RequestValue())
+								}
+							}
+						}
+					// check Available food condition
+					case messages.AvailableFood:
+						if a.PlatformOnFloor() {
+							switch t_active.ConditionOp() {
+							case messages.LT:
+								if int(a.CurrPlatFood()) < t_active.ConditionValue() {
+									if foodtotake >= food.FoodType(t_active.RequestValue()) {
+										foodtotake = food.FoodType(t_active.RequestValue()) - 1
+									}
+								}
+							case messages.LE:
+								if int(a.CurrPlatFood()) <= t_active.ConditionValue() {
+									if foodtotake > food.FoodType(t_active.RequestValue()) {
+										foodtotake = food.FoodType(t_active.RequestValue())
+									}
+								}
+							case messages.GT:
+								if int(a.CurrPlatFood()) > t_active.ConditionValue() {
+									if foodtotake <= food.FoodType(t_active.RequestValue()) {
+										foodtotake = food.FoodType(t_active.RequestValue()) + 1
+									}
+								}
+							case messages.GE:
+								if int(a.CurrPlatFood()) >= t_active.ConditionValue() {
+									if foodtotake < food.FoodType(t_active.RequestValue()) {
+										foodtotake = food.FoodType(t_active.RequestValue())
+									}
+								}
+							case messages.EQ:
+								if int(a.CurrPlatFood()) == t_active.ConditionValue() {
+									if foodtotake != food.FoodType(t_active.RequestValue()) {
+										foodtotake = food.FoodType(t_active.RequestValue())
+									}
+								}
+							}
+						}
+					}
+				} else if t_active.Request() == messages.LeavePercentFood {
+					amount := food.FoodType(float64(t_active.RequestValue() / 100))
+					switch t_active.Condition() {
+					// check HP condition
+					case messages.HP:
+						switch t_active.ConditionOp() {
+						case messages.GT:
+							if a.HP() > t_active.ConditionValue() {
+								if foodtotake <= amount {
+									foodtotake = amount + 1
+								}
+							}
+						case messages.GE:
+							if a.HP() >= t_active.ConditionValue() {
+								if foodtotake < amount {
+									foodtotake = amount
+								}
+							}
+						case messages.EQ:
+							if a.HP() == t_active.ConditionValue() {
+								if foodtotake != amount {
+									foodtotake = amount
+								}
+							}
+						}
+					// check Floor Condition
+					case messages.Floor:
+						switch t_active.ConditionOp() {
+						case messages.LT:
+							if a.Floor() < t_active.ConditionValue() {
+								if foodtotake >= amount {
+									foodtotake = amount - 1
+								}
+							}
+						case messages.LE:
+							if a.Floor() <= t_active.ConditionValue() {
+								if foodtotake > amount {
+									foodtotake = amount
+								}
+							}
+						case messages.EQ:
+							if a.Floor() == t_active.ConditionValue() {
+								if foodtotake != amount {
+									foodtotake = amount
+								}
+							}
+						}
+					// check Available food condition
+					case messages.AvailableFood:
+						if a.PlatformOnFloor() {
+							switch t_active.ConditionOp() {
+							case messages.LT:
+								if int(a.CurrPlatFood()) < t_active.ConditionValue() {
+									if foodtotake >= amount {
+										foodtotake = amount - 1
+									}
+								}
+							case messages.LE:
+								if int(a.CurrPlatFood()) <= t_active.ConditionValue() {
+									if foodtotake > amount {
+										foodtotake = amount
+									}
+								}
+							case messages.GT:
+								if int(a.CurrPlatFood()) > t_active.ConditionValue() {
+									if foodtotake <= amount {
+										foodtotake = amount + 1
+									}
+								}
+							case messages.GE:
+								if int(a.CurrPlatFood()) >= t_active.ConditionValue() {
+									if foodtotake < amount {
+										foodtotake = amount
+									}
+								}
+							case messages.EQ:
+								if int(a.CurrPlatFood()) == t_active.ConditionValue() {
+									if foodtotake != amount {
+										foodtotake = amount
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 
 		// In this case the agent can stay critical for another 4 or more days. Hence the fulfillment of treaties and requests is prioritized over this
 		case currentHP <= healthInfo.HPCritical:
@@ -339,6 +508,7 @@ func (a *CustomAgent7) Run() {
 		}
 
 		// Eat Food and Update Statuses
+
 		Eaten, err := a.TakeFood(foodtotake)
 
 		if err != nil {
