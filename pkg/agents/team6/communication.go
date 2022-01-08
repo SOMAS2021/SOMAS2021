@@ -163,6 +163,16 @@ func (a *CustomAgent6) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 	a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 }
 
+func (a *CustomAgent6) HandlePropagate(msg messages.ProposeTreatyMessage) {
+	// The Narcissist does not propagate treaties
+	if a.currBehaviour.String() != "Narcissist" {
+		treatyToPropagate := messages.NewProposalMessage(a.ID(), msg.SenderFloor(), msg.TargetFloor(), msg.Treaty())
+		a.SendMessage(treatyToPropagate)
+		a.Log("I propogated a treaty")
+	}
+
+}
+
 func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
 
