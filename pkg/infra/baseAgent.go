@@ -96,7 +96,7 @@ func (a *Base) HP() int {
 }
 
 func (a *Base) Age() int {
-       return a.age
+	return a.age
 }
 
 func (a *Base) increaseAge() {
