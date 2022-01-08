@@ -79,7 +79,7 @@ func (a *CustomAgent3) askLeaveFood(direction int) { //direction 1 or -1
 	a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
 }
 
-func (a *CustomAgent3) proposeTreatiesInmoral() {
+func (a *CustomAgent3) proposeTreatiesImmoral() {
 	randomFloor := rand.Intn(a.Floor()) + 1
 	tr := messages.NewTreaty(messages.Floor, a.Floor()+1, messages.LeavePercentFood, 99, messages.GT, messages.GT, a.knowledge.reshuffleEst/2, a.ID())
 	a.knowledge.treatyProposed = *tr //remember the treaty we proposed
@@ -122,7 +122,7 @@ func (a *CustomAgent3) ticklyMessage() {
 		case 4:
 			if a.treatyFull() || a.treatyPendingResponse() {
 				if a.vars.morality < 10 {
-					a.proposeTreatiesInmoral()
+					a.proposeTreatiesImmoral()
 				} else {
 					a.proposeTreatiesMoral(1)
 				}

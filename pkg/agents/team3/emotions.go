@@ -99,7 +99,7 @@ func (a *CustomAgent3) changeNewDay() {
 	a.knowledge.foodMovingAvg = float64(a.knowledge.foodMovingAvg)*0.9 + float64(a.knowledge.foodLastEaten)*0.1
 }
 
-func (a *CustomAgent3) resshufleEstimator() {
+func (a *CustomAgent3) reshuffleEstimator() {
 	if a.knowledge.reshuffleEst == -1 {
 		a.knowledge.reshuffleEst = a.Age()
 	} else {
@@ -118,7 +118,7 @@ func (a *CustomAgent3) changeNewFloor() {
 		currentFloor := a.Floor()
 		beenInHigher := false
 		beenInLower := false
-		a.resshufleEstimator()
+		a.reshuffleEstimator()
 
 		for _, floor := range a.knowledge.floors {
 			if floor > currentFloor {
