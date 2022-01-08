@@ -1,6 +1,10 @@
 package utilFunctions
 
-import "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
+import (
+	"math"
+
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
+)
 
 func Sum(input map[agent.AgentType]int) int {
 	totalAgents := 0
@@ -19,4 +23,23 @@ func MinInt(vars ...int) int {
 		}
 	}
 	return min
+}
+
+/*
+Restricts 'value' to [lowerBound, uppwerBound].
+Values at the either bound will take on the value of that respective bound.
+For single sided bounds, use +ve or -ve inf appropriately.
+Returns +ve infinity on bounds error.
+*/
+func RestrictToRange(lowerBound, upperBound, value float64) float64 {
+	if lowerBound >= upperBound {
+		return math.Inf(1)
+	}
+	if value < lowerBound {
+		return lowerBound
+	}
+	if value > upperBound {
+		return upperBound
+	}
+	return value
 }
