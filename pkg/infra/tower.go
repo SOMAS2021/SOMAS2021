@@ -100,10 +100,10 @@ func (t *Tower) endOfDay() {
 	t.dayInfo.CurrDay += 1
 	for _, agent := range t.Agents {
 		agent := agent.BaseAgent()
-		t.stateLog.LogUtility(t.dayInfo, agent.agentType, agent.Utility(), agent.IsAlive())
 		agent.hpDecay(t.healthInfo)
 		agent.increaseAge()
 		agent.updateTreaties()
+		t.stateLog.LogUtility(t.dayInfo, agent.agentType, agent.utility(), agent.IsAlive())
 	}
 }
 
