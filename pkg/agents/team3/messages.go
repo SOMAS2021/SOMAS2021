@@ -25,7 +25,7 @@ func (a *CustomAgent3) treatyPendingResponse() bool {
 
 func (a *CustomAgent3) requestHelpInCrit() {
 	if a.treatyFull() || a.treatyPendingResponse() {
-		msg := messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), a.Floor()+1, a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)) //to higher floor?
+		msg := messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), a.Floor()+1, a.foodReqCalc(a.HealthInfo().HPCritical, a.HealthInfo().HPReqCToW)) //to higher floor?
 		a.SendMessage(msg)
 		a.Log("I sent a help message", infra.Fields{"message": "RequestLeaveFood"})
 	} else {
@@ -52,14 +52,11 @@ func (a *CustomAgent3) askFoodTaken(direction int) {
 }
 
 func (a *CustomAgent3) askTakeFood(HPNeighbour int, direction int) { //direction 1 or -1
-	survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
-	stayFood := a.foodReqCalc(a.HP(), a.HP())
-
-	if HPNeighbour < 40 {
-		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, stayFood)
+	if HPNeighbour < 70 {
+		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, a.foodReqCalc(a.HP(), a.HP()))
 		a.SendMessage(msg)
 	} else {
-		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, survivalFood)
+		msg := messages.NewRequestTakeFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, a.foodReqCalc(a.HealthInfo().HPCritical, a.HealthInfo().HPReqCToW))
 		a.SendMessage(msg)
 	}
 	a.Log("I sent a message", infra.Fields{"message": "RequestTakeFood"})
@@ -67,14 +64,19 @@ func (a *CustomAgent3) askTakeFood(HPNeighbour int, direction int) { //direction
 }
 
 func (a *CustomAgent3) askLeaveFood(direction int) { //direction 1 or -1
+	survivalFood := a.foodReqCalc(a.HealthInfo().HPCritical, a.HealthInfo().HPReqCToW)
 	if direction == -1 {
-		survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
-		msg := messages.NewRequestLeaveFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, int(a.knowledge.foodLastSeen-food.FoodType(survivalFood)))
+		foodToLeave := int(a.knowledge.foodLastSeen - food.FoodType(survivalFood))
+		if a.knowledge.foodLastSeen < food.FoodType(survivalFood) {
+			foodToLeave = survivalFood
+		}
+		a.Log("askLeaveFood", infra.Fields{"survivalFood: ": survivalFood, "foodToLeave: ": foodToLeave})
+		msg := messages.NewRequestLeaveFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, foodToLeave)
 		a.SendMessage(msg)
 	} else {
-		survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
 		msg := messages.NewRequestLeaveFoodMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, int(a.knowledge.foodLastSeen+a.knowledge.foodLastEaten+(food.FoodType(survivalFood*4))))
 		a.SendMessage(msg)
+		a.Log("askLeaveFood", infra.Fields{"foodRequested: ": a.knowledge.foodLastSeen + a.knowledge.foodLastEaten + (food.FoodType(survivalFood * 4))})
 	}
 	a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
 }
@@ -223,7 +225,7 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 	request := msg.Request()
 	percentageDec := 0.8
 	if a.read() {
-		if a.HP() < a.knowledge.lastHP {
+		if int(a.knowledge.foodMovingAvg) > int(a.knowledge.foodLastEaten) {
 			if friendship < 0.5 {
 				a.changeInMood(1, 6, 1)
 				a.changeInMorality(1, 3, -1)
@@ -252,13 +254,13 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 			if friendship > 0.5 {
 				if a.vars.morality > 50 {
 					if a.vars.mood > 30 {
-						a.decisions.foodToEat = int(float64(a.decisions.foodToEat) * percentageDec)
+						a.decisions.foodToEat = int(float64(a.knowledge.foodLastEaten) * percentageDec)
 					}
 				}
 			} else {
 				if a.vars.morality > 70 {
 					if a.vars.mood > 50 {
-						a.decisions.foodToEat = int(float64(a.decisions.foodToEat) * percentageDec)
+						a.decisions.foodToEat = int(float64(a.knowledge.foodLastEaten) * percentageDec)
 					}
 				}
 			}
@@ -293,9 +295,6 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 			}
 
 		}
-
-		reply := msg.Reply(a.BaseAgent().ID(), a.Floor(), msg.SenderFloor(), true)
-		a.SendMessage(reply)
 		a.Log("I recieved a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 	}
 }
@@ -359,7 +358,6 @@ func (a *CustomAgent3) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 				}
 			}
 		}
-
 		a.Log("I recieved a requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 	}
 }

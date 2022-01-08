@@ -107,7 +107,7 @@ func (a *CustomAgent3) takeFoodCalculation() int {
 			survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
 
 			if a.DaysAtCritical() < 2 { //depend on morality
-				return foodRange(morality, a.DaysAtCritical(), survivalFood+a.DaysAtCritical()) // adaptive range
+				return foodRange(morality, 0, survivalFood+a.DaysAtCritical()) // adaptive range
 			}
 			return foodRange(morality, survivalFood, survivalFood+a.DaysAtCritical()) //range ensures survival if possible with foodToLeave // a.DaysAtCritical() == 2
 
@@ -127,7 +127,7 @@ func (a *CustomAgent3) takeFoodCalculation() int {
 			if a.HP() == a.HealthInfo().HPCritical {
 				survivalFood := a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW)
 				if a.DaysAtCritical() < 2 { //depend on morality
-					foodToEat = foodRange(morality, 0, survivalFood+3) // adaptive range
+					foodToEat = foodRange(morality, 0, survivalFood+a.DaysAtCritical()) // adaptive range
 				} else { // a.DaysAtCritical() == 3
 					foodToEat = foodRange(morality, survivalFood, survivalFood*2) //range ensures survival if possible with foodToLeave
 				}
