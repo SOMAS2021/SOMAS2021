@@ -146,7 +146,7 @@ func (a *CustomAgentEvo) HandleRequestTakeFood(msg messages.RequestTakeFoodMessa
 func (a *CustomAgentEvo) HandleResponse(msg messages.BoolResponseMessage) {
 	response := msg.Response() // TODO: Change for later dependent on circumstance
 	if !msg.Response() {
-		a.SubFromGlobalTrust(a.params.coefficients[1]) // TODO: adapt for other conditions
+		a.SubFromGlobalTrust(a.params.trustCoefficients[1]) // TODO: adapt for other conditions
 	} else {
 		a.CheckForResponse(msg)
 	}
@@ -157,25 +157,25 @@ func (a *CustomAgentEvo) HandleResponse(msg messages.BoolResponseMessage) {
 func (a *CustomAgentEvo) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) {
 	statement := msg.Statement()
 	if food.FoodType(statement) > a.params.maxFoodLimit {
-		a.SubFromGlobalTrust(a.params.coefficients[1])
+		a.SubFromGlobalTrust(a.params.trustCoefficients[1])
 	} else {
-		a.AddToGlobalTrust(a.params.coefficients[1])
+		a.AddToGlobalTrust(a.params.trustCoefficients[1])
 	}
 	a.Log("Team4 agent received a StateFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": statement, "global_trust": a.params.globalTrust})
 }
 
 func (a *CustomAgentEvo) HandleStateHP(msg messages.StateHPMessage) {
 	statement := msg.Statement()
-	a.AddToGlobalTrust(a.params.coefficients[0])
+	a.AddToGlobalTrust(a.params.trustCoefficients[0])
 	a.Log("Team4 agent received a StateHP message from ", infra.Fields{"floor": msg.SenderFloor(), "hp": statement, "global_trust": a.params.globalTrust})
 }
 
 func (a *CustomAgentEvo) HandleStateIntendedFoodTaken(msg messages.StateIntendedFoodIntakeMessage) {
 	statement := msg.Statement()
 	if food.FoodType(statement) > a.params.maxFoodLimit {
-		a.SubFromGlobalTrust(a.params.coefficients[1])
+		a.SubFromGlobalTrust(a.params.trustCoefficients[1])
 	} else {
-		a.AddToGlobalTrust(a.params.coefficients[1])
+		a.AddToGlobalTrust(a.params.trustCoefficients[1])
 	}
 	a.Log("Team4 agent received a StateIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor(), "food": statement, "global_trust": a.params.globalTrust})
 }

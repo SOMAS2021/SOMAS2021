@@ -23,7 +23,7 @@ type CustomAgentEvoParams struct {
 
 	intendedFoodToTake       food.FoodType
 	globalTrust              float64            // the overall trust the agent has in other agents in the tower
-	coefficients             []float64          // the amount trust score changes by for certain actions
+	trustCoefficients        []float64          // the amount trust score changes by for certain actions
 	lastFoodTaken            food.FoodType      // food taken on the previous day
 	sentMessages             []messages.Message // TODO: make it a map hashed by messageIDs
 	responseMessages         []messages.Message // TODO: make it a map hashed by messageIDs
@@ -74,7 +74,7 @@ func InitaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 
 		globalTrust:       0.0,
 		globalTrustLimits: []int{40, 80},
-		coefficients:      []float64{2, 4, 8}, // TODO: maybe train these co-efficients using evolutionary algorithm
+		trustCoefficients: []float64{2, 4, 8}, // TODO: maybe train these co-efficients using evolutionary algorithm
 		lastFoodTaken:     0,
 
 		messageCounter:           0,

@@ -48,9 +48,9 @@ func (a *CustomAgentEvo) CheckForResponse(msg messages.BoolResponseMessage) {
 								err := fmt.Errorf("RequestMessage type assertion failed")
 								fmt.Println(err.Error())
 							} else if food.FoodType(reqMsg.Request()) <= a.CurrPlatFood() {
-								a.AddToGlobalTrust(a.params.coefficients[1])
+								a.AddToGlobalTrust(a.params.trustCoefficients[1])
 							} else if food.FoodType(reqMsg.Request()) > a.CurrPlatFood() {
-								a.SubFromGlobalTrust(a.params.coefficients[1])
+								a.SubFromGlobalTrust(a.params.trustCoefficients[1])
 								a.Log("Team4: For Requested Food to Leave greater than Food on platform", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.CurrPlatFood(), "global_trust": a.params.globalTrust})
 							}
 						}
@@ -84,10 +84,10 @@ func (a *CustomAgentEvo) CheckForResponse(msg messages.BoolResponseMessage) {
 								fmt.Println(err.Error())
 							} else if food.FoodType(reqMsg.Request()) >= a.neighbourFoodEaten() {
 								a.Log("Team4: For Requested Food to Take greater then or equal neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.neighbourFoodEaten(), "global_trust": a.params.globalTrust})
-								a.AddToGlobalTrust(a.params.coefficients[1])
+								a.AddToGlobalTrust(a.params.trustCoefficients[1])
 							} else if food.FoodType(reqMsg.Request()) < a.neighbourFoodEaten() {
 								a.Log("Team4: For Requested Food to Take less than neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.neighbourFoodEaten(), "global_trust": a.params.globalTrust})
-								a.SubFromGlobalTrust(a.params.coefficients[1])
+								a.SubFromGlobalTrust(a.params.trustCoefficients[1])
 							}
 						}
 						break
@@ -107,9 +107,9 @@ func (a *CustomAgentEvo) CheckForResponse(msg messages.BoolResponseMessage) {
 				} else if sentMsg.MessageType() == messages.RequestLeaveFood && !a.PlatformOnFloor() {
 					a.params.sentMessages = append(a.params.responseMessages, &msg)
 				} else if sentMsg.MessageType() == messages.RequestTakeFood && a.Floor()-msg.SenderFloor() == 1 {
-					a.AddToGlobalTrust(a.params.coefficients[1])
+					a.AddToGlobalTrust(a.params.trustCoefficients[1])
 				} else if sentMsg.MessageType() == messages.RequestLeaveFood && a.Floor()-msg.SenderFloor() == -1 {
-					a.AddToGlobalTrust(a.params.coefficients[1])
+					a.AddToGlobalTrust(a.params.trustCoefficients[1])
 				}
 				break
 			}
