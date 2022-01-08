@@ -113,8 +113,94 @@ func (a *CustomAgent6) convertToTakeFoodAmount(foodAvailable float64, requestTyp
 	return food.FoodType(takeFood)
 }
 
-// Decides if to accept or reject a treaty
+//  Decides if to accept or reject a treaty
 func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
+	levels := levelsData{
+		strongLevel:  a.HealthInfo().MaxHP * 3 / 5,
+		healthyLevel: a.HealthInfo().MaxHP * 3 / 10,
+		weakLevel:    a.HealthInfo().WeakLevel,
+		critLevel:    0,
+	}
+
+	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT {
+		switch t.Condition() {
+		// HP
+		case 1:
+			switch a.currBehaviour.String() {
+			case "Altruist":
+				return true
+			case "Collectivist":
+				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
+					return a.considerTreatyUsingUtility(t)
+				} else {
+					if t.ConditionValue() >= a.HealthInfo().WeakLevel {
+						return true
+					} else {
+						return a.considerTreatyUsingUtility(t)
+					}
+				}
+
+			case "Selfish":
+				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
+					return a.considerTreatyUsingUtility(t)
+				} else {
+					if t.ConditionValue() >= levels.strongLevel {
+						return true
+					} else {
+						return a.considerTreatyUsingUtility(t)
+					}
+				}
+			case "Narcissist":
+				return a.considerTreatyUsingUtility(t)
+			default:
+				return a.considerTreatyUsingUtility(t)
+			}
+		// Floor
+		case 2:
+			return a.considerTreatyUsingUtility(t)
+		// AvailableFood
+		case 3:
+			switch a.currBehaviour.String() {
+			case "Altruist":
+				return true
+			case "Collectivist":
+				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
+					return a.considerTreatyUsingUtility(t)
+				} else {
+					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 2 { //double-check if 2 is sufficient to go from critical to WeakLevel
+						return a.considerTreatyUsingUtility(t)
+					} else {
+						return true
+					}
+				}
+			case "Selfish":
+				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
+					return a.considerTreatyUsingUtility(t)
+				} else {
+					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 60 { // change to a.HealthInfo().MaxFoodIntake
+						return a.considerTreatyUsingUtility(t)
+					} else {
+						return true
+					}
+				}
+
+			case "Narcissist":
+			default:
+				return a.considerTreatyUsingUtility(t)
+			}
+
+		default:
+			return a.considerTreatyUsingUtility(t)
+		}
+	} else {
+		return false
+	}
+	return a.considerTreatyUsingUtility(t)
+
+}
+
+// Decides if to accept or reject a treaty using utility
+func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
 
 	// 1. Estimate the food intake of the proposed treaty
 
@@ -149,10 +235,7 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 		shortTermBenefit := treatyUtility - currentShortTermUtility
 		longTermBenefit := treatyUtility - currentLongTermUtility
 
-		estimatedPeriod := len(a.longTermMemory)
-		if a.numReassigned != 0 {
-			estimatedPeriod /= a.numReassigned
-		}
+		estimatedPeriod := int(a.reassignPeriodGuess)
 		estimatedTimeLeft := estimatedPeriod - len(a.shortTermMemory)
 		benefit := 0.0
 

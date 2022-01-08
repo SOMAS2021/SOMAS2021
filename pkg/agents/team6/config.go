@@ -202,7 +202,7 @@ func (a *CustomAgent6) Run() {
 		a.lastFoodTaken = foodTaken
 	}
 
-	// Reset the reqLeaveFoodAmount to nothing once the agent eated
+	// Reset the reqLeaveFoodAmount to nothing once the agent has eaten
 	if a.HasEaten() {
 		a.reqLeaveFoodAmount = -1
 	}
