@@ -19,10 +19,6 @@ func (a *CustomAgent7) RejectTreaty(msg messages.ProposeTreatyMessage) {
 
 func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
-	if treaty.Request() == messages.Inform {
-		a.RejectTreaty(msg)
-		return
-	}
 
 	if (treaty.Request() == messages.LeaveAmountFood && treaty.RequestOp() == messages.EQ) || treaty.RequestOp() == messages.LE || treaty.RequestOp() == messages.LT {
 		a.RejectTreaty(msg)
@@ -60,12 +56,23 @@ func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		}
 	}
 
-	if (treaty.Request() == messages.LeaveAmountFood && treaty.RequestValue() > 50) {
+	if treaty.Request() == messages.Inform {
 		a.RejectTreaty(msg)
 		return
 	}
 
-	alliance := 50 - a.behaviour.greediness/2 + a.behaviour.responsiveness/2 - (treaty.Duration()+treaty.Duration())
+	if treaty.Request() == messages.LeaveAmountFood && treaty.RequestValue() > 50 {
+		a.RejectTreaty(msg)
+		return
+	}
+
+	// reject treaty if there are conflicts with existing treaties.
+	if a.treatyisConflicted(treaty) {
+		a.RejectTreaty(msg)
+		return
+	}
+
+	alliance := 50 - a.behaviour.greediness/2 + a.behaviour.responsiveness/2 - (treaty.Duration() + treaty.Duration())
 	if alliance > 0 {
 		treaty.SignTreaty()
 		a.AddTreaty(treaty)
@@ -102,4 +109,64 @@ func (a *CustomAgent7) requestHelpInCrit() {
 	msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, *tr)
 	a.SendMessage(msg)
 	a.Log("I sent a treaty")
+}
+
+func (a *CustomAgent7) treatyisConflicted(t_new messages.Treaty) bool {
+
+	//need to check this treaty with all current signed active treaties
+	for _, t_active := range a.ActiveTreaties() {
+
+		if t_new.Condition() == t_active.Condition() {
+
+			if a.mutuallyExclusive(t_new.ConditionOp(), t_active.ConditionOp(), t_new.ConditionValue(), t_active.ConditionValue()) {
+				return false // if mutually exclusive conditions of same type, we can can handle any request
+			}
+			if t_new.Request() == t_active.Request() {
+				return true // cannot have conditions demanding different amounts of the same type of thing
+			}
+
+		} else {
+
+			if t_new.Request() == t_active.Request() {
+				// cannot have conditions demanding different amounts of the same type of thing, unless they intersect
+				// ex: HP < 5 -> Food < 8, Floor < 10 -> Food > 12 ==> these cannot coexist!
+				return a.mutuallyExclusive(t_new.RequestOp(), t_active.RequestOp(), t_new.RequestValue(), t_active.RequestValue())
+			}
+		}
+	}
+	return false
+}
+
+func (a *CustomAgent7) mutuallyExclusive(op1 messages.Op, op2 messages.Op, value1 int, value2 int) bool {
+	switch op1 {
+	case messages.LT:
+		return ((op2 == messages.EQ && value1 <= value2) ||
+			(op2 == messages.GT && value1 <= value2+1) ||
+			(op2 == messages.GE && value1 <= value2))
+
+	case messages.LE:
+		return ((op2 == messages.EQ && value1 < value2) ||
+			(op2 == messages.GT && value1 <= value2) ||
+			(op2 == messages.GE && value1 < value2))
+
+	case messages.GT:
+		return ((op2 == messages.EQ && value1 >= value2) ||
+			(op2 == messages.LT && value1 >= (value2+1)) ||
+			(op2 == messages.LE && value1 >= value2))
+
+	case messages.GE:
+		return ((op2 == messages.EQ && value1 > value2) ||
+			(op2 == messages.LT && value1 >= value2) ||
+			(op2 == messages.LE && value1 > value2))
+
+	case messages.EQ:
+		return ((op2 == messages.EQ && value1 != value2) ||
+			(op2 == messages.LT && value1 >= value2) ||
+			(op2 == messages.LE && value1 > value2) ||
+			(op2 == messages.GT && value1 <= value2) ||
+			(op2 == messages.GE && value1 < value2))
+
+	default:
+		return false
+	}
 }
