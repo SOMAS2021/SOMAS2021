@@ -135,7 +135,7 @@ func (a *CustomAgent2) Run() {
 		target := []float64{float64(a.HP())}
 		a.writeToCSV(target, "HP_by_days", 1)
 		//write foodtaken vs hp
-		target = []float64{float64(a.HP()), float64(foodTaken)}
+		target = []float64{float64(foodTaken), float64(a.HP())}
 		a.writeToCSV(target, "foodtaken_vs_hp", 2)
 
 		//fmt.Printf("Intended action: %d\n", action*5)
