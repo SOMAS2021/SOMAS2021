@@ -182,9 +182,9 @@ func (a *CustomAgent6) Run() {
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
-	} else {
-		// a.Log("I got no thing")
-	}
+	} // else {
+	// a.Log("I got no thing")
+	// }
 
 	// MEMORY STUFF
 	if a.isReassigned() {
@@ -192,8 +192,8 @@ func (a *CustomAgent6) Run() {
 		a.updateReassignmentPeriodGuess()
 	} else if a.numReassigned == 0 { // Before any reassignment, reassignment period guess should be days elapsed
 		a.reassignPeriodGuess = float64(a.Age())
-		a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.numReassigned})
-		a.Log("Team 6 reassignment period guess:", infra.Fields{"guessReassign": a.reassignPeriodGuess})
+		// a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.numReassigned})
+		// a.Log("Team 6 reassignment period guess:", infra.Fields{"guessReassign": a.reassignPeriodGuess})
 	}
 	a.addToMemory()
 
@@ -219,11 +219,11 @@ func (a *CustomAgent6) Run() {
 	a.updateAverageIntake(foodTaken)
 
 	// LOG
-	a.Log("Team 6 agent has floor:", infra.Fields{"floor": a.Floor()})
-	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
-	a.Log("Team 6 agent desired to take:", infra.Fields{"desiredFood": a.desiredFoodIntake()})
-	a.Log("Team 6 agent intended to take:", infra.Fields{"intendedFood": a.intendedFoodIntake()})
-	a.Log("Team 6 agent took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
+	// a.Log("Team 6 agent has floor:", infra.Fields{"floor": a.Floor()})
+	// a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
+	// a.Log("Team 6 agent desired to take:", infra.Fields{"desiredFood": a.desiredFoodIntake()})
+	// a.Log("Team 6 agent intended to take:", infra.Fields{"intendedFood": a.intendedFoodIntake()})
+	// a.Log("Team 6 agent took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
 
 	a.updateBehaviourWeights()
 
