@@ -11,7 +11,7 @@
     "Team6Agents": 2,
     "Team7Agents": 2,
     "RandomAgents": 2,
-    "AgentHP": 100,
+    "AgentHP": 500,
     "AgentsPerFloor": 1,
     "TicksPerFloor": 10,
     "SimDays": 500,

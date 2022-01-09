@@ -1,6 +1,8 @@
 package team2
 
 import (
+	"fmt"
+
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
@@ -12,24 +14,14 @@ import (
 		utilities.
     Observation:
         Observation               Min                     Max
-        hp			              0.0                     100.0
-        floor	                  1                       inf
-        foodOnPlat                0    	                  100
+        TODO
 
 		Other observations should come from communication with other agents
         savedAgents               0                       number of agent per florr
 		Note: the particular combination of the observations correspond to a particular state of
 		the agent
 	State:
-		We initially only define 3x3x3 (27) states for testing purposes
-
-		Num				hp			floor			foodOnPlat
-		0				61-100		1-30				61-100
-		1				61-100		1-30				31-60
-		2				61-100		1-30				0-30
-		3				61-100		31-60				61-100
-		...
-		26				0-30		>60					0-30
+		TODO
     Action:
 		We separate the TakeFood action into several actions
 
@@ -53,15 +45,10 @@ import (
 		Simulation terminated
 */
 
-type actionSpace struct {
-	//TODO: actionId is redundant and may be removed in further version
-	actionId  []int
-	actionSet map[int]func(hp int) food.FoodType
-}
 type CustomAgent2 struct {
 	*infra.Base
-	stateSpace            [][][][]int
-	actionSpace           actionSpace
+	stateSpace            [][][]int
+	actionSpace           []food.FoodType
 	policies              [][]float64
 	rTable                [][]float64
 	qTable                [][]float64
@@ -79,15 +66,14 @@ func InitTable(numStates int, numActions int) [][]float64 {
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
-	hpStatesDim := baseAgent.HealthInfo().MaxHP + 1
-	actionDim := baseAgent.HealthInfo().MaxHP + 1
+	actionDim := 6
 	daysAtCriticalDim := baseAgent.HealthInfo().MaxDayCritical + 1
 
-	stateSpace := InitStateSpace(hpStatesDim, 3, 3, daysAtCriticalDim)
+	stateSpace := InitStateSpace(10, 10, daysAtCriticalDim)
 	actionSpace := InitActionSpace(actionDim)
-	policies := InitPolicies(hpStatesDim*3*3*daysAtCriticalDim, actionDim)
-	rTable := InitTable(hpStatesDim*3*3*daysAtCriticalDim, actionDim)
-	qTable := InitTable(hpStatesDim*3*3*daysAtCriticalDim, actionDim)
+	policies := InitPolicies(10*10*daysAtCriticalDim, actionDim)
+	rTable := InitTable(10*10*daysAtCriticalDim, actionDim)
+	qTable := InitTable(10*10*daysAtCriticalDim, actionDim)
 
 	return &CustomAgent2{
 		Base:                  baseAgent,
@@ -117,12 +103,17 @@ func (a *CustomAgent2) Run() {
 		a.exportPolicies()
 	}
 
-	if a.PlatformOnFloor() && a.Age() > a.lastAge {
+	if a.PlatformOnFloor() && a.isNewDay() {
 		oldState := a.CheckState()
 		oldHP := a.HP()
 		a.Log("Agent team2 before action:", infra.Fields{"floor": a.Floor(), "hp": oldHP, "food": a.CurrPlatFood(), "state": oldState})
 		action := a.SelectAction()
-		_, err := a.TakeFood(food.FoodType(a.actionSpace.actionId[action])) //perform selected action
+		fmt.Printf("************************\n")
+		fmt.Printf("It's day %d!\n", a.Age())
+		fmt.Printf("Food on Platform: %d\n", a.CurrPlatFood())
+		fmt.Printf("HP before action: %d\n", oldHP)
+
+		foodTaken, err := a.TakeFood(food.FoodType(a.actionSpace[action])) //perform selected action
 		if err != nil {
 			//if there's error, cease updating tables
 			return
@@ -136,11 +127,26 @@ func (a *CustomAgent2) Run() {
 				a.Log("Agent team2 at critical state", infra.Fields{"daysAtCriticalCounter": a.daysAtCriticalCounter, "floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
 			}
 		}
+		fmt.Printf("Intended action: %d\n", action*5)
+		fmt.Printf("Actual eaten food: %d\n", foodTaken)
+		fmt.Printf("HP after action: %d\n", a.HP())
+		fmt.Printf("************************\n")
 		hpInc := a.HP() - oldHP
-		a.updateRTable(hpInc, oldState, action)
+		a.updateRTable(oldHP, hpInc, int(foodTaken), oldState, action)
 		a.updateQTable(oldState, action)
 		a.updatePolicies(oldState)
-
+		a.lastAge = a.Age()
 	}
 
+}
+
+func (a *CustomAgent2) isNewDay() bool {
+	if a.Age() < a.lastAge {
+		a.lastAge = -1
+		return true
+	}
+	if a.Age() == a.lastAge {
+		return false
+	}
+	return true
 }

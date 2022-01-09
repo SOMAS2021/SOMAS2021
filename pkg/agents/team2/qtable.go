@@ -1,11 +1,10 @@
 package team2
 
 import (
-	"math"
 	"encoding/csv"
-	"os"
-	"log"
 	"fmt"
+	"log"
+	"os"
 	//"time"
 )
 
@@ -18,12 +17,12 @@ type maxQAction struct {
 //based on either past or current state.
 func (a *CustomAgent2) getMaxQ(state int) maxQAction {
 	ret := maxQAction{}
-	ret.maxQ = 0.0
+	ret.maxQ = float64(a.qTable[state][0])
 	ret.bestAction = 0
-	for _, action := range a.actionSpace.actionId {
-		ret.maxQ = math.Max(ret.maxQ, a.rTable[state][action])
-		if ret.maxQ-a.rTable[state][action] == 0.0 {
-			ret.bestAction = action
+	for i := 1; i < len(a.actionSpace); i++ {
+		if ret.maxQ < a.qTable[state][i] {
+			ret.maxQ = a.qTable[state][i]
+			ret.bestAction = i
 		}
 	}
 	return ret
@@ -43,7 +42,7 @@ func (a *CustomAgent2) updateQTable(state int, action int) {
 }
 
 func (a *CustomAgent2) exportQTable() {
-	f, err := os.OpenFile(fmt.Sprintf("%s%s%s",a.ID(), "qtable", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	f, err := os.OpenFile(fmt.Sprintf("%s%s%s", a.ID(), "qtable", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		panic(err)
 	}
