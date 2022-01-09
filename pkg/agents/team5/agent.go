@@ -26,7 +26,6 @@ type CustomAgent5 struct {
 	hpAfterEating     int
 	currentAimHP      int
 	attemptFood       food.FoodType
-	satisfaction      int
 	rememberAge       int
 	rememberFloor     int
 	messagingCounter  int
@@ -48,7 +47,6 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		hpAfterEating:     baseAgent.HealthInfo().MaxHP, // Stores HP value after eating in a day
 		currentAimHP:      baseAgent.HealthInfo().MaxHP, // Stores aim HP for a given day
 		attemptFood:       0,                            // Stores food agent will attempt to eat in a
-		satisfaction:      0,                            // Scale of -3 to 3, with 3 being satisfied and unsatisfied
 		rememberAge:       -1,                           // To check if a day has passed by our age increasing
 		rememberFloor:     0,                            // Store the floor we are on so we can see if we have been reshuffled
 		messagingCounter:  0,                            // Counter so that various messages are sent throughout the day
@@ -66,24 +64,15 @@ func (a *CustomAgent5) updateAimHP() {
 
 func (a *CustomAgent5) updateSelfishness() {
 	// Tit for tat strategy, agent will conform to the mean behaviour of their social network
-	a.selfishness = 10 - a.calculateAverageFavour()
+	// a.selfishness = 10 - a.calculateAverageFavour()
+	if a.calculateAverageFavour() > 10-a.selfishness {
+		a.selfishness = a.restrictToRange(0, 10, a.selfishness-1)
+	} else if a.calculateAverageFavour() < 10-a.selfishness {
+		a.selfishness = a.restrictToRange(0, 10, a.selfishness+1)
+
+	}
 	// Make agent less selfish if going through tough times, lowers their expectations and makes them more sympathetic of others struggles
 	a.selfishness = a.restrictToRange(0, 10, a.selfishness-a.daysSinceLastMeal)
-}
-
-func (a *CustomAgent5) updateSatisfaction() {
-	if PercentageHP(a) >= 100 {
-		a.satisfaction = 3
-	}
-	if a.lastMeal == 0 && a.satisfaction > -3 {
-		a.satisfaction--
-	}
-	if PercentageHP(a) < 25 && a.satisfaction > -3 {
-		a.satisfaction--
-	}
-	if PercentageHP(a) > 75 && a.satisfaction < 3 {
-		a.satisfaction++
-	}
 }
 
 func (a *CustomAgent5) checkForLeader() {
@@ -162,7 +151,6 @@ func (a *CustomAgent5) Run() {
 			a.daysSinceLastMeal = 0
 		}
 		a.hpAfterEating = a.HP()
-		a.updateSatisfaction()
 		a.attemptToEat = false
 	}
 }

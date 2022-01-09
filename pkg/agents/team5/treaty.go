@@ -117,12 +117,11 @@ func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	case (treaty.ConditionOp() == messages.GE || treaty.ConditionOp() == messages.GT) && treaty.Condition() == messages.Floor:
 		// Don't agree to treaty which is bounded by you being lower down in the tower for same as reasons above
 		fallthrough
-	case treaty.Condition() == messages.HP && treaty.ConditionValue() < a.HealthInfo().WeakLevel*2:
+	case treaty.Condition() == messages.HP && treaty.ConditionValue() < a.HealthInfo().WeakLevel:
 		//Reject any HP condition based treaty if the condition is too strict, and you would be put into critical by not eating
 		fallthrough
-	case treaty.Condition() == messages.Floor && treaty.ConditionValue() != 1 && treaty.Duration() >= a.HealthInfo().MaxDayCritical:
-		//Reject any floor condition that involves us not being on the top floor and lasts for more than days you can survive in critical
-		//This is because there is a risk of signing your own death if you agree as you may be forced to eat no food with no get out condition
+	case treaty.Condition() == messages.Floor:
+		//Reject any floor-based treaties
 		fallthrough
 	case treaty.Condition() == messages.AvailableFood && treaty.Request() == messages.LeaveAmountFood && treaty.ConditionValue()-treaty.RequestValue() < 3:
 		// Reject treaty in which you would not be able to eat enough food to avoid critical level
@@ -133,9 +132,7 @@ func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		return
 	}
 
-	//TODO: Develop the decision calculation.
-	//For now: Middle range of selfishness - selfishness + opinion of agent proposing treaty - duration of treaty/4
-	decision := 5 - a.selfishness + a.socialMemory[msg.SenderID()].favour - treaty.Duration()/4
+	decision := 6 - a.selfishness + a.socialMemory[msg.SenderID()].favour - treaty.Duration()/3
 	if decision > 0 {
 		treaty.SignTreaty()
 		a.AddTreaty(treaty)
@@ -159,7 +156,7 @@ func (a *CustomAgent5) HandleTreatyResponse(msg messages.TreatyResponseMessage) 
 		if ok {
 			treaty.SetCount(treaty.SignatureCount() + 1)
 			a.ActiveTreaties()[msg.TreatyID()] = treaty
-			a.addToSocialFavour(msg.SenderID(), a.socialMemory[msg.SenderID()].favour+2)
+			a.addToSocialFavour(msg.SenderID(), 2)
 		}
 	}
 }
