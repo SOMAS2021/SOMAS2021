@@ -307,11 +307,11 @@ func (a *CustomAgent6) Run() {
 	}
 
 	// LOG
-	// a.Log("Team 6 agent has floor:", infra.Fields{"floor": a.Floor()})
-	// a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
-	// a.Log("Team 6 agent desired to take:", infra.Fields{"desiredFood": a.desiredFoodIntake()})
-	// a.Log("Team 6 agent intended to take:", infra.Fields{"intendedFood": a.intendedFoodIntake()})
-	// a.Log("Team 6 agent took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
+	a.Log("Team 6 agent has floor:", infra.Fields{"floor": a.Floor()})
+	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
+	a.Log("Team 6 agent desired to take:", infra.Fields{"desiredFood": a.desiredFoodIntake()})
+	a.Log("Team 6 agent intended to take:", infra.Fields{"intendedFood": a.intendedFoodIntake()})
+	a.Log("Team 6 agent took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.string()})
 
 	// treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
 	// min, max := a.foodRange()
