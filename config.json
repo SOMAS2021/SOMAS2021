@@ -2,8 +2,8 @@
     "UseFoodPerAgentRatio": true,
     "FoodOnPlatform": 0,
     "FoodPerAgentRatio": 7,
-    "Team1AgtOne": 0,
-    "Team1AgtTwo": 0,
+    "Team1AgtOne": 2,
+    "Team1AgtTwo": 2,
     "Team2Agents": 2,
     "Team3Agents": 2,
     "Team4Agents": 2,
@@ -26,5 +26,5 @@
     "HPLossBase": 5,
     "HPLossSlope": 0.2,
     "LogMain": true,
-    "SimTimeoutSeconds": 600
+    "SimTimeoutSeconds": 6000
 }
