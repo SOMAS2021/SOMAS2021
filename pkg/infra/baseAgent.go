@@ -271,7 +271,8 @@ func (a *Base) utility() float64 {
 	hpGainFactor := netHPGainFactor(a.totalHPGained, a.totalHPLost, a.tower.healthInfo.MaxHP)
 	foodIntakeFactor := foodIntakeFactor(a.totalFoodTaken, a.totalFoodSeen)
 	// this means the multiplcation of these values can be larger than 1
-	return simpleQuadraticUtility(hpGainFactor * foodIntakeFactor)
+	// return simpleQuadraticUtility(hpGainFactor * foodIntakeFactor)
+	return 0.75*foodIntakeFactor + 0.25*hpGainFactor
 }
 
 /*
@@ -289,12 +290,6 @@ key values:
 - > 1: agent gaining hp on average
 - when loss is 0, default to percentage difference between gain and loss. Acknowledge that HP gain should increase utility
 */
-// func hpGainFactor(gain, loss, maxhp int) float64 {
-// 	if loss == 0 {
-// 		return 1 + float64(gain)/float64(maxhp)
-// 	}
-// 	return float64(gain) / float64(loss)
-// }
 
 /*
 Net HP Gain Factor.
@@ -322,16 +317,16 @@ func foodIntakeFactor(intake, seen food.FoodType) float64 {
 	return float64(intake) / float64(seen)
 }
 
-// Quadratic function standard form: a(x-h)^2+k
-func quadratic(x, a, h, k float64) float64 {
-	return a*math.Pow((x-h), 2) + k
-}
+// // Quadratic function standard form: a(x-h)^2+k
+// func quadratic(x, a, h, k float64) float64 {
+// 	return a*math.Pow((x-h), 2) + k
+// }
 
-// Utility function is a strictly increasing function that starts at 0,0 ends at 1,1
-func simpleQuadraticUtility(x float64) float64 {
-	// -(x-1)^2 + 1
-	return utilFunctions.RestrictToRange(0, 1, quadratic(x, -1, 1, 1))
-}
+// // Utility function is a strictly increasing function that starts at 0,0 ends at 1,1
+// func simpleQuadraticUtility(x float64) float64 {
+// 	// -(x-1)^2 + 1
+// 	return utilFunctions.RestrictToRange(0, 1, quadratic(x, -1, 1, 1))
+// }
 
 func (a *Base) HealthInfo() *health.HealthInfo {
 	return a.tower.healthInfo
