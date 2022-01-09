@@ -5,6 +5,7 @@ import (
 )
 
 func (a *CustomAgent6) updateBehaviour() {
+	a.updateBehaviourWeights()
 	aConf := a.config
 	behaviourMax, behaviourMin := a.behaviourRange()
 

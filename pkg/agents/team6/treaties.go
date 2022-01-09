@@ -2,6 +2,7 @@ package team6
 
 import (
 	"math"
+	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -380,11 +381,24 @@ func (a *CustomAgent6) ConstructTreaty() messages.Treaty {
 	// Altruist and Narcissist do not propose treaties
 	switch a.currBehaviour.String() {
 	case "Collectivist":
-		// ConditionType, conditionValue, RequestType, requestValue, cop, rop, duration, proposerID
-		proposedTreaty = messages.NewTreaty(1, a.HealthInfo().WeakLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
+		switch rand.Intn(2) {
+		case 0:
+			// ConditionType, conditionValue, RequestType, requestValue, cop, rop, duration, proposerID
+			proposedTreaty = messages.NewTreaty(1, a.HealthInfo().WeakLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
+		case 1:
+			// Different treaty
+			proposedTreaty = messages.NewTreaty(1, a.HealthInfo().WeakLevel, 2, 1, 1, 1, int(4*a.reassignPeriodGuess), a.ID())
+		}
 
 	case "Selfish":
-		proposedTreaty = messages.NewTreaty(1, levels.strongLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
+		switch rand.Intn(2) {
+		case 0:
+			// ConditionType, conditionValue, RequestType, requestValue, cop, rop, duration, proposerID
+			proposedTreaty = messages.NewTreaty(1, levels.strongLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
+		case 1:
+			// Different treaty
+			proposedTreaty = messages.NewTreaty(1, levels.strongLevel, 2, 1, 1, 1, int(4*a.reassignPeriodGuess), a.ID())
+		}
 	}
 
 	return *proposedTreaty
@@ -401,5 +415,11 @@ func (a *CustomAgent6) ProposeTreaty(treaty messages.Treaty) {
 			a.Log("I proposed a treaty", infra.Fields{"ConditionValue": treaty.ConditionValue(), "RequestValue": treaty.RequestValue(), "My Floor": a.Floor(), "My Social Motive": a.currBehaviour})
 		}
 	}
+
+	// targetFloor := a.Floor() + i
+	// proposedTreaty := messages.NewProposalMessage(a.ID(), a.Floor(), targetFloor, treaty)
+	// a.SendMessage(proposedTreaty)
+	// a.Log("I proposed a treaty", infra.Fields{"ConditionValue": treaty.ConditionValue(), "RequestValue": treaty.RequestValue(), "My Floor": a.Floor(), "My Social Motive": a.currBehaviour})
+
 	a.proposedTreaties[treaty.ID()] = treaty
 }

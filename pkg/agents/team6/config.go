@@ -84,6 +84,8 @@ type CustomAgent6 struct {
 	trustTeams trust
 	// IDs of agents above and below (based on what we've been told)
 	neighbours neighbours
+	// Previous day age
+	prevAge int
 }
 
 type thresholdBehaviourPair struct {
@@ -131,6 +133,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		proposedTreaties:    make(map[uuid.UUID]messages.Treaty),
 		trustTeams:          make(trust),
 		neighbours:          neighbours{above: uuid.Nil, below: uuid.Nil},
+		prevAge:             0,
 	}, nil
 }
 
@@ -185,10 +188,9 @@ func (a *CustomAgent6) Run() {
 
 	// a.Log("Custom agent 6 before update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
 
-	a.updateBehaviour()
-
-	// Sending messages / proposing treaties every 2 ticks
-	if a.countTick%2 == 0 {
+	// Everything you need to do once a day
+	if a.Age() != a.prevAge {
+		a.updateBehaviour()
 		if a.currBehaviour.String() == "Collectivist" || a.currBehaviour.String() == "Selfish" {
 			treaty := a.ConstructTreaty()
 			a.ProposeTreaty(treaty)
@@ -243,8 +245,6 @@ func (a *CustomAgent6) Run() {
 	// a.Log("Team 6 agent intended to take:", infra.Fields{"intendedFood": a.intendedFoodIntake()})
 	// a.Log("Team 6 agent took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
 
-	a.updateBehaviourWeights()
-
 	//fmt.Println(a.ActiveTreaties())
 
 	// treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
@@ -257,7 +257,7 @@ func (a *CustomAgent6) Run() {
 	// treatyMsg.Visit(a).
 
 	a.prevFloor = a.Floor() // keep at end of Run() function
-
+	a.prevAge = a.Age()
 	// add one tick to the counter
 	a.countTick++
 

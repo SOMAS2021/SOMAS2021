@@ -170,7 +170,6 @@ func (a *CustomAgent6) HandlePropagate(msg messages.ProposeTreatyMessage) {
 		a.SendMessage(treatyToPropagate)
 		a.Log("I propogated a treaty")
 	}
-
 }
 
 func (a *CustomAgent6) HandleTreatyResponse(msg messages.TreatyResponseMessage) {
@@ -185,11 +184,14 @@ func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
 
 	// add trust
-	// if val, ok := a.activeTreaties()[msg.TreatyID()]; ok {
 
 	// }
 	// check if we benefit from a treaty
 	if a.considerTreaty(&treaty) {
+		// Propagate only if treaty doesn't already exist (avoids infinite loops)
+		if _, exists := a.ActiveTreaties()[msg.TreatyID()]; !exists {
+			a.ProposeTreaty(treaty)
+		}
 		treaty.SignTreaty()
 		a.AddTreaty(treaty)
 
@@ -197,14 +199,6 @@ func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		reply := messages.NewTreatyResponseMessage(a.ID(), a.Floor(), msg.SenderFloor(), true, treaty.ID(), treaty.ProposerID())
 		a.SendMessage(reply)
 		a.Log("I accepted a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.String()})
-
-		// propagate the accepted treaty
-		for i := -5; i < 6; i++ {
-			targetFloor := a.Floor() + i
-			proposedTreaty := messages.NewProposalMessage(a.ID(), a.Floor(), targetFloor, treaty)
-			a.SendMessage(proposedTreaty)
-
-		}
 
 	} else {
 		a.Log("I rejected a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.String()})
