@@ -15,7 +15,7 @@ import (
 // The utility function with
 // x - food input
 // z - desired food (maximum of the function)
-func utility(x, z float64, socialMotive string) float64 {
+func calculateUtility(x, z float64, socialMotive string) float64 {
 
 	params := newUtilityParams(socialMotive)
 	// Calculates the function scaling parameter a
@@ -30,18 +30,20 @@ func utility(x, z float64, socialMotive string) float64 {
 }
 
 // Returns the minimum value of two food.Foodtype variables
-func min(x, y food.FoodType) food.FoodType {
-	if x < y {
-		return x
-	}
-	return y
-}
+// func min(x, y food.FoodType) food.FoodType {
+// 	if x < y {
+// 		return x
+// 	}
+// 	return y
+// }
 
 // Evaluates our agents current utility based on the current desired food
 func (a *CustomAgent6) evaluateUtility(mem memory) float64 {
 	sum := food.FoodType(0)
 	for _, foodAvailable := range mem {
-		sum += food.FoodType(utility(float64(min(foodAvailable, a.desiredFoodIntake())), float64(a.desiredFoodIntake()), a.currBehaviour.string()))
+		min := math.Min(float64(foodAvailable), float64(a.desiredFoodIntake()))
+		utilityValue := calculateUtility(min, float64(a.desiredFoodIntake()), a.currBehaviour.string())
+		sum += food.FoodType(utilityValue)
 	}
 
 	return float64(sum) / math.Max(float64(len(mem)), 1.0)
@@ -132,7 +134,7 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 					return a.considerTreatyUsingUtility(t)
 				} else {
-					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 2 { // 2 is the amount needed to go from critical to WeakLevel
+					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 2 { // 2 is the amount needed to y sufficient to go from critical to WeakLevel
 						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 						return a.considerTreatyUsingUtility(t)
 					} else {
@@ -195,7 +197,7 @@ func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
 
 		// a. estimated expected utility when accepting the treaty
 		treatyTrustFactor := 1.0
-		treatyUtility := treatyTrustFactor * utility(float64(estimatedTakeFood), float64(a.desiredFoodIntake()), a.currBehaviour.string())
+		treatyUtility := treatyTrustFactor * calculateUtility(float64(estimatedTakeFood), float64(a.desiredFoodIntake()), a.currBehaviour.string())
 
 		// b. estimated utility when rejecting the treaty
 		currentShortTermUtility := a.evaluateUtility(a.shortTermMemory) // estimated utility on the current floor

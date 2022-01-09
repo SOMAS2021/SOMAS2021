@@ -3,6 +3,7 @@ package team6
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 )
 
 // Requests the agent above to leave food on the platform
@@ -36,7 +37,7 @@ func (a *CustomAgent6) requestLeaveFood() {
 		if currentHP >= levels.strongLevel {
 			reqAmount = -1
 		} else {
-			reqAmount = int(a.foodRequired(levels.healthyLevel, a.HealthInfo()))
+			reqAmount = int(health.FoodRequired(a.HP(), levels.healthyLevel, a.HealthInfo()))
 		}
 
 	case "Narcissist":

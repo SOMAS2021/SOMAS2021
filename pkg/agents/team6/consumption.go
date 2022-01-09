@@ -1,7 +1,6 @@
 package team6
 
 import (
-	"math"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -62,10 +61,8 @@ func (a *CustomAgent6) desiredFoodIntake() food.FoodType {
 		switch {
 		case currentHP >= levels.strongLevel:
 			return food.FoodType(0)
-		case currentHP >= levels.healthyLevel:
-			return a.foodRequired(currentHP, healthInfo)
 		default:
-			return a.foodRequired(levels.healthyLevel, healthInfo)
+			return health.FoodRequired(currentHP, levels.healthyLevel, healthInfo)
 		}
 
 	case "Narcissist": // Eat max intake
@@ -74,13 +71,6 @@ func (a *CustomAgent6) desiredFoodIntake() food.FoodType {
 	default:
 		return food.FoodType(0)
 	}
-}
-
-// Calculates food needed to get from current HP to a goal HP after HP decay. Based on health function
-// Should be provided in health.go
-func (a *CustomAgent6) foodRequired(goalHP int, healthInfo *health.HealthInfo) food.FoodType {
-	denom := healthInfo.Width - float64(goalHP) + (1-healthInfo.HPLossSlope)*float64(a.HP()) - float64(healthInfo.HPLossBase) + healthInfo.HPLossSlope*float64(healthInfo.WeakLevel)
-	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
 }
 
 // Computes maximum allowable food based on currently active treaties and messages
