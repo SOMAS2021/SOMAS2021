@@ -74,11 +74,6 @@ type CustomAgent7 struct {
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
-	// openness := rand.Intn(100)
-	// conscientiousness := rand.Intn(100)
-	// extraversion := rand.Intn(100)
-	// agreeableness := rand.Intn(100)
-	// neuroticism := rand.Intn(100)
 	openness := rand.Intn(60) + 20
 	conscientiousness := rand.Intn(60) + 20
 	extraversion := rand.Intn(60) + 20
