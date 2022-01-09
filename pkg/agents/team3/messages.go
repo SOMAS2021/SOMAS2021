@@ -167,22 +167,22 @@ func (a *CustomAgent3) message() {
 
 func (a *CustomAgent3) feelingModifHPAsk(friendship float64, sender uuid.UUID) {
 	if int(a.knowledge.foodMovingAvg) > int(a.knowledge.foodLastEaten) {
-		if friendship < 0.5 {
+		if friendship < 0.7 {
 			a.changeInMood(1, 3, -1)
 			a.changeInMorality(1, 3, -1)
 		} else {
 			a.changeInMood(1, 6, 1)
-			a.updateFriendship(sender, 1)
+			//a.updateFriendship(sender, 1)
 		}
 	} else {
-		if friendship < 0.5 {
+		if friendship < 0.7 {
 			a.changeInMood(1, 3, 1)
 			a.changeInMorality(1, 6, 1)
 		} else {
 			a.changeInMood(1, 6, 1)
 		}
 		a.changeInStubbornness(5, -1)
-		a.updateFriendship(sender, 1)
+		//a.updateFriendship(sender, 1)
 	}
 }
 
@@ -198,15 +198,15 @@ func (a *CustomAgent3) HandleAskHP(msg messages.AskHPMessage) { //how are you ty
 
 func (a *CustomAgent3) feelingModifAskFoodTaken(friendship float64, sender uuid.UUID) {
 	if int(a.knowledge.foodMovingAvg) > int(a.knowledge.foodLastEaten) {
-		if friendship < 0.5 {
+		if friendship < 0.7 {
 			a.changeInMood(1, 3, -1)
 			a.changeInMorality(1, 3, -1)
 		} else {
 			a.changeInMood(1, 6, 1)
 		}
 	} else {
-		if friendship < 0.5 {
-			a.updateFriendship(sender, -1)
+		if friendship < 0.7 {
+			//a.updateFriendship(sender, -1)
 		}
 	}
 }
@@ -233,7 +233,7 @@ func (a *CustomAgent3) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 
 func (a *CustomAgent3) feelingModifRequestLeaveFood(friendship float64, sender uuid.UUID) {
 	if int(a.knowledge.foodMovingAvg) > int(a.knowledge.foodLastEaten) {
-		if friendship < 0.5 {
+		if friendship < 0.7 {
 			a.changeInMood(1, 6, 1)
 			a.changeInMorality(1, 3, -1)
 		} else {
@@ -241,11 +241,11 @@ func (a *CustomAgent3) feelingModifRequestLeaveFood(friendship float64, sender u
 			a.changeInMorality(1, 6, -1)
 		}
 		a.changeInStubbornness(5, 1)
-		a.updateFriendship(sender, -1)
+		//a.updateFriendship(sender, -1)
 	} else {
-		if friendship < 0.5 {
+		if friendship < 0.7 {
 			a.changeInMood(1, 9, 1)
-			a.updateFriendship(sender, 1)
+			//a.updateFriendship(sender, 1)
 		}
 		a.changeInMorality(1, 6, 1)
 		a.changeInStubbornness(5, -1)
@@ -286,7 +286,7 @@ func (a *CustomAgent3) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 
 func (a *CustomAgent3) feelingModifRequestTakeFood(friendship float64, sender uuid.UUID) {
 	if int(a.knowledge.foodMovingAvg) > int(a.knowledge.foodLastEaten) {
-		if friendship < 0.5 {
+		if friendship < 0.7 {
 			a.changeInMorality(1, 3, -1)
 		} else {
 			a.changeInMorality(1, 6, -1)
@@ -298,7 +298,7 @@ func (a *CustomAgent3) feelingModifRequestTakeFood(friendship float64, sender uu
 		}
 	}
 	a.changeInMood(1, 6, -1)
-	a.updateFriendship(sender, -1)
+	//a.updateFriendship(sender, -1)
 }
 
 func (a *CustomAgent3) decisionRequestTakeFood(request int, friendship float64) bool {
@@ -336,8 +336,17 @@ func (a *CustomAgent3) feelingModifResponse(response bool, friendship float64, s
 		direction = 1
 	}
 	if friendship > 0.5 {
-		a.changeInMood(6, 12, direction)
-		a.changeInMorality(6, 12, direction)
+		if a.vars.mood < 15 && direction == 1 && a.HP() > 20 {
+			a.changeInMood(10, 16, direction)
+		} else {
+			a.changeInMood(6, 12, direction)
+		}
+		if a.vars.morality < 15 && direction == 1 && a.HP() > 20 {
+			a.changeInMorality(10, 16, direction)
+		} else {
+			a.changeInMorality(6, 12, direction)
+		}
+
 		a.updateFriendship(sender, direction) //This needed
 	} else {
 		a.changeInMood(1, 6, direction)
@@ -359,7 +368,7 @@ func (a *CustomAgent3) feelingModifFoodTaken(statement int, friendship float64, 
 	percentageInc := 1.3
 	direction := 1
 
-	if friendship < 0.5 {
+	if friendship < 0.7 {
 		if statement > a.decisions.foodToEat {
 			direction = -1
 			a.decisions.foodToEat = statement
@@ -390,7 +399,7 @@ func (a *CustomAgent3) HandleStateFoodTaken(msg messages.StateFoodTakenMessage) 
 
 func (a *CustomAgent3) feelingModifStateHP(statement int, friendship float64) {
 	direction := 1
-	if friendship < 0.5 {
+	if friendship < 0.7 {
 		if statement > a.HP() {
 			direction = -1
 			a.changeInMorality(1, 6, -1)
@@ -420,7 +429,7 @@ func (a *CustomAgent3) HandleStateHP(msg messages.StateHPMessage) {
 func (a *CustomAgent3) feelingModifIntendedFoodTaken(statement int, friendship float64, sender uuid.UUID) {
 	percentageDec := 0.9
 	percentageInc := 1.3
-	if friendship < 0.5 {
+	if friendship < 0.7 {
 		if statement > a.decisions.foodToEat {
 			a.changeInStubbornness(5, 1)
 			a.updateFriendship(sender, -1)

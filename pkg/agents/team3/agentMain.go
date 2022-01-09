@@ -100,7 +100,7 @@ func (a *CustomAgent3) Run() {
 	if len(a.knowledge.floors) == 0 || a.knowledge.floors[len(a.knowledge.floors)-1] != a.Floor() {
 		a.changeNewFloor()
 	}
-	//a.Log("Agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "morality": a.vars.morality, "stubbornness": a.vars.stubbornness})
+	a.Log("Agent 3 each run:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "mood": a.vars.mood, "morality": a.vars.morality, "stubbornness": a.vars.stubbornness})
 
 	//Try to take food every time RIP
 	if a.CurrPlatFood() != -1 {
