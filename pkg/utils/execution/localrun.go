@@ -20,7 +20,7 @@ func LocalRun(configPath string, customLogs string) {
 	}
 
 	rand.Seed(time.Now().UnixNano())
-	logFolderName, err := SetupLogFile(parameters, parameters.LogMain)
+	logFolderName, err := SetupLogFile(parameters)
 	if err != nil {
 		log.Fatal("Unable to setup log file: " + err.Error())
 		return

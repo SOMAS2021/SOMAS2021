@@ -35,8 +35,10 @@ export default function StoryViewer(props: StoryViewerProps) {
             </Pre>
           </Collapse>
         </>
+      ) : result.config.LogStory ? (
+        <H5>Simulation still in progress</H5>
       ) : (
-        <H5>Story unavailable or simulation still in progress</H5>
+        <H5>Story unavailable</H5>
       )}
     </div>
   );
@@ -54,7 +56,7 @@ function StoryController(props: StoryControllerProps) {
 
   useEffect(() => {
     GetStoryLogs(title, tick).then((story) => setStory(story));
-  }, [tick]);
+  }, [tick, title]);
 
   return (
     <div style={{ overflow: "hidden" }}>

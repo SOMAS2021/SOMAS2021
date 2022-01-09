@@ -25,7 +25,7 @@ func Simulate(w http.ResponseWriter, r *http.Request, devMode bool) {
 	}
 
 	rand.Seed(time.Now().UnixNano())
-	logFolderName, err := execution.SetupLogFile(parameters, parameters.LogMain)
+	logFolderName, err := execution.SetupLogFile(parameters)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Error("Unable to setup log file: " + err.Error())

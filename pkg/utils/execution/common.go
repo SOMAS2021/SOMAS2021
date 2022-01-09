@@ -22,7 +22,7 @@ func RunNewSimulation(parameters config.ConfigParameters, logFolderName string, 
 	simEnv.Simulate(ctx, ch)
 }
 
-func SetupLogFile(parameters config.ConfigParameters, saveMainLog bool) (ffolderName string, err error) {
+func SetupLogFile(parameters config.ConfigParameters) (ffolderName string, err error) {
 	// setup logs folder if never created
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		err := os.Mkdir("logs", 0755)

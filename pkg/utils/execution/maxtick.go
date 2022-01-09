@@ -9,7 +9,7 @@ import (
 func GetMaxTick(filename string) int {
 	file, err := os.Open(filename)
 	if err != nil {
-		panic(err)
+		return -1
 	}
 	defer file.Close()
 
