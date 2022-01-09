@@ -52,7 +52,7 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 
 	// save story log
 	storyLogName := "story.json"
-	if !saveMainLog {
+	if !saveStoryLog {
 		storyLogName = ""
 	}
 
