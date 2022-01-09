@@ -58,7 +58,7 @@ func (a *CustomAgent6) requestLeaveFood() {
 // Requests the agent above to take a precise amount of food
 // The altruist and the collectivist do not request anything like that
 // The selfish and the narcissist request the other agent to take nothing
-func (a *CustomAgent6) RequestTakeFood() {
+func (a *CustomAgent6) requestTakeFood() {
 
 	var reqAmount int
 
@@ -137,6 +137,8 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 		a.reqLeaveFoodAmount = -1
 		a.Log("I received a requestLeaveFood message and my response was false")
 	}
+	// Try to identify our neighbours
+	a.identifyNeighbours(msg.SenderID(), msg.SenderFloor())
 }
 
 // Handles RequestTakeFood messages the agent receives
@@ -153,6 +155,8 @@ func (a *CustomAgent6) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 		a.reqLeaveFoodAmount = -1
 		a.Log("I received a requestTakeFood message and my response was false")
 	}
+	// Try to identify our neighbours
+	a.identifyNeighbours(msg.SenderID(), msg.SenderFloor())
 }
 
 // Handles AskHP messages the agent receives
@@ -163,6 +167,12 @@ func (a *CustomAgent6) HandleAskHP(msg messages.AskHPMessage) {
 		a.SendMessage(reply)
 		a.Log("I recieved an askHP message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 	}
+	// Try to identify our neighbours
+	a.identifyNeighbours(msg.SenderID(), msg.SenderFloor())
+}
+
+func (a *CustomAgent6) HandleStateHP(msg messages.StateHPMessage) {
+	a.identifyNeighbours(msg.SenderID(), msg.SenderFloor())
 }
 
 // Handles AskFoodTaken messages the agent receives
@@ -173,6 +183,8 @@ func (a *CustomAgent6) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 		a.SendMessage(reply)
 		a.Log("I recieved an askFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 	}
+	// Try to identify our neighbours
+	a.identifyNeighbours(msg.SenderID(), msg.SenderFloor())
 }
 
 // Handles AskIntendedFoodTaken messages the agent receives
@@ -183,6 +195,8 @@ func (a *CustomAgent6) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 		a.SendMessage(reply)
 		a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 	}
+	// Try to identify our neighbours
+	a.identifyNeighbours(msg.SenderID(), msg.SenderFloor())
 }
 
 // Handles the messages that needs to be propagated
@@ -194,6 +208,8 @@ func (a *CustomAgent6) HandlePropagate(msg messages.ProposeTreatyMessage) {
 		a.SendMessage(treatyToPropagate)
 		a.Log("I propogated a treaty")
 	}
+	// Try to identify our neighbours
+	a.identifyNeighbours(msg.SenderID(), msg.SenderFloor())
 }
 
 // Handles the responses from other agents to our treaty proposals
@@ -208,6 +224,8 @@ func (a *CustomAgent6) HandleTreatyResponse(msg messages.TreatyResponseMessage) 
 	}
 	// Deletes the treaties for which we get an answer (yes or no) from our proposed treaty list
 	delete(a.proposedTreaties, msg.TreatyID())
+	// Try to identify our neighbours
+	a.identifyNeighbours(msg.SenderID(), msg.SenderFloor())
 }
 
 // Handles the treaty proposals we get from other agents
@@ -235,5 +253,7 @@ func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		a.updateTrust(-1, msg.SenderID()) // bad treaty - these guys are trying to sabotage us >:)
 		a.Log("I rejected a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.string()})
 	}
+	// Try to identify our neighbours
+	a.identifyNeighbours(msg.SenderID(), msg.SenderFloor())
 
 }

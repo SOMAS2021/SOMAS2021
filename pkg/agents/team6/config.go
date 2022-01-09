@@ -221,15 +221,15 @@ func (a *CustomAgent6) updateTrust(amount int, agentID uuid.UUID) {
 	}
 }
 
-// func (a *CustomAgent6) identifyNeighbours(id uuid.UUID, floor int) {
-// 	floorDir := floor - a.Floor()
+func (a *CustomAgent6) identifyNeighbours(id uuid.UUID, floor int) {
+	floorDir := floor - a.Floor()
 
-// 	if floorDir == 1 {
-// 		a.neighbours.below = id
-// 	} else {
-// 		a.neighbours.above = id
-// 	}
-// }
+	if floorDir == 1 {
+		a.neighbours.below = id
+	} else if floorDir == -1 {
+		a.neighbours.above = id
+	}
+}
 
 func (b behaviour) string() string {
 	behaviourMap := [...]thresholdBehaviourPair{{2, "Altruist"}, {7, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
@@ -270,6 +270,9 @@ func (a *CustomAgent6) Run() {
 	if a.isReassigned() {
 		a.resetShortTermMemory()
 		a.updateReassignmentPeriodGuess()
+		// Ask HP to discover the ID of neighbour
+		a.SendMessage(messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()-1))
+		a.SendMessage(messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()+1))
 	} else if a.numReassigned == 0 { // Before any reassignment, reassignment period guess should be days elapsed
 		a.reassignPeriodGuess = float64(a.Age())
 		// a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.numReassigned})
@@ -298,6 +301,12 @@ func (a *CustomAgent6) Run() {
 		a.lastFoodTaken = foodTaken
 		// Exponential moving average filter to average food taken whilst discounting previous food
 		a.updateAverageIntake(foodTaken)
+		// Updates trust in the above neighbour based on average food
+		if a.averageFoodIntake < 1 {
+			a.updateTrust(-1, a.neighbours.above)
+		} else {
+			a.updateTrust(1, a.neighbours.above)
+		}
 		a.Log("Agent6 took food!")
 	}
 
