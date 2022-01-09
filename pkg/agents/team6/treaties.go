@@ -87,6 +87,10 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 		weakLevel:    a.HealthInfo().WeakLevel,
 		critLevel:    0,
 	}
+
+	// readable constants
+	convertedFood := a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue())
+	conditionCheck := t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT
 	// We only consider meaningful LeaveAmountFood and LeavePercentFood treaties, i.e., the treaties with RequestOp GE or GT
 	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT {
 		switch t.Condition() {
@@ -96,13 +100,13 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 			case "Altruist":
 				return true
 			case "Collectivist":
-				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT || t.ConditionValue() < a.HealthInfo().WeakLevel {
+				if conditionCheck || t.ConditionValue() < a.HealthInfo().WeakLevel {
 					return a.considerTreatyUsingUtility(t)
 				}
 				return true
 
 			case "Selfish":
-				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT || t.ConditionValue() < levels.strongLevel {
+				if conditionCheck || t.ConditionValue() < levels.strongLevel {
 					return a.considerTreatyUsingUtility(t)
 				}
 				return true
@@ -120,16 +124,12 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 			case "Altruist":
 				return true
 			case "Collectivist":
-				if t.ConditionOp() == messages.LE ||
-					t.ConditionOp() == messages.LT ||
-					a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 2 {
+				if conditionCheck || convertedFood <= 2 {
 					return a.considerTreatyUsingUtility(t)
 				}
 				return true
 			case "Selfish":
-				if t.ConditionOp() == messages.LE ||
-					t.ConditionOp() == messages.LT ||
-					a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 60 {
+				if conditionCheck || convertedFood <= 60 {
 					return a.considerTreatyUsingUtility(t)
 				}
 				return true
