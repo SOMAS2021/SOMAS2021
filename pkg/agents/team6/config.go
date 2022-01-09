@@ -5,6 +5,8 @@ import (
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
+	"github.com/google/uuid"
 
 	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -70,6 +72,8 @@ type CustomAgent6 struct {
 	prevFloor int
 	// Ticks counter
 	countTick int
+	// holding proposed treaty not accepted yet
+	proposedTreaties map[uuid.UUID]messages.Treaty
 }
 
 type thresholdBehaviourPair struct {
@@ -114,6 +118,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		platOnFloorCtr:      0,
 		prevFloor:           -1,
 		countTick:           1,
+		proposedTreaties:    make(map[uuid.UUID]messages.Treaty),
 	}, nil
 }
 

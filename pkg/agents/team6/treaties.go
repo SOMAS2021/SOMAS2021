@@ -390,6 +390,7 @@ func (a *CustomAgent6) ProposeTreaty() {
 	targetFloor := a.Floor() - 1
 	msg := messages.NewProposalMessage(a.ID(), a.Floor(), targetFloor, *proposedTreaty)
 	a.SendMessage(msg)
+	a.proposedTreaties[proposedTreaty.ID()] = *proposedTreaty
 	a.Log("I proposed a treaty", infra.Fields{"ConditionValue": proposedTreaty.ConditionValue(), "RequestValue": proposedTreaty.RequestValue(), "My Floor": a.Floor(), "My Social Motive": a.currBehaviour})
 
 }
