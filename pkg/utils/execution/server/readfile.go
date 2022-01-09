@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/config"
@@ -36,7 +37,10 @@ func ReadFile(w http.ResponseWriter, r *http.Request, devMode bool) {
 	response.Log = []string{}
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		response.Log = append(response.Log, scanner.Text())
+		a := scanner.Text()
+		if !logParams.TickFilter || strings.Contains(a, "\"tick\":"+strconv.Itoa(logParams.Tick)+",") {
+			response.Log = append(response.Log, scanner.Text())
+		}
 	}
 
 	// special files we know are a single json
