@@ -17,12 +17,12 @@ export function GetFoodLogs(filename: string): Promise<FoodLog[]> {
           };
           return f;
         });
-        var maxTick: number = foods[foods.length - 1].tick;
-        for (var i = 0; i < maxTick; i++) {
-          if (!foods[i] || foods[i].tick !== i + 1) {
-            foods.splice(i, 0, { tick: i + 1, day: foods[i - 1].day, food: foods[i - 1].food });
-          }
-        }
+        // var maxTick: number = foods[foods.length - 1].tick;
+        // for (var i = 0; i < maxTick; i++) {
+        //   if (!foods[i] || foods[i].tick !== i + 1) {
+        //     foods.splice(i, 0, { tick: i + 1, day: foods[i - 1].day, food: foods[i - 1].food });
+        //   }
+        // }
         resolve(foods);
       })
       .catch((err) => reject(err));
