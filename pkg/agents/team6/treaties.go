@@ -96,36 +96,19 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 			case "Altruist":
 				return true
 			case "Collectivist":
-				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
-					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
+				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT || t.ConditionValue() < a.HealthInfo().WeakLevel {
 					return a.considerTreatyUsingUtility(t)
-				} else {
-					if t.ConditionValue() >= a.HealthInfo().WeakLevel {
-						return true
-					} else {
-						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
-						return a.considerTreatyUsingUtility(t)
-					}
 				}
+				return true
 
 			case "Selfish":
-				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
-					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
+				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT || t.ConditionValue() < levels.strongLevel {
 					return a.considerTreatyUsingUtility(t)
-				} else {
-					if t.ConditionValue() >= levels.strongLevel {
-						return true
-					} else {
-						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
-						return a.considerTreatyUsingUtility(t)
-
-					}
 				}
+				return true
 			case "Narcissist":
-				a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 				return a.considerTreatyUsingUtility(t)
 			default:
-				a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 				return a.considerTreatyUsingUtility(t)
 			}
 		// Floor
@@ -137,40 +120,27 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 			case "Altruist":
 				return true
 			case "Collectivist":
-				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
-					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
+				if t.ConditionOp() == messages.LE ||
+					t.ConditionOp() == messages.LT ||
+					a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 2 {
 					return a.considerTreatyUsingUtility(t)
-				} else {
-					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 2 { // 2 is the amount needed to y sufficient to go from critical to WeakLevel
-						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
-						return a.considerTreatyUsingUtility(t)
-					} else {
-						return true
-					}
 				}
+				return true
 			case "Selfish":
-				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
-					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
+				if t.ConditionOp() == messages.LE ||
+					t.ConditionOp() == messages.LT ||
+					a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 60 {
 					return a.considerTreatyUsingUtility(t)
-				} else {
-					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 60 { // change to a.HealthInfo().MaxFoodIntake
-						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
-						return a.considerTreatyUsingUtility(t)
-					} else {
-						return true
-					}
 				}
+				return true
 
 			case "Narcissist":
-				a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 				return a.considerTreatyUsingUtility(t)
 			default:
-				a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 				return a.considerTreatyUsingUtility(t)
 			}
 
 		default:
-			a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 			return a.considerTreatyUsingUtility(t)
 		}
 	} else {
@@ -180,6 +150,8 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 
 // Decides if to accept or reject a treaty using utility. Used in "considerUtility" function above
 func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
+
+	// Log
 
 	// 1. Estimate the food intake of the proposed treaty
 
