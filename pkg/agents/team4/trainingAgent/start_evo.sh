@@ -1,17 +1,21 @@
 #!/bin/bash
 
+# set up flags used for simulation config
 selfish='False'
+selfless='False'
 
 print_usage() {
   printf "Usage: ... \n"
-  printf "s) set to train for selfish agent \n"
+  printf "f) set to train for selfish agent \n"
+  printf "l) set to train for selfless agent \n"
   printf "h) get help \n"
 }
 
-while getopts 'sh' flag
+while getopts 'fhl' flag
 do
   case "${flag}" in
-    s) selfish='True' ;;
+    f) selfish='True' ;;
+    l) selfless='True' ;;
     h) print_usage
        exit 1 ;;
   esac
@@ -22,43 +26,52 @@ rootdirpath="../../../../"
 cd $rootdirpath
 
 # Initialising config files
-agentConfigFile="pkg/agents/team4/trainingAgent/agentConfig.json"
-bestAgentsFile="pkg/agents/team4/trainingAgent/bestAgents.json"
-agentLifeExpectanciesFile="pkg/agents/team4/trainingAgent/agentLifeExpectancies.json"
-agentOurLifeExpectanciesFile="pkg/agents/team4/trainingAgent/agentOurLifeExpectancies.json"
-agentDeathRateFile="pkg/agents/team4/trainingAgent/agentDeathRate.json"
-rm $agentConfigFile $bestAgentsFile
+agentConfigFile="pkg/agents/team4/trainingAgent/configs/agentConfig.json"
+bestAgentsFile="pkg/agents/team4/trainingAgent/configs/bestAgents.json"
+agentLifeExpectanciesFile="pkg/agents/team4/trainingAgent/configs/agentLifeExpectancies.json"
+agentOurLifeExpectanciesFile="pkg/agents/team4/trainingAgent/configs/agentOurLifeExpectancies.json"
+agentOtherLifeExpectanciesFile="pkg/agents/team4/trainingAgent/configs/agentOtherLifeExpectancies.json"
+agentDeathRateFile="pkg/agents/team4/trainingAgent/configs/agentDeathRate.json"
+
+#removing old files and creating new files
+rm -rf "pkg/agents/team4/trainingAgent/configs"
+mkdir "pkg/agents/team4/trainingAgent/configs"
 touch $agentConfigFile $bestAgentsFile
-rm -rf "pkg/agents/team4/trainingAgent/storedagents"
-mkdir "pkg/agents/team4/trainingAgent/storedagents"
+mkdir "pkg/agents/team4/trainingAgent/configs/storedConfigs"
 
-numberOfHealthLevels=4
-numberOfBestAgents=5
-numberOfAgentsPerSim=5
-numberOfIterations=5
-numberOfRuns=1
+numberOfHealthLevels=4 # health bands based on HP
+numberOfBestAgents=5 # number of agents in training population
+numberOfAgentsPerSim=16 # total number of agents in the simulation
+numberOfIterations=3 # number of training iterations
+numberOfRuns=2 # number of runs to average over per iteration
 
-# Generate set of agents with 0 parameters
-python3 pkg/agents/team4/trainingAgent/initaliseConfig.py $agentConfigFile $bestAgentsFile $numberOfHealthLevels $numberOfBestAgents
+# Initialise parameters of initial agent polulation
+python3 pkg/agents/team4/trainingAgent/initaliseConfig.py $agentConfigFile $bestAgentsFile $numberOfHealthLevels $numberOfBestAgents 
 
 for i in $( eval echo {1..$numberOfIterations} )
 do
     echo "ITERATION " $i
     echo ""
+    # create array for each stored metric
     arrLifeExp=()
     arrOurLifeExp=()
+    arrOtherLifeExp=()
     arrDeathRate=()
+    
     for j in $( eval echo {1..$numberOfBestAgents} )
     do
         echo "  Getting average performance of agent " $j
+        
+        # intialise average metrics
         averageLifeExpectancy="0.0"
+        averageOtherLifeExpectancy="0.0"
         averageOurLifeExpectancy="0.0"
         averageDeathRate="0.0"
+        
         for k in $( eval echo {1..$numberOfRuns} )
         do
             rm -rf logs/*
-            # create population of only agent
-            # (could be changed in future for other groups agents + this agent)
+            # run particular agent from population with all other teams' agents
             make run
             logDir=("logs/*")
             lifeFile=$logDir"/main.json"
@@ -66,28 +79,31 @@ do
             # pass in logfile, num agents, agent_config.json, bestAgent.config, current iteration to python script
             lifeExpectancy=$(python3 pkg/agents/team4/trainingAgent/getLifeExpectancy.py $lifeFile $numberOfAgentsPerSim $agentConfigFile $bestAgentsFile $j)
 
-            # Set space as the delimiter
+            # handle python output to get life expectencies
             OLDIFS=$IFS
             IFS=';'
-            #Read the split words into an array based on space delimiter
             read -a agentLifeExpectanciesArray <<< "$lifeExpectancy"
             IFS=$OLDIFS
             
-            deathRate=$(python3 pkg/agents/team4/trainingAgent/getDeathRate.py $deathFile $numberOfAgentsPerSim $agentConfigFile $bestAgentsFile $j)
+            deathRate=$(python3 pkg/agents/team4/trainingAgent/getDeathRate.py $deathFile $numberOfAgentsPerSim $agentConfigFile $bestAgentsFile $j) # ------------- NOT USED YET ---------------
 
+            # get running total for life expectancies to get the average
             averageLifeExpectancy=`echo $averageLifeExpectancy+${agentLifeExpectanciesArray[0]} | bc`
-
             averageOurLifeExpectancy=`echo $averageOurLifeExpectancy+${agentLifeExpectanciesArray[1]} | bc`
+            averageOtherLifeExpectancy=`echo $averageOtherLifeExpectancy+${agentLifeExpectanciesArray[2]} | bc`
 
-            averageDeathRate=`echo $averageDeathRate+$deathRate | bc`
-
+            averageDeathRate=`echo $averageDeathRate+$deathRate | bc` # ------------- NOT USED YET ---------------
         done
         averageLifeExpectancy=`echo $averageLifeExpectancy/$numberOfRuns | bc -l`
         averageOurLifeExpectancy=`echo $averageOurLifeExpectancy/$numberOfRuns | bc -l` 
-        averageDeathRate=`echo $averageDeathRate/$numberOfRuns | bc -l` 
+        averageOtherLifeExpectancy=`echo $averageOtherLifeExpectancy/$numberOfRuns | bc -l`
+        averageDeathRate=`echo $averageDeathRate/$numberOfRuns | bc -l` # ------------- NOT USED YET ---------------
+
+
         arrLifeExp+=($averageLifeExpectancy)
         arrOurLifeExp+=($averageOurLifeExpectancy)
-        arrDeathRate+=($averageDeathRate)
+        arrDeathRate+=($averageDeathRate) # ------------- NOT USED YET ---------------
+        arrOtherLifeExp+=($averageOtherLifeExpectancy)
     done
     printf -v joinedLifeExp '%s,' ${arrLifeExp[*]}
     echo "[${joinedLifeExp%,}]" > $agentLifeExpectanciesFile
@@ -95,11 +111,15 @@ do
     printf -v joinedOurLifeExp '%s,' ${arrOurLifeExp[*]}
     echo "[${joinedOurLifeExp%,}]" > $agentOurLifeExpectanciesFile
 
+    printf -v joinedOtherLifeExp '%s,' ${arrOtherLifeExp[*]}
+    echo "[${joinedOtherLifeExp%,}]" > $agentOtherLifeExpectanciesFile
+
+    # ------------- NOT USED YET ---------------
     printf -v joinedDeathRate '%s,' ${arrDeathRate[*]}
     echo "[${joinedDeathRate%,}]" > $agentDeathRateFile
 
     # generate new set of best agents generated from previous perfomance 
-    python3 pkg/agents/team4/trainingAgent/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectanciesFile $numberOfHealthLevels $agentDeathRateFile $agentOurLifeExpectanciesFile $selfish
+    python3 pkg/agents/team4/trainingAgent/generateNewBestAgents.py $bestAgentsFile $agentLifeExpectanciesFile $agentDeathRateFile $agentOurLifeExpectanciesFile $agentOtherLifeExpectanciesFile $numberOfHealthLevels $selfish $selfless $i
     echo "------------------------------------------"
 done
 

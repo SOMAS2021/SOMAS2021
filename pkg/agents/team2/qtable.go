@@ -1,7 +1,11 @@
 package team2
 
 import (
-	"math"
+	"encoding/csv"
+	"fmt"
+	"os"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type maxQAction struct {
@@ -13,12 +17,12 @@ type maxQAction struct {
 //based on either past or current state.
 func (a *CustomAgent2) getMaxQ(state int) maxQAction {
 	ret := maxQAction{}
-	ret.maxQ = 0.0
+	ret.maxQ = float64(a.qTable[state][0])
 	ret.bestAction = 0
-	for _, action := range a.actionSpace.actionId {
-		ret.maxQ = math.Max(ret.maxQ, a.rTable[state][action])
-		if ret.maxQ-a.rTable[state][action] == 0.0 {
-			ret.bestAction = action
+	for i := 1; i < len(a.actionSpace); i++ {
+		if ret.maxQ < a.qTable[state][i] {
+			ret.maxQ = a.qTable[state][i]
+			ret.bestAction = i
 		}
 	}
 	return ret
@@ -35,4 +39,34 @@ func (a *CustomAgent2) updateQTable(state int, action int) {
 	Alpha := 0.1
 	a.qTable[state][action] = (1-Alpha)*a.qTable[state][action] +
 		Alpha*(a.rTable[state][action]+Gamma*a.getMaxQ(a.CheckState()).maxQ)
+}
+
+func (a *CustomAgent2) exportQTable() {
+	f, err := os.OpenFile(fmt.Sprintf("%s%s%s", a.ID(), "qtable", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		log.Error("error opening csv: ", err)
+	}
+	defer f.Close()
+
+	w := csv.NewWriter(f)
+	qTable := a.qTable
+	// make string table
+	sQTable := make([][]string, len(qTable))
+	for i := 0; i < len(qTable); i++ {
+		sQTable[i] = make([]string, len(qTable[0]))
+	}
+
+	// convert float64 qtable to string qtable
+	for i := 0; i < len(qTable); i++ {
+		for j := 0; j < len(qTable[0]); j++ {
+			sQTable[i][j] = fmt.Sprint(qTable[i][j])
+		}
+	}
+
+	//fmt.Println("rows:", len(sQTable), "columns:", len(sQTable[0]))
+	err = w.WriteAll(sQTable)
+
+	if err != nil {
+		log.Error("error writing csv:", err)
+	}
 }

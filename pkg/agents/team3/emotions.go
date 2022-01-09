@@ -2,7 +2,6 @@ package team3
 
 import (
 	"math/rand"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -13,66 +12,37 @@ import (
 func (a *CustomAgent3) read() bool {
 	random := rand.Intn(100)
 
-	return random <= a.vars.stubbornness
+	return random >= a.vars.stubbornness
 }
 
-////Function adds a new person to our freindship list if they are not there yet.
-//func addFriend(a *CustomAgent3, friend string) {
-//	newFriend := true
-//	for i := 0; i < len(a.knowledge.friends); i++ {
-//		if a.knowledge.friends[i] == friend {
-//			newFriend = false
-//			break
-//		}
-//
-//	}
-//
-//	if newFriend {
-//		a.knowledge.friends = append(a.knowledge.friends, friend)
-//		a.knowledge.friendship = append(a.knowledge.friendship, 0.4+(float64(a.vars.morality)/100)*0.2)
-//	}
-//
-//}
+//Function updates friendship depending on factor change -1 to 1, negative reduces frienship, positive increases
+//If they are not in our list, we add them.
+func (a *CustomAgent3) updateFriendship(friend uuid.UUID, change int) {
+	level, found := a.knowledge.friends[friend]
+	b := 0.3
+	c := 0.4
+	if !found {
+		a.knowledge.friends[friend] = 0.4 + (float64(a.vars.morality)/100)*0.2
+		return
+	}
+	if change < 0 {
+		level -= b * (level)
+	} else {
+		level += c * (1 - level)
+	}
+	a.knowledge.friends[friend] = level
 
-// Function will return the friendship level for a specific agent, if we don't know them friendship is 0, and the position it is stored at
-//func friendshipLevel(a *CustomAgent3, friend string) (float64, int) {
-//	for i := 0; i < len(a.knowledge.friends); i++ {
-//		if a.knowledge.friends[i] == friend {
-//			return a.knowledge.friendship[i], i
-//		}
-//	}
-//	return 0, -1
-//}
-
-// Function changes value of friendship depending on factor change -1 to 1, negative reduces frienship, positive increases
-//func friendshipChange(a *CustomAgent3, friend string, change float64) {
-//
-//	var level, index = friendshipLevel(a, friend)
-//
-//	if index >= 0 {
-//		if change < 0 {
-//			level = level - change*(level)
-//		} else {
-//			level = level + change*(1-level)
-//		}
-//		a.knowledge.friendship[index] = level
-//	}
-//
-//}
+}
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
-func changeInMood(a *CustomAgent3, pointsMin, pointsMax, direction int) {
-	// TODO: Remove this line. See Issue #60.
-	s1 := rand.NewSource(time.Now().UnixNano())
-	r1 := rand.New(s1)
-	points := r1.Intn(pointsMax-pointsMin) + pointsMin
-	if direction <= 0 {
+func (a *CustomAgent3) changeInMood(pointsMin, pointsMax, direction int) {
+	points := rand.Intn(pointsMax-pointsMin) + pointsMin
+	if direction < 0 {
 		a.vars.mood -= points
 		if a.vars.mood < 0 {
 			a.vars.mood = 0
 		}
-	}
-	if direction > 0 {
+	} else {
 		a.vars.mood += points
 		if a.vars.mood > 100 {
 			a.vars.mood = 100
@@ -81,15 +51,14 @@ func changeInMood(a *CustomAgent3, pointsMin, pointsMax, direction int) {
 }
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
-func changeInMorality(a *CustomAgent3, pointsMin, pointsMax, direction int) {
+func (a *CustomAgent3) changeInMorality(pointsMin, pointsMax, direction int) {
 	points := rand.Intn(pointsMax-pointsMin) + pointsMin
 	if direction < 0 {
 		a.vars.morality -= points
 		if a.vars.morality < 0 {
 			a.vars.morality = 0
 		}
-	}
-	if direction > 0 {
+	} else {
 		a.vars.morality += points
 		if a.vars.morality > 100 {
 			a.vars.morality = 100
@@ -97,39 +66,65 @@ func changeInMorality(a *CustomAgent3, pointsMin, pointsMax, direction int) {
 	}
 }
 
-// Updates mood and morality when the floor is changed. Called at the start of each day.
-//TO DO: Trial this and do sth different.
-func changeNewDay(a *CustomAgent3) {
-	a.knowledge.lastHP = a.HP()
-	if a.HP() < 50 {
-		changeInMorality(a, 10, 15, -1)
-		changeInMood(a, 10, 15, -1)
+func (a *CustomAgent3) changeInStubbornness(change, direction int) {
+	if direction < 0 {
+		a.vars.stubbornness -= change
+		if a.vars.stubbornness < 0 {
+			a.vars.stubbornness = 0
+		}
 	} else {
-		changeInMorality(a, 10, 15, 1)
-		changeInMood(a, 10, 15, 1)
+		a.vars.stubbornness += change
+		if a.vars.stubbornness > 75 {
+			a.vars.stubbornness = 75
+		}
+	}
+}
+
+// Updates mood and morality when the floor is changed. Called at the start of each day.
+func (a *CustomAgent3) changeNewDay() {
+	a.knowledge.lastHP = a.HP()
+	a.knowledge.rememberedAge = a.BaseAgent().Age()
+	if a.HP() < 25 {
+		a.changeInMorality(5, 10, -1)
+		a.changeInMood(8, 16, -1)
+	} else if a.HP() < 40 {
+		a.changeInMorality(0, 4, -1)
+		a.changeInMood(1, 6, -1)
+	} else if a.HP() < 75 {
+		a.changeInMorality(0, 4, 1)
+		a.changeInMood(1, 6, 1)
+	} else {
+		a.changeInMorality(3, 7, 1)
+		a.changeInMood(5, 10, 1)
+	}
+	a.knowledge.foodMovingAvg = float64(a.knowledge.foodMovingAvg)*0.9 + float64(a.knowledge.foodLastEaten)*0.1
+}
+
+func (a *CustomAgent3) reshuffleEstimator() {
+	if a.knowledge.reshuffleEst == -1 {
+		a.knowledge.reshuffleEst = a.Age()
+	} else if a.Age()-a.knowledge.reshuffleEst < a.knowledge.reshuffleEst { //attempt to correct in case we resshufle to same floor twice
+		a.knowledge.reshuffleEst = a.Age() - a.knowledge.reshuffleEst
 	}
 }
 
 // Function is called when the floor changes, changes the mood when we change floors
-func changeNewFloor(a *CustomAgent3) {
-	//Restart neighbour functions as we don´t know who is above/below anymore
-	a.knowledge.floorAbove = uuid.Nil
-	a.knowledge.floorBelow = uuid.Nil
+func (a *CustomAgent3) changeNewFloor() {
 
 	//Calculate mood based on what floors we have been in
-	currentFloor := a.Floor()
-
-	//If we are still in the same floor as before we keep the same mood
 	if len(a.knowledge.floors) != 0 {
 		lastFloor := a.knowledge.floors[len(a.knowledge.floors)-1]
+		currentFloor := a.Floor()
 		beenInHigher := false
 		beenInLower := false
+		a.reshuffleEstimator()
+		a.knowledge.hpAbove = -1
+		a.knowledge.hpBelow = -1
 
 		for _, floor := range a.knowledge.floors {
-			if floor < currentFloor {
-				beenInLower = true
-			}
 			if floor > currentFloor {
+				beenInLower = true
+			} else if floor < currentFloor {
 				beenInHigher = true
 			}
 			if beenInLower && beenInHigher {
@@ -137,18 +132,14 @@ func changeNewFloor(a *CustomAgent3) {
 			}
 		}
 		if !beenInHigher {
-			changeInMood(a, 5, 10, 1)
+			a.changeInMood(5, 10, 1)
+		} else if !beenInLower {
+			a.changeInMood(5, 15, -1) //Situation is specially bad, so we get more depressed
+		} else if currentFloor < lastFloor {
+			a.changeInMood(0, 5, 1)
+		} else {
+			a.changeInMood(0, 5, -1)
 		}
-		if beenInHigher && currentFloor > lastFloor {
-			changeInMood(a, 0, 5, 1)
-		}
-		if beenInLower && currentFloor < lastFloor {
-			changeInMood(a, 0, 5, -1)
-		}
-		if !beenInLower {
-			changeInMood(a, 5, 15, -1) //Situation is specially bad, so we get more depressed
-		}
-
 	}
-	a.knowledge.floors = append(a.knowledge.floors, currentFloor)
+	a.knowledge.floors = append(a.knowledge.floors, a.Floor())
 }
