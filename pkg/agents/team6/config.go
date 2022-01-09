@@ -18,12 +18,6 @@ type trust map[uuid.UUID]int
 
 type behaviour float64
 
-// const (
-//  altruist behaviour = iota
-//  collectivist
-//  selfish
-//  narcissist
-// )
 type neighbours struct {
 	above uuid.UUID
 	below uuid.UUID
@@ -100,6 +94,7 @@ type behaviourParameterWeights struct {
 
 var maxBehaviourThreshold behaviour = 10.0
 
+// Defines the initial/base behaviour of our agents
 func chooseInitialBehaviour() behaviour {
 	return behaviour(rand.Float64()) * maxBehaviourThreshold
 }
@@ -170,6 +165,7 @@ func newUtilityParams(socialMotive string) utilityParameters {
 	}
 }
 
+// Maps a number to the corresponding behaviour
 func (b behaviour) string() string {
 	behaviourMap := [...]thresholdBehaviourPair{{2, "Altruist"}, {7, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
 
@@ -186,8 +182,6 @@ func (b behaviour) string() string {
 
 func (a *CustomAgent6) Run() {
 
-	// a.Log("Custom agent 6 before update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
-
 	// Everything you need to do once a day
 	if a.Age() != a.prevAge {
 		a.updateBehaviour()
@@ -195,18 +189,16 @@ func (a *CustomAgent6) Run() {
 			treaty := a.constructTreaty()
 			a.proposeTreaty(treaty)
 		}
-		a.RequestLeaveFood()
+		a.requestLeaveFood()
 	}
 
 	// Receiving messages and treaties
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
-	} // else {
-	// a.Log("I got no thing")
-	// }
+	}
 
-	// MEMORY STUFF
+	// Updates agent's memory
 	if a.isReassigned() {
 		a.resetShortTermMemory()
 		a.updateReassignmentPeriodGuess()
@@ -217,7 +209,7 @@ func (a *CustomAgent6) Run() {
 	}
 	a.addToMemory()
 
-	// SHOULD THIS NOT ONLY BE IF THERE IS FOOD ON THE PLATFORM???
+	// Eat if needed/wanted
 	foodTaken, err := a.TakeFood(a.intendedFoodIntake())
 	if err != nil {
 		switch err.(type) {
@@ -235,7 +227,7 @@ func (a *CustomAgent6) Run() {
 		a.reqLeaveFoodAmount = -1
 	}
 
-	//exponential moving average filter to average food taken whilst discounting previous food
+	// Exponential moving average filter to average food taken whilst discounting previous food
 	a.updateAverageIntake(foodTaken)
 
 	// LOG
@@ -258,7 +250,8 @@ func (a *CustomAgent6) Run() {
 
 	a.prevFloor = a.Floor() // keep at end of Run() function
 	a.prevAge = a.Age()
-	// add one tick to the counter
+
+	// Adds one tick to the counter
 	a.countTick++
 
 }

@@ -6,7 +6,6 @@ import (
 
 // Updates agent social motive:
 // First updates behaviour weights, then computes behaviour change based on weights and input parameters (HP, floor)
-
 func (a *CustomAgent6) updateBehaviour() {
 	a.updateBehaviourWeights()
 	aConf := a.config

@@ -9,7 +9,8 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
-// !!! We only accept treaties that say leave ≥,> of food available. Hence there will never be a invalid treaty.
+// We only accept LeaveAmountFood and LeavePercentFood treaties that say leave ≥,> of food available.
+// Hence there will never be a invalid treaty.
 
 // The utility function with
 // x - food input
@@ -17,7 +18,7 @@ import (
 func utility(x, z float64, socialMotive string) float64 {
 
 	params := newUtilityParams(socialMotive)
-	// calculate the function scaling parameter a
+	// Calculates the function scaling parameter a
 
 	if socialMotive == "Altruist" /*|| socialMotive == "Nacissist"*/ {
 		// Don't scale depending on desired food
@@ -28,6 +29,7 @@ func utility(x, z float64, socialMotive string) float64 {
 	}
 }
 
+// Returns the minimum value of two food.Foodtype variables
 func min(x, y food.FoodType) food.FoodType {
 	if x < y {
 		return x
@@ -35,7 +37,7 @@ func min(x, y food.FoodType) food.FoodType {
 	return y
 }
 
-// Evaluate our agents current utility based on the current desired food
+// Evaluates our agents current utility based on the current desired food
 func (a *CustomAgent6) evaluateUtility(mem memory) float64 {
 	sum := food.FoodType(0)
 	for _, foodAvailable := range mem {
@@ -45,7 +47,7 @@ func (a *CustomAgent6) evaluateUtility(mem memory) float64 {
 	return float64(sum) / math.Max(float64(len(mem)), 1.0)
 }
 
-// convert different message "Request types" to an equivalent "food intake" value
+// Converts different messages "Request types" to an equivalent "food intake" value
 func (a *CustomAgent6) convertToTakeFoodAmount(foodAvailable float64, requestType messages.RequestType, requestValue int) food.FoodType {
 
 	takeFood := 0.0
@@ -54,8 +56,6 @@ func (a *CustomAgent6) convertToTakeFoodAmount(foodAvailable float64, requestTyp
 		takeFood = foodAvailable - float64(requestValue)
 	case messages.LeavePercentFood:
 		takeFood = foodAvailable * (1.0 - float64(requestValue))
-	// case messages.TakeAmountFood:
-	// 	takeFood = float64(requestValue)
 	case messages.Inform:
 		takeFood = -1
 	default:
@@ -66,14 +66,19 @@ func (a *CustomAgent6) convertToTakeFoodAmount(foodAvailable float64, requestTyp
 }
 
 //  Decides if to accept or reject a treaty
+// The functions proceeds in 2 steps:
+// 1) It checks which condition applies to the treaty. If the condition is an "obvious" case, we accept/reject it directly
+// 2) If the case is not obvious, we use utility functions to rate the treaty (calling the "considerTreatyUsingUtility()")
 func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
+
+	// HP levels based on the maximum HP value
 	levels := levelsData{
 		strongLevel:  a.HealthInfo().MaxHP * 3 / 5,
 		healthyLevel: a.HealthInfo().MaxHP * 3 / 10,
 		weakLevel:    a.HealthInfo().WeakLevel,
 		critLevel:    0,
 	}
-
+	// We only consider meaningful LeaveAmountFood and LeavePercentFood treaties, i.e., the treaties with RequestOp GE or GT
 	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT {
 		switch t.Condition() {
 		// HP
@@ -124,9 +129,11 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 				return true
 			case "Collectivist":
 				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
+					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 					return a.considerTreatyUsingUtility(t)
 				} else {
 					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 2 { //double-check if 2 is sufficient to go from critical to WeakLevel
+						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 						return a.considerTreatyUsingUtility(t)
 					} else {
 						return true
@@ -134,9 +141,11 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 				}
 			case "Selfish":
 				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
+					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 					return a.considerTreatyUsingUtility(t)
 				} else {
 					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 60 { // change to a.HealthInfo().MaxFoodIntake
+						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 						return a.considerTreatyUsingUtility(t)
 					} else {
 						return true
@@ -144,12 +153,15 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 				}
 
 			case "Narcissist":
+				a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 				return a.considerTreatyUsingUtility(t)
 			default:
+				a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 				return a.considerTreatyUsingUtility(t)
 			}
 
 		default:
+			a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 			return a.considerTreatyUsingUtility(t)
 		}
 	} else {
@@ -157,25 +169,25 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	}
 }
 
-// Decides if to accept or reject a treaty using utility
+// Decides if to accept or reject a treaty using utility. Used in "considerUtility" function above
 func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
 
 	// 1. Estimate the food intake of the proposed treaty
 
-	// Calculate how much food has been available on average on this floor
+	// Calculates how much food has been available on average on this floor
 	sum := food.FoodType(0)
 	for _, food := range a.shortTermMemory {
 		sum += food
 	}
 	averageFoodAvailable := float64(sum) / math.Max(float64(len(a.shortTermMemory)), 1.0)
 
-	// convert different treaty "Request types" to a "food intake"
+	// Converts different treaty "Request types" to a "food intake"
 	estimatedTakeFood := a.convertToTakeFoodAmount(averageFoodAvailable, t.Request(), t.RequestValue())
 	if estimatedTakeFood == -1 {
 		return false
 	}
 
-	// check the exact request condition
+	// Checks the exact request condition. Only consider meaningful treaties (GE, GT)
 	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT /*t.ConditionOp() == messages.EQ || */ {
 		// The treaty is of the form "Take X (or less) food"
 
@@ -225,29 +237,12 @@ func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
 		return benefit > 0.0
 
 	} else {
-		// The treaty is of the form "Take X (or more) food"
-
-		// !!! Accepting treaties of this form would potentially lead to situations where it is impossible to satisfy all treaties.
-		// E.g.
-		// If you agree to leave more than an absolute amount (eg. 50) (1)
-
-		// You also agree to leave less than a relative amount (50%) (2)
-
-		// ! At proposal, we estimate 50% of the food to be 60 -> we can take less than 60 and more than 50 to satisfy this.
-
-		// However, we actually get only 80 (instead of 120), wherefore 50% = 40 and we can't satisfy both (1) and (2).
-
-		// - collectivist --> accept treaty if estimatedTakeFood less than (hoping to get others to eat at least the critical level)
-		// if a.currBehaviour.String() == "Collectivist" {
-		// 	return estimatedTakeFood <= 2.0 // the amount of food we need to get others to eat
-		// }
-		// All other social motives will allways reject
-		// - altruist wants to avoid eating anyhing to save more for others
-		// - selfish / narcissist doesn't want others to eat more than they want
+		// We do not consider other type of treaties than LeaveAmountFood and LeavePercentFood
 		return false
 	}
 }
 
+// Returns true if a given treaty applies to an agent by comparing the treaty condition to the agent's state
 func (a *CustomAgent6) conditionApplies(t *messages.Treaty) bool {
 
 	switch t.Condition() {
@@ -319,6 +314,7 @@ func (a *CustomAgent6) conditionApplies(t *messages.Treaty) bool {
 	}
 }
 
+// Returns treaties to propose to other agents, based on the current behaviour and randomness
 func (a *CustomAgent6) constructTreaty() messages.Treaty {
 	// Health levels
 	levels := levelsData{
@@ -354,8 +350,9 @@ func (a *CustomAgent6) constructTreaty() messages.Treaty {
 	return *proposedTreaty
 }
 
+// Sends a message to the adjacent floors containing a treaty
 func (a *CustomAgent6) proposeTreaty(treaty messages.Treaty) {
-	// propose treaty to the 10 floor around us
+	// Proposes treaty to the 10 floor around us
 	for i := -5; i < 6; i++ {
 		// do not propose the treaty to yourself
 		if i != 0 {
@@ -365,11 +362,5 @@ func (a *CustomAgent6) proposeTreaty(treaty messages.Treaty) {
 			a.Log("I proposed a treaty", infra.Fields{"ConditionValue": treaty.ConditionValue(), "RequestValue": treaty.RequestValue(), "My Floor": a.Floor(), "My Social Motive": a.currBehaviour})
 		}
 	}
-
-	// targetFloor := a.Floor() + i
-	// proposedTreaty := messages.NewProposalMessage(a.ID(), a.Floor(), targetFloor, treaty)
-	// a.SendMessage(proposedTreaty)
-	// a.Log("I proposed a treaty", infra.Fields{"ConditionValue": treaty.ConditionValue(), "RequestValue": treaty.RequestValue(), "My Floor": a.Floor(), "My Social Motive": a.currBehaviour})
-
 	a.proposedTreaties[treaty.ID()] = treaty
 }
