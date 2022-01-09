@@ -10,10 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func PercentageHP(a *CustomAgent5) int {
-	return int(float64(a.HP()) / float64(a.HealthInfo().MaxHP) * 100.0)
-}
-
 func (a *CustomAgent5) restrictToRange(lowerBound, upperBound, num int) int {
 	if num < lowerBound {
 		return lowerBound
