@@ -117,7 +117,7 @@ func (a *CustomAgent5) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	case (treaty.ConditionOp() == messages.GE || treaty.ConditionOp() == messages.GT) && treaty.Condition() == messages.Floor:
 		// Don't agree to treaty which is bounded by you being lower down in the tower for same as reasons above
 		fallthrough
-	case treaty.Condition() == messages.HP && treaty.ConditionValue() < a.HealthInfo().WeakLevel*2:
+	case treaty.Condition() == messages.HP && treaty.ConditionValue() < a.HealthInfo().WeakLevel:
 		//Reject any HP condition based treaty if the condition is too strict, and you would be put into critical by not eating
 		fallthrough
 	case treaty.Condition() == messages.Floor && treaty.ConditionValue() != 1 && treaty.Duration() >= a.HealthInfo().MaxDayCritical:
