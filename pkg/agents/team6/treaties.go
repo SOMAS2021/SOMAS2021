@@ -132,28 +132,35 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 				return true
 			case "Collectivist":
 				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
+					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.String()})
 					return a.considerTreatyUsingUtility(t)
 				} else {
 					if t.ConditionValue() >= a.HealthInfo().WeakLevel {
 						return true
 					} else {
+						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.String()})
 						return a.considerTreatyUsingUtility(t)
 					}
 				}
 
 			case "Selfish":
 				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
+					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.String()})
 					return a.considerTreatyUsingUtility(t)
 				} else {
 					if t.ConditionValue() >= levels.strongLevel {
 						return true
 					} else {
+						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.String()})
 						return a.considerTreatyUsingUtility(t)
+
 					}
 				}
 			case "Narcissist":
+				a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.String()})
 				return a.considerTreatyUsingUtility(t)
 			default:
+				a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.String()})
 				return a.considerTreatyUsingUtility(t)
 			}
 		// Floor
@@ -375,7 +382,7 @@ func (a *CustomAgent6) ProposeTreaty() {
 	switch a.currBehaviour.String() {
 	case "Collectivist":
 		// ConditionType, conditionValue, RequestType, requestValue, cop, rop, duration, proposerID
-		proposedTreaty = messages.NewTreaty(1, a.HealthInfo().WeakLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
+		proposedTreaty = messages.NewTreaty(1, a.HealthInfo().WeakLevel, 2, 1, 1, 1, int(1), a.ID())
 
 	case "Selfish":
 		proposedTreaty = messages.NewTreaty(1, levels.strongLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
