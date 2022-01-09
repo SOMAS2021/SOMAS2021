@@ -43,6 +43,7 @@ type ConfigParameters struct {
 	HPLossSlope          float64                 `json:"HPLossSlope"`
 	LogFolderName        string                  `json:"LogFileName"`
 	LogMain              bool                    `json:"LogMain"`
+	LogStory             bool                    `json:"LogStory"`
 	SimTimeoutSeconds    int                     `json:"SimTimeoutSeconds"`
 	NumOfAgents          map[agent.AgentType]int `json:"-"`
 	NumberOfFloors       int                     `json:"-"`
