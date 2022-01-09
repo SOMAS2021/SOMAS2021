@@ -286,19 +286,6 @@ func (a *CustomAgent6) Run() {
 	intendedFood := a.intendedFoodIntake()
 	foodTaken, err := a.TakeFood(intendedFood)
 
-	// if err != nil {
-	// 	switch err.(type) {
-	// 	case *infra.FloorError:
-	// 	case *infra.NegFoodError:
-	// 	case *infra.AlreadyEatenError:
-	// 	default:
-	// 	}
-	// } else {
-	// 	a.lastFoodTaken = foodTaken
-	// 	// Exponential moving average filter to average food taken whilst discounting previous food
-	// 	a.updateAverageIntake(foodTaken)
-	// }
-
 	if err == nil {
 		a.lastFoodTaken = foodTaken
 		// Exponential moving average filter to average food taken whilst discounting previous food

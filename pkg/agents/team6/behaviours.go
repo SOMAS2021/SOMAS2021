@@ -70,7 +70,7 @@ func (a *CustomAgent6) updateBehaviourWeights() {
 		weights.HPWeight += 0.05
 		weights.floorWeight -= 0.05
 	}
-	if a.averageFoodIntake < 10 && weights.floorWeight <= 0.9 {
+	if a.averageFoodIntake < 1 && weights.floorWeight <= 0.9 {
 		weights.HPWeight -= 0.1
 		weights.floorWeight += 0.1
 	}
