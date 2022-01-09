@@ -38,11 +38,16 @@ export function GetLogs(toast: boolean = true): Promise<string[]> {
   });
 }
 
-export function GetFile(filename: string, logtype: string): Promise<any> {
+export function GetFile(filename: string, logtype: string, tick: number = -1): Promise<any> {
   return new Promise<any>((resolve, reject) => {
     var requestOptions = {
       method: "POST",
-      body: JSON.stringify({ LogFileName: filename, LogType: logtype }),
+      body: JSON.stringify({
+        LogFileName: filename,
+        LogType: logtype,
+        TickFilter: tick > -1,
+        Tick: tick,
+      }),
     };
 
     fetch(endpoint("read"), requestOptions)

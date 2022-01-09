@@ -1,4 +1,4 @@
-import { H5, FormGroup, Switch } from "@blueprintjs/core";
+import { H5, FormGroup, Switch, InputGroup } from "@blueprintjs/core";
 
 export default function FileName(props: any) {
   const { configHandler } = props;
@@ -15,11 +15,17 @@ export default function FileName(props: any) {
                 configHandler((value.target as HTMLInputElement).checked, "LogMain");
               }}
             />
+            <Switch
+              label="Generate Story"
+              onChange={(value) => {
+                configHandler((value.target as HTMLInputElement).checked, "LogStory");
+              }}
+            />
           </FormGroup>
         </div>
         <div className="col-lg-6 d-flex justify-content-center">
           <FormGroup label="File Name" labelFor="text-input" key="FileName">
-            <input
+            <InputGroup
               type="text"
               onChange={(value) => configHandler(value.target.value, "LogFileName")}
               placeholder="Simulation Run #"

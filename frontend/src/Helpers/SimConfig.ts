@@ -31,6 +31,7 @@ export default function InitConfigState() {
     HPLossSlope: 0.2,
     LogFileName: "",
     LogMain: false,
+    LogStory: false,
     SimTimeoutSeconds: 60,
   });
 }
@@ -64,6 +65,7 @@ export interface SimConfig {
   HPLossSlope: number;
   LogFileName: string;
   LogMain: boolean;
+  LogStory: boolean;
   SimTimeoutSeconds: number;
 }
 
