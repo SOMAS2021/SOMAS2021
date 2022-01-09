@@ -2,9 +2,9 @@ package team2
 
 import (
 	"encoding/csv"
-	"os"
-	"log"
 	"fmt"
+	"log"
+	"os"
 )
 
 func InitPolicies(numStates int, numActions int) [][]float64 {
@@ -20,16 +20,16 @@ func InitPolicies(numStates int, numActions int) [][]float64 {
 }
 
 func (a *CustomAgent2) updatePolicies(state int) {
-	Delta := 0.1 / float64(len(a.actionSpace.actionId)-1)
+	Delta := 0.1 / float64(len(a.actionSpace)-1)
 	bestAction := a.getMaxQ(state).bestAction
 	sum := 0.0
-	for _, action := range a.actionSpace.actionId {
-		if action != bestAction {
-			a.policies[state][action] -= Delta
-			if a.policies[state][action] < 0 {
-				a.policies[state][action] = 0
+	for i := 0; i < len(a.actionSpace); i++ {
+		if i != bestAction {
+			a.policies[state][i] -= Delta
+			if a.policies[state][i] < 0 {
+				a.policies[state][i] = 0
 			}
-			sum += a.policies[state][action]
+			sum += a.policies[state][i]
 		}
 	}
 	a.policies[state][bestAction] = 1.0 - sum
@@ -50,7 +50,7 @@ func (a *CustomAgent2) adjustPolicies() {
 }
 
 func (a *CustomAgent2) exportPolicies() {
-	f, err := os.OpenFile(fmt.Sprintf("%s%s%s",a.ID(), "policies", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	f, err := os.OpenFile(fmt.Sprintf("%s%s%s", a.ID(), "policies", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		panic(err)
 	}
