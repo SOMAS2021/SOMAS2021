@@ -26,7 +26,7 @@ func LocalRun(configPath string, customLogs string) {
 		return
 	}
 
-	err = logging.UpdateSimStatusJson(logFolderName, "running")
+	err = logging.UpdateSimStatusJson(logFolderName, "running", -1)
 	if err != nil {
 		log.Fatal("Unable to setup status file: " + err.Error())
 		return
@@ -52,13 +52,13 @@ func LocalRun(configPath string, customLogs string) {
 	select {
 	case <-ch:
 		log.Info("Simulation Finished Successfully")
-		err = logging.UpdateSimStatusJson(logFolderName, "finished")
+		err = logging.UpdateSimStatusJson(logFolderName, "finished", GetMaxTick(logFolderName+"/story.json"))
 		if err != nil {
 			log.Fatal("Unable to update status file: " + err.Error())
 			return
 		}
 	case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
-		err = logging.UpdateSimStatusJson(logFolderName, "timedout")
+		err = logging.UpdateSimStatusJson(logFolderName, "timedout", GetMaxTick(logFolderName+"/story.json"))
 		if err != nil {
 			log.Fatal("Unable to update status file: " + err.Error())
 			return

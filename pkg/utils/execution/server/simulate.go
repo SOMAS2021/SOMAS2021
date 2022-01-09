@@ -31,7 +31,7 @@ func Simulate(w http.ResponseWriter, r *http.Request, devMode bool) {
 		log.Error("Unable to setup log file: " + err.Error())
 	}
 
-	err = logging.UpdateSimStatusJson(logFolderName, "running")
+	err = logging.UpdateSimStatusJson(logFolderName, "running", -1)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Error("Unable to setup status file: " + err.Error())
@@ -56,7 +56,7 @@ func Simulate(w http.ResponseWriter, r *http.Request, devMode bool) {
 	select {
 	case <-ch:
 		log.Info("Simulation " + logFolderName + " finished successfully")
-		err = logging.UpdateSimStatusJson(logFolderName, "finished")
+		err = logging.UpdateSimStatusJson(logFolderName, "finished", execution.GetMaxTick(logFolderName+"/story.json"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			log.Error("Unable to update status file: " + err.Error())
@@ -64,7 +64,7 @@ func Simulate(w http.ResponseWriter, r *http.Request, devMode bool) {
 	case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
 		http.Error(w, "Simulation Timeout", http.StatusInternalServerError)
 		log.Error("Simulation " + logFolderName + " timed out")
-		err = logging.UpdateSimStatusJson(logFolderName, "timedout")
+		err = logging.UpdateSimStatusJson(logFolderName, "timedout", execution.GetMaxTick(logFolderName+"/story.json"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			log.Error("Unable to update status file: " + err.Error())

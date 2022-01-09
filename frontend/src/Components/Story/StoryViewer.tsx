@@ -1,47 +1,60 @@
-import { Button, Collapse, Divider, Intent, Pre } from "@blueprintjs/core";
-import { useState } from "react";
+import { Button, Collapse, Divider, H5, Intent, Pre } from "@blueprintjs/core";
+import { useEffect, useState } from "react";
 import {
+  GetStoryLogs,
   StoryDeathLog,
   StoryFoodLog,
   StoryLog,
   StoryMessageLog,
   StoryPlatformLog,
 } from "../../Helpers/Logging/StoryLog";
+import { Result } from "../../Helpers/Result";
 import { Ticker } from "./Ticker";
 
 interface StoryViewerProps {
-  story: StoryLog[];
+  result: Result;
 }
 
 export default function StoryViewer(props: StoryViewerProps) {
-  const { story } = props;
+  const { result } = props;
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div style={{ margin: "10px 0px" }}>
-      <Button
-        intent={isOpen ? Intent.PRIMARY : Intent.WARNING}
-        onClick={() => setIsOpen(!isOpen)}
-        style={{ width: 200 }}
-      >
-        {isOpen ? "Hide" : "Show"} Story
-      </Button>
-      <Collapse isOpen={isOpen} keepChildrenMounted={true}>
-        <Pre>
-          <StoryController story={story} />
-        </Pre>
-      </Collapse>
+      {result.simStatus.maxTick > -1 ? (
+        <>
+          <Button
+            intent={isOpen ? Intent.PRIMARY : Intent.WARNING}
+            onClick={() => setIsOpen(!isOpen)}
+            style={{ width: 200 }}
+          >
+            {isOpen ? "Hide" : "Show"} Story
+          </Button>
+          <Collapse isOpen={isOpen} keepChildrenMounted={true}>
+            <Pre>
+              <StoryController title={result.title} maxTick={result.simStatus.maxTick} />
+            </Pre>
+          </Collapse>
+        </>
+      ) : (
+        <H5>Story unavailable or simulation still in progress</H5>
+      )}
     </div>
   );
 }
 
 interface StoryControllerProps {
-  story: StoryLog[];
+  title: string;
+  maxTick: number;
 }
 
 function StoryController(props: StoryControllerProps) {
-  const { story } = props;
+  const { title, maxTick } = props;
   const [tick, setTick] = useState(1);
-  const maxTick = Math.max(...story.map((e) => e.tick));
+  const [story, setStory] = useState<StoryLog[]>([]);
+
+  useEffect(() => {
+    GetStoryLogs(title, tick).then((story) => setStory(story));
+  }, [tick]);
 
   return (
     <div style={{ overflow: "hidden" }}>
