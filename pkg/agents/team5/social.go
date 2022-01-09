@@ -106,7 +106,7 @@ func (a *CustomAgent5) calculateExpectedFood() float64 {
 	return foodExp
 }
 
-func (a *CustomAgent5) calculateFavourBelow(belowID uuid.UUID) int {
+func (a *CustomAgent5) calculateFavourBelow(belowID uuid.UUID) (int, food.FoodType) {
 	sens := a.sensitivity
 	foodIntent := float64(a.attemptFood)
 	hpSelf := float64(a.HP())
@@ -119,14 +119,12 @@ func (a *CustomAgent5) calculateFavourBelow(belowID uuid.UUID) int {
 
 	foodExp := a.calculateExpectedFood()
 
-	a.updateIntentionFoodMemory(belowID, food.FoodType(foodExp))
-
 	F_expectedComponent := math.Exp(foodAsked/(3*foodExp+1)) * (foodAsked - foodExp) / 10
 	H_belowScoreComponent := -2.0 * sens * math.Pow(hpBelow, 1.7) * math.Pow(foodBelow, 1.3) / math.Pow(maxHP, 3)
 	H_ourScoreComponent := 2.0 * sens * math.Pow(foodIntent, 1.3) * math.Pow(hpSelf, 1.7) / math.Pow(maxHP, 3)
 
 	change := F_expectedComponent + H_belowScoreComponent + H_ourScoreComponent
-	return int(math.Round(change))
+	return int(math.Round(change)), food.FoodType(foodExp)
 }
 
 func (a *CustomAgent5) updateSocialFavour(agentID uuid.UUID, change int) {
@@ -140,8 +138,9 @@ func (a *CustomAgent5) updateFavourForNeighbours() {
 		a.updateSocialFavour(aboveID, change)
 	}
 	if belowID, agentBelowKnown := a.surroundingAgents[1]; agentBelowKnown {
-		change := a.calculateFavourBelow(belowID)
+		change, foodExp := a.calculateFavourBelow(belowID)
 		a.updateSocialFavour(belowID, change)
+		a.updateIntentionFoodMemory(belowID, foodExp)
 	}
 }
 
