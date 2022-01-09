@@ -61,11 +61,11 @@ func (a *CustomAgent5) updateFavour() {
 			powHP := 1.7
 			powFood := 1.3
 			maxHP := float64(a.HealthInfo().MaxHP)
-			H_otherScoreComponent := -1 * math.Pow(float64(mem.agentHP), powHP) * math.Pow(float64(mem.foodTaken), powFood) / math.Pow(maxHP, 3)
+			hpScoreOther := -1 * math.Pow(float64(mem.agentHP), powHP) * math.Pow(float64(mem.foodTaken), powFood) / math.Pow(maxHP, 3)
 			//a.Log("H_other_Component", infra.Fields{"h_other": H_otherScoreComponent})
-			H_ourScoreComponent := math.Pow(float64(a.attemptFood), powFood) * math.Pow(float64(a.HP()), powHP) / math.Pow(maxHP, 3)
+			hpScoreSelf := math.Pow(float64(a.attemptFood), powFood) * math.Pow(float64(a.HP()), powHP) / math.Pow(maxHP, 3)
 			//a.Log("H_Self_Component", infra.Fields{"h_self": H_ourScoreComponent})
-			judgement := 100 * (H_otherScoreComponent + H_ourScoreComponent)
+			judgement := 100 * (hpScoreOther + hpScoreSelf)
 			// a.Log("I have judged an agent", infra.Fields{"judgement": judgement})
 			if judgement > 0.075 {
 				a.addToSocialFavour(id, 1)
