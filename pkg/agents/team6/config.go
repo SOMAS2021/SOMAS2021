@@ -138,7 +138,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 }
 
 // Todo: define some sensible values
-func NewUtilityParams(socialMotive string) utilityParameters {
+func newUtilityParams(socialMotive string) utilityParameters {
 	switch socialMotive {
 	case "Altruist":
 		return utilityParameters{
@@ -170,7 +170,7 @@ func NewUtilityParams(socialMotive string) utilityParameters {
 	}
 }
 
-func (b behaviour) String() string {
+func (b behaviour) string() string {
 	behaviourMap := [...]thresholdBehaviourPair{{2, "Altruist"}, {7, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
 
 	if b >= 0 {
@@ -191,9 +191,9 @@ func (a *CustomAgent6) Run() {
 	// Everything you need to do once a day
 	if a.Age() != a.prevAge {
 		a.updateBehaviour()
-		if a.currBehaviour.String() == "Collectivist" || a.currBehaviour.String() == "Selfish" {
-			treaty := a.ConstructTreaty()
-			a.ProposeTreaty(treaty)
+		if a.currBehaviour.string() == "Collectivist" || a.currBehaviour.string() == "Selfish" {
+			treaty := a.constructTreaty()
+			a.proposeTreaty(treaty)
 		}
 		a.RequestLeaveFood()
 	}

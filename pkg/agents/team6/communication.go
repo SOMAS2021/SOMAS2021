@@ -18,7 +18,7 @@ func (a *CustomAgent6) RequestLeaveFood() {
 
 	var reqAmount int
 
-	switch a.currBehaviour.String() {
+	switch a.currBehaviour.string() {
 	case "Altruist":
 		reqAmount = -1
 
@@ -55,7 +55,7 @@ func (a *CustomAgent6) RequestTakeFood() {
 
 	var reqAmount int
 
-	switch a.currBehaviour.String() {
+	switch a.currBehaviour.string() {
 	case "Altruist":
 		reqAmount = -1
 
@@ -91,7 +91,7 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 
 	var reply bool
 
-	switch a.currBehaviour.String() {
+	switch a.currBehaviour.string() {
 	case "Altruist":
 		reply = true
 
@@ -126,7 +126,6 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 		a.reqLeaveFoodAmount = -1
 		a.Log("I received a requestLeaveFood message and my response was false")
 	}
-
 }
 
 func (a *CustomAgent6) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
@@ -144,7 +143,7 @@ func (a *CustomAgent6) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage
 }
 
 func (a *CustomAgent6) HandleAskHP(msg messages.AskHPMessage) {
-	if a.currBehaviour.String() != "Narcissist" {
+	if a.currBehaviour.string() != "Narcissist" {
 		reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
 		a.SendMessage(reply)
 		a.Log("I recieved an askHP message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
@@ -165,7 +164,7 @@ func (a *CustomAgent6) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 
 func (a *CustomAgent6) HandlePropagate(msg messages.ProposeTreatyMessage) {
 	// The Narcissist does not propagate treaties
-	if a.currBehaviour.String() != "Narcissist" {
+	if a.currBehaviour.string() != "Narcissist" {
 		treatyToPropagate := messages.NewProposalMessage(msg.SenderID(), msg.SenderFloor(), msg.TargetFloor(), msg.Treaty())
 		a.SendMessage(treatyToPropagate)
 		a.Log("I propogated a treaty")
@@ -190,7 +189,7 @@ func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	if a.considerTreaty(&treaty) {
 		// Propagate only if treaty doesn't already exist (avoids infinite loops)
 		if _, exists := a.ActiveTreaties()[msg.TreatyID()]; !exists {
-			a.ProposeTreaty(treaty)
+			a.proposeTreaty(treaty)
 		}
 		treaty.SignTreaty()
 		a.AddTreaty(treaty)
@@ -198,10 +197,10 @@ func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		// reply with acceptance message
 		reply := messages.NewTreatyResponseMessage(a.ID(), a.Floor(), msg.SenderFloor(), true, treaty.ID(), treaty.ProposerID())
 		a.SendMessage(reply)
-		a.Log("I accepted a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.String()})
+		a.Log("I accepted a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.string()})
 
 	} else {
-		a.Log("I rejected a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.String()})
+		a.Log("I rejected a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.string()})
 	}
 
 }

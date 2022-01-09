@@ -37,7 +37,7 @@ func (a *CustomAgent6) desiredFoodIntake() food.FoodType {
 
 	currentHP := a.HP()
 
-	switch a.currBehaviour.String() {
+	switch a.currBehaviour.string() {
 	case "Altruist": // Never eat
 		return food.FoodType(0)
 
