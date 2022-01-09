@@ -178,7 +178,8 @@ func (a *CustomAgent6) Run() {
 	// Sending messages / proposing treaties every 2 ticks
 	if a.countTick%2 == 0 {
 		if a.currBehaviour.String() == "Collectivist" || a.currBehaviour.String() == "Selfish" {
-			a.ProposeTreaty()
+			treaty := a.ConstructTreaty()
+			a.ProposeTreaty(treaty)
 		}
 		a.RequestLeaveFood()
 	}

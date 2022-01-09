@@ -368,7 +368,7 @@ func (a *CustomAgent6) conditionApplies(t *messages.Treaty) bool {
 	}
 }
 
-func (a *CustomAgent6) ProposeTreaty() {
+func (a *CustomAgent6) ConstructTreaty() messages.Treaty {
 	// Health levels
 	levels := levelsData{
 		strongLevel:  a.HealthInfo().MaxHP * 3 / 5,
@@ -387,10 +387,19 @@ func (a *CustomAgent6) ProposeTreaty() {
 		proposedTreaty = messages.NewTreaty(1, levels.strongLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
 	}
 
-	targetFloor := a.Floor() - 1
-	msg := messages.NewProposalMessage(a.ID(), a.Floor(), targetFloor, *proposedTreaty)
-	a.SendMessage(msg)
-	a.proposedTreaties[proposedTreaty.ID()] = *proposedTreaty
-	a.Log("I proposed a treaty", infra.Fields{"ConditionValue": proposedTreaty.ConditionValue(), "RequestValue": proposedTreaty.RequestValue(), "My Floor": a.Floor(), "My Social Motive": a.currBehaviour})
+	return *proposedTreaty
+}
 
+func (a *CustomAgent6) ProposeTreaty(treaty messages.Treaty) {
+	// propose treaty to the 10 floor around us
+	for i := -5; i < 6; i++ {
+		// do not propose the treaty to yourself
+		if i != 0 {
+			targetFloor := a.Floor() + i
+			proposedTreaty := messages.NewProposalMessage(a.ID(), a.Floor(), targetFloor, treaty)
+			a.SendMessage(proposedTreaty)
+			a.Log("I proposed a treaty", infra.Fields{"ConditionValue": treaty.ConditionValue(), "RequestValue": treaty.RequestValue(), "My Floor": a.Floor(), "My Social Motive": a.currBehaviour})
+		}
+	}
+	a.proposedTreaties[treaty.ID()] = treaty
 }
