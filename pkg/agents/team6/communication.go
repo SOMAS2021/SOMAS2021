@@ -33,7 +33,7 @@ func (a *CustomAgent6) RequestLeaveFood() {
 		if currentHP >= levels.strongLevel {
 			reqAmount = -1
 		} else {
-			reqAmount = int(FoodRequired(currentHP, levels.healthyLevel, a.HealthInfo()))
+			reqAmount = int(a.foodRequired(levels.healthyLevel, a.HealthInfo()))
 		}
 
 	case "Narcissist":
