@@ -93,9 +93,9 @@ func (a *CustomAgent2) exportPolicies() {
 		}
 	}
 
-	w.WriteAll(sPolicies)
+	err = w.WriteAll(sPolicies)
 
-	if err := w.Error(); err != nil {
+	if err != nil {
 		log.Fatalln("error writing csv:", err)
 	}
 }

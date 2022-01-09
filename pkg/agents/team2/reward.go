@@ -38,7 +38,7 @@ func calcReward(oldHP int, hpInc int, foodIntended int, foodTaken int, DaysAtCri
 	} else {
 		savingBonus += 1.0
 	}
-	return surviveBonus + eatingBonus + wastingBonus
+	return surviveBonus + eatingBonus + wastingBonus + savingBonus
 }
 
 func (a *CustomAgent2) updateRTable(oldHP int, hpInc int, state int, action int) {
