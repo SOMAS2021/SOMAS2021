@@ -14,6 +14,8 @@ import (
 
 type memory []food.FoodType
 
+type trust map[uuid.UUID]int
+
 type behaviour float64
 
 // const (
@@ -22,6 +24,10 @@ type behaviour float64
 //  selfish
 //  narcissist
 // )
+type neighbours struct {
+	above uuid.UUID
+	below uuid.UUID
+}
 
 type utilityParameters struct {
 	// Greediness
@@ -74,6 +80,10 @@ type CustomAgent6 struct {
 	countTick int
 	// holding proposed treaty not accepted yet
 	proposedTreaties map[uuid.UUID]messages.Treaty
+	// Mapping of agent id to trust
+	trustTeams trust
+	// IDs of agents above and below (based on what we've been told)
+	neighbours neighbours
 }
 
 type thresholdBehaviourPair struct {
@@ -111,14 +121,16 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		reqLeaveFoodAmount:  -1,
 		lastFoodTaken:       0,
 		averageFoodIntake:   0.0,
-		longTermMemory:      memory{},
-		shortTermMemory:     memory{},
+		longTermMemory:      make(memory, 0), //memory{},
+		shortTermMemory:     make(memory, 0), //memory{},
 		numReassigned:       0,
 		reassignPeriodGuess: 0,
 		platOnFloorCtr:      0,
 		prevFloor:           -1,
 		countTick:           1,
 		proposedTreaties:    make(map[uuid.UUID]messages.Treaty),
+		trustTeams:          make(trust),
+		neighbours:          neighbours{above: uuid.Nil, below: uuid.Nil},
 	}, nil
 }
 
