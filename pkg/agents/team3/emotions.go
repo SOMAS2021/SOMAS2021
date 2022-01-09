@@ -103,10 +103,8 @@ func (a *CustomAgent3) changeNewDay() {
 func (a *CustomAgent3) reshuffleEstimator() {
 	if a.knowledge.reshuffleEst == -1 {
 		a.knowledge.reshuffleEst = a.Age()
-	} else {
-		if a.Age()-a.knowledge.reshuffleEst < a.knowledge.reshuffleEst { //attempt to correct in case we resshufle to same floor twice
-			a.knowledge.reshuffleEst = a.Age() - a.knowledge.reshuffleEst
-		}
+	} else if a.Age()-a.knowledge.reshuffleEst < a.knowledge.reshuffleEst { //attempt to correct in case we resshufle to same floor twice
+		a.knowledge.reshuffleEst = a.Age() - a.knowledge.reshuffleEst
 	}
 }
 
