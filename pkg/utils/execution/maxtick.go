@@ -15,6 +15,9 @@ func GetMaxTick(filename string) int {
 
 	buf := make([]byte, 100)
 	stat, err := os.Stat(filename)
+	if err != nil {
+		return -1
+	}
 	start := stat.Size() - 100
 	_, err = file.ReadAt(buf, start)
 	if err == nil {
