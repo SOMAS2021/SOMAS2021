@@ -97,7 +97,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			neuroticism:       neuroticism,
 		},
 		behaviour: CurrentBehaviour{
-			greediness:     100 - agreeableness,
+			greediness:     ((100 - agreeableness) / 2) + 25,
 			kindness:       agreeableness,
 			responsiveness: (agreeableness + openness + extraversion) / 3,
 		},
@@ -225,7 +225,7 @@ func (a *CustomAgent7) Run() {
 			} else {
 				a.opMem.currentFloorRisk = 0
 			}
-
+			//a.TreatyOnFloorChange()
 		}
 		a.opMem.orderPrevFloors = append(a.opMem.orderPrevFloors, currentFloor) //append current floor to floor tracker
 	} else { //increment currentDayonFloor counter
@@ -257,7 +257,7 @@ func (a *CustomAgent7) Run() {
 	// 	a.opMem.messagesSent = false
 	// }
 
-	a.Log("msgsSentLog:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "msg1Sent": a.opMem.msg1Sent, "msg2Sent": a.opMem.msg2Sent, "msg3Sent": a.opMem.msg3Sent, "age": a.Age(), "prevAge": a.opMem.prevAge})
+	//a.Log("msgsSentLog:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "msg1Sent": a.opMem.msg1Sent, "msg2Sent": a.opMem.msg2Sent, "msg3Sent": a.opMem.msg3Sent, "age": a.Age(), "prevAge": a.opMem.prevAge})
 
 	//if !a.opMem.messagesSent {
 	if !a.opMem.msg1Sent {
@@ -271,18 +271,18 @@ func (a *CustomAgent7) Run() {
 	}
 
 	if a.PlatformOnFloor() && !a.opMem.msg2Sent {
-		msg2 := messages.NewAskFoodTakenMessage(UserID, currentFloor, currentFloor+1)
+		msg2 := messages.NewAskFoodTakenMessage(UserID, currentFloor, currentFloor-1)
 		a.SendMessage(msg2)
 		a.opMem.msg2Sent = true
 	}
 
 	if !a.PlatformOnFloor() && a.CurrPlatFood() != -1 && a.opMem.seenPlatform && currentFloor != 1 && !a.opMem.msg3Sent {
-		msg2 := messages.NewAskFoodTakenMessage(UserID, currentFloor, currentFloor-1)
+		msg2 := messages.NewAskFoodTakenMessage(UserID, currentFloor, currentFloor+1)
 		a.SendMessage(msg2)
 		a.opMem.msg3Sent = true
 	}
 
-	a.Log("msgsSentLog2:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "msg1Sent": a.opMem.msg1Sent, "msg2Sent": a.opMem.msg2Sent, "msg3Sent": a.opMem.msg3Sent, "age": a.Age(), "prevAge": a.opMem.prevAge})
+	//a.Log("msgsSentLog2:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "msg1Sent": a.opMem.msg1Sent, "msg2Sent": a.opMem.msg2Sent, "msg3Sent": a.opMem.msg3Sent, "age": a.Age(), "prevAge": a.opMem.prevAge})
 
 	//	a.opMem.messagesSent = true
 	//}
@@ -329,32 +329,46 @@ func (a *CustomAgent7) Run() {
 
 		var foodtotake food.FoodType
 
-		satisficedHP := 50
+		satisficedHP := 30
+		healthyHP := 65
 		targetWeakFood := health.FoodRequired(currentHP, healthInfo.WeakLevel, healthInfo)
 		targetSatisficedFood := health.FoodRequired(currentHP, satisficedHP, healthInfo)
+		targetHealthyFood := health.FoodRequired(currentHP, healthyHP, healthInfo)
 		targetFullFood := health.FoodRequired(currentHP, healthInfo.MaxHP, healthInfo)
-		scalingRatio := float64(targetFullFood-targetSatisficedFood) / float64(targetSatisficedFood-targetWeakFood)
+
+		greedinessAdjuster := (float64(a.behaviour.greediness / 300)) * float64(targetFullFood-targetSatisficedFood)
+		kindnessAdjuster := (float64(a.behaviour.kindness / 300)) * float64(targetFullFood-targetSatisficedFood)
+
+		//scalingRatio := float64(targetFullFood-targetSatisficedFood) / float64(targetSatisficedFood-targetWeakFood)
 		//scalingRatio := float64(healthInfo.MaxHP-satisficedHP) / float64(satisficedHP-healthInfo.WeakLevel)
 
-		a.Log("ABCDEFG:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "W": targetWeakFood, "H": targetSatisficedFood, "F": targetFullFood, "msg1Sent": a.opMem.msg1Sent, "msg2Sent": a.opMem.msg2Sent, "msg3Sent": a.opMem.msg3Sent})
+		a.Log("ABCDEFG:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "W": targetWeakFood, "H": targetHealthyFood, "S": targetSatisficedFood, "F": targetFullFood, "msg1Sent": a.opMem.msg1Sent, "msg2Sent": a.opMem.msg2Sent, "msg3Sent": a.opMem.msg3Sent})
 
 		switch {
 		// Highest prioirty case - agent dies if he stays critical for 3 more days
 		case currentHP <= healthInfo.HPCritical && daysCritical >= (healthInfo.MaxDayCritical-3):
 
-			kindnessAdjuster := (float64(a.behaviour.kindness) / 1000) * float64(targetSatisficedFood-targetWeakFood)
-			greedinessAdjuster := (float64(a.behaviour.greediness) / 100) * float64(targetFullFood-targetSatisficedFood) / scalingRatio
-			foodtotake = targetSatisficedFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
+			a.Log("CASE1------------------------------------------------------------------------------------------------------------------------")
 
+			foodtotake = targetSatisficedFood - food.FoodType(kindnessAdjuster/5) + food.FoodType(greedinessAdjuster)
+			//a.CriticalStateTreaty()
+			//a.DesperationTreaty()
 		// Fulfilling message requests are given high priority
 		case a.opMem.recievedReq:
+			a.Log("CASE2------------------------------------------------------------------------------------------------------------------------")
 			foodtotake = food.FoodType(a.opMem.takeFood)
 			// Fulfilling treaties is given high priority
 
 		// case treaty:
 		case len(a.ActiveTreaties()) != 0:
-			for _, t_active := range a.ActiveTreaties() {
+			a.Log("CASE3------------------------------------------------------------------------------------------------------------------------")
+			foodtotake = targetSatisficedFood - food.FoodType(kindnessAdjuster/5) + food.FoodType(greedinessAdjuster)
 
+			// if a.HP() <= a.HealthInfo().HPCritical {
+			// 	a.PropagateTreatyUpwards()
+			// }
+
+			for _, t_active := range a.ActiveTreaties() {
 				if a.PlatformOnFloor() && t_active.Request() != messages.Inform {
 					available := a.CurrPlatFood()
 					amount := food.FoodType(float64(t_active.RequestValue()/100)) * available
@@ -453,25 +467,21 @@ func (a *CustomAgent7) Run() {
 				}
 			}
 		// In this case the agent can stay critical for another 4 or more days. Hence the fulfillment of treaties and requests is prioritized over this
-		case currentHP <= healthInfo.HPCritical:
-			kindnessAdjuster := (float64(a.behaviour.kindness) / 1000) * float64(targetSatisficedFood-targetWeakFood)
-			greedinessAdjuster := (float64(a.behaviour.greediness) / 100) * float64(targetFullFood-targetSatisficedFood) / scalingRatio
-			foodtotake = targetSatisficedFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
+		case targetWeakFood > 0:
+			a.Log("CASE4------------------------------------------------------------------------------------------------------------------------")
+			foodtotake = targetSatisficedFood - food.FoodType(kindnessAdjuster/5) + food.FoodType(greedinessAdjuster)
 
 		// Lowest priority case - it is the standard case, in the absence of messages and treaties, and the agent is not critical
-		case healthInfo.HPCritical <= currentHP && currentHP <= healthInfo.MaxHP:
-			kindnessAdjuster := (float64(a.behaviour.kindness) / 100) * float64(targetSatisficedFood-targetWeakFood)
-			greedinessAdjuster := (float64(a.behaviour.greediness) / 100) * float64(targetFullFood-targetSatisficedFood) / scalingRatio
-			foodtotake = targetSatisficedFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
 		default:
-			foodtotake = food.FoodType(0)
+			a.Log("Default CASE------------------------------------------------------------------------------------------------------------------------")
+			foodtotake = targetSatisficedFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
 		}
 
 		// Bound foodtotake
-		if foodtotake > health.FoodRequired(currentHP, healthInfo.MaxHP, healthInfo) {
-			foodtotake = health.FoodRequired(currentHP, healthInfo.MaxHP, healthInfo)
+		if foodtotake > targetFullFood {
+			foodtotake = targetFullFood
 		}
-
+		a.Log("VWXYZ:", infra.Fields{"food": foodtotake})
 		// Eat Food and Update Statuses
 		Eaten, err := a.TakeFood(foodtotake)
 

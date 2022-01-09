@@ -3,12 +3,9 @@ package team7agent1
 import (
 	// "math"
 	// "math/rand"
-
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
-	// "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
-	// "github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
-	// "github.com/google/uuid"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 )
 
 func (a *CustomAgent7) HandleBadTreaty(msg messages.ProposeTreatyMessage) {
@@ -26,25 +23,19 @@ func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		((treaty.Request() == messages.LeaveAmountFood || treaty.Request() == messages.LeavePercentFood && treaty.RequestOp() == messages.LT) || treaty.RequestOp() == messages.LE) ||
 		(treaty.Condition() == messages.HP && treaty.ConditionValue() < a.HealthInfo().WeakLevel*3) ||
 		(a.HP() <= a.HealthInfo().HPCritical && a.DaysAtCritical() >= a.HealthInfo().MaxDayCritical-3) ||
-		(treaty.Request() == messages.LeavePercentFood && treaty.RequestValue() > 50) ||
+		(treaty.Request() == messages.LeaveAmountFood && treaty.RequestValue() > 50) ||
 		(a.Clashoftreaties(treaty)) {
 		a.HandleBadTreaty(msg)
 		return
 	}
 
-	if a.personality.conscientiousness/2+a.personality.extraversion > 50 {
+	//more than 5 days don't sign, don't sign if responsiveness too low
+	if a.personality.conscientiousness > 33 && a.behaviour.responsiveness > 50 && treaty.Duration() < 3 {
 		treaty.SignTreaty()
 		a.AddTreaty(treaty)
 		reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
 		a.SendMessage(reply)
-
 		a.Log("Accepted treaty", infra.Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(), "treatyID": msg.TreatyID()})
-		propagate := a.Floor() - 1
-		if msg.SenderFloor() < a.Floor() {
-			propagate = a.Floor() + 1
-		}
-		propagationoftreaty := messages.NewProposalMessage(a.ID(), a.Floor(), propagate, treaty)
-		a.SendMessage(propagationoftreaty)
 	} else {
 		a.HandleBadTreaty(msg)
 	}
@@ -58,11 +49,49 @@ func (a *CustomAgent7) HandleTreatyResponse(msg messages.TreatyResponseMessage) 
 	}
 }
 
-func (a *CustomAgent7) SendTreaty() {
-	tr := messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID()) //remember the treaty we proposed
-	msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, *tr)
-	a.SendMessage(msg)
-	a.Log("Team 7 Agent has sent a Treaty")
+func (a *CustomAgent7) CriticalStateTreaty() {
+	foodCtoW := int(health.FoodRequired(a.HealthInfo().HPCritical, a.HealthInfo().WeakLevel, a.HealthInfo()))
+	if a.HP() <= a.HealthInfo().HPCritical {
+		tr := messages.NewTreaty(messages.HP, 20, messages.LeaveAmountFood, foodCtoW, messages.GT, messages.GT, 7, a.ID())
+		msg := messages.NewProposalMessage(a.ID(), a.Floor(), a.Floor()+1, *tr)
+		a.SendMessage(msg)
+		a.Log("Team 7 Agent has sent a Treaty")
+	}
+}
+
+func (a *CustomAgent7) PropagateTreatyUpwards() {
+	foodCtoW := int(health.FoodRequired(a.HealthInfo().HPCritical, a.HealthInfo().WeakLevel, a.HealthInfo()))
+	for _, tr := range a.ActiveTreaties() {
+		if tr.Request() == messages.LeaveAmountFood {
+			tr_new := messages.NewTreaty(tr.Condition(), tr.ConditionValue(), messages.LeaveAmountFood, tr.RequestValue()+foodCtoW, tr.ConditionOp(), tr.RequestOp(), tr.Duration(), tr.ProposerID())
+			msg := messages.NewProposalMessage(a.ID(), a.Floor(), a.Floor()+1, *tr_new)
+			a.SendMessage(msg)
+			a.Log("Team 7 Agent has sent a Treaty")
+		}
+	}
+}
+
+func (a *CustomAgent7) TreatyOnFloorChange() {
+	foodCtoW := int(health.FoodRequired(a.HealthInfo().HPCritical, a.HealthInfo().WeakLevel, a.HealthInfo()))
+	if len(a.opMem.orderPrevFloors) != 0 && a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1] != a.Floor() {
+		if a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1]/2 >= a.Floor() {
+			if a.personality.conscientiousness > 50 {
+				tr := messages.NewTreaty(messages.HP, 20, messages.LeaveAmountFood, foodCtoW, messages.GT, messages.GT, 10, a.ID())
+				msg := messages.NewProposalMessage(a.ID(), a.Floor(), a.Floor()+1, *tr)
+				a.SendMessage(msg)
+				a.Log("Team 7 Agent has sent a Treaty after Floor Change")
+			}
+		}
+	}
+}
+
+func (a *CustomAgent7) DesperationTreaty() {
+	if a.DaysAtCritical() == a.HealthInfo().MaxDayCritical-2 {
+		tr := messages.NewTreaty(messages.AvailableFood, 20, messages.LeavePercentFood, 50, messages.GT, messages.GE, 7, a.ID())
+		msg := messages.NewProposalMessage(a.ID(), a.Floor(), a.Floor()+1, *tr)
+		a.SendMessage(msg)
+		a.Log("Team 7 Agent has sent a Treaty")
+	}
 }
 
 func (a *CustomAgent7) Clashoftreaties(t_new messages.Treaty) bool {
@@ -91,34 +120,34 @@ func (a *CustomAgent7) Clashoftreaties(t_new messages.Treaty) bool {
 	return false
 }
 
-func (a *CustomAgent7) mutuallyExclusive(op1 messages.Op, op2 messages.Op, value1 int, value2 int) bool {
+func (a *CustomAgent7) mutuallyExclusive(op1 messages.Op, op2 messages.Op, val1 int, val2 int) bool {
 	switch op1 {
 	case messages.LT:
-		return ((op2 == messages.EQ && value1 <= value2) ||
-			(op2 == messages.GT && value1 <= value2+1) ||
-			(op2 == messages.GE && value1 <= value2))
+		return ((op2 == messages.EQ && val1 <= val2) ||
+			(op2 == messages.GT && val1 <= val2+1) ||
+			(op2 == messages.GE && val1 <= val2))
 
 	case messages.LE:
-		return ((op2 == messages.EQ && value1 < value2) ||
-			(op2 == messages.GT && value1 <= value2) ||
-			(op2 == messages.GE && value1 < value2))
+		return ((op2 == messages.EQ && val1 < val2) ||
+			(op2 == messages.GT && val1 <= val2) ||
+			(op2 == messages.GE && val1 < val2))
 
 	case messages.GT:
-		return ((op2 == messages.EQ && value1 >= value2) ||
-			(op2 == messages.LT && value1 >= (value2+1)) ||
-			(op2 == messages.LE && value1 >= value2))
+		return ((op2 == messages.EQ && val1 >= val2) ||
+			(op2 == messages.LT && val1 >= (val2+1)) ||
+			(op2 == messages.LE && val1 >= val2))
 
 	case messages.GE:
-		return ((op2 == messages.EQ && value1 > value2) ||
-			(op2 == messages.LT && value1 >= value2) ||
-			(op2 == messages.LE && value1 > value2))
+		return ((op2 == messages.EQ && val1 > val2) ||
+			(op2 == messages.LT && val1 >= val2) ||
+			(op2 == messages.LE && val1 > val2))
 
 	case messages.EQ:
-		return ((op2 == messages.EQ && value1 != value2) ||
-			(op2 == messages.LT && value1 >= value2) ||
-			(op2 == messages.LE && value1 > value2) ||
-			(op2 == messages.GT && value1 <= value2) ||
-			(op2 == messages.GE && value1 < value2))
+		return ((op2 == messages.EQ && val1 != val2) ||
+			(op2 == messages.LT && val1 >= val2) ||
+			(op2 == messages.LE && val1 > val2) ||
+			(op2 == messages.GT && val1 <= val2) ||
+			(op2 == messages.GE && val1 < val2))
 
 	default:
 		return false
