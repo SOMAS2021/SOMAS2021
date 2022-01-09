@@ -91,6 +91,8 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	// readable constants
 	convertedFood := a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue())
 	conditionCheck := t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT
+	considerTreaty := a.considerTreatyUsingUtility(t)
+
 	// We only consider meaningful LeaveAmountFood and LeavePercentFood treaties, i.e., the treaties with RequestOp GE or GT
 	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT {
 		switch t.Condition() {
@@ -101,23 +103,23 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 				return true
 			case "Collectivist":
 				if conditionCheck || t.ConditionValue() < a.HealthInfo().WeakLevel {
-					return a.considerTreatyUsingUtility(t)
+					return considerTreaty
 				}
 				return true
 
 			case "Selfish":
 				if conditionCheck || t.ConditionValue() < levels.strongLevel {
-					return a.considerTreatyUsingUtility(t)
+					return considerTreaty
 				}
 				return true
 			case "Narcissist":
-				return a.considerTreatyUsingUtility(t)
+				return considerTreaty
 			default:
-				return a.considerTreatyUsingUtility(t)
+				return considerTreaty
 			}
 		// Floor
 		case 2:
-			return a.considerTreatyUsingUtility(t)
+			return considerTreaty
 		// AvailableFood
 		case 3:
 			switch a.currBehaviour.string() {
@@ -125,23 +127,23 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 				return true
 			case "Collectivist":
 				if conditionCheck || convertedFood <= 2 {
-					return a.considerTreatyUsingUtility(t)
+					return considerTreaty
 				}
 				return true
 			case "Selfish":
 				if conditionCheck || convertedFood <= 60 {
-					return a.considerTreatyUsingUtility(t)
+					return considerTreaty
 				}
 				return true
 
 			case "Narcissist":
-				return a.considerTreatyUsingUtility(t)
+				return considerTreaty
 			default:
-				return a.considerTreatyUsingUtility(t)
+				return considerTreaty
 			}
 
 		default:
-			return a.considerTreatyUsingUtility(t)
+			return considerTreaty
 		}
 	} else {
 		return false
