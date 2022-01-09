@@ -170,7 +170,8 @@ func (a *CustomAgent2) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 }
 
 func (a *CustomAgent2) HandleStateHP(msg messages.StateHPMessage) {
-	a.neiboughHP =  msg.Statement()
+	statement := msg.Statement()
+	a.neiboughHP = statement
 	a.Log("Team2 replying StateHP message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "statement": statement, "myFloor": a.Floor()})
 }
 
