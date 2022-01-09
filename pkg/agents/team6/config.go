@@ -258,6 +258,8 @@ func (a *CustomAgent6) Run() {
 			a.proposeTreaty(treaty)
 		}
 		a.requestLeaveFood()
+		a.regainTrustInNeighbours()
+
 	}
 
 	// Receiving messages and treaties

@@ -58,31 +58,26 @@ func (a *CustomAgent6) requestLeaveFood() {
 // Requests the agent above to take a precise amount of food
 // The altruist and the collectivist do not request anything like that
 // The selfish and the narcissist request the other agent to take nothing
-func (a *CustomAgent6) requestTakeFood() {
+func (a *CustomAgent6) regainTrustInNeighbours() {
 
-	var reqAmount int
-
-	switch a.currBehaviour.string() {
-	case "Altruist":
-		reqAmount = -1
-
-	case "Collectivist":
-		reqAmount = -1
-
-	case "Selfish":
-		reqAmount = 0
-
-	case "Narcissist":
-		reqAmount = 0
-
-	default:
-		reqAmount = -1
-	}
-
-	if reqAmount != -1 {
-		msg := messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), a.Floor()-1, reqAmount)
+	if a.trustTeams[a.neighbours.above] < -10 {
+		msg := messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), a.Floor()-1, 0)
 		a.SendMessage(msg)
 		a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood", "floor": a.Floor()})
+	}
+
+	if a.trustTeams[a.neighbours.below] < -10 {
+		msg := messages.NewRequestTakeFoodMessage(a.ID(), a.Floor(), a.Floor()+1, 0)
+		a.SendMessage(msg)
+		a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood", "floor": a.Floor()})
+	}
+}
+
+func (a *CustomAgent6) HandleResponse(msg messages.BoolResponseMessage) {
+	if msg.Response() {
+		a.trustTeams[msg.SenderID()] = 0
+	} else {
+		a.updateTrust(-1, msg.SenderID())
 	}
 }
 

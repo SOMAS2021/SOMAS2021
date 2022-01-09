@@ -357,7 +357,7 @@ func (a *CustomAgent6) proposeTreaty(treaty messages.Treaty) {
 	// Proposes treaty to the 10 floor around us
 	for i := -5; i < 6; i++ {
 		// do not propose the treaty to yourself
-		if i != 0 {
+		if (i > 0 && a.trustTeams[a.neighbours.below] > 0) || (i < 0 && a.trustTeams[a.neighbours.above] > 0) {
 			targetFloor := a.Floor() + i
 			proposedTreaty := messages.NewProposalMessage(a.ID(), a.Floor(), targetFloor, treaty)
 			a.SendMessage(proposedTreaty)
