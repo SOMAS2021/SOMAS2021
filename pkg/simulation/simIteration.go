@@ -38,8 +38,8 @@ func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context, ch chan<- 
 		t.TowerStateLog(" start of tick")
 		sE.Preface(t)
 		sE.AgentsRun(t)
-		sE.TowerTick() //added reincarnation feature
-		//sE.replaceAgents(t) //commented out by team2 for testing purpose
+		sE.TowerTick()
+		sE.replaceAgents(t)
 		// t.TowerStateLog(" end of tick")
 		sE.dayInfo.CurrTick++
 
