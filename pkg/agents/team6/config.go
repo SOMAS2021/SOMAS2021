@@ -278,7 +278,8 @@ func (a *CustomAgent6) Run() {
 	a.addToMemory()
 
 	// Eat if needed/wanted
-	foodTaken, err := a.TakeFood(a.intendedFoodIntake())
+	intendedFood := a.intendedFoodIntake()
+	foodTaken, err := a.TakeFood(intendedFood)
 
 	// if err != nil {
 	// 	switch err.(type) {
@@ -293,12 +294,11 @@ func (a *CustomAgent6) Run() {
 	// 	a.updateAverageIntake(foodTaken)
 	// }
 
-	if err != nil {
+	if err == nil {
 		a.lastFoodTaken = foodTaken
 		// Exponential moving average filter to average food taken whilst discounting previous food
 		a.updateAverageIntake(foodTaken)
 		a.Log("Agent6 took food!")
-		fmt.Println(a.currBehaviour.string(), a.Floor(), a.averageFoodIntake)
 	}
 
 	// Reset the reqLeaveFoodAmount to nothing once the agent has eaten
@@ -312,8 +312,6 @@ func (a *CustomAgent6) Run() {
 	// a.Log("Team 6 agent desired to take:", infra.Fields{"desiredFood": a.desiredFoodIntake()})
 	// a.Log("Team 6 agent intended to take:", infra.Fields{"intendedFood": a.intendedFoodIntake()})
 	// a.Log("Team 6 agent took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
-
-	//fmt.Println(a.ActiveTreaties())
 
 	// treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
 	// min, max := a.foodRange()
