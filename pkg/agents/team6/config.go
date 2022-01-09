@@ -18,12 +18,6 @@ type trust map[uuid.UUID]int
 
 type behaviour float64
 
-// const (
-//  altruist behaviour = iota
-//  collectivist
-//  selfish
-//  narcissist
-// )
 type neighbours struct {
 	above uuid.UUID
 	below uuid.UUID
@@ -102,6 +96,7 @@ type behaviourParameterWeights struct {
 
 var maxBehaviourThreshold behaviour = 10.0
 
+// Defines the initial/base behaviour of our agents
 func chooseInitialBehaviour() behaviour {
 	return behaviour(rand.Float64()) * maxBehaviourThreshold
 }
@@ -141,7 +136,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 }
 
 // Todo: define some sensible values
-func NewUtilityParams(socialMotive string) utilityParameters {
+func newUtilityParams(socialMotive string) utilityParameters {
 	switch socialMotive {
 	case "Altruist":
 		return utilityParameters{
@@ -175,7 +170,7 @@ func NewUtilityParams(socialMotive string) utilityParameters {
 
 // initialise trust based on our social motive - the more narcissistic we are, the less we're willing to initially trust
 func (a *CustomAgent6) startingTrust() int {
-	switch a.currBehaviour.String() {
+	switch a.currBehaviour.string() {
 	case "Altrust":
 		return 10
 	case "Collectivist":
@@ -190,7 +185,7 @@ func (a *CustomAgent6) startingTrust() int {
 // handle cases where we haven't yet found out who our neighbours are
 func (a *CustomAgent6) updateTrust(amount int, agentID uuid.UUID) {
 	if amount < 0 {
-		switch a.currBehaviour.String() {
+		switch a.currBehaviour.string() {
 		case "Altruist":
 			amount *= 0 // don't care about any negative opinion - totally forgive
 		case "Selfish":
@@ -200,7 +195,7 @@ func (a *CustomAgent6) updateTrust(amount int, agentID uuid.UUID) {
 		default:
 		}
 	} else {
-		switch a.currBehaviour.String() {
+		switch a.currBehaviour.string() {
 		case "Altruist":
 			amount *= 4 // double trust increase to show our love
 		case "Collectivist":
@@ -226,7 +221,7 @@ func (a *CustomAgent6) updateTrust(amount int, agentID uuid.UUID) {
 	}
 }
 
-func (b behaviour) String() string {
+func (b behaviour) string() string {
 	behaviourMap := [...]thresholdBehaviourPair{{2, "Altruist"}, {7, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
 
 	if b >= 0 {
@@ -242,27 +237,26 @@ func (b behaviour) String() string {
 
 func (a *CustomAgent6) Run() {
 
-	// a.Log("Custom agent 6 before update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
+	// Reporting agent state
+	a.Log("Reporting agent state:", infra.Fields{"HP:": a.HP(), "Floor:": a.Floor(), "Social motive:": a.currBehaviour.string()})
 
 	// Everything you need to do once a day
 	if a.Age() != a.prevAge {
 		a.updateBehaviour()
-		if a.currBehaviour.String() == "Collectivist" || a.currBehaviour.String() == "Selfish" {
-			treaty := a.ConstructTreaty()
-			a.ProposeTreaty(treaty)
+		if a.currBehaviour.string() == "Collectivist" || a.currBehaviour.string() == "Selfish" {
+			treaty := a.constructTreaty()
+			a.proposeTreaty(treaty)
 		}
-		a.RequestLeaveFood()
+		a.requestLeaveFood()
 	}
 
 	// Receiving messages and treaties
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
-	} // else {
-	// a.Log("I got no thing")
-	// }
+	}
 
-	// MEMORY STUFF
+	// Updates agent's memory
 	if a.isReassigned() {
 		a.resetShortTermMemory()
 		a.updateReassignmentPeriodGuess()
@@ -273,7 +267,7 @@ func (a *CustomAgent6) Run() {
 	}
 	a.addToMemory()
 
-	// SHOULD THIS NOT ONLY BE IF THERE IS FOOD ON THE PLATFORM???
+	// Eat if needed/wanted
 	foodTaken, err := a.TakeFood(a.intendedFoodIntake())
 	if err != nil {
 		switch err.(type) {
@@ -291,7 +285,7 @@ func (a *CustomAgent6) Run() {
 		a.reqLeaveFoodAmount = -1
 	}
 
-	//exponential moving average filter to average food taken whilst discounting previous food
+	// Exponential moving average filter to average food taken whilst discounting previous food
 	a.updateAverageIntake(foodTaken)
 
 	// LOG
@@ -314,7 +308,8 @@ func (a *CustomAgent6) Run() {
 
 	a.prevFloor = a.Floor() // keep at end of Run() function
 	a.prevAge = a.Age()
-	// add one tick to the counter
+
+	// Adds one tick to the counter
 	a.countTick++
 
 }
