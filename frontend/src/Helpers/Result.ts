@@ -79,10 +79,6 @@ export function GetResult(filename: string): Promise<Result> {
     var utility: UtilityLog[] = [];
     promises.push(GetUtilityLogs(filename).then((a) => (utility = a)));
 
-    // Agent state
-    var utility: UtilityLog[] = [];
-    promises.push(GetUtilityLogs(filename).then((a) => (utility = a)));
-
     // all
     Promise.all(promises).then((_) =>
       resolve({
