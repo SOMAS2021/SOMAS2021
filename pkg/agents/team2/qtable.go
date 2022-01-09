@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	//"time"
 )
 
 type maxQAction struct {
@@ -44,7 +43,7 @@ func (a *CustomAgent2) updateQTable(state int, action int) {
 func (a *CustomAgent2) exportQTable() {
 	f, err := os.OpenFile(fmt.Sprintf("%s%s%s", a.ID(), "qtable", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		panic(err)
+		log.Println("error opening csv: ", err)
 	}
 	defer f.Close()
 
@@ -67,6 +66,6 @@ func (a *CustomAgent2) exportQTable() {
 	err = w.WriteAll(sQTable)
 
 	if err != nil {
-		log.Fatalln("error writing csv:", err)
+		log.Println("error writing csv:", err)
 	}
 }

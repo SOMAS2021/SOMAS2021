@@ -74,7 +74,7 @@ func (a *CustomAgent2) winOrLose(state int) float64 {
 func (a *CustomAgent2) exportPolicies() {
 	f, err := os.OpenFile(fmt.Sprintf("%s%s%s", a.ID(), "policies", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		panic(err)
+		log.Println("error opening csv: ", err)
 	}
 	defer f.Close()
 
@@ -96,6 +96,6 @@ func (a *CustomAgent2) exportPolicies() {
 	err = w.WriteAll(sPolicies)
 
 	if err != nil {
-		log.Fatalln("error writing csv:", err)
+		log.Println("error writing csv:", err)
 	}
 }
