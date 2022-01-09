@@ -52,6 +52,8 @@ type team6Config struct {
 	maxBehaviourThreshold behaviour
 	//discount previous food intakes for EMA filter
 	prevFoodDiscount float64
+	// maximum/minimum trust an agent can have of another
+	maxTrust int
 }
 
 type CustomAgent6 struct {
@@ -116,6 +118,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
 			prevFoodDiscount:      0.6,
+			maxTrust:              25,
 		},
 		currBehaviour:       initialBehaviour,
 		maxFloorGuess:       baseAgent.Floor() + 2,
@@ -167,6 +170,59 @@ func NewUtilityParams(socialMotive string) utilityParameters {
 	default:
 		// error
 		return utilityParameters{}
+	}
+}
+
+// initialise trust based on our social motive - the more narcissistic we are, the less we're willing to initially trust
+func (a *CustomAgent6) startingTrust() int {
+	switch a.currBehaviour.String() {
+	case "Altrust":
+		return 10
+	case "Collectivist":
+		return 5
+	case "Narcissist":
+		return -5
+	default:
+		return 0
+	}
+}
+
+// handle cases where we haven't yet found out who our neighbours are
+func (a *CustomAgent6) updateTrust(amount int, agentID uuid.UUID) {
+	if amount < 0 {
+		switch a.currBehaviour.String() {
+		case "Altruist":
+			amount *= 0 // don't care about any negative opinion - totally forgive
+		case "Selfish":
+			amount *= 2
+		case "Narcissist":
+			amount *= 4 // baseline trust reduction doubled to penalise more
+		default:
+		}
+	} else {
+		switch a.currBehaviour.String() {
+		case "Altruist":
+			amount *= 4 // double trust increase to show our love
+		case "Collectivist":
+			amount *= 2
+		case "Narcissist":
+			amount *= 0 // don't improve trust in people when narcissistic - we hate everyone (Nihilist?)
+		default:
+		}
+	}
+	// null mapping has implicit value of 0 (https://staticcheck.io/docs/checks#S1036)
+	// a.trustTeams[agentID] += amount
+
+	if _, exists := a.trustTeams[agentID]; exists {
+		a.trustTeams[agentID] += amount
+	} else {
+		a.trustTeams[agentID] = a.startingTrust()
+	}
+
+	if a.trustTeams[agentID] > a.config.maxTrust {
+		a.trustTeams[agentID] = a.config.maxTrust
+	} else if a.trustTeams[agentID] < -a.config.maxTrust {
+		a.trustTeams[agentID] = -a.config.maxTrust
 	}
 }
 

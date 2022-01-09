@@ -111,6 +111,7 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 
 	case "Narcissist":
 		reply = false
+		a.updateTrust(-1, msg.SenderID()) // how dare you even ask
 
 	default:
 		reply = true
@@ -176,6 +177,9 @@ func (a *CustomAgent6) HandleTreatyResponse(msg messages.TreatyResponseMessage) 
 	if msg.Response() {
 		treaty := a.proposedTreaties[msg.TreatyID()]
 		a.AddTreaty(treaty)
+		a.updateTrust(3, msg.SenderID()) // great - they must be cool
+	} else {
+		a.updateTrust(-2, msg.SenderID()) // we trust them less if they refuse our treaty - must be up to something
 	}
 	delete(a.proposedTreaties, msg.TreatyID())
 }
@@ -198,9 +202,11 @@ func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		// reply with acceptance message
 		reply := messages.NewTreatyResponseMessage(a.ID(), a.Floor(), msg.SenderFloor(), true, treaty.ID(), treaty.ProposerID())
 		a.SendMessage(reply)
+		a.updateTrust(2, msg.SenderID()) // good treaty - these guys are probably nice :)
 		a.Log("I accepted a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.String()})
 
 	} else {
+		a.updateTrust(-1, msg.SenderID()) // bad treaty - these guys are trying to sabotage us >:)
 		a.Log("I rejected a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.String()})
 	}
 
