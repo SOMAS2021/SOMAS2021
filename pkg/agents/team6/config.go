@@ -46,6 +46,8 @@ type team6Config struct {
 	maxBehaviourThreshold behaviour
 	//discount previous food intakes for EMA filter
 	prevFoodDiscount float64
+	// maximum/minimum trust an agent can have of another
+	maxTrust int
 }
 
 type CustomAgent6 struct {
@@ -105,12 +107,13 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		Base: baseAgent,
 		config: team6Config{
 			baseBehaviour:         initialBehaviour,
-			stubbornness:          0.0,
+			stubbornness:          0.2,
 			maxBehaviourSwing:     8,
 			paramWeights:          behaviourParameterWeights{HPWeight: 0.7, floorWeight: 0.3}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
 			prevFoodDiscount:      0.6,
+			maxTrust:              25,
 		},
 		currBehaviour:       initialBehaviour,
 		maxFloorGuess:       baseAgent.Floor() + 2,
@@ -137,27 +140,27 @@ func newUtilityParams(socialMotive string) utilityParameters {
 	switch socialMotive {
 	case "Altruist":
 		return utilityParameters{
-			g: 1.0,
-			r: 2.0,
-			c: 3.0,
+			g: 0.0,
+			r: 1.0,
+			c: 5.0,
 		}
 	case "Collectivist":
 		return utilityParameters{
-			g: 1.0,
-			r: 2.0,
-			c: 3.0,
+			g: 2.0,
+			r: 1.5,
+			c: 2.0,
 		}
 	case "Selfish":
 		return utilityParameters{
-			g: 1.0,
+			g: 5.0,
 			r: 2.0,
-			c: 3.0,
+			c: 1.0,
 		}
 	case "Narcissist":
 		return utilityParameters{
-			g: 1.0,
-			r: 2.0,
-			c: 3.0,
+			g: 10.0,
+			r: 2.5,
+			c: 0.0,
 		}
 	default:
 		// error
@@ -165,7 +168,69 @@ func newUtilityParams(socialMotive string) utilityParameters {
 	}
 }
 
-// Maps a number to the corresponding behaviour
+// initialise trust based on our social motive - the more narcissistic we are, the less we're willing to initially trust
+func (a *CustomAgent6) startingTrust() int {
+	switch a.currBehaviour.string() {
+	case "Altruist":
+		return 10
+	case "Collectivist":
+		return 5
+	case "Narcissist":
+		return -5
+	default:
+		return 0
+	}
+}
+
+// handle cases where we haven't yet found out who our neighbours are
+func (a *CustomAgent6) updateTrust(amount int, agentID uuid.UUID) {
+	if amount < 0 {
+		switch a.currBehaviour.string() {
+		case "Altruist":
+			amount *= 0 // don't care about any negative opinion - totally forgive
+		case "Selfish":
+			amount *= 2
+		case "Narcissist":
+			amount *= 4 // baseline trust reduction doubled to penalise more
+		default:
+		}
+	} else {
+		switch a.currBehaviour.string() {
+		case "Altruist":
+			amount *= 4 // double trust increase to show our love
+		case "Collectivist":
+			amount *= 2
+		case "Narcissist":
+			amount *= 0 // don't improve trust in people when narcissistic - we hate everyone (Nihilist?)
+		default:
+		}
+	}
+	// null mapping has implicit value of 0 (https://staticcheck.io/docs/checks#S1036)
+	// a.trustTeams[agentID] += amount
+
+	if _, exists := a.trustTeams[agentID]; exists {
+		a.trustTeams[agentID] += amount
+	} else {
+		a.trustTeams[agentID] = a.startingTrust()
+	}
+
+	if a.trustTeams[agentID] > a.config.maxTrust {
+		a.trustTeams[agentID] = a.config.maxTrust
+	} else if a.trustTeams[agentID] < -a.config.maxTrust {
+		a.trustTeams[agentID] = -a.config.maxTrust
+	}
+}
+
+func (a *CustomAgent6) identifyNeighbours(id uuid.UUID, floor int) {
+	floorDir := floor - a.Floor()
+
+	if floorDir == 1 {
+		a.neighbours.below = id
+	} else if floorDir == -1 {
+		a.neighbours.above = id
+	}
+}
+
 func (b behaviour) string() string {
 	behaviourMap := [...]thresholdBehaviourPair{{2, "Altruist"}, {7, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
 
@@ -193,6 +258,8 @@ func (a *CustomAgent6) Run() {
 			a.proposeTreaty(treaty)
 		}
 		a.requestLeaveFood()
+		a.regainTrustInNeighbours()
+
 	}
 
 	// Receiving messages and treaties
@@ -205,6 +272,9 @@ func (a *CustomAgent6) Run() {
 	if a.isReassigned() {
 		a.resetShortTermMemory()
 		a.updateReassignmentPeriodGuess()
+		// Ask HP to discover the ID of neighbour
+		a.SendMessage(messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()-1))
+		a.SendMessage(messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()+1))
 	} else if a.numReassigned == 0 { // Before any reassignment, reassignment period guess should be days elapsed
 		a.reassignPeriodGuess = float64(a.Age())
 		// a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.numReassigned})
@@ -213,16 +283,20 @@ func (a *CustomAgent6) Run() {
 	a.addToMemory()
 
 	// Eat if needed/wanted
-	foodTaken, err := a.TakeFood(a.intendedFoodIntake())
-	if err != nil {
-		switch err.(type) {
-		case *infra.FloorError:
-		case *infra.NegFoodError:
-		case *infra.AlreadyEatenError:
-		default:
-		}
-	} else {
+	intendedFood := a.intendedFoodIntake()
+	foodTaken, err := a.TakeFood(intendedFood)
+
+	if err == nil {
 		a.lastFoodTaken = foodTaken
+		// Exponential moving average filter to average food taken whilst discounting previous food
+		a.updateAverageIntake(foodTaken)
+		// Updates trust in the above neighbour based on average food
+		if a.averageFoodIntake < 1 {
+			a.updateTrust(-1, a.neighbours.above)
+		} else {
+			a.updateTrust(1, a.neighbours.above)
+		}
+		a.Log("Agent6 took food!")
 	}
 
 	// Reset the reqLeaveFoodAmount to nothing once the agent has eaten
@@ -230,17 +304,12 @@ func (a *CustomAgent6) Run() {
 		a.reqLeaveFoodAmount = -1
 	}
 
-	// Exponential moving average filter to average food taken whilst discounting previous food
-	a.updateAverageIntake(foodTaken)
-
 	// LOG
-	// a.Log("Team 6 agent has floor:", infra.Fields{"floor": a.Floor()})
-	// a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
-	// a.Log("Team 6 agent desired to take:", infra.Fields{"desiredFood": a.desiredFoodIntake()})
-	// a.Log("Team 6 agent intended to take:", infra.Fields{"intendedFood": a.intendedFoodIntake()})
-	// a.Log("Team 6 agent took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
-
-	//fmt.Println(a.ActiveTreaties())
+	a.Log("Team 6 agent has floor:", infra.Fields{"floor": a.Floor()})
+	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
+	a.Log("Team 6 agent desired to take:", infra.Fields{"desiredFood": a.desiredFoodIntake()})
+	a.Log("Team 6 agent intended to take:", infra.Fields{"intendedFood": a.intendedFoodIntake()})
+	a.Log("Team 6 agent took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.string()})
 
 	// treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
 	// min, max := a.foodRange()

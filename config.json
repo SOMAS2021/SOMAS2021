@@ -1,6 +1,6 @@
 {
     "UseFoodPerAgentRatio": false,
-    "FoodOnPlatform": 100,
+    "FoodOnPlatform": 10,
     "FoodPerAgentRatio": 0,
     "Team1Agents": 2,
     "Team1Agents2": 2,
@@ -14,7 +14,7 @@
     "AgentHP": 100,
     "AgentsPerFloor": 1,
     "TicksPerFloor": 1,
-    "SimDays": 30,
+    "SimDays": 20,
     "ReshuffleDays": 30,
     "maxHP": 100,
     "weakLevel": 10,

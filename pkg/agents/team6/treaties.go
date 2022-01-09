@@ -20,13 +20,20 @@ func calculateUtility(x, z float64, socialMotive string) float64 {
 	params := newUtilityParams(socialMotive)
 	// Calculates the function scaling parameter a
 
-	if socialMotive == "Altruist" /*|| socialMotive == "Nacissist"*/ {
+	var result float64
+
+	if socialMotive == "Altruist" || socialMotive == "Nacissist" {
 		// Don't scale depending on desired food
-		return params.g*math.Pow(x, 1/params.r) - params.c*x
+		result = params.g*math.Pow(x, 1/params.r) - params.c*x
 	} else {
 		a := (1 / z) * math.Pow((params.c*params.r)/params.g, params.r/(1-params.r))
-		return params.g*math.Pow(a*x, 1/params.r) - params.c*a*x
+		result = params.g*math.Pow(a*x, 1/params.r) - params.c*a*x
 	}
+
+	if result < 0.0 {
+		return 1.2 * result
+	}
+	return result
 }
 
 // Returns the minimum value of two food.Foodtype variables
@@ -356,8 +363,8 @@ func (a *CustomAgent6) constructTreaty() messages.Treaty {
 func (a *CustomAgent6) proposeTreaty(treaty messages.Treaty) {
 	// Proposes treaty to the 10 floor around us
 	for i := -5; i < 6; i++ {
-		// do not propose the treaty to yourself
-		if i != 0 {
+		// Propose treaty only if the trust in that "direction" is >0
+		if (i > 0 && a.trustTeams[a.neighbours.below] > 0) || (i < 0 && a.trustTeams[a.neighbours.above] > 0) {
 			targetFloor := a.Floor() + i
 			proposedTreaty := messages.NewProposalMessage(a.ID(), a.Floor(), targetFloor, treaty)
 			a.SendMessage(proposedTreaty)
