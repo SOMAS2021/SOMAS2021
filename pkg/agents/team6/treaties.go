@@ -193,6 +193,7 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 				}
 
 			case "Narcissist":
+				return a.considerTreatyUsingUtility(t)
 			default:
 				return a.considerTreatyUsingUtility(t)
 			}
@@ -203,8 +204,6 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	} else {
 		return false
 	}
-	return a.considerTreatyUsingUtility(t)
-
 }
 
 // Decides if to accept or reject a treaty using utility
