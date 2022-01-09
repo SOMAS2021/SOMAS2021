@@ -12,20 +12,16 @@ import (
 
 /*
 Openness 	high-> doesn't get effected by new floors, looks forward to new day
-			low-> does get effected by new floors
-Currently implemented by changing attributes on reshuffles
+			low-> does get negatively effected by new floors
 
 Conscientiousness high-> plans ahead, attentive and takes into account messgages
 			low-> no planning, fails to complete assigned tasks
-Not implemented yet
 
 Extraversion high-> very likely to communicate, will share a lot of information
 			low-> does not like to communicate
-Not implemented yet
 
 Agreeableness high-> caring so more likely to go hungry for the betterment of others, trustworthy
 			low-> greedy, manipulative
-Implemented by intialising attributes, not considering health state yet
 
 Neuroticism high-> dramatic mood swings, struggles to recover after weak state
 			low-> stable, relaxed and resilient
@@ -46,9 +42,7 @@ type team7Personalities struct {
 type CurrentBehaviour struct { //determines directly the food taken
 	greediness     int
 	kindness       int // likehood to read and send messages // affacted by openess and extraversion
-	responsiveness int // affected by days on floor, days hungry // changes less frequently than stability
-	stability      int
-	// lower stability -> less logical behaviour -> (ex: no food taken when starving ?)
+	responsiveness int // affected by days on floor, days hungry
 }
 
 type OperationalMemory struct {
@@ -62,11 +56,10 @@ type OperationalMemory struct {
 	seenPlatform      bool
 	prevHP            int
 	foodEaten         food.FoodType
-	daysCritical      int
+	messagesSent      bool
 	recievedReq       bool
-	leaveFood         int
 	takeFood          int
-	// activeTreaties map[uuid.UUID]messages.Treaty
+	leaveFood         int
 }
 
 type CustomAgent7 struct {
@@ -77,11 +70,16 @@ type CustomAgent7 struct {
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
-	openness := rand.Intn(100)
-	conscientiousness := rand.Intn(100)
-	extraversion := rand.Intn(100)
-	agreeableness := rand.Intn(100)
-	neuroticism := rand.Intn(100)
+	// openness := rand.Intn(100)
+	// conscientiousness := rand.Intn(100)
+	// extraversion := rand.Intn(100)
+	// agreeableness := rand.Intn(100)
+	// neuroticism := rand.Intn(100)
+	openness := rand.Intn(60) + 20
+	conscientiousness := rand.Intn(60) + 20
+	extraversion := rand.Intn(60) + 20
+	agreeableness := rand.Intn(60) + 20
+	neuroticism := rand.Intn(60) + 20
 
 	prevFloors := map[int]floorInfo{}
 
@@ -97,7 +95,6 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		behaviour: CurrentBehaviour{
 			greediness:     100 - agreeableness,
 			kindness:       agreeableness,
-			stability:      100 - neuroticism,
 			responsiveness: (agreeableness + openness + extraversion) / 3,
 		},
 		opMem: OperationalMemory{
@@ -111,31 +108,42 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			seenPlatform:      false,
 			prevHP:            100,
 			foodEaten:         0,
-			daysCritical:      0,
+			messagesSent:      false,
 			recievedReq:       false,
-			leaveFood:         0,
 			takeFood:          0,
+			leaveFood:         0,
 		},
 	}, nil
 }
 
 func (a *CustomAgent7) Run() {
 
-	a.Log("Team7Agent1 reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "aggr": a.personality.agreeableness})
+	// a.Log("Team7Agent1 reporting status:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "aggr": a.personality.agreeableness})
 
 	// Operational Variables
-	// UserID := a.ID()
+	UserID := a.ID()
 	currentHP := a.HP()
+	daysCritical := a.DaysAtCritical()
 	healthInfo := a.HealthInfo()
 	currentFloor := a.Floor()
-	// prevFloor := a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1]
 
-	// ------------------ Run() Block A.1: Estimates the food available on the new floor based on past experience ------------------
-
-	//Check if floor has changed
+	// Only occurs on a floor change
 	if len(a.opMem.orderPrevFloors) == 0 || a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1] != currentFloor { //If day 1 or floor change
-		a.opMem.currentDayonFloor = 1          //reset currentDay counter
+
+		a.Log("checking floor change........................................................................................")
+		if a.Age() == 0 {
+			a.Log("Personality Makeup:", infra.Fields{"A": a.personality.agreeableness, "C": a.personality.conscientiousness, "E": a.personality.extraversion, "N": a.personality.neuroticism, "O": a.personality.openness})
+		}
+
+		//Reset Variables on Floor Change
+		a.opMem.currentDayonFloor = 1 // reset currentDay counter
+		a.opMem.recievedReq = false   // reset Requests
+		a.opMem.takeFood = 0
+		a.opMem.leaveFood = 0
+
 		if len(a.opMem.orderPrevFloors) != 0 { //if the floor tracker is not empty
+
+			// ------------------ Run() Block A.1: Estimates the food available on the new floor based on past experience ------------------
 
 			closestFloorAboveCurrent := 0
 			closestFloorBelowCurrent := math.Inf(1)
@@ -189,22 +197,23 @@ func (a *CustomAgent7) Run() {
 
 			// ------------------ Run() Block A.2: Adjusts mood w.r.t. change in floor and the expected food ------------------
 
-			// Update Behaviour
+			// Update Behaviour: Higher in the tower (lower floor number) increases greed/decreases kindess and vice versa
 			if currentFloor < a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1] {
-				//only negatively impacted if openness is low
-				if a.personality.openness <= 50 {
-					a.behaviour.greediness += (currentFloor - a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1])
-
-				}
+				// A higher openess will more significantly reduce greedines and increase kindness
+				a.behaviour.greediness -= int(float64(a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1]/currentFloor) * (float64(a.personality.openness) / 50))
+				a.behaviour.kindness += int(float64(a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1]/currentFloor) * (float64(a.personality.openness) / 50))
 			} else {
-				//if we have moved up our kindness increases
-				a.behaviour.kindness += (a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1] - currentFloor)
+				// A lower openess will more significantly increase greedines and reduce kindness
+				a.behaviour.greediness += int(float64(currentFloor/a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1]) * (float64(100-a.personality.openness) / 50))
+				a.behaviour.kindness -= int(float64(currentFloor/a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1]) * (float64(100-a.personality.openness) / 50))
 			}
-			//greediness is effected by the amount of food expected on this floor as estimated from past experience
-			a.behaviour.greediness -= a.opMem.currentFloorRisk
-			if expectedFood < healthInfo.HPReqCToW { //greediness only begins to be effected once the expected food is below a crticial threshold
-				a.behaviour.greediness += (healthInfo.HPReqCToW - expectedFood)
-				a.opMem.currentFloorRisk = (healthInfo.HPReqCToW - expectedFood)
+
+			// Greediness is affected by the amount of food expected on this floor as estimated from past experience
+			a.behaviour.greediness -= int(float64(a.opMem.currentFloorRisk) * (float64(a.personality.conscientiousness) / 50))
+			foodReqCtoW := int(health.FoodRequired(healthInfo.HPCritical, healthInfo.WeakLevel, healthInfo))
+			if expectedFood < foodReqCtoW { //greediness only begins to be effected once the expected food is below a crticial threshold
+				a.opMem.currentFloorRisk = (foodReqCtoW - expectedFood)
+				a.behaviour.greediness += int(float64(a.opMem.currentFloorRisk) * (float64(a.personality.conscientiousness) / 50))
 			} else {
 				a.opMem.currentFloorRisk = 0
 			}
@@ -224,26 +233,33 @@ func (a *CustomAgent7) Run() {
 		a.Log("No Messages")
 	}
 
-	// Nayans Stuff
+	// Messaging
 
-	msg := messages.NewAskHPMessage(a.ID(), a.Floor(), 1)
-	a.SendMessage(msg)
-	msg = messages.NewAskHPMessage(a.ID(), a.Floor(), -1)
-	a.SendMessage(msg)
+	if currentHP < a.opMem.prevHP {
+		a.opMem.messagesSent = false
+	}
 
-	// // Possible food to take: Food available on platform/Food required to go from ciritcal to weak, critical to healthy
+	if !a.opMem.messagesSent {
+		msg := messages.NewAskHPMessage(UserID, currentFloor, currentFloor+1)
+		a.SendMessage(msg)
+		if currentFloor != 1 {
+			msg = messages.NewAskHPMessage(UserID, currentFloor, currentFloor-1)
+			a.SendMessage(msg)
+		}
 
-	// Influences on Food taking: greediness, kindness, memory map HOW???, ststability [depends on messaging, extraversion???, neuroticism], activeness, morality,
-	// so if your extraverted: less interaction leads to lowered stability/More interaction better stability
-	// higher neuroticism -> fall faster into instability, initialise stability based on neuroticism, stability = 100-neuroticism/ stability bsaed on
+		if a.PlatformOnFloor() {
+			msg2 := messages.NewAskFoodTakenMessage(UserID, currentFloor, currentFloor+1)
+			a.SendMessage(msg2)
+		}
+		if !a.PlatformOnFloor() && a.CurrPlatFood() != -1 && a.opMem.seenPlatform && currentFloor != 1 {
+			msg2 := messages.NewAskFoodTakenMessage(UserID, currentFloor, currentFloor-1)
+			a.SendMessage(msg2)
+		}
+
+		a.opMem.messagesSent = true
+	}
 
 	if a.PlatformOnFloor() && !a.opMem.seenPlatform {
-
-		if currentHP <= healthInfo.HPCritical {
-			a.opMem.daysCritical++
-		} else {
-			a.opMem.daysCritical = 0
-		}
 
 		// ------------------ Run() Block C: Calculates average food available on this floor ------------------
 
@@ -263,11 +279,9 @@ func (a *CustomAgent7) Run() {
 
 		r1 := rand.Intn(11) - 5
 		r2 := rand.Intn(11) - 5
-		r3 := rand.Intn(11) - 5
 
-		a.behaviour.kindness += (a.personality.neuroticism * r1) / 50
-		a.behaviour.greediness += (a.personality.neuroticism * r2) / 50
-		a.behaviour.stability += (a.personality.neuroticism * r3) / 50 //also factor in total_messages*a.personality.extraversion !!!
+		a.behaviour.kindness += int(float64(a.personality.neuroticism*r1) / 50)
+		a.behaviour.greediness += int(float64(a.personality.neuroticism*r2) / 50)
 
 		if a.behaviour.kindness < 0 {
 			a.behaviour.kindness = 0
@@ -281,38 +295,45 @@ func (a *CustomAgent7) Run() {
 			a.behaviour.greediness = 100
 		}
 
-		// State Code
 		treaty := false
-		if false {
-			treaty = true
-		}
 
 		// ------------------ Run() Block D.2: Take food w.r.t. current health, mood, messages and treaties ------------------
 
 		var foodtotake food.FoodType
 
-		healthyHP := 60
+		satisficedHP := 50
+		targetWeakFood := health.FoodRequired(currentHP, healthInfo.WeakLevel, healthInfo)
+		targetSatisficedFood := health.FoodRequired(currentHP, satisficedHP, healthInfo)
+		targetFullFood := health.FoodRequired(currentHP, healthInfo.MaxHP, healthInfo)
+		scalingRatio := float64(targetFullFood-targetSatisficedFood) / float64(targetSatisficedFood-targetWeakFood)
+		//scalingRatio := float64(healthInfo.MaxHP-satisficedHP) / float64(satisficedHP-healthInfo.WeakLevel)
+
+		a.Log("ABCDEFG:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "W": targetWeakFood, "H": targetSatisficedFood, "F": targetFullFood})
 
 		switch {
-		// Highest prioirty case - agent dies if he stays critical for 3 more days // the number 3 may be changed
-		case currentHP <= healthInfo.HPCritical && a.opMem.daysCritical >= (healthInfo.MaxDayCritical-3):
-			targetWeakFood := health.FoodRequired(currentHP, healthInfo.WeakLevel, healthInfo)
-			targetHealthyFood := health.FoodRequired(currentHP, healthyHP, healthInfo)
-			targetFullFood := health.FoodRequired(currentHP, healthInfo.MaxHP, healthInfo)
+		// Highest prioirty case - agent dies if he stays critical for 3 more days
+		case currentHP <= healthInfo.HPCritical && daysCritical >= (healthInfo.MaxDayCritical-3):
 
-			kindnessAdjuster := float64(a.behaviour.kindness/1000) * float64(targetHealthyFood-targetWeakFood)
-			greedinessAdjuster := float64(a.behaviour.greediness/100) * float64(targetFullFood-targetHealthyFood)
-			foodtotake = targetHealthyFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
+			kindnessAdjuster := (float64(a.behaviour.kindness) / 1000) * float64(targetSatisficedFood-targetWeakFood)
+			greedinessAdjuster := (float64(a.behaviour.greediness) / 100) * float64(targetFullFood-targetSatisficedFood) / scalingRatio
+			foodtotake = targetSatisficedFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
 
 		// Fulfilling message requests are given high priority
 		case a.opMem.recievedReq:
-			foodtotake = a.CurrPlatFood() - food.FoodType(a.opMem.leaveFood)
+			foodtotake = food.FoodType(a.opMem.takeFood)
+			// Fulfilling treaties is given high priority
 
-		// Fulfilling treaties is given high priority
 		case treaty:
+			// case len(a.ActiveTreaties()) != 0:
 			for _, t_active := range a.ActiveTreaties() {
 
-				if t_active.Request() == messages.LeaveAmountFood {
+				if a.PlatformOnFloor() && t_active.Request() != messages.Inform {
+
+					// if t_active.Request() == messages.LeaveAmountFood {
+					// 	amount := t_active.RequestValue()
+					// } else {
+					// 	amount := food.FoodType(float64(t_active.RequestValue() / 100))
+					// }
 					// case t_active.condition
 					switch t_active.Condition() {
 					// check HP condition
@@ -396,119 +417,114 @@ func (a *CustomAgent7) Run() {
 							}
 						}
 					}
-				} else if t_active.Request() == messages.LeavePercentFood {
-					amount := food.FoodType(float64(t_active.RequestValue() / 100))
-					switch t_active.Condition() {
-					// check HP condition
-					case messages.HP:
-						switch t_active.ConditionOp() {
-						case messages.GT:
-							if a.HP() > t_active.ConditionValue() {
-								if foodtotake <= amount {
-									foodtotake = amount + 1
-								}
-							}
-						case messages.GE:
-							if a.HP() >= t_active.ConditionValue() {
-								if foodtotake < amount {
-									foodtotake = amount
-								}
-							}
-						case messages.EQ:
-							if a.HP() == t_active.ConditionValue() {
-								if foodtotake != amount {
-									foodtotake = amount
-								}
-							}
-						}
-					// check Floor Condition
-					case messages.Floor:
-						switch t_active.ConditionOp() {
-						case messages.LT:
-							if a.Floor() < t_active.ConditionValue() {
-								if foodtotake >= amount {
-									foodtotake = amount - 1
-								}
-							}
-						case messages.LE:
-							if a.Floor() <= t_active.ConditionValue() {
-								if foodtotake > amount {
-									foodtotake = amount
-								}
-							}
-						case messages.EQ:
-							if a.Floor() == t_active.ConditionValue() {
-								if foodtotake != amount {
-									foodtotake = amount
-								}
-							}
-						}
-					// check Available food condition
-					case messages.AvailableFood:
-						if a.PlatformOnFloor() {
-							switch t_active.ConditionOp() {
-							case messages.LT:
-								if int(a.CurrPlatFood()) < t_active.ConditionValue() {
-									if foodtotake >= amount {
-										foodtotake = amount - 1
-									}
-								}
-							case messages.LE:
-								if int(a.CurrPlatFood()) <= t_active.ConditionValue() {
-									if foodtotake > amount {
-										foodtotake = amount
-									}
-								}
-							case messages.GT:
-								if int(a.CurrPlatFood()) > t_active.ConditionValue() {
-									if foodtotake <= amount {
-										foodtotake = amount + 1
-									}
-								}
-							case messages.GE:
-								if int(a.CurrPlatFood()) >= t_active.ConditionValue() {
-									if foodtotake < amount {
-										foodtotake = amount
-									}
-								}
-							case messages.EQ:
-								if int(a.CurrPlatFood()) == t_active.ConditionValue() {
-									if foodtotake != amount {
-										foodtotake = amount
-									}
-								}
-							}
-						}
-					}
 				}
 			}
+			// else if t_active.Request() == messages.LeavePercentFood {
+			// 	amount := food.FoodType(float64(t_active.RequestValue() / 100))
+			// 	switch t_active.Condition() {
+			// 	// check HP condition
+			// 	case messages.HP:
+			// 		switch t_active.ConditionOp() {
+			// 		case messages.GT:
+			// 			if a.HP() > t_active.ConditionValue() {
+			// 				if foodtotake <= amount {
+			// 					foodtotake = amount + 1
+			// 				}
+			// 			}
+			// 		case messages.GE:
+			// 			if a.HP() >= t_active.ConditionValue() {
+			// 				if foodtotake < amount {
+			// 					foodtotake = amount
+			// 				}
+			// 			}
+			// 		case messages.EQ:
+			// 			if a.HP() == t_active.ConditionValue() {
+			// 				if foodtotake != amount {
+			// 					foodtotake = amount
+			// 				}
+			// 			}
+			// 		}
+			// 	// check Floor Condition
+			// 	case messages.Floor:
+			// 		switch t_active.ConditionOp() {
+			// 		case messages.LT:
+			// 			if a.Floor() < t_active.ConditionValue() {
+			// 				if foodtotake >= amount {
+			// 					foodtotake = amount - 1
+			// 				}
+			// 			}
+			// 		case messages.LE:
+			// 			if a.Floor() <= t_active.ConditionValue() {
+			// 				if foodtotake > amount {
+			// 					foodtotake = amount
+			// 				}
+			// 			}
+			// 		case messages.EQ:
+			// 			if a.Floor() == t_active.ConditionValue() {
+			// 				if foodtotake != amount {
+			// 					foodtotake = amount
+			// 				}
+			// 			}
+			// 		}
+			// 	// check Available food condition
+			// 	case messages.AvailableFood:
+			// 		if a.PlatformOnFloor() {
+			// 			switch t_active.ConditionOp() {
+			// 			case messages.LT:
+			// 				if int(a.CurrPlatFood()) < t_active.ConditionValue() {
+			// 					if foodtotake >= amount {
+			// 						foodtotake = amount - 1
+			// 					}
+			// 				}
+			// 			case messages.LE:
+			// 				if int(a.CurrPlatFood()) <= t_active.ConditionValue() {
+			// 					if foodtotake > amount {
+			// 						foodtotake = amount
+			// 					}
+			// 				}
+			// 			case messages.GT:
+			// 				if int(a.CurrPlatFood()) > t_active.ConditionValue() {
+			// 					if foodtotake <= amount {
+			// 						foodtotake = amount + 1
+			// 					}
+			// 				}
+			// 			case messages.GE:
+			// 				if int(a.CurrPlatFood()) >= t_active.ConditionValue() {
+			// 					if foodtotake < amount {
+			// 						foodtotake = amount
+			// 					}
+			// 				}
+			// 			case messages.EQ:
+			// 				if int(a.CurrPlatFood()) == t_active.ConditionValue() {
+			// 					if foodtotake != amount {
+			// 						foodtotake = amount
+			// 					}
+			// 				}
+			// 			}
+			// 		}
+			// 	}
 
 		// In this case the agent can stay critical for another 4 or more days. Hence the fulfillment of treaties and requests is prioritized over this
 		case currentHP <= healthInfo.HPCritical:
-			targetWeakFood := health.FoodRequired(currentHP, healthInfo.WeakLevel, healthInfo)
-			targetHealthyFood := health.FoodRequired(currentHP, healthyHP, healthInfo)
-			targetFullFood := health.FoodRequired(currentHP, healthInfo.MaxHP, healthInfo)
-
-			kindnessAdjuster := float64(a.behaviour.kindness/1000) * float64(targetHealthyFood-targetWeakFood)
-			greedinessAdjuster := float64(a.behaviour.greediness/100) * float64(targetFullFood-targetHealthyFood)
-			foodtotake = targetHealthyFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
+			kindnessAdjuster := (float64(a.behaviour.kindness) / 1000) * float64(targetSatisficedFood-targetWeakFood)
+			greedinessAdjuster := (float64(a.behaviour.greediness) / 100) * float64(targetFullFood-targetSatisficedFood) / scalingRatio
+			foodtotake = targetSatisficedFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
 
 		// Lowest priority case - it is the standard case, in the absence of messages and treaties, and the agent is not critical
 		case healthInfo.HPCritical <= currentHP && currentHP <= healthInfo.MaxHP:
-			targetWeakFood := health.FoodRequired(currentHP, healthInfo.WeakLevel, healthInfo)
-			targetHealthyFood := health.FoodRequired(currentHP, healthyHP, healthInfo)
-			targetFullFood := health.FoodRequired(currentHP, healthInfo.MaxHP, healthInfo)
-
-			kindnessAdjuster := float64(a.behaviour.kindness/100) * float64(targetHealthyFood-targetWeakFood)
-			greedinessAdjuster := float64(a.behaviour.greediness/100) * float64(targetFullFood-targetHealthyFood)
-
-			foodtotake = targetHealthyFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
+			kindnessAdjuster := (float64(a.behaviour.kindness) / 100) * float64(targetSatisficedFood-targetWeakFood)
+			greedinessAdjuster := (float64(a.behaviour.greediness) / 100) * float64(targetFullFood-targetSatisficedFood) / scalingRatio
+			foodtotake = targetSatisficedFood - food.FoodType(kindnessAdjuster) + food.FoodType(greedinessAdjuster)
 		default:
 			foodtotake = food.FoodType(0)
 		}
 
-		// Eat Food and Update Statuses
+		// Bound foodtotake
+		if foodtotake > health.FoodRequired(currentHP, healthInfo.MaxHP, healthInfo) {
+			foodtotake = health.FoodRequired(currentHP, healthInfo.MaxHP, healthInfo)
+		}
 
+		// Eat Food and Update Statuses
 		Eaten, err := a.TakeFood(foodtotake)
 
 		if err != nil {
@@ -519,15 +535,15 @@ func (a *CustomAgent7) Run() {
 			default:
 			}
 		}
+
 		a.opMem.foodEaten = Eaten
 		if a.opMem.foodEaten > 0 {
+			a.behaviour.greediness -= int(0.5 * float64(a.opMem.daysHungry*a.opMem.daysHungry))
 			a.opMem.daysHungry = 0
 		} else {
+			a.behaviour.greediness -= int(0.3 * float64(a.opMem.daysHungry*a.opMem.daysHungry))
 			a.opMem.daysHungry++
-		}
-
-		if currentHP > healthInfo.HPCritical {
-			a.opMem.daysCritical = 0
+			a.behaviour.greediness += int(0.3 * float64(a.opMem.daysHungry*a.opMem.daysHungry))
 		}
 
 		a.Log("Team 7 has seen the platform:", infra.Fields{"foodEaten": a.opMem.foodEaten, "health": a.HP(), "daysHungry": a.opMem.daysHungry})
@@ -535,9 +551,11 @@ func (a *CustomAgent7) Run() {
 	}
 
 	if !a.PlatformOnFloor() && a.opMem.seenPlatform {
-		//Get ready for new day
+		// reset variables Daily / prep for new day
 		a.opMem.seenPlatform = false
 		a.opMem.prevHP = a.HP()
+		a.opMem.foodEaten = 0
+		a.opMem.recievedReq = false
 	}
 
 	//End of Run()
@@ -548,19 +566,19 @@ func (a *CustomAgent7) Run() {
 // Handle Asks
 func (a *CustomAgent7) HandleAskHP(msg messages.AskHPMessage) {
 	a.Log("Recieved askHP message from ", infra.Fields{"floor": msg.SenderFloor()})
-	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor()-a.Floor(), a.HP())
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
 	a.SendMessage(reply)
 }
 
 func (a *CustomAgent7) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 	a.Log("Recieved askFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
-	reply := msg.Reply(a.ID(), msg.SenderFloor()-a.Floor(), a.Floor(), int(a.opMem.foodEaten))
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.opMem.foodEaten))
 	a.SendMessage(reply)
 }
 
 func (a *CustomAgent7) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
 	a.Log("Recieved askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
-	reply := msg.Reply(a.ID(), msg.SenderFloor()-a.Floor(), a.Floor(), int(health.FoodRequired(a.HP(), 60, a.HealthInfo())))
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(health.FoodRequired(a.HP(), 60, a.HealthInfo())))
 	a.SendMessage(reply)
 }
 
@@ -581,16 +599,25 @@ func (a *CustomAgent7) HandleStateIntendedFoodTaken(msg messages.StateIntendedFo
 }
 
 // Requests
-func (a *CustomAgent7) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
-	reply := msg.Reply(a.ID(), msg.SenderFloor()-a.Floor(), a.Floor(), true)
-	a.SendMessage(reply)
-	a.opMem.leaveFood = int(msg.Request())
-	a.Log("Recieved requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
-}
-
 func (a *CustomAgent7) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
 	a.Log("Recieved requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
-	reply := msg.Reply(a.ID(), msg.SenderFloor()-a.Floor(), a.Floor(), true)
+	reqFood := msg.Request()
+	if reqFood > int(health.FoodRequired(a.HP(), a.HealthInfo().MaxHP, a.HealthInfo())) || a.DaysAtCritical() >= (a.HealthInfo().MaxDayCritical-3) {
+		// a.opMem.recievedReq = false
+		reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
+		a.SendMessage(reply)
+	} else {
+		a.opMem.recievedReq = true
+		a.opMem.takeFood = reqFood
+		reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
+		a.SendMessage(reply)
+	}
+}
+
+func (a *CustomAgent7) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
+	a.Log("Recieved requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
+	// a.opMem.recievedReq = false
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
 	a.SendMessage(reply)
 }
 

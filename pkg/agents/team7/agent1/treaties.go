@@ -40,7 +40,7 @@ func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		return
 	}
 
-	if treaty.Condition() == messages.Floor && treaty.ConditionValue() != 1 && treaty.Duration() >= (a.HealthInfo().MaxDayCritical - 2) {
+	if treaty.Condition() == messages.Floor && treaty.ConditionValue() != 1 && treaty.Duration() >= (a.HealthInfo().MaxDayCritical-2) {
 		a.RejectTreaty(msg)
 		return
 	}
@@ -72,7 +72,7 @@ func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		return
 	}
 
-	if (a.HP() <= a.HealthInfo().HPCritical && a.opMem.daysCritical >= a.HealthInfo().MaxDayCritical - 3) {
+	if a.HP() <= a.HealthInfo().HPCritical && a.DaysAtCritical() >= a.HealthInfo().MaxDayCritical-3 {
 		a.RejectTreaty(msg)
 		return
 	}
