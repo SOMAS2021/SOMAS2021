@@ -19,6 +19,8 @@ type StateLog struct {
 	utilityLogger *log.Logger
 	// Death state
 	deathCount int
+	// Food state
+	prevFood int
 	// Custom log
 	CustomLog string
 }
@@ -68,6 +70,7 @@ func NewLogState(folderpath string, saveMainLog bool, customLog string) *StateLo
 		storyLogger:   storyLogger,
 		utilityLogger: utilityLogger,
 		deathCount:    0,
+		prevFood:      0,
 		CustomLog:     customLog,
 	}
 }
@@ -98,13 +101,16 @@ func (ls *StateLog) LogUtility(simState *day.DayInfo, agentType agent.AgentType,
 }
 
 func (ls *StateLog) LogPlatFoodState(simState *day.DayInfo, food int) {
-	ls.foodLogger.
-		WithFields(
-			log.Fields{
-				"day":  simState.CurrDay,
-				"tick": simState.CurrTick,
-				"food": food,
-			}).Info()
+	if ls.prevFood != food {
+		ls.foodLogger.
+			WithFields(
+				log.Fields{
+					"day":  simState.CurrDay,
+					"tick": simState.CurrTick,
+					"food": food,
+				}).Info()
+		ls.prevFood = food
+	}
 }
 
 // Story logging
