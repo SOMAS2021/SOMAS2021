@@ -22,7 +22,7 @@ func calculateUtility(x, z float64, socialMotive string) float64 {
 
 	var result float64
 
-	if socialMotive == "Altruist" || socialMotive == "Nacissist" {
+	if socialMotive == "Altruist" || socialMotive == "Narcissist" {
 		// Don't scale depending on desired food
 		result = params.g*math.Pow(x, 1/params.r) - params.c*x
 	} else {
