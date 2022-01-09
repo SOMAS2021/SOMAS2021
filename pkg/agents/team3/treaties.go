@@ -40,7 +40,7 @@ func (a *CustomAgent3) treatyPendingResponse() bool {
 }
 
 func (a *CustomAgent3) proposeTreatiesImmoral(floor int) { //troll treaties (then add some more b)
-	tr := messages.NewTreaty(messages.Floor, a.Floor()+1, messages.LeavePercentFood, 99, messages.GT, messages.GT, a.knowledge.reshuffleEst/2, a.ID())
+	tr := messages.NewTreaty(messages.Floor, a.Floor()-1, messages.LeavePercentFood, 99, messages.GT, messages.GT, a.knowledge.reshuffleEst/2, a.ID())
 	a.knowledge.treatyProposed = *tr //remember the treaty we proposed
 	msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), floor, *tr)
 	a.SendMessage(msg)
