@@ -64,7 +64,13 @@ func (a *CustomAgent5) updateAimHP() {
 
 func (a *CustomAgent5) updateSelfishness() {
 	// Tit for tat strategy, agent will conform to the mean behaviour of their social network
-	a.selfishness = 10 - a.calculateAverageFavour()
+	// a.selfishness = 10 - a.calculateAverageFavour()
+	if a.calculateAverageFavour() > 10-a.selfishness {
+		a.selfishness = a.restrictToRange(0, 10, a.selfishness-1)
+	} else if a.calculateAverageFavour() < 10-a.selfishness {
+		a.selfishness = a.restrictToRange(0, 10, a.selfishness+1)
+
+	}
 	// Make agent less selfish if going through tough times, lowers their expectations and makes them more sympathetic of others struggles
 	a.selfishness = a.restrictToRange(0, 10, a.selfishness-a.daysSinceLastMeal)
 }

@@ -71,8 +71,8 @@ func (a *CustomAgent5) updateFavour() {
 			if judgement > 0.075 {
 				a.addToSocialFavour(id, 1)
 			}
-			if judgement < -0.1 {
-				a.addToSocialFavour(id, int(math.Max(float64(judgement)/20, -3)))
+			if judgement < -2 {
+				a.addToSocialFavour(id, int(math.Max(float64(judgement)/2, -3)))
 			}
 		}
 		if mem.daysSinceLastSeen == 6 {
