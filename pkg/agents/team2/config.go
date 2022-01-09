@@ -1,8 +1,6 @@
 package team2
 
 import (
-	"fmt"
-
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -15,7 +13,10 @@ import (
 		utilities.
     Observation:
         Observation               Min                     Max
-        TODO
+        hp
+		foodOnPlatform
+		dayAtCritical
+		neighbourHP
 
 		Other observations should come from communication with other agents
         savedAgents               0                       number of agent per florr
@@ -59,6 +60,8 @@ type CustomAgent2 struct {
 	PreviousdayAtCritical int
 	lastAge               int
 	neiboughHP            int
+	lastAction            int
+	lastFoodTaken         food.FoodType
 }
 
 func InitTable(numStates int, numActions int) [][]float64 {
@@ -75,10 +78,10 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 
 	stateSpace := InitStateSpace(10, 10, daysAtCriticalDim, 11)
 	actionSpace := InitActionSpace(actionDim)
-	policies := InitPolicies(10*10*daysAtCriticalDim, actionDim)
-	averagePolicies := InitTable(10*10*daysAtCriticalDim, actionDim)
-	rTable := InitTable(10*10*daysAtCriticalDim, actionDim)
-	qTable := InitTable(10*10*daysAtCriticalDim, actionDim)
+	policies := InitPolicies(10*10*daysAtCriticalDim*11, actionDim)
+	averagePolicies := InitTable(10*10*daysAtCriticalDim*11, actionDim)
+	rTable := InitTable(10*10*daysAtCriticalDim*11, actionDim)
+	qTable := InitTable(10*10*daysAtCriticalDim*11, actionDim)
 
 	return &CustomAgent2{
 		Base:                  baseAgent,
@@ -88,22 +91,22 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		averagePolicies:       averagePolicies,
 		rTable:                rTable,
 		qTable:                qTable,
-		visitCounter:          make([]int, 10*10*daysAtCriticalDim),
+		visitCounter:          make([]int, 10*10*daysAtCriticalDim*11),
 		daysAtCriticalCounter: 0,
 		PreviousdayAtCritical: 0,
 		lastAge:               0,
 		neiboughHP:            -1,
+		lastAction:            0,
+		lastFoodTaken:         0,
 	}, nil
 }
 
 func (a *CustomAgent2) Run() {
 	//Communication & Observation
 	//communicate before platform arrives to my floor
-
-	/*
-		msg := *messages.NewBaseMessage(a.Floor())
-		a.SendMessage(1, msg)
-	*/
+	//ask HP of agent below me
+	a.AskNeighbourHP()
+	a.CheckNeighbourHP()
 
 	//Perform the following only once per day when platform arrives
 	if a.Day() == 500 {
@@ -116,12 +119,9 @@ func (a *CustomAgent2) Run() {
 		oldHP := a.HP()
 		a.Log("Agent team2 before action:", infra.Fields{"floor": a.Floor(), "hp": oldHP, "food": a.CurrPlatFood(), "state": oldState})
 		action := a.SelectAction()
-		fmt.Printf("************************\n")
-		fmt.Printf("It's day %d!\n", a.Age())
-		fmt.Printf("Food on Platform: %d\n", a.CurrPlatFood())
-		fmt.Printf("HP before action: %d\n", oldHP)
 
 		foodTaken, err := a.TakeFood(food.FoodType(a.actionSpace[action])) //perform selected action
+		a.lastFoodTaken = foodTaken
 		if err != nil {
 			//if there's error, cease updating tables
 			return
@@ -135,12 +135,9 @@ func (a *CustomAgent2) Run() {
 				a.Log("Agent team2 at critical state", infra.Fields{"daysAtCriticalCounter": a.daysAtCriticalCounter, "floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
 			}
 		}
-		fmt.Printf("Intended action: %d\n", action*5)
-		fmt.Printf("Actual eaten food: %d\n", foodTaken)
-		fmt.Printf("HP after action: %d\n", a.HP())
-		fmt.Printf("************************\n")
+		a.ReplyAllAskMsg()
 		hpInc := a.HP() - oldHP
-		a.updateRTable(oldHP, hpInc, int(foodTaken), oldState, action)
+		a.updateRTable(oldHP, hpInc, oldState, action)
 		a.updateQTable(oldState, action)
 		a.updatePolicies(oldState, action)
 		a.lastAge = a.Age()
@@ -166,13 +163,13 @@ func (a *CustomAgent2) HandleAskHP(msg messages.AskHPMessage) {
 }
 
 func (a *CustomAgent2) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
-	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), 10)
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.lastFoodTaken))
 	a.SendMessage(reply)
 	a.Log("Team2 replying askFoodTaken message", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 }
 
 func (a *CustomAgent2) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
-	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), 11)
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), (a.lastAction+1)*5)
 	a.SendMessage(reply)
 	a.Log("Team2 replying askIntendedFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
 }

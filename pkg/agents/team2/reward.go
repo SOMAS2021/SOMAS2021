@@ -6,10 +6,11 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
 )
 
-func calcReward(oldHP int, hpInc int, foodIntended int, foodTaken int, DaysAtCritical int, healthInfo *health.HealthInfo) float64 {
+func calcReward(oldHP int, hpInc int, foodIntended int, foodTaken int, DaysAtCritical int, neighbourHP int, healthInfo *health.HealthInfo) float64 {
 	surviveBonus := 0.0
 	eatingBonus := 0.0
 	wastingBonus := 0.0
+	savingBonus := 0.0
 
 	//we encourage agent to survive
 	if DaysAtCritical == 0 {
@@ -31,11 +32,17 @@ func calcReward(oldHP int, hpInc int, foodIntended int, foodTaken int, DaysAtCri
 	//We penalise for wasting food
 	wastingBonus -= 0.2 * float64(ExpectedHPInc(foodTaken, healthInfo)-hpInc)
 
+	//We reward agent when neighbour is not in critical state
+	if neighbourHP == healthInfo.HPCritical {
+		savingBonus -= 3.0
+	} else {
+		savingBonus += 1.0
+	}
 	return surviveBonus + eatingBonus + wastingBonus
 }
 
-func (a *CustomAgent2) updateRTable(oldHP int, hpInc int, foodTaken int, state int, action int) {
-	reward := calcReward(oldHP, hpInc, action*5, foodTaken, a.DaysAtCritical(), a.HealthInfo())
+func (a *CustomAgent2) updateRTable(oldHP int, hpInc int, state int, action int) {
+	reward := calcReward(oldHP, hpInc, action*5, int(a.lastFoodTaken), a.DaysAtCritical(), a.neiboughHP, a.HealthInfo())
 	a.rTable[state][action] = reward
 }
 
