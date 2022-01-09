@@ -119,6 +119,8 @@ func (a *CustomAgent3) changeNewFloor() {
 		beenInHigher := false
 		beenInLower := false
 		a.reshuffleEstimator()
+		a.knowledge.hpAbove = -1
+		a.knowledge.hpBelow = -1
 
 		for _, floor := range a.knowledge.floors {
 			if floor > currentFloor {
