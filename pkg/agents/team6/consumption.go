@@ -50,7 +50,7 @@ func (a *CustomAgent6) desiredFoodIntake() food.FoodType {
 			return food.FoodType(0)
 		case currentHP >= levels.critLevel:
 			if a.DaysAtCritical() == a.foodTakeDay {
-				return food.FoodType(healthInfo.HPReqCToW)
+				return food.FoodType(2) // 2 is the amount of Food neeeded to go from Critical to WeakLevel
 			}
 			return food.FoodType(0)
 		default:
