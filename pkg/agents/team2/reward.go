@@ -1,7 +1,6 @@
 package team2
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
@@ -45,10 +44,6 @@ func calcReward(oldHP int, hpInc int, foodIntended int, foodTaken int, DaysAtCri
 func (a *CustomAgent2) updateRTable(oldHP int, hpInc int, state int, action int) {
 	reward := calcReward(oldHP, hpInc, action*5, int(a.lastFoodTaken), a.DaysAtCritical(), a.neiboughHP, a.HealthInfo())
 	a.rTable[state][action] = reward
-	a.cumulativeRewards = a.cumulativeRewards + reward
-	target := []float64{a.cumulativeRewards}
-	fmt.Println(target)
-	a.writeToCSV(target, "cumulative_rewards", 1)
 }
 
 func ExpectedHPInc(foodTaken int, healthInfo *health.HealthInfo) int {

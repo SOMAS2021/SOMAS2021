@@ -1,6 +1,5 @@
 package main
 
-//fdaf
 import (
 	"bufio"
 	"context"

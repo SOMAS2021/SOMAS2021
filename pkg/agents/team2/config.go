@@ -62,7 +62,6 @@ type CustomAgent2 struct {
 	neiboughHP            int
 	lastAction            int
 	lastFoodTaken         food.FoodType
-	cumulativeRewards     float64
 }
 
 func InitTable(numStates int, numActions int) [][]float64 {
@@ -120,10 +119,6 @@ func (a *CustomAgent2) Run() {
 		oldHP := a.HP()
 		a.Log("Agent team2 before action:", infra.Fields{"floor": a.Floor(), "hp": oldHP, "food": a.CurrPlatFood(), "state": oldState})
 		action := a.SelectAction()
-		//fmt.Printf("************************\n")
-		//fmt.Printf("It's day %d!\n", a.Age())
-		//fmt.Printf("Food on Platform: %d\n", a.CurrPlatFood())
-		//fmt.Printf("HP before action: %d\n", oldHP)
 
 		foodTaken, err := a.TakeFood(food.FoodType(a.actionSpace[action])) //perform selected action
 		a.lastFoodTaken = foodTaken
@@ -141,17 +136,6 @@ func (a *CustomAgent2) Run() {
 			}
 		}
 		a.ReplyAllAskMsg()
-		//write hp vs days
-		target := []float64{float64(a.HP())}
-		a.writeToCSV(target, "HP_by_days", 1)
-		//write foodtaken vs hp
-		target = []float64{float64(foodTaken), float64(a.HP())}
-		a.writeToCSV(target, "foodtaken_vs_hp", 2)
-
-		//fmt.Printf("Intended action: %d\n", action*5)
-		//fmt.Printf("Actual eaten food: %d\n", foodTaken)
-		//fmt.Printf("HP after action: %d\n", a.HP())
-		//fmt.Printf("************************\n")
 		hpInc := a.HP() - oldHP
 		a.updateRTable(oldHP, hpInc, oldState, action)
 		a.updateQTable(oldState, action)
