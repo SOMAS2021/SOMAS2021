@@ -26,7 +26,7 @@ func (a *CustomAgent6) RequestLeaveFood() {
 		if currentHP >= levels.weakLevel {
 			reqAmount = -1
 		} else {
-			reqAmount = int(FoodRequired(currentHP, a.HealthInfo().HPCritical+a.HealthInfo().HPReqCToW, a.HealthInfo()))
+			reqAmount = 2 // to is what is needed to go from the critical state to the weak level
 		}
 
 	case "Selfish":
@@ -158,7 +158,50 @@ func (a *CustomAgent6) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 }
 
 func (a *CustomAgent6) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
-	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.intendedFoodIntake()))
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.lastFoodTaken))
 	a.SendMessage(reply)
 	a.Log("I recieved an askIntendedFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
+}
+
+func (a *CustomAgent6) HandlePropagate(msg messages.ProposeTreatyMessage) {
+	// The Narcissist does not propagate treaties
+	if a.currBehaviour.String() != "Narcissist" {
+		treatyToPropagate := messages.NewProposalMessage(msg.SenderID(), msg.SenderFloor(), msg.TargetFloor(), msg.Treaty())
+		a.SendMessage(treatyToPropagate)
+		a.Log("I propogated a treaty")
+	}
+}
+
+func (a *CustomAgent6) HandleTreatyResponse(msg messages.TreatyResponseMessage) {
+	if msg.Response() {
+		treaty := a.proposedTreaties[msg.TreatyID()]
+		a.AddTreaty(treaty)
+	}
+	delete(a.proposedTreaties, msg.TreatyID())
+}
+
+func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
+	treaty := msg.Treaty()
+
+	// add trust
+
+	// }
+	// check if we benefit from a treaty
+	if a.considerTreaty(&treaty) {
+		// Propagate only if treaty doesn't already exist (avoids infinite loops)
+		if _, exists := a.ActiveTreaties()[msg.TreatyID()]; !exists {
+			a.ProposeTreaty(treaty)
+		}
+		treaty.SignTreaty()
+		a.AddTreaty(treaty)
+
+		// reply with acceptance message
+		reply := messages.NewTreatyResponseMessage(a.ID(), a.Floor(), msg.SenderFloor(), true, treaty.ID(), treaty.ProposerID())
+		a.SendMessage(reply)
+		a.Log("I accepted a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.String()})
+
+	} else {
+		a.Log("I rejected a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.String()})
+	}
+
 }

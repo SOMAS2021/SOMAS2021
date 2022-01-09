@@ -1,9 +1,5 @@
 package team6
 
-import (
-	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
-)
-
 func (a *CustomAgent6) addToMemory() {
 
 	if a.PlatformOnFloor() && a.platOnFloorCtr == 0 {
@@ -15,10 +11,10 @@ func (a *CustomAgent6) addToMemory() {
 		a.longTermMemory = append(a.longTermMemory, currPlatFood)
 		a.shortTermMemory = append(a.shortTermMemory, currPlatFood)
 
-		a.Log("Team 6 age:", infra.Fields{"Age": a.Age()})
-		a.Log("Team 6 food available:", infra.Fields{"CurrPlatFood": a.CurrPlatFood()})
-		a.Log("Team 6 long term memory:", infra.Fields{"Lmemory": a.longTermMemory})
-		a.Log("Team 6 short term memory:", infra.Fields{"Smemory": a.shortTermMemory})
+		// a.Log("Team 6 age:", infra.Fields{"Age": a.Age()})
+		// a.Log("Team 6 food available:", infra.Fields{"CurrPlatFood": a.CurrPlatFood()})
+		// a.Log("Team 6 long term memory:", infra.Fields{"Lmemory": a.longTermMemory})
+		// a.Log("Team 6 short term memory:", infra.Fields{"Smemory": a.shortTermMemory})
 
 		a.platOnFloorCtr++
 	} else if !a.PlatformOnFloor() {
@@ -39,10 +35,10 @@ func (a *CustomAgent6) resetShortTermMemory() {
 }
 
 func (a *CustomAgent6) updateReassignmentPeriodGuess() {
-	a.Log("Team 6 previous floor:", infra.Fields{"prevFloor": a.prevFloor})
-	a.Log("Team 6 current floor:", infra.Fields{"currFloor": a.Floor()})
+	// a.Log("Team 6 previous floor:", infra.Fields{"prevFloor": a.prevFloor})
+	// a.Log("Team 6 current floor:", infra.Fields{"currFloor": a.Floor()})
 	a.numReassigned++
 	a.reassignPeriodGuess = float64(a.Age()) / float64(a.numReassigned)
-	a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.numReassigned})
-	a.Log("Team 6 reassignment period guess:", infra.Fields{"guessReassign": a.reassignPeriodGuess})
+	// a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.numReassigned})
+	// a.Log("Team 6 reassignment period guess:", infra.Fields{"guessReassign": a.reassignPeriodGuess})
 }

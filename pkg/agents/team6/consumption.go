@@ -78,68 +78,44 @@ func FoodRequired(currentHP int, goalHP int, healthInfo *health.HealthInfo) food
 	return food.FoodType(healthInfo.Tau * math.Log(healthInfo.Width/denom))
 }
 
-func (a *CustomAgent6) foodRange() (int, int) {
-	mini := 0           //initial minimum value
-	maxi := math.MaxInt //maximum value to indicate no maximum
+func (a *CustomAgent6) maxAllowedFood() food.FoodType {
+	max := a.CurrPlatFood() //maximum value to indicate no maximum
+
+	// Iterate through ActiveTreaties
 	for _, treaty := range a.ActiveTreaties() {
-		switch treaty.RequestOp() {
-		case 1:
-			if treaty.RequestValue() > mini || treaty.RequestValue() == mini {
-				mini = treaty.RequestValue() + 1 //If Greater than, then the max value is one larger
+		// convert LeaveFoodAmount and LeavePercentFood to an equivalent takeFood value
+		if a.conditionApplies(&treaty) {
+
+			takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue()) - 1 // -1 to make sure GT is fulfilled
+
+			if takeFoodAmount <= max {
+				max = takeFoodAmount
 			}
-		case 2:
-			if treaty.RequestValue() > mini {
-				mini = treaty.RequestValue() //If Greater or Equal, then the max value is itself
-			}
-		case 3:
-			eqVal := treaty.RequestValue() //if Equal then find the value as there can only be one equal operator unless the values in both treaties are the same
-			mini, maxi = eqVal, eqVal
-		case 4:
-			if treaty.RequestValue() < maxi || maxi == 0 {
-				maxi = treaty.RequestValue() //If Less than or Equal, then the max value is itself
-			}
-		case 5:
-			if treaty.RequestValue() < maxi || maxi == 0 {
-				maxi = treaty.RequestValue() - 1 //If Less than, then the max value is one smaller
-			}
-		default:
-			mini, maxi = -1, -1 //unknown op code
 		}
 
 	}
-	return mini, maxi
-}
 
-func (a *CustomAgent6) treatyValid(treaty messages.Treaty) bool {
-
-	if len(a.ActiveTreaties()) == 0 {
-		return true
+	// Check the RequestLeaveFood message
+	if a.reqLeaveFoodAmount != -1 {
+		takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), messages.LeaveAmountFood, a.reqLeaveFoodAmount) - 1
+		if takeFoodAmount <= max {
+			max = takeFoodAmount
+		}
 	}
 
-	chkTrtyVal := treaty.RequestValue()
-	mini, maxi := a.foodRange()
-
-	if chkTrtyVal >= mini && chkTrtyVal <= maxi {
-		return true
-	}
-	return false
-
+	return max
 }
 
 func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 
-	//if a.tower
-	//foodOnPlatform := foodOnPlatform
-	// else
-	//foodOnPlatform = lastFoodOnPlatform
+	desiredFoodIntake := a.desiredFoodIntake()
+	maxAllowedFood := a.maxAllowedFood()
 
-	intendedFoodIntake := a.desiredFoodIntake()
-	if a.reqLeaveFoodAmount != -1 {
-		intendedFoodIntake = food.FoodType(math.Min(float64(a.CurrPlatFood())-float64(a.reqLeaveFoodAmount), float64(intendedFoodIntake)))
-
-		//intendedFoodIntake = food.FoodType(a.reqLeaveFoodAmount) // to correct
+	if maxAllowedFood >= desiredFoodIntake {
+		return desiredFoodIntake
+	} else {
+		return maxAllowedFood
 	}
-	return intendedFoodIntake
 }
 
 func (a *CustomAgent6) updateAverageIntake(foodTaken food.FoodType) {

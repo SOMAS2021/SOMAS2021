@@ -2,7 +2,6 @@ package team6
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
@@ -77,10 +76,16 @@ type CustomAgent6 struct {
 	platOnFloorCtr int
 	// Keeps track of previous floor to see if agent has been reassigned
 	prevFloor int
+	// Ticks counter
+	countTick int
+	// holding proposed treaty not accepted yet
+	proposedTreaties map[uuid.UUID]messages.Treaty
 	// Mapping of agent id to trust
 	trustTeams trust
 	// IDs of agents above and below (based on what we've been told)
 	neighbours neighbours
+	// Previous day age
+	prevAge int
 }
 
 type thresholdBehaviourPair struct {
@@ -124,8 +129,11 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		reassignPeriodGuess: 0,
 		platOnFloorCtr:      0,
 		prevFloor:           -1,
+		countTick:           1,
+		proposedTreaties:    make(map[uuid.UUID]messages.Treaty),
 		trustTeams:          make(trust),
 		neighbours:          neighbours{above: uuid.Nil, below: uuid.Nil},
+		prevAge:             0,
 	}, nil
 }
 
@@ -180,17 +188,22 @@ func (a *CustomAgent6) Run() {
 
 	// a.Log("Custom agent 6 before update:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "behaviour": a.currBehaviour.String(), "maxFloorGuess": a.maxFloorGuess})
 
-	a.updateBehaviour()
+	// Everything you need to do once a day
+	if a.Age() != a.prevAge {
+		a.updateBehaviour()
+		if a.currBehaviour.String() == "Collectivist" || a.currBehaviour.String() == "Selfish" {
+			treaty := a.ConstructTreaty()
+			a.ProposeTreaty(treaty)
+		}
+		a.RequestLeaveFood()
+	}
 
-	// Sending messages
-	a.RequestLeaveFood()
-
-	// Receiving messages
-	// receivedMsg := a.ReceiveMessage()
-	// if receivedMsg != nil {
-	// 	receivedMsg.Visit(a)
-	// } else {
-	// 	a.Log("I got no thing")
+	// Receiving messages and treaties
+	receivedMsg := a.ReceiveMessage()
+	if receivedMsg != nil {
+		receivedMsg.Visit(a)
+	} // else {
+	// a.Log("I got no thing")
 	// }
 
 	// MEMORY STUFF
@@ -199,11 +212,12 @@ func (a *CustomAgent6) Run() {
 		a.updateReassignmentPeriodGuess()
 	} else if a.numReassigned == 0 { // Before any reassignment, reassignment period guess should be days elapsed
 		a.reassignPeriodGuess = float64(a.Age())
-		a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.numReassigned})
-		a.Log("Team 6 reassignment period guess:", infra.Fields{"guessReassign": a.reassignPeriodGuess})
+		// a.Log("Team 6 reassignment number:", infra.Fields{"numReassign": a.numReassigned})
+		// a.Log("Team 6 reassignment period guess:", infra.Fields{"guessReassign": a.reassignPeriodGuess})
 	}
 	a.addToMemory()
 
+	// SHOULD THIS NOT ONLY BE IF THERE IS FOOD ON THE PLATFORM???
 	foodTaken, err := a.TakeFood(a.intendedFoodIntake())
 	if err != nil {
 		switch err.(type) {
@@ -216,37 +230,35 @@ func (a *CustomAgent6) Run() {
 		a.lastFoodTaken = foodTaken
 	}
 
+	// Reset the reqLeaveFoodAmount to nothing once the agent has eaten
+	if a.HasEaten() {
+		a.reqLeaveFoodAmount = -1
+	}
+
 	//exponential moving average filter to average food taken whilst discounting previous food
 	a.updateAverageIntake(foodTaken)
 
-	// a.Log("Team 6 took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
+	// LOG
+	// a.Log("Team 6 agent has floor:", infra.Fields{"floor": a.Floor()})
 	// a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
-
-	a.updateBehaviourWeights()
+	// a.Log("Team 6 agent desired to take:", infra.Fields{"desiredFood": a.desiredFoodIntake()})
+	// a.Log("Team 6 agent intended to take:", infra.Fields{"intendedFood": a.intendedFoodIntake()})
+	// a.Log("Team 6 agent took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.String()})
 
 	//fmt.Println(a.ActiveTreaties())
 
-	treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
-	min, max := a.foodRange()
-	valid := a.treatyValid(*treaty)
+	// treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
+	// min, max := a.foodRange()
+	// valid := a.treatyValid(treaty)
 
-	a.Log("Team 6 processed treaty:", infra.Fields{"treaty": treaty, "range": max - min, "isValid:": valid})
+	// a.Log("Team 6 processed treaty:", infra.Fields{"treaty": treaty, "range": max - min, "isValid:": valid})
 	// // treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
 
 	// treatyMsg.Visit(a).
 
 	a.prevFloor = a.Floor() // keep at end of Run() function
+	a.prevAge = a.Age()
+	// add one tick to the counter
+	a.countTick++
 
-}
-
-// The utility function with
-// x - food input
-// g - greediness
-// r - risk aversion
-// c - community cost
-// z - desired food (maximum of the function)
-func Utility(x, z float64, params utilityParameters) float64 {
-	// calculate the function scaling parameter a
-	a := (1 / z) * math.Pow((params.c*params.r)/params.g, params.r/(1-params.r))
-	return params.g*math.Pow(a*x, 1/params.r) - params.c*a*x
 }
