@@ -90,12 +90,7 @@ export function GetResult(filename: string): Promise<Result> {
         deaths: deaths,
         food: foods,
         config: config,
-<<<<<<< HEAD
         simStatus: status,
-=======
-        story: story,
-        status: status,
->>>>>>> 8bfcdef (Add utility upon death and average utility per agent type (#261))
         utility: utility,
       })
     );
