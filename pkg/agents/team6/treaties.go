@@ -382,7 +382,7 @@ func (a *CustomAgent6) ProposeTreaty() {
 	switch a.currBehaviour.String() {
 	case "Collectivist":
 		// ConditionType, conditionValue, RequestType, requestValue, cop, rop, duration, proposerID
-		proposedTreaty = messages.NewTreaty(1, a.HealthInfo().WeakLevel, 2, 1, 1, 1, int(1), a.ID())
+		proposedTreaty = messages.NewTreaty(1, a.HealthInfo().WeakLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
 
 	case "Selfish":
 		proposedTreaty = messages.NewTreaty(1, levels.strongLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
