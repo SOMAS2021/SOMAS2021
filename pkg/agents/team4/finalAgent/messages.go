@@ -47,16 +47,16 @@ func (a *CustomAgentEvo) generateMessagesToSend() {
 		a.params.msgToSendBuffer = append(a.params.msgToSendBuffer, msg)
 	}
 
+	directions := []int{-3, -2, -1, 1, 2, 3}
 	// Ask HP and Ask Intended Food Intake to figure out if the person is taking excessive food
-	msg = messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()-1) // send to the agent above
-	a.params.msgToSendBuffer = append(a.params.msgToSendBuffer, msg)
-	msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), a.Floor()-1) // send to the agent above
-	a.params.msgToSendBuffer = append(a.params.msgToSendBuffer, msg)
-
-	msg = messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()+1) // send to the agent below
-	a.params.msgToSendBuffer = append(a.params.msgToSendBuffer, msg)
-	msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), a.Floor()+1) // send to the agent below
-	a.params.msgToSendBuffer = append(a.params.msgToSendBuffer, msg)
+	for _, dir := range directions {
+		if dir+a.Floor() >= 1 {
+			msg = messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()+dir) // send to the agent above
+			a.params.msgToSendBuffer = append(a.params.msgToSendBuffer, msg)
+			msg = messages.NewAskIntendedFoodIntakeMessage(a.ID(), a.Floor(), a.Floor()+dir) // send to the agent above
+			a.params.msgToSendBuffer = append(a.params.msgToSendBuffer, msg)
+		}
+	}
 }
 
 func (a *CustomAgentEvo) sendingMessage() {

@@ -135,7 +135,6 @@ func (a *CustomAgentEvo) updateCraving() {
 }
 
 func (a *CustomAgentEvo) setPersonality() {
-
 	if a.params.globalTrust < float64(a.params.globalTrustLimits[0]) {
 		a.params.currentPersonality = "selfish"
 	} else if a.params.globalTrust < float64(a.params.globalTrustLimits[1]) {
