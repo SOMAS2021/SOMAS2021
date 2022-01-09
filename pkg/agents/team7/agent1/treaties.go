@@ -11,7 +11,7 @@ import (
 	// "github.com/google/uuid"
 )
 
-func (a *CustomAgent7) NotViableTreaty(msg messages.ProposeTreatyMessage) {
+func (a *CustomAgent7) HandleBadTreaty(msg messages.ProposeTreatyMessage) {
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
 	a.SendMessage(reply)
 	a.Log("Rejected treaty", infra.Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(), "treatyID": msg.TreatyID()})
@@ -21,50 +21,23 @@ func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
 
 	if ((treaty.ConditionOp() == messages.LE || treaty.ConditionOp() == messages.LT) && treaty.Condition() == messages.HP || treaty.Condition() == messages.AvailableFood) ||
-		((treaty.ConditionOp() == messages.GE || treaty.ConditionOp() == messages.GT) && treaty.Condition() == messages.Floor) {
-		a.NotViableTreaty(msg)
+		((treaty.ConditionOp() == messages.GE || treaty.ConditionOp() == messages.GT) && treaty.Condition() == messages.Floor) ||
+		(treaty.Request() == messages.Inform) ||
+		((treaty.Request() == messages.LeaveAmountFood || treaty.Request() == messages.LeavePercentFood && treaty.RequestOp() == messages.LT) || treaty.RequestOp() == messages.LE) ||
+		(treaty.Condition() == messages.HP && treaty.ConditionValue() < a.HealthInfo().WeakLevel*3) ||
+		(a.HP() <= a.HealthInfo().HPCritical && a.DaysAtCritical() >= a.HealthInfo().MaxDayCritical-3) ||
+		(treaty.Request() == messages.LeavePercentFood && treaty.RequestValue() > 50) ||
+		(a.Clashoftreaties(treaty)) {
+		a.HandleBadTreaty(msg)
 		return
 	}
 
-	if treaty.Request() == messages.Inform {
-		a.NotViableTreaty(msg)
-		return
-	}
-
-	if (treaty.Request() == messages.LeaveAmountFood || treaty.Request() == messages.LeavePercentFood && treaty.RequestOp() == messages.LT) || treaty.RequestOp() == messages.LE {
-		a.NotViableTreaty(msg)
-		return
-	}
-
-	if treaty.Condition() == messages.HP && treaty.ConditionValue() < a.HealthInfo().WeakLevel*3 {
-		a.NotViableTreaty(msg)
-		return
-	}
-
-	if a.HP() <= a.HealthInfo().HPCritical && a.DaysAtCritical() >= a.HealthInfo().MaxDayCritical-3 {
-		a.NotViableTreaty(msg)
-		return
-	}
-
-	if a.PlatformOnFloor() {
-		//AvailableFood := a.CurrPlatFood
-		if treaty.Request() == messages.LeavePercentFood && treaty.RequestValue() > 50 {
-			a.NotViableTreaty(msg)
-			return
-		}
-	}
-
-	if a.Clashoftreaties(treaty) {
-		a.NotViableTreaty(msg)
-		return
-	}
-
-	alliance := a.personality.conscientiousness/2 + a.personality.extraversion
-	if alliance > 50 {
+	if a.personality.conscientiousness/2+a.personality.extraversion > 50 {
 		treaty.SignTreaty()
 		a.AddTreaty(treaty)
 		reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
 		a.SendMessage(reply)
+
 		a.Log("Accepted treaty", infra.Fields{"proposerID": msg.SenderID(), "proposerFloor": msg.SenderFloor(), "treatyID": msg.TreatyID()})
 		propagate := a.Floor() - 1
 		if msg.SenderFloor() < a.Floor() {
@@ -73,7 +46,7 @@ func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		propagationoftreaty := messages.NewProposalMessage(a.ID(), a.Floor(), propagate, treaty)
 		a.SendMessage(propagationoftreaty)
 	} else {
-		a.NotViableTreaty(msg)
+		a.HandleBadTreaty(msg)
 	}
 }
 

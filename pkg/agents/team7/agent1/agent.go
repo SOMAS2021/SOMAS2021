@@ -54,9 +54,13 @@ type OperationalMemory struct {
 	currentFloorRisk  int
 	daysHungry        int
 	seenPlatform      bool
+	prevAge           int
 	prevHP            int
 	foodEaten         food.FoodType
 	messagesSent      bool
+	msg1Sent          bool
+	msg2Sent          bool
+	msg3Sent          bool
 	recievedReq       bool
 	takeFood          int
 	leaveFood         int
@@ -106,9 +110,13 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			currentFloorRisk:  0,
 			daysHungry:        0,
 			seenPlatform:      false,
+			prevAge:           -1,
 			prevHP:            100,
 			foodEaten:         0,
 			messagesSent:      false,
+			msg1Sent:          false,
+			msg2Sent:          false,
+			msg3Sent:          false,
 			recievedReq:       false,
 			takeFood:          0,
 			leaveFood:         0,
@@ -235,29 +243,49 @@ func (a *CustomAgent7) Run() {
 
 	// Messaging
 
-	if currentHP < a.opMem.prevHP {
-		a.opMem.messagesSent = false
+	//a.tower.DayInfo().CurrDay
+
+	if a.opMem.prevAge < a.Age() {
+		a.opMem.prevAge = a.Age()
+		//a.opMem.messagesSent = false
+		a.opMem.msg1Sent = false
+		a.opMem.msg2Sent = false
+		a.opMem.msg3Sent = false
 	}
 
-	if !a.opMem.messagesSent {
+	// if currentHP < a.opMem.prevHP {
+	// 	a.opMem.messagesSent = false
+	// }
+
+	a.Log("msgsSentLog:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "msg1Sent": a.opMem.msg1Sent, "msg2Sent": a.opMem.msg2Sent, "msg3Sent": a.opMem.msg3Sent, "age": a.Age(), "prevAge": a.opMem.prevAge})
+
+	//if !a.opMem.messagesSent {
+	if !a.opMem.msg1Sent {
 		msg := messages.NewAskHPMessage(UserID, currentFloor, currentFloor+1)
 		a.SendMessage(msg)
 		if currentFloor != 1 {
 			msg = messages.NewAskHPMessage(UserID, currentFloor, currentFloor-1)
 			a.SendMessage(msg)
 		}
-
-		if a.PlatformOnFloor() {
-			msg2 := messages.NewAskFoodTakenMessage(UserID, currentFloor, currentFloor+1)
-			a.SendMessage(msg2)
-		}
-		if !a.PlatformOnFloor() && a.CurrPlatFood() != -1 && a.opMem.seenPlatform && currentFloor != 1 {
-			msg2 := messages.NewAskFoodTakenMessage(UserID, currentFloor, currentFloor-1)
-			a.SendMessage(msg2)
-		}
-
-		a.opMem.messagesSent = true
+		a.opMem.msg1Sent = true
 	}
+
+	if a.PlatformOnFloor() && !a.opMem.msg2Sent {
+		msg2 := messages.NewAskFoodTakenMessage(UserID, currentFloor, currentFloor+1)
+		a.SendMessage(msg2)
+		a.opMem.msg2Sent = true
+	}
+
+	if !a.PlatformOnFloor() && a.CurrPlatFood() != -1 && a.opMem.seenPlatform && currentFloor != 1 && !a.opMem.msg3Sent {
+		msg2 := messages.NewAskFoodTakenMessage(UserID, currentFloor, currentFloor-1)
+		a.SendMessage(msg2)
+		a.opMem.msg3Sent = true
+	}
+
+	a.Log("msgsSentLog2:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "msg1Sent": a.opMem.msg1Sent, "msg2Sent": a.opMem.msg2Sent, "msg3Sent": a.opMem.msg3Sent, "age": a.Age(), "prevAge": a.opMem.prevAge})
+
+	//	a.opMem.messagesSent = true
+	//}
 
 	if a.PlatformOnFloor() && !a.opMem.seenPlatform {
 
@@ -308,7 +336,7 @@ func (a *CustomAgent7) Run() {
 		scalingRatio := float64(targetFullFood-targetSatisficedFood) / float64(targetSatisficedFood-targetWeakFood)
 		//scalingRatio := float64(healthInfo.MaxHP-satisficedHP) / float64(satisficedHP-healthInfo.WeakLevel)
 
-		a.Log("ABCDEFG:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "W": targetWeakFood, "H": targetSatisficedFood, "F": targetFullFood})
+		a.Log("ABCDEFG:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "W": targetWeakFood, "H": targetSatisficedFood, "F": targetFullFood, "msg1Sent": a.opMem.msg1Sent, "msg2Sent": a.opMem.msg2Sent, "msg3Sent": a.opMem.msg3Sent})
 
 		switch {
 		// Highest prioirty case - agent dies if he stays critical for 3 more days
@@ -476,6 +504,7 @@ func (a *CustomAgent7) Run() {
 		a.opMem.prevHP = a.HP()
 		a.opMem.foodEaten = 0
 		a.opMem.recievedReq = false
+		//a.opMem.messagesSent = false
 	}
 
 	//End of Run()
@@ -522,23 +551,38 @@ func (a *CustomAgent7) HandleStateIntendedFoodTaken(msg messages.StateIntendedFo
 func (a *CustomAgent7) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
 	a.Log("Recieved requestTakeFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 	reqFood := msg.Request()
-	if reqFood > int(health.FoodRequired(a.HP(), a.HealthInfo().MaxHP, a.HealthInfo())) || a.DaysAtCritical() >= (a.HealthInfo().MaxDayCritical-3) {
-		// a.opMem.recievedReq = false
-		reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
-		a.SendMessage(reply)
-	} else {
-		a.opMem.recievedReq = true
-		a.opMem.takeFood = reqFood
-		reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
-		a.SendMessage(reply)
+	if a.personality.extraversion > 5 {
+		if reqFood > int(health.FoodRequired(a.HP(), a.HealthInfo().MaxHP, a.HealthInfo())) || a.DaysAtCritical() >= (a.HealthInfo().MaxDayCritical-3) || a.behaviour.greediness > a.behaviour.kindness {
+			// a.opMem.recievedReq = false
+			reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
+			a.SendMessage(reply)
+		} else {
+			a.opMem.recievedReq = true
+			a.opMem.takeFood = reqFood
+			reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
+			a.SendMessage(reply)
+		}
 	}
 }
 
 func (a *CustomAgent7) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
 	a.Log("Recieved requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})
 	// a.opMem.recievedReq = false
-	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
-	a.SendMessage(reply)
+	// reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
+	// a.SendMessage(reply)
+	reqFoodLeft := msg.Request()
+	if a.personality.extraversion > 5 {
+		if a.DaysAtCritical() >= (a.HealthInfo().MaxDayCritical-3) || a.behaviour.greediness > a.behaviour.kindness {
+			// a.opMem.recievedReq = false
+			reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
+			a.SendMessage(reply)
+		} else {
+			a.opMem.recievedReq = true
+			a.opMem.leaveFood = reqFoodLeft
+			reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
+			a.SendMessage(reply)
+		}
+	}
 }
 
 // Responses
