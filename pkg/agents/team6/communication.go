@@ -166,7 +166,7 @@ func (a *CustomAgent6) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIn
 func (a *CustomAgent6) HandlePropagate(msg messages.ProposeTreatyMessage) {
 	// The Narcissist does not propagate treaties
 	if a.currBehaviour.String() != "Narcissist" {
-		treatyToPropagate := messages.NewProposalMessage(a.ID(), msg.SenderFloor(), msg.TargetFloor(), msg.Treaty())
+		treatyToPropagate := messages.NewProposalMessage(msg.SenderID(), msg.SenderFloor(), msg.TargetFloor(), msg.Treaty())
 		a.SendMessage(treatyToPropagate)
 		a.Log("I propogated a treaty")
 	}
