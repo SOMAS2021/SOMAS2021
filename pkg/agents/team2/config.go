@@ -62,9 +62,6 @@ type CustomAgent2 struct {
 	neiboughHP            int
 	lastAction            int
 	lastFoodTaken         food.FoodType
-	daysAtCriticalCounter int
-	PreviousdayAtCritical int
-	lastAge               int
 }
 
 func InitTable(numStates int, numActions int) [][]float64 {

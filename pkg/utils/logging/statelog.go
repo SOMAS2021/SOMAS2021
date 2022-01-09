@@ -65,8 +65,6 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 	handleNewLoggerErr(err)
 	utilityLogger, err := l.AddLogger("utility", "utility.json")
 	handleNewLoggerErr(err)
-	utilityLogger, err := l.AddLogger("utility", "utility.json")
-	handleNewLoggerErr(err)
 	mainLogger, err := l.AddLogger("main", mainLogName)
 	handleNewLoggerErr(err)
 
