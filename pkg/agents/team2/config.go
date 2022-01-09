@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
@@ -47,7 +48,7 @@ import (
 
 type CustomAgent2 struct {
 	*infra.Base
-	stateSpace            [][][]int
+	stateSpace            [][][][]int
 	actionSpace           []food.FoodType
 	policies              [][]float64
 	rTable                [][]float64
@@ -55,6 +56,7 @@ type CustomAgent2 struct {
 	daysAtCriticalCounter int
 	PreviousdayAtCritical int
 	lastAge               int
+	neiboughHP            int
 }
 
 func InitTable(numStates int, numActions int) [][]float64 {
@@ -69,7 +71,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	actionDim := 6
 	daysAtCriticalDim := baseAgent.HealthInfo().MaxDayCritical + 1
 
-	stateSpace := InitStateSpace(10, 10, daysAtCriticalDim)
+	stateSpace := InitStateSpace(10, 10, daysAtCriticalDim, 11)
 	actionSpace := InitActionSpace(actionDim)
 	policies := InitPolicies(10*10*daysAtCriticalDim, actionDim)
 	rTable := InitTable(10*10*daysAtCriticalDim, actionDim)
@@ -85,6 +87,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		daysAtCriticalCounter: 0,
 		PreviousdayAtCritical: 0,
 		lastAge:               0,
+		neiboughHP:            -1,
 	}, nil
 }
 
@@ -149,4 +152,28 @@ func (a *CustomAgent2) isNewDay() bool {
 		return false
 	}
 	return true
+}
+
+func (a *CustomAgent2) HandleAskHP(msg messages.AskHPMessage) {
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
+	a.SendMessage(reply)
+	a.Log("Team2 replying askHP message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
+}
+
+func (a *CustomAgent2) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), 10)
+	a.SendMessage(reply)
+	a.Log("Team2 replying askFoodTaken message", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
+}
+
+func (a *CustomAgent2) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), 11)
+	a.SendMessage(reply)
+	a.Log("Team2 replying askIntendedFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
+}
+
+func (a *CustomAgent2) HandleStateHP(msg messages.StateHPMessage) {
+	statement := msg.Statement()
+	a.neiboughHP = statement
+	a.Log("Team2 replying StateHP message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "statement": statement, "myFloor": a.Floor()})
 }
