@@ -132,7 +132,7 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 					return a.considerTreatyUsingUtility(t)
 				} else {
-					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 2 { //double-check if 2 is sufficient to go from critical to WeakLevel
+					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 2 { // 2 is the amount needed to go from critical to WeakLevel
 						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 						return a.considerTreatyUsingUtility(t)
 					} else {

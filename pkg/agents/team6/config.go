@@ -182,6 +182,9 @@ func (b behaviour) string() string {
 
 func (a *CustomAgent6) Run() {
 
+	// Reporting agent state
+	a.Log("Reporting agent state:", infra.Fields{"HP:": a.HP(), "Floor:": a.Floor(), "Social motive:": a.currBehaviour.string()})
+
 	// Everything you need to do once a day
 	if a.Age() != a.prevAge {
 		a.updateBehaviour()
