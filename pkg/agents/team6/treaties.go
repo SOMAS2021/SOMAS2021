@@ -32,9 +32,8 @@ func calculateUtility(x, z float64, socialMotive string) float64 {
 
 	if result < 0.0 {
 		return 1.2*result
-	} else {
-		return result
 	}
+	return result
 }
 
 // Returns the minimum value of two food.Foodtype variables
