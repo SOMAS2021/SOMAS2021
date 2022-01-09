@@ -50,8 +50,10 @@ type CustomAgent2 struct {
 	stateSpace            [][][]int
 	actionSpace           []food.FoodType
 	policies              [][]float64
+	averagePolicies       [][]float64
 	rTable                [][]float64
 	qTable                [][]float64
+	visitCounter          []int
 	daysAtCriticalCounter int
 	PreviousdayAtCritical int
 	lastAge               int
@@ -72,6 +74,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	stateSpace := InitStateSpace(10, 10, daysAtCriticalDim)
 	actionSpace := InitActionSpace(actionDim)
 	policies := InitPolicies(10*10*daysAtCriticalDim, actionDim)
+	averagePolicies := InitTable(10*10*daysAtCriticalDim, actionDim)
 	rTable := InitTable(10*10*daysAtCriticalDim, actionDim)
 	qTable := InitTable(10*10*daysAtCriticalDim, actionDim)
 
@@ -80,8 +83,10 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		stateSpace:            stateSpace,
 		actionSpace:           actionSpace,
 		policies:              policies,
+		averagePolicies:       averagePolicies,
 		rTable:                rTable,
 		qTable:                qTable,
+		visitCounter:          make([]int, 10*10*daysAtCriticalDim),
 		daysAtCriticalCounter: 0,
 		PreviousdayAtCritical: 0,
 		lastAge:               0,
@@ -134,7 +139,7 @@ func (a *CustomAgent2) Run() {
 		hpInc := a.HP() - oldHP
 		a.updateRTable(oldHP, hpInc, int(foodTaken), oldState, action)
 		a.updateQTable(oldState, action)
-		a.updatePolicies(oldState)
+		a.updatePolicies(oldState, action)
 		a.lastAge = a.Age()
 	}
 
