@@ -101,19 +101,9 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 		reply = true
 
 	case "Collectivist":
-		if currentHP >= levels.weakLevel {
-			reply = true
-		} else {
-			reply = false
-		}
-
+		reply = currentHP >= levels.weakLevel
 	case "Selfish":
-		if currentHP >= levels.strongLevel {
-			reply = true
-		} else {
-			reply = false
-		}
-
+		reply = currentHP >= levels.strongLevel
 	case "Narcissist":
 		reply = false
 		a.updateTrust(-1, msg.SenderID()) // how dare you even ask
