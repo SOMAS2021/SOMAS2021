@@ -57,6 +57,7 @@ type CustomAgent2 struct {
 	daysAtCriticalCounter int
 	PreviousdayAtCritical int
 	lastAge               int
+	cumulativeRewards     float64
 }
 
 func InitTable(numStates int, numActions int) [][]float64 {
