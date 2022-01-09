@@ -11,13 +11,13 @@ import (
 
 func (a *CustomAgent3) requestHelpInCrit() {
 	if a.treatyFull() || a.treatyPendingResponse() {
-		msg := messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), a.Floor()+1, a.foodReqCalc(a.HealthInfo().HPCritical, a.HealthInfo().HPReqCToW)) //to higher floor?
+		msg := messages.NewRequestLeaveFoodMessage(a.ID(), a.Floor(), a.Floor()-1, a.foodReqCalc(a.HealthInfo().HPCritical, a.HealthInfo().HPReqCToW)) //to higher floor?
 		a.SendMessage(msg)
 		a.Log("I sent a help message", infra.Fields{"message": "RequestLeaveFood"})
 	} else {
 		tr := messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID()) //generalise later
 		a.knowledge.treatyProposed = *tr                                                                              //remember the treaty we proposed
-		msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+1, *tr)
+		msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-1, *tr)
 		a.SendMessage(msg)
 		a.Log("I sent a treaty")
 	}
@@ -108,10 +108,10 @@ func (a *CustomAgent3) ticklyMessage() {
 		a.requestHelpInCrit()
 		return
 	}
-	direction := 1
+	direction := -1
 	hpRecorded := a.knowledge.hpAbove
 	if a.vars.morality > 50 {
-		direction = -1
+		direction = 1
 		hpRecorded = a.knowledge.hpBelow
 	}
 	if hpRecorded == -1 { //check in case
