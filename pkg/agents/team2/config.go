@@ -111,7 +111,7 @@ func (a *CustomAgent2) Run() {
 	//a.exportQTable()
 	//a.exportPolicies()
 
-	if a.PlatformOnFloor() && a.Age() > a.lastAge {
+	if a.PlatformOnFloor() && a.isNewDay() {
 		oldState := a.CheckState()
 		oldHP := a.HP()
 		a.Log("Agent team2 before action:", infra.Fields{"floor": a.Floor(), "hp": oldHP, "food": a.CurrPlatFood(), "state": oldState})
@@ -175,4 +175,9 @@ func (a *CustomAgent2) HandleStateHP(msg messages.StateHPMessage) {
 	statement := msg.Statement()
 	a.neiboughHP = statement
 	a.Log("Team2 replying StateHP message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "statement": statement, "myFloor": a.Floor()})
+}
+
+func (a *CustomAgent2) CustomLogs() {
+	a.exportQTable()
+	a.exportPolicies()
 }
