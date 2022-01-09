@@ -48,6 +48,7 @@ type ConfigParameters struct {
 	NumberOfFloors       int                     `json:"-"`
 	TicksPerDay          int                     `json:"-"`
 	DayInfo              *day.DayInfo            `json:"-"`
+	CustomLog            string                  `json:"-"`
 }
 
 type SimulateResponse struct { // used for HTTP response on /simulate

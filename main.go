@@ -27,6 +27,8 @@ func main() {
 	modePtr := flag.String("mode", "sim", "Execution mode. Either 'sim' for running a simulation and exiting, or 'serve' to serve a simulation endpoint")
 	portPtr := flag.Int("port", 9000, "Port to run the server on if mode='serve'")
 	devmodePtr := flag.Bool("devmode", false, "If true, disable Access Origin Control for cross-domain requests")
+	customLogsPtr := flag.String("log", "", "Assign value of agent type to call custom logging function")
+
 	flag.Parse()
 
 	// check backend mode
@@ -225,6 +227,7 @@ func main() {
 
 		go func() {
 			log.Info("Simulation started")
+			parameters.CustomLog = *customLogsPtr
 			runNewSimulation(parameters, logFolderName, ctx, ch)
 		}()
 

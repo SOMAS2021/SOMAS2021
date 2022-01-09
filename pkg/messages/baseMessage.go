@@ -13,7 +13,6 @@ const (
 	AskHP
 	AskFoodOnPlatform
 	AskIntendedFoodIntake
-	AskIdentity
 	StateFoodTaken
 	StateHP
 	StateFoodOnPlatform
