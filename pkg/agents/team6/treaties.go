@@ -20,7 +20,7 @@ func calculateUtility(x, z float64, socialMotive string) float64 {
 	params := newUtilityParams(socialMotive)
 	// Calculates the function scaling parameter a
 
-	if socialMotive == "Altruist" /*|| socialMotive == "Nacissist"*/ {
+	if socialMotive == "Altruist" || socialMotive == "Nacissist" {
 		// Don't scale depending on desired food
 		return params.g*math.Pow(x, 1/params.r) - params.c*x
 	} else {

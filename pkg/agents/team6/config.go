@@ -140,27 +140,27 @@ func newUtilityParams(socialMotive string) utilityParameters {
 	switch socialMotive {
 	case "Altruist":
 		return utilityParameters{
-			g: 1.0,
-			r: 2.0,
-			c: 3.0,
+			g: 0.0,
+			r: 1.0,
+			c: 5.0,
 		}
 	case "Collectivist":
 		return utilityParameters{
-			g: 1.0,
-			r: 2.0,
-			c: 3.0,
+			g: 2.0,
+			r: 1.5,
+			c: 2.0,
 		}
 	case "Selfish":
 		return utilityParameters{
-			g: 1.0,
+			g: 5.0,
 			r: 2.0,
-			c: 3.0,
+			c: 1.0,
 		}
 	case "Narcissist":
 		return utilityParameters{
-			g: 1.0,
-			r: 2.0,
-			c: 3.0,
+			g: 10.0,
+			r: 2.5,
+			c: 0.0,
 		}
 	default:
 		// error
