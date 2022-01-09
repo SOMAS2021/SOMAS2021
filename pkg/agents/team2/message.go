@@ -10,7 +10,7 @@ func (a *CustomAgent2) AskNeighbourHP() {
 func (a *CustomAgent2) CheckNeighbourHP() {
 	msg := a.ReceiveMessage()
 	for msg != nil {
-		if msg.MessageType() == 7 {
+		if msg.MessageType() == messages.StateHP {
 			msg.Visit(a)
 		}
 		msg = a.ReceiveMessage()
@@ -21,7 +21,7 @@ func (a *CustomAgent2) ReplyAllAskMsg() {
 	msg := a.ReceiveMessage()
 	for msg != nil {
 		msgType := msg.MessageType()
-		if msgType == 1 || msgType == 2 || msgType == 4 {
+		if msgType == messages.AskHP || msgType == messages.AskFoodTaken || msgType == messages.AskIntendedFoodIntake {
 			msg.Visit(a)
 		}
 		msg = a.ReceiveMessage()
