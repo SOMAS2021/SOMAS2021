@@ -131,7 +131,10 @@ func (a *CustomAgent2) Run() {
 				a.Log("Agent team2 at critical state", infra.Fields{"daysAtCriticalCounter": a.daysAtCriticalCounter, "floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
 			}
 		}
-		a.writeToCSV(float64(a.HP()), "HP_by_days")
+		//write hp vs days
+		target := []float64{float64(a.HP())}
+		a.writeToCSV(target, "HP_by_days", 1)
+		//write foodtaken vs hp
 
 		//fmt.Printf("Intended action: %d\n", action*5)
 		//fmt.Printf("Actual eaten food: %d\n", foodTaken)

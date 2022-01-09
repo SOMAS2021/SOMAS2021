@@ -7,11 +7,15 @@ import (
 	"os"
 )
 
-func (a *CustomAgent2) writeToCSV(target float64, fileName string) {
-	r := fmt.Sprintf("%f", target)
-	records := []string{r}
-	id := a.ID().String()
+func (a *CustomAgent2) writeToCSV(target []float64, fileName string, elementNumber int) {
+	records := make([]string, 0)
+	for i := 0; i < elementNumber; i++ {
+		s := fmt.Sprintf("%f", target[i])
+		records = append(records, s)
+	}
+	fmt.Print(records)
 
+	id := a.ID().String()
 	f, err := os.OpenFile(fileName+"_"+id+".csv", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		panic(err)
