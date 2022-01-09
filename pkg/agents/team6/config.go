@@ -107,7 +107,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		Base: baseAgent,
 		config: team6Config{
 			baseBehaviour:         initialBehaviour,
-			stubbornness:          0.0,
+			stubbornness:          0.2,
 			maxBehaviourSwing:     8,
 			paramWeights:          behaviourParameterWeights{HPWeight: 0.7, floorWeight: 0.3}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
