@@ -108,8 +108,6 @@ func (a *CustomAgent2) Run() {
 	a.CheckNeighbourHP()
 
 	//Perform the following only once per day when platform arrives
-	//a.exportQTable()
-	//a.exportPolicies()
 
 	if a.PlatformOnFloor() && a.isNewDay() {
 		oldState := a.CheckState()
