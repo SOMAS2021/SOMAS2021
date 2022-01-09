@@ -295,7 +295,7 @@ func (a *CustomAgent7) Run() {
 			a.behaviour.greediness = 100
 		}
 
-		treaty := false
+		// treaty := false
 
 		// ------------------ Run() Block D.2: Take food w.r.t. current health, mood, messages and treaties ------------------
 
@@ -323,187 +323,107 @@ func (a *CustomAgent7) Run() {
 			foodtotake = food.FoodType(a.opMem.takeFood)
 			// Fulfilling treaties is given high priority
 
-		case treaty:
-			// case len(a.ActiveTreaties()) != 0:
+		// case treaty:
+		case len(a.ActiveTreaties()) != 0:
 			for _, t_active := range a.ActiveTreaties() {
 
 				if a.PlatformOnFloor() && t_active.Request() != messages.Inform {
-
-					// if t_active.Request() == messages.LeaveAmountFood {
-					// 	amount := t_active.RequestValue()
-					// } else {
-					// 	amount := food.FoodType(float64(t_active.RequestValue() / 100))
-					// }
+					available := a.CurrPlatFood()
+					amount := food.FoodType(float64(t_active.RequestValue()/100)) * available
+					if t_active.Request() == messages.LeaveAmountFood {
+						amount = food.FoodType(t_active.RequestValue())
+					}
 					// case t_active.condition
-					switch t_active.Condition() {
 					// check HP condition
-					case messages.HP:
-						switch t_active.ConditionOp() {
-						case messages.GT:
-							if a.HP() > t_active.ConditionValue() {
-								if foodtotake <= food.FoodType(t_active.RequestValue()) {
-									foodtotake = food.FoodType(t_active.RequestValue()) + 1
-								}
-							}
-						case messages.GE:
-							if a.HP() >= t_active.ConditionValue() {
-								if foodtotake < food.FoodType(t_active.RequestValue()) {
-									foodtotake = food.FoodType(t_active.RequestValue())
-								}
-							}
-						case messages.EQ:
-							if a.HP() == t_active.ConditionValue() {
-								if foodtotake != food.FoodType(t_active.RequestValue()) {
-									foodtotake = food.FoodType(t_active.RequestValue())
-								}
-							}
-						}
-					// check Floor Condition
-					case messages.Floor:
-						switch t_active.ConditionOp() {
-						case messages.LT:
-							if a.Floor() < t_active.ConditionValue() {
-								if foodtotake >= food.FoodType(t_active.RequestValue()) {
-									foodtotake = food.FoodType(t_active.RequestValue()) - 1
-								}
-							}
-						case messages.LE:
-							if a.Floor() <= t_active.ConditionValue() {
-								if foodtotake > food.FoodType(t_active.RequestValue()) {
-									foodtotake = food.FoodType(t_active.RequestValue())
-								}
-							}
-						case messages.EQ:
-							if a.Floor() == t_active.ConditionValue() {
-								if foodtotake != food.FoodType(t_active.RequestValue()) {
-									foodtotake = food.FoodType(t_active.RequestValue())
-								}
-							}
-						}
-					// check Available food condition
-					case messages.AvailableFood:
-						if a.PlatformOnFloor() {
-							switch t_active.ConditionOp() {
-							case messages.LT:
-								if int(a.CurrPlatFood()) < t_active.ConditionValue() {
-									if foodtotake >= food.FoodType(t_active.RequestValue()) {
-										foodtotake = food.FoodType(t_active.RequestValue()) - 1
-									}
-								}
-							case messages.LE:
-								if int(a.CurrPlatFood()) <= t_active.ConditionValue() {
-									if foodtotake > food.FoodType(t_active.RequestValue()) {
-										foodtotake = food.FoodType(t_active.RequestValue())
-									}
-								}
+					switch t_active.ConditionOp() { // if HP > 10 , Leaveamount > 15, availble = 37, foottotake = 30
+					case messages.GT:
+						if a.HP() > t_active.ConditionValue() || int(a.CurrPlatFood()) > t_active.ConditionValue() {
+							switch t_active.RequestOp() {
 							case messages.GT:
-								if int(a.CurrPlatFood()) > t_active.ConditionValue() {
-									if foodtotake <= food.FoodType(t_active.RequestValue()) {
-										foodtotake = food.FoodType(t_active.RequestValue()) + 1
-									}
+								if foodtotake > available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount) - 1
 								}
 							case messages.GE:
-								if int(a.CurrPlatFood()) >= t_active.ConditionValue() {
-									if foodtotake < food.FoodType(t_active.RequestValue()) {
-										foodtotake = food.FoodType(t_active.RequestValue())
-									}
+								if foodtotake >= available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount)
 								}
 							case messages.EQ:
-								if int(a.CurrPlatFood()) == t_active.ConditionValue() {
-									if foodtotake != food.FoodType(t_active.RequestValue()) {
-										foodtotake = food.FoodType(t_active.RequestValue())
-									}
+								if foodtotake != available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount)
+								}
+							}
+						}
+					case messages.GE:
+						if a.HP() >= t_active.ConditionValue() || int(a.CurrPlatFood()) >= t_active.ConditionValue() {
+							switch t_active.RequestOp() {
+							case messages.GT:
+								if foodtotake > available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount) - 1
+								}
+							case messages.GE:
+								if foodtotake >= available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount)
+								}
+							case messages.EQ:
+								if foodtotake != available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount)
+								}
+							}
+						}
+					case messages.EQ:
+						if a.HP() == t_active.ConditionValue() || int(a.CurrPlatFood()) == t_active.ConditionValue() || a.Floor() == t_active.ConditionValue() {
+							switch t_active.RequestOp() {
+							case messages.GT:
+								if foodtotake > available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount) - 1
+								}
+							case messages.GE:
+								if foodtotake >= available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount)
+								}
+							case messages.EQ:
+								if foodtotake != available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount)
+								}
+							}
+						}
+					case messages.LT:
+						if a.Floor() < t_active.ConditionValue() {
+							switch t_active.RequestOp() {
+							case messages.GT:
+								if foodtotake > available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount) - 1
+								}
+							case messages.GE:
+								if foodtotake >= available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount)
+								}
+							case messages.EQ:
+								if foodtotake != available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount)
+								}
+							}
+						}
+					case messages.LE:
+						if a.Floor() <= t_active.ConditionValue() {
+							switch t_active.RequestOp() {
+							case messages.GT:
+								if foodtotake > available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount) - 1
+								}
+							case messages.GE:
+								if foodtotake >= available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount)
+								}
+							case messages.EQ:
+								if foodtotake != available-food.FoodType(t_active.RequestValue()) {
+									foodtotake = available - food.FoodType(amount)
 								}
 							}
 						}
 					}
 				}
 			}
-			// else if t_active.Request() == messages.LeavePercentFood {
-			// 	amount := food.FoodType(float64(t_active.RequestValue() / 100))
-			// 	switch t_active.Condition() {
-			// 	// check HP condition
-			// 	case messages.HP:
-			// 		switch t_active.ConditionOp() {
-			// 		case messages.GT:
-			// 			if a.HP() > t_active.ConditionValue() {
-			// 				if foodtotake <= amount {
-			// 					foodtotake = amount + 1
-			// 				}
-			// 			}
-			// 		case messages.GE:
-			// 			if a.HP() >= t_active.ConditionValue() {
-			// 				if foodtotake < amount {
-			// 					foodtotake = amount
-			// 				}
-			// 			}
-			// 		case messages.EQ:
-			// 			if a.HP() == t_active.ConditionValue() {
-			// 				if foodtotake != amount {
-			// 					foodtotake = amount
-			// 				}
-			// 			}
-			// 		}
-			// 	// check Floor Condition
-			// 	case messages.Floor:
-			// 		switch t_active.ConditionOp() {
-			// 		case messages.LT:
-			// 			if a.Floor() < t_active.ConditionValue() {
-			// 				if foodtotake >= amount {
-			// 					foodtotake = amount - 1
-			// 				}
-			// 			}
-			// 		case messages.LE:
-			// 			if a.Floor() <= t_active.ConditionValue() {
-			// 				if foodtotake > amount {
-			// 					foodtotake = amount
-			// 				}
-			// 			}
-			// 		case messages.EQ:
-			// 			if a.Floor() == t_active.ConditionValue() {
-			// 				if foodtotake != amount {
-			// 					foodtotake = amount
-			// 				}
-			// 			}
-			// 		}
-			// 	// check Available food condition
-			// 	case messages.AvailableFood:
-			// 		if a.PlatformOnFloor() {
-			// 			switch t_active.ConditionOp() {
-			// 			case messages.LT:
-			// 				if int(a.CurrPlatFood()) < t_active.ConditionValue() {
-			// 					if foodtotake >= amount {
-			// 						foodtotake = amount - 1
-			// 					}
-			// 				}
-			// 			case messages.LE:
-			// 				if int(a.CurrPlatFood()) <= t_active.ConditionValue() {
-			// 					if foodtotake > amount {
-			// 						foodtotake = amount
-			// 					}
-			// 				}
-			// 			case messages.GT:
-			// 				if int(a.CurrPlatFood()) > t_active.ConditionValue() {
-			// 					if foodtotake <= amount {
-			// 						foodtotake = amount + 1
-			// 					}
-			// 				}
-			// 			case messages.GE:
-			// 				if int(a.CurrPlatFood()) >= t_active.ConditionValue() {
-			// 					if foodtotake < amount {
-			// 						foodtotake = amount
-			// 					}
-			// 				}
-			// 			case messages.EQ:
-			// 				if int(a.CurrPlatFood()) == t_active.ConditionValue() {
-			// 					if foodtotake != amount {
-			// 						foodtotake = amount
-			// 					}
-			// 				}
-			// 			}
-			// 		}
-			// 	}
-
 		// In this case the agent can stay critical for another 4 or more days. Hence the fulfillment of treaties and requests is prioritized over this
 		case currentHP <= healthInfo.HPCritical:
 			kindnessAdjuster := (float64(a.behaviour.kindness) / 1000) * float64(targetSatisficedFood-targetWeakFood)
