@@ -15,6 +15,7 @@ import (
 
 type ConfigParameters struct {
 	FoodOnPlatform       food.FoodType           `json:"FoodOnPlatform"`
+	MaxFoodIntake        food.FoodType           `json:"MaxFoodIntake"`
 	FoodPerAgentRatio    int                     `json:"FoodPerAgentRatio"`
 	UseFoodPerAgentRatio bool                    `json:"UseFoodPerAgentRatio"`
 	Team1Agents          int                     `json:"Team1Agents"`
@@ -190,7 +191,11 @@ func CheckParametersAreValid(parameters *ConfigParameters) error {
 	}
 
 	if parameters.Tau == 0 {
-		return errors.New("wau not initialised or set to 0")
+		return errors.New("tau not initialised or set to 0")
+	}
+
+	if parameters.MaxFoodIntake == 0 {
+		return errors.New("MaxFoodIntake not initialised or set to 0")
 	}
 
 	if parameters.HpReqCToW == 0 {

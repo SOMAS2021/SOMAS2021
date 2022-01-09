@@ -20,6 +20,7 @@
     "weakLevel": 10,
     "width": 48,
     "tau": 15,
+    "MaxFoodIntake": 60,
     "hpReqCToW": 5,
     "hpCritical": 3,
     "maxDayCritical": 3,
