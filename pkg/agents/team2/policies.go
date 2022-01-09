@@ -3,8 +3,9 @@ package team2
 import (
 	"encoding/csv"
 	"fmt"
-	"log"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func InitPolicies(numStates int, numActions int) [][]float64 {
@@ -74,7 +75,7 @@ func (a *CustomAgent2) winOrLose(state int) float64 {
 func (a *CustomAgent2) exportPolicies() {
 	f, err := os.OpenFile(fmt.Sprintf("%s%s%s", a.ID(), "policies", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		log.Println("error opening csv: ", err)
+		log.Error("error opening csv: ", err)
 	}
 	defer f.Close()
 
@@ -96,6 +97,6 @@ func (a *CustomAgent2) exportPolicies() {
 	err = w.WriteAll(sPolicies)
 
 	if err != nil {
-		log.Println("error writing csv:", err)
+		log.Error("error writing csv:", err)
 	}
 }
