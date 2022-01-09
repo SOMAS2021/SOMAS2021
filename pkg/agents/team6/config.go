@@ -171,7 +171,7 @@ func newUtilityParams(socialMotive string) utilityParameters {
 // initialise trust based on our social motive - the more narcissistic we are, the less we're willing to initially trust
 func (a *CustomAgent6) startingTrust() int {
 	switch a.currBehaviour.string() {
-	case "Altrust":
+	case "Altruist":
 		return 10
 	case "Collectivist":
 		return 5
@@ -221,6 +221,16 @@ func (a *CustomAgent6) updateTrust(amount int, agentID uuid.UUID) {
 	}
 }
 
+// func (a *CustomAgent6) identifyNeighbours(id uuid.UUID, floor int) {
+// 	floorDir := floor - a.Floor()
+
+// 	if floorDir == 1 {
+// 		a.neighbours.below = id
+// 	} else {
+// 		a.neighbours.above = id
+// 	}
+// }
+
 func (b behaviour) string() string {
 	behaviourMap := [...]thresholdBehaviourPair{{2, "Altruist"}, {7, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
 
@@ -269,24 +279,32 @@ func (a *CustomAgent6) Run() {
 
 	// Eat if needed/wanted
 	foodTaken, err := a.TakeFood(a.intendedFoodIntake())
+
+	// if err != nil {
+	// 	switch err.(type) {
+	// 	case *infra.FloorError:
+	// 	case *infra.NegFoodError:
+	// 	case *infra.AlreadyEatenError:
+	// 	default:
+	// 	}
+	// } else {
+	// 	a.lastFoodTaken = foodTaken
+	// 	// Exponential moving average filter to average food taken whilst discounting previous food
+	// 	a.updateAverageIntake(foodTaken)
+	// }
+
 	if err != nil {
-		switch err.(type) {
-		case *infra.FloorError:
-		case *infra.NegFoodError:
-		case *infra.AlreadyEatenError:
-		default:
-		}
-	} else {
 		a.lastFoodTaken = foodTaken
+		// Exponential moving average filter to average food taken whilst discounting previous food
+		a.updateAverageIntake(foodTaken)
+		a.Log("Agent6 took food!")
+		fmt.Println(a.currBehaviour.string(), a.Floor(), a.averageFoodIntake)
 	}
 
 	// Reset the reqLeaveFoodAmount to nothing once the agent has eaten
 	if a.HasEaten() {
 		a.reqLeaveFoodAmount = -1
 	}
-
-	// Exponential moving average filter to average food taken whilst discounting previous food
-	a.updateAverageIntake(foodTaken)
 
 	// LOG
 	// a.Log("Team 6 agent has floor:", infra.Fields{"floor": a.Floor()})
