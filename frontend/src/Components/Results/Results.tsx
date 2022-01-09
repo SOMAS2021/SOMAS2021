@@ -1,6 +1,6 @@
 import { H3, H5, H6, Divider, Spinner, Colors, Icon, Button } from "@blueprintjs/core";
 import { useCallback, useEffect, useState } from "react";
-import { GetResult, Result, SimStatus } from "../../Helpers/Result";
+import { GetResult, Result, SimStatusExec } from "../../Helpers/Result";
 import StoryViewer from "../Story/StoryViewer";
 import ConfigInfo from "./ConfigInfo";
 import StatsViewer from "./Stats";
@@ -65,7 +65,7 @@ function ResultDisplay(props: ResultDisplayProps) {
         <Divider></Divider>
         <ConfigInfo config={result.config} />
         <Divider></Divider>
-        <StoryViewer story={result.story} />
+        <StoryViewer result={result} />
         <Divider></Divider>
         <StatsViewer result={result} />
       </div>
@@ -81,19 +81,19 @@ function ResultHeader(props: ResultDisplayProps) {
         <H3>{result.title}</H3>
       </div>
       <div className="col-lg-6" style={{ textAlign: "right", paddingRight: "20px", height: 40 }}>
-        {result.status === SimStatus.timedout && (
+        {result.simStatus.status === SimStatusExec.timedout && (
           <H5 style={{ color: Colors.ORANGE2 }}>
             <Icon icon="warning-sign" size={20} style={{ paddingRight: 10 }} intent="warning" />
             Simulation timed out!
           </H5>
         )}
-        {result.status === SimStatus.finished && (
+        {result.simStatus.status === SimStatusExec.finished && (
           <H5 style={{ color: Colors.GREEN2 }}>
             <Icon icon="tick" size={20} style={{ paddingRight: 10 }} intent="success" />
             Simulation completed!
           </H5>
         )}
-        {result.status === SimStatus.running && (
+        {result.simStatus.status === SimStatusExec.running && (
           <>
             <H5 style={{ color: Colors.BLUE2 }}>
               <Icon className="rotate-image" icon="refresh" size={20} style={{ padding: "0 10px" }} intent="primary" />

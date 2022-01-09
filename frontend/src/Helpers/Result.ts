@@ -2,14 +2,18 @@ import { GetFile } from "./API";
 import { UtilityLog } from "./Logging/Utility";
 import { DeathLog, GetDeathLogs } from "./Logging/Death";
 import { FoodLog, GetFoodLogs } from "./Logging/Food";
-import { GetStoryLogs, StoryLog } from "./Logging/StoryLog";
 import { GetSimConfig, SimConfig } from "./SimConfig";
 import { GetUtilityLogs } from "./Logging/Utility";
 
-export enum SimStatus {
+export enum SimStatusExec {
   "finished",
   "running",
   "timedout",
+}
+
+export interface SimStatus {
+  status: SimStatusExec;
+  maxTick: number;
 }
 
 export interface Result {
@@ -17,8 +21,7 @@ export interface Result {
   deaths: DeathLog[];
   food: FoodLog[];
   config: SimConfig;
-  story: StoryLog[];
-  status: SimStatus;
+  simStatus: SimStatus;
   utility: UtilityLog[];
 }
 
@@ -26,19 +29,24 @@ function GetSimStatus(filename: string): Promise<SimStatus> {
   return new Promise<SimStatus>((resolve, reject) => {
     GetFile(filename, "status")
       .then((status) => {
+        var s: SimStatus = {
+          status: SimStatusExec.finished,
+          maxTick: status[0]["maxTick"],
+        };
         switch (status[0]["status"]) {
-          case SimStatus[SimStatus.finished]:
-            resolve(SimStatus.finished);
+          case SimStatusExec[SimStatusExec.finished]:
+            s.status = SimStatusExec.finished;
             break;
-          case SimStatus[SimStatus.timedout]:
-            resolve(SimStatus.timedout);
+          case SimStatusExec[SimStatusExec.timedout]:
+            s.status = SimStatusExec.timedout;
             break;
-          case SimStatus[SimStatus.running]:
-            resolve(SimStatus.running);
+          case SimStatusExec[SimStatusExec.running]:
+            s.status = SimStatusExec.running;
             break;
           default:
             reject("unkown status");
         }
+        resolve(s);
       })
       .catch((err) => reject(err));
   });
@@ -61,12 +69,11 @@ export function GetResult(filename: string): Promise<Result> {
     promises.push(GetSimConfig(filename).then((c) => (config = c)));
 
     // status
-    var status: SimStatus = SimStatus.running;
+    var status: SimStatus = {
+      status: SimStatusExec.finished,
+      maxTick: 3000
+    };
     promises.push(GetSimStatus(filename).then((s) => (status = s)));
-
-    // story
-    var story: StoryLog[] = [];
-    promises.push(GetStoryLogs(filename).then((s) => (story = s)));
 
     // Agent state
     var utility: UtilityLog[] = [];
@@ -79,8 +86,7 @@ export function GetResult(filename: string): Promise<Result> {
         deaths: deaths,
         food: foods,
         config: config,
-        story: story,
-        status: status,
+        simStatus: status,
         utility: utility,
       })
     );
