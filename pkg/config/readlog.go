@@ -11,6 +11,8 @@ import (
 type ConfigReadLog struct {
 	LogFileName string `json:"LogFileName"`
 	LogType     string `json:"LogType"`
+	TickFilter  bool   `json:"TickFiler"`
+	Tick        int    `json:"Tick"`
 }
 
 type ReadLogResponse struct {
