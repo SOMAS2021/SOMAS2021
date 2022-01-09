@@ -19,18 +19,19 @@ func (a *CustomAgent3) read() bool {
 //If they are not in our list, we add them.
 func (a *CustomAgent3) updateFriendship(friend uuid.UUID, change int) {
 	level, found := a.knowledge.friends[friend]
-	var b float64 = 0.3
-	var c float64 = 0.4
+	b := 0.3
+	c := 0.4
 	if !found {
 		a.knowledge.friends[friend] = 0.4 + (float64(a.vars.morality)/100)*0.2
-	} else {
-		if change < 0 {
-			level = level - b*(level)
-		} else {
-			level = level + c*(1-level)
-		}
-		a.knowledge.friends[friend] = level
+		return
 	}
+	if change < 0 {
+		level -= b * (level)
+	} else {
+		level += c * (1 - level)
+	}
+	a.knowledge.friends[friend] = level
+
 }
 
 // Function gets as input the mini and max change we want in, direction marks if we want it to go up or down
@@ -82,7 +83,7 @@ func (a *CustomAgent3) changeInStubbornness(change, direction int) {
 // Updates mood and morality when the floor is changed. Called at the start of each day.
 func (a *CustomAgent3) changeNewDay() {
 	a.knowledge.lastHP = a.HP()
-	a.knowledge.agentAge = a.BaseAgent().Age()
+	a.knowledge.rememberedAge = a.BaseAgent().Age()
 	if a.HP() < 25 {
 		a.changeInMorality(5, 10, -1)
 		a.changeInMood(8, 16, -1)

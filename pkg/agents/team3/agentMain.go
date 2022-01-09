@@ -32,7 +32,7 @@ type team3Knowledge struct {
 	//Stores moving average of food consumed
 	foodMovingAvg float64
 	//Stores how old (in days) the agent is
-	agentAge int
+	rememberedAge int
 	//Stores whether we already have a treaty with the person above
 	treatyProposed messages.Treaty
 	//Stores our estimation of reshuffle
@@ -67,13 +67,13 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			mood:         rand.Intn(100),
 		},
 		knowledge: team3Knowledge{
-			floors:         []int{},
+			floors:         make([]int, 0),
 			lastHP:         100,
 			friends:        make(map[uuid.UUID]float64),
 			foodLastEaten:  food.FoodType(0),
 			foodLastSeen:   food.FoodType(-1),
-			foodMovingAvg:  0, //a.foodReqCalc(50, 50)
-			agentAge:       -1,
+			foodMovingAvg:  0.0,
+			rememberedAge:  -1,
 			treatyProposed: *messages.NewTreaty(messages.HP, 0, messages.LeaveAmountFood, 0, messages.GT, messages.GT, 0, uuid.Nil),
 			reshuffleEst:   -1,
 			hpAbove:        -1,
@@ -88,7 +88,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 
 func (a *CustomAgent3) Run() {
 	//Update agent variables at the beginning of day (when we age)
-	if a.knowledge.agentAge < a.BaseAgent().Age() {
+	if a.knowledge.rememberedAge < a.Age() {
 		a.changeNewDay()
 	}
 
@@ -118,7 +118,7 @@ func (a *CustomAgent3) Run() {
 		}
 	}
 
-	if a.knowledge.agentAge == 0 { //happens only on the first day
+	if a.knowledge.rememberedAge == 0 { //happens only on the first day
 		a.knowledge.foodMovingAvg = float64(a.foodReqCalc(50, 50))
 	} else {
 		a.message() //no messages on the first day
