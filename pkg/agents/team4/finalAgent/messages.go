@@ -92,10 +92,7 @@ func (a *CustomAgentEvo) HandleAskIntendedFoodTaken(msg messages.AskIntendedFood
 
 func (a *CustomAgentEvo) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessage) {
 	amount := msg.Request()
-	response := false
-	if a.CurrPlatFood()-a.params.intendedFoodToTake >= food.FoodType(amount) {
-		response = true
-	}
+	response := a.CurrPlatFood()-a.params.intendedFoodToTake >= food.FoodType(amount)
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), response)
 	a.SendMessage(reply)
 	a.Log("Team4 agent received a requestLeaveFood message from ", infra.Fields{"floor": msg.SenderFloor()})

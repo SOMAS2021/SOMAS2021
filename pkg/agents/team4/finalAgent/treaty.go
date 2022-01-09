@@ -28,21 +28,24 @@ import (
 func (a *CustomAgentEvo) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
 
-	// Switch Case for rejecting treaties
 	switch {
-	case len(a.ActiveTreaties()) > 0: // If one treaty already signed then we reject any other incoming ones
+	// If one treaty already signed then we reject any other incoming ones
+	case len(a.ActiveTreaties()) > 0:
 		fallthrough
-	case treaty.Request() == messages.Inform: // No idea what inform actually does/how to use it
+		// No idea what inform actually does/how to use it
+	case treaty.Request() == messages.Inform:
 		fallthrough
 	case treaty.Condition() == messages.HP && treaty.ConditionValue() <= a.HealthInfo().HPReqCToW*2:
 		fallthrough
-	case treaty.Condition() == messages.HP && (treaty.ConditionOp() == messages.LT || treaty.ConditionOp() == messages.LE): // Reject any case where they want us to accept treaties with less than any health %
+	// Reject any case where they want us to accept treaties with less than any health
+	case treaty.Condition() == messages.HP && (treaty.ConditionOp() == messages.LT || treaty.ConditionOp() == messages.LE):
 		fallthrough
 	case treaty.Request() == messages.LeavePercentFood && (treaty.RequestValue() >= 100 || treaty.RequestValue() <= 0):
 		fallthrough
 	case treaty.Condition() == messages.AvailableFood && treaty.ConditionValue() <= a.HealthInfo().HPReqCToW*2:
 		fallthrough
-	case treaty.Condition() == messages.AvailableFood && treaty.Request() == messages.LeaveAmountFood && treaty.ConditionValue()-treaty.RequestValue() <= a.HealthInfo().HPReqCToW*2: // want to leave at least buffer amount on plat
+	// want to leave at least buffer amount on plat
+	case treaty.Condition() == messages.AvailableFood && treaty.Request() == messages.LeaveAmountFood && treaty.ConditionValue()-treaty.RequestValue() <= a.HealthInfo().HPReqCToW*2:
 		fallthrough
 	case treaty.Condition() == messages.AvailableFood && treaty.Request() == messages.LeavePercentFood && int(float64(100-treaty.RequestValue()/100))*treaty.ConditionValue() <= a.HealthInfo().HPReqCToW*2:
 		fallthrough
@@ -50,11 +53,14 @@ func (a *CustomAgentEvo) HandleProposeTreaty(msg messages.ProposeTreatyMessage) 
 		fallthrough
 	case treaty.Condition() == messages.Floor && (treaty.ConditionOp() == messages.GT || treaty.ConditionOp() == messages.GE):
 		fallthrough
-	case a.HP() < a.HealthInfo().HPCritical: // Reject all treaties at that point in time when we're below critical health (all treaty requests are relevant to food only so this applies).
+	// Reject all treaties at that point in time when we're below critical health (all treaty requests are relevant to food only so this applies).
+	case a.HP() < a.HealthInfo().HPCritical:
 		fallthrough
-	case treaty.Condition() == messages.AvailableFood && treaty.Request() == messages.LeaveAmountFood && treaty.ConditionValue()-a.params.foodToEat["selfless"][2] <= treaty.RequestValue(): //the worst we want to be is in selfless
+	//the worst we want to be is in selfless
+	case treaty.Condition() == messages.AvailableFood && treaty.Request() == messages.LeaveAmountFood && treaty.ConditionValue()-a.params.foodToEat["selfless"][2] <= treaty.RequestValue():
 		fallthrough
-	case treaty.Condition() == messages.AvailableFood && treaty.Request() == messages.LeavePercentFood && treaty.ConditionValue()-a.params.foodToEat["selfless"][2] <= treaty.ConditionValue()*treaty.RequestValue()/100: //the worst we want to be is in selfless
+	//the worst we want to be is in selfless
+	case treaty.Condition() == messages.AvailableFood && treaty.Request() == messages.LeavePercentFood && treaty.ConditionValue()-a.params.foodToEat["selfless"][2] <= treaty.ConditionValue()*treaty.RequestValue()/100:
 		fallthrough
 	case treaty.Duration() >= a.HealthInfo().MaxDayCritical:
 		fallthrough
@@ -96,11 +102,11 @@ func (a *CustomAgentEvo) propogateTreaty(msg messages.ProposeTreatyMessage) {
 /*------------------------HANDLING OTHER AGENTS REPSONSES TO OUR TREATY PROPOSALS------------------------*/
 
 func (a *CustomAgentEvo) HandleTreatyResponse(msg messages.TreatyResponseMessage) {
-	if msg.Response() { // Check if there is a response
+	if msg.Response() {
 		_, ok := a.ActiveTreaties()[msg.TreatyID()] // Check their treaty is valid in our memory
 		if ok {
 			treaty := a.ActiveTreaties()[msg.TreatyID()] // Get the treaty from memory
-			treaty.SetCount(treaty.SignatureCount() + 1) // Update the signature count to our accepted respondent
+			treaty.SignTreaty()                          // Update the signature count to our accepted respondent
 			a.ActiveTreaties()[msg.TreatyID()] = treaty  // Add it back into our activeTreaties
 			a.addToGlobalTrust(a.params.trustCoefficients[0])
 		}
@@ -172,39 +178,47 @@ func (a *CustomAgentEvo) handleActiveTreatyConditions() {
 //LE - foodtaken = a.currPlatFood - (request/100 * a.currentPlatFood)
 //EQ - foodtaken = a.currPlatFood - (request/100 * a.currentPlatFood)
 
+func (a *CustomAgentEvo) requestLeaveFoodTreaty(treaty messages.Treaty) {
+	if treaty.RequestOp() == messages.EQ {
+		a.params.intendedFoodToTake = a.CurrPlatFood() - food.FoodType(treaty.RequestValue())
+	} else if treaty.RequestOp() == messages.GT && a.CurrPlatFood()-a.params.intendedFoodToTake < food.FoodType(treaty.RequestValue()) {
+		a.params.intendedFoodToTake = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue())-1)))
+
+	} else if treaty.RequestOp() == messages.GE && a.CurrPlatFood()-a.params.intendedFoodToTake <= food.FoodType(treaty.RequestValue()) {
+		a.params.intendedFoodToTake = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue()))))
+
+	} else if treaty.RequestOp() == messages.LT && a.CurrPlatFood()-a.params.intendedFoodToTake > food.FoodType(treaty.RequestValue()) {
+		a.params.intendedFoodToTake = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue())+1)))
+
+	} else if treaty.RequestOp() == messages.LE && a.CurrPlatFood()-a.params.intendedFoodToTake >= food.FoodType(treaty.RequestValue()) {
+		a.params.intendedFoodToTake = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue()))))
+	}
+}
+
+func (a *CustomAgentEvo) requestLeaveFoodPercentTreaty(treaty messages.Treaty) {
+	if treaty.RequestOp() == messages.EQ {
+		a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood()) * (1 - treaty.RequestValue()/100)))
+
+	} else if treaty.RequestOp() == messages.GT && a.CurrPlatFood()-a.params.intendedFoodToTake < a.CurrPlatFood()*food.FoodType(treaty.RequestValue())/100 {
+		a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood())*(1-treaty.RequestValue()/100) - 1))
+
+	} else if treaty.RequestOp() == messages.GE && a.CurrPlatFood()-a.params.intendedFoodToTake <= a.CurrPlatFood()*food.FoodType(treaty.RequestValue())/100 {
+		a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood()) * (1 - treaty.RequestValue()/100)))
+
+	} else if treaty.RequestOp() == messages.LT && a.CurrPlatFood()-a.params.intendedFoodToTake > a.CurrPlatFood()*food.FoodType(treaty.RequestValue())/100 {
+		a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood())*(1-treaty.RequestValue()/100) + 1))
+
+	} else if treaty.RequestOp() == messages.LE && a.CurrPlatFood()-a.params.intendedFoodToTake >= a.CurrPlatFood()*food.FoodType(treaty.RequestValue())/100 {
+		a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood()) * (1 - treaty.RequestValue()/100)))
+	}
+}
+
 func (a *CustomAgentEvo) updateFoodFromTreatyToAgent(treaty messages.Treaty) {
 	switch {
 	case treaty.Request() == messages.LeaveAmountFood:
-		if treaty.RequestOp() == messages.EQ {
-			a.params.intendedFoodToTake = a.CurrPlatFood() - food.FoodType(treaty.RequestValue())
-		} else if treaty.RequestOp() == messages.GT && a.CurrPlatFood()-a.params.intendedFoodToTake < food.FoodType(treaty.RequestValue()) {
-			a.params.intendedFoodToTake = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue())-1)))
-
-		} else if treaty.RequestOp() == messages.GE && a.CurrPlatFood()-a.params.intendedFoodToTake <= food.FoodType(treaty.RequestValue()) {
-			a.params.intendedFoodToTake = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue()))))
-
-		} else if treaty.RequestOp() == messages.LT && a.CurrPlatFood()-a.params.intendedFoodToTake > food.FoodType(treaty.RequestValue()) {
-			a.params.intendedFoodToTake = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue())+1)))
-
-		} else if treaty.RequestOp() == messages.LE && a.CurrPlatFood()-a.params.intendedFoodToTake >= food.FoodType(treaty.RequestValue()) {
-			a.params.intendedFoodToTake = food.FoodType(math.Max(0, float64(a.CurrPlatFood()-food.FoodType(treaty.RequestValue()))))
-		}
+		a.requestLeaveFoodTreaty(treaty)
 
 	case treaty.Request() == messages.LeavePercentFood:
-		if treaty.RequestOp() == messages.EQ {
-			a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood()) * (1 - treaty.RequestValue()/100)))
-
-		} else if treaty.RequestOp() == messages.GT && a.CurrPlatFood()-a.params.intendedFoodToTake < a.CurrPlatFood()*food.FoodType(treaty.RequestValue())/100 {
-			a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood())*(1-treaty.RequestValue()/100) - 1))
-
-		} else if treaty.RequestOp() == messages.GE && a.CurrPlatFood()-a.params.intendedFoodToTake <= a.CurrPlatFood()*food.FoodType(treaty.RequestValue())/100 {
-			a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood()) * (1 - treaty.RequestValue()/100)))
-
-		} else if treaty.RequestOp() == messages.LT && a.CurrPlatFood()-a.params.intendedFoodToTake > a.CurrPlatFood()*food.FoodType(treaty.RequestValue())/100 {
-			a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood())*(1-treaty.RequestValue()/100) + 1))
-
-		} else if treaty.RequestOp() == messages.LE && a.CurrPlatFood()-a.params.intendedFoodToTake >= a.CurrPlatFood()*food.FoodType(treaty.RequestValue())/100 {
-			a.params.intendedFoodToTake = food.FoodType((int(a.CurrPlatFood()) * (1 - treaty.RequestValue()/100)))
-		}
+		a.requestLeaveFoodPercentTreaty(treaty)
 	}
 }

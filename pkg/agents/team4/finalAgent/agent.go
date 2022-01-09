@@ -51,7 +51,7 @@ type CustomAgentEvo struct {
 
 /*------------------------AGENT INITIALISATION------------------------*/
 
-func initaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
+func initialiseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 
 	foodToEat := map[string][]int{
 		"selfish":  {baseAgent.HealthInfo().HPReqCToW, 34, 52, 22},
@@ -79,11 +79,11 @@ func initaliseParams(baseAgent *infra.Base) CustomAgentEvoParams {
 		intendedFoodToTake:       0,
 		agentResponseMemory:      make(map[uuid.UUID][]int),
 		messageCounter:           0,
-		msgToSendBuffer:          []messages.Message{},
-		sentMessages:             []messages.Message{},
-		responseMessages:         []messages.Message{},
-		requestLeaveFoodMessages: []messages.Message{},
-		otherMessageBuffer:       []messages.Message{},
+		msgToSendBuffer:          make([]messages.Message, 0),
+		sentMessages:             make([]messages.Message, 0),
+		responseMessages:         make([]messages.Message, 0),
+		requestLeaveFoodMessages: make([]messages.Message, 0),
+		otherMessageBuffer:       make([]messages.Message, 0),
 		receivedMessagesCount:    0,
 		lastPlatFood:             -1,
 		lastTimeFoodSeen:         0,
@@ -96,7 +96,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	//create other parameters
 	return &CustomAgentEvo{
 		Base:   baseAgent,
-		params: initaliseParams(baseAgent),
+		params: initialiseParams(baseAgent),
 	}, nil
 }
 
@@ -152,6 +152,29 @@ func (a *CustomAgentEvo) hasReshuffled() bool {
 	return false
 }
 
+func (a *CustomAgentEvo) postReshuffled() {
+	//update global trust if agents don't reply to messages
+	timesBlanked := len(a.params.sentMessages) - a.params.receivedMessagesCount
+	a.addToGlobalTrust(-a.params.trustCoefficients[0] * float64(timesBlanked))
+
+	//reset the arrays and maps when we have reshuffled
+	a.params.agentResponseMemory = make(map[uuid.UUID][]int)
+	a.params.msgToSendBuffer = make([]messages.Message, 0)
+	a.params.sentMessages = make([]messages.Message, 0)
+	a.params.responseMessages = make([]messages.Message, 0)
+	a.params.requestLeaveFoodMessages = make([]messages.Message, 0)
+	a.params.otherMessageBuffer = make([]messages.Message, 0)
+
+	a.params.receivedMessagesCount = 0
+}
+
+func (a *CustomAgentEvo) postDayPassed() {
+	//generates messages to send per day altogether and updates params for each new day
+	a.generateMessagesToSend()
+	a.updateLastTimeFoodSeen()
+	a.updateCraving()
+}
+
 /*------------------------AGENT RUN------------------------*/
 
 func (a *CustomAgentEvo) Run() {
@@ -160,25 +183,11 @@ func (a *CustomAgentEvo) Run() {
 	healthLevelSeparation := int(0.33 * float64(a.HealthInfo().MaxHP-a.HealthInfo().WeakLevel))
 
 	if a.hasReshuffled() {
-		//update global trust if agents don't reply to messages
-		timesBlanked := len(a.params.sentMessages) - a.params.receivedMessagesCount
-		a.addToGlobalTrust(-a.params.trustCoefficients[0] * float64(timesBlanked))
-
-		//reset the arrays and maps when we have reshuffled
-		a.params.agentResponseMemory = make(map[uuid.UUID][]int)
-		a.params.msgToSendBuffer = []messages.Message{}
-		a.params.sentMessages = []messages.Message{}
-		a.params.responseMessages = []messages.Message{}
-		a.params.requestLeaveFoodMessages = []messages.Message{}
-		a.params.otherMessageBuffer = []messages.Message{}
-		a.params.receivedMessagesCount = 0
+		a.postReshuffled()
 	}
 
 	if a.hasDayPassed() {
-		//generates messages to send per day altogether and updates params for each new day
-		a.generateMessagesToSend()
-		a.updateLastTimeFoodSeen()
-		a.updateCraving()
+		a.postDayPassed()
 	}
 
 	//update last food amount seen on the platform
@@ -209,8 +218,9 @@ func (a *CustomAgentEvo) Run() {
 
 	var foodEaten food.FoodType
 	var err error
+	wait := a.params.waitProbability[a.params.currentPersonality][a.params.healthStatus]
 
-	if rand.Intn(100) >= (a.params.waitProbability[a.params.currentPersonality][a.params.healthStatus]-a.params.craving) && !a.HasEaten() && a.PlatformOnFloor() {
+	if rand.Intn(100) >= (wait-a.params.craving) && !a.HasEaten() && a.PlatformOnFloor() {
 		a.params.intendedFoodToTake = food.FoodType(a.params.foodToEat[a.params.currentPersonality][a.params.healthStatus])
 
 		// prioritises treaties over our current food behaviour

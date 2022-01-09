@@ -84,10 +84,9 @@ func (a *CustomAgentEvo) updateGlobalTrustReqTakeFood(msg messages.ResponseMessa
 		a.Log("Team4: For Requested Food to Take greater then or equal neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.neighbourFoodEaten(), "global_trust": a.params.globalTrust})
 		a.addToGlobalTrust(a.params.trustCoefficients[1])
 		return
-	} else {
-		a.Log("Team4: For Requested Food to Take less than neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.neighbourFoodEaten(), "global_trust": a.params.globalTrust})
-		a.addToGlobalTrust(-a.params.trustCoefficients[1])
 	}
+	a.Log("Team4: For Requested Food to Take less than neighbour food eaten", infra.Fields{"Request_amt": reqMsg.Request(), "Food_on_our_level": a.neighbourFoodEaten(), "global_trust": a.params.globalTrust})
+	a.addToGlobalTrust(-a.params.trustCoefficients[1])
 }
 
 /*------------------------HANDLING TRUST ON RESPONSES ------------------------*/
@@ -98,23 +97,25 @@ func (a *CustomAgentEvo) verifyResponses() {
 			resMsg, err := a.typeAssertResponseMessage(respMsg)
 			if err != nil {
 				log.Error(err)
-			} else {
-				sentMsg := getMatchingSentMessage(a, resMsg)
-				isHandled := false
-				if a.PlatformOnFloor() && sentMsg.MessageType() == messages.RequestLeaveFood && a.Floor()-resMsg.SenderFloor() == 1 { // Check if there are any responses messages.
-					a.updateGlobalTrustReqLeaveFood(resMsg, sentMsg)
-					isHandled = true
-				} else if a.params.lastFoodTaken+a.CurrPlatFood() != a.params.lastPlatFood && sentMsg.MessageType() == messages.RequestTakeFood && a.Floor()-resMsg.SenderFloor() == -1 {
-					a.updateGlobalTrustReqTakeFood(resMsg, sentMsg)
-					isHandled = true
-				}
-				if isHandled {
-					removeMatchingSentMessage(a, resMsg)
-					a.params.responseMessages = remove(a.params.responseMessages, i)
-				}
+				return
+			}
+			sentMsg := getMatchingSentMessage(a, resMsg)
+			isHandled := false
+			// Check if there are any responses messages.
+			if a.PlatformOnFloor() && sentMsg.MessageType() == messages.RequestLeaveFood && a.Floor()-resMsg.SenderFloor() == 1 {
+				a.updateGlobalTrustReqLeaveFood(resMsg, sentMsg)
+				isHandled = true
+			} else if a.params.lastFoodTaken+a.CurrPlatFood() != a.params.lastPlatFood &&
+				sentMsg.MessageType() == messages.RequestTakeFood && a.Floor()-resMsg.SenderFloor() == -1 {
+
+				a.updateGlobalTrustReqTakeFood(resMsg, sentMsg)
+				isHandled = true
+			}
+			if isHandled {
+				removeMatchingSentMessage(a, resMsg)
+				a.params.responseMessages = remove(a.params.responseMessages, i)
 			}
 		}
-		return
 	}
 }
 
