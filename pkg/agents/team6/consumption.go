@@ -111,9 +111,8 @@ func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 
 	if maxAllowedFood >= desiredFoodIntake {
 		return desiredFoodIntake
-	} else {
-		return maxAllowedFood
 	}
+	return maxAllowedFood
 }
 
 // Rolling average of food taken

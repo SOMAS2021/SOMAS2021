@@ -23,10 +23,7 @@ func (a *CustomAgent6) addToMemory() {
 // Returns whether agent finds themselves reassigned
 // Could be the case that reassignment has occurred, but agent remains on the same floor, so in their POV they have not been reassigned
 func (a *CustomAgent6) isReassigned() bool {
-	if a.prevFloor != a.Floor() && a.prevFloor != -1 {
-		return true
-	}
-	return false
+	return a.prevFloor != a.Floor() && a.prevFloor != -1
 }
 
 // Clears short-term memory
