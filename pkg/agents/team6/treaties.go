@@ -24,14 +24,14 @@ func calculateUtility(x, z float64, socialMotive string) float64 {
 
 	if socialMotive == "Altruist" || socialMotive == "Nacissist" {
 		// Don't scale depending on desired food
-		result =  params.g*math.Pow(x, 1/params.r) - params.c*x
+		result = params.g*math.Pow(x, 1/params.r) - params.c*x
 	} else {
 		a := (1 / z) * math.Pow((params.c*params.r)/params.g, params.r/(1-params.r))
 		result = params.g*math.Pow(a*x, 1/params.r) - params.c*a*x
 	}
 
 	if result < 0.0 {
-		return 1.2*result
+		return 1.2 * result
 	}
 	return result
 }
