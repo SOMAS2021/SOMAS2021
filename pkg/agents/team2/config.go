@@ -2,6 +2,7 @@ package team2
 
 import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
+	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
@@ -12,24 +13,17 @@ import (
 		utilities.
     Observation:
         Observation               Min                     Max
-        hp			              0.0                     100.0
-        floor	                  1                       inf
-        foodOnPlat                0    	                  100
+        hp
+		foodOnPlatform
+		dayAtCritical
+		neighbourHP
 
 		Other observations should come from communication with other agents
         savedAgents               0                       number of agent per florr
 		Note: the particular combination of the observations correspond to a particular state of
 		the agent
 	State:
-		We initially only define 3x3x3 (27) states for testing purposes
-
-		Num				hp			floor			foodOnPlat
-		0				61-100		1-30				61-100
-		1				61-100		1-30				31-60
-		2				61-100		1-30				0-30
-		3				61-100		31-60				61-100
-		...
-		26				0-30		>60					0-30
+		TODO
     Action:
 		We separate the TakeFood action into several actions
 
@@ -53,19 +47,21 @@ import (
 		Simulation terminated
 */
 
-type actionSpace struct {
-	//TODO: actionId is redundant and may be removed in further version
-	actionId  []int
-	actionSet map[int]func(hp int) food.FoodType
-}
 type CustomAgent2 struct {
 	*infra.Base
-	stateSpace    [][][]int
-	actionSpace   actionSpace
-	policies      [][]float64
-	rTable        [][]float64
-	qTable        [][]float64
-	isPlatArrived bool
+	stateSpace            [][][][]int
+	actionSpace           []food.FoodType
+	policies              [][]float64
+	averagePolicies       [][]float64
+	rTable                [][]float64
+	qTable                [][]float64
+	visitCounter          []int
+	daysAtCriticalCounter int
+	PreviousdayAtCritical int
+	lastAge               int
+	neiboughHP            int
+	lastAction            int
+	lastFoodTaken         food.FoodType
 }
 
 func InitTable(numStates int, numActions int) [][]float64 {
@@ -77,58 +73,111 @@ func InitTable(numStates int, numActions int) [][]float64 {
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
-	stateSpace := InitStateSpace(3, 3, 3)
-	actionSpace := InitActionSpace()
-	policies := InitPolicies(27, 3)
-	rTable := InitTable(27, 3)
-	qTable := InitTable(27, 3)
+	actionDim := 6
+	daysAtCriticalDim := baseAgent.HealthInfo().MaxDayCritical + 1
+	stateSpace := InitStateSpace(10, 10, daysAtCriticalDim, 11)
+	actionSpace := InitActionSpace(actionDim)
+	policies := InitPolicies(10*10*daysAtCriticalDim*11, actionDim)
+	averagePolicies := InitTable(10*10*daysAtCriticalDim*11, actionDim)
+	rTable := InitTable(10*10*daysAtCriticalDim*11, actionDim)
+	qTable := InitTable(10*10*daysAtCriticalDim*11, actionDim)
+
 	return &CustomAgent2{
-		Base:          baseAgent,
-		stateSpace:    stateSpace,
-		actionSpace:   actionSpace,
-		policies:      policies,
-		rTable:        rTable,
-		qTable:        qTable,
-		isPlatArrived: false,
+		Base:                  baseAgent,
+		stateSpace:            stateSpace,
+		actionSpace:           actionSpace,
+		policies:              policies,
+		averagePolicies:       averagePolicies,
+		rTable:                rTable,
+		qTable:                qTable,
+		visitCounter:          make([]int, 10*10*daysAtCriticalDim*11),
+		daysAtCriticalCounter: 0,
+		PreviousdayAtCritical: 0,
+		lastAge:               0,
+		neiboughHP:            -1,
+		lastAction:            0,
+		lastFoodTaken:         0,
 	}, nil
 }
 
 func (a *CustomAgent2) Run() {
 	//Communication & Observation
 	//communicate before platform arrives to my floor
+	//ask HP of agent below me
+	a.AskNeighbourHP()
+	a.CheckNeighbourHP()
 
-	/*
-		msg := *messages.NewBaseMessage(a.Floor())
-		a.SendMessage(1, msg)
-	*/
+	//Perform the following only once per day when platform arrives
 
-	//Perform the following only when platform arrives
-	//NOTE: should let infra team add a func to see whether the plaftfrom has arrived or not
-	if a.CheckState() != -1 {
-		a.isPlatArrived = true
-	} else {
-		a.isPlatArrived = false
-	}
-	if a.isPlatArrived {
+	if a.PlatformOnFloor() && a.isNewDay() {
 		oldState := a.CheckState()
 		oldHP := a.HP()
 		a.Log("Agent team2 before action:", infra.Fields{"floor": a.Floor(), "hp": oldHP, "food": a.CurrPlatFood(), "state": oldState})
 		action := a.SelectAction()
-		_, err := a.TakeFood(a.actionSpace.actionSet[action](oldHP)) //perform selected action
+
+		foodTaken, err := a.TakeFood(food.FoodType(a.actionSpace[action])) //perform selected action
+		a.lastFoodTaken = foodTaken
 		if err != nil {
-			switch err.(type) {
-			case *infra.FloorError:
-			case *infra.NegFoodError:
-			case *infra.AlreadyEatenError:
-			default:
-			}
+			//if there's error, cease updating tables
+			return
 		}
 		a.Log("Agent team2:", infra.Fields{"selected and performed action": action})
 		a.Log("Agent team2 after action:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
+		if a.DaysAtCritical() > 0 && a.PreviousdayAtCritical != a.DaysAtCritical() {
+			a.PreviousdayAtCritical = a.DaysAtCritical()
+			a.daysAtCriticalCounter += 1
+			if a.DaysAtCritical() >= (a.HealthInfo().MaxDayCritical - 1) {
+				a.Log("Agent team2 at critical state", infra.Fields{"daysAtCriticalCounter": a.daysAtCriticalCounter, "floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
+			}
+		}
+		a.ReplyAllAskMsg()
 		hpInc := a.HP() - oldHP
-		a.updateRTable(hpInc, oldState, action)
+		a.updateRTable(oldHP, hpInc, oldState, action)
 		a.updateQTable(oldState, action)
-		a.updatePolicies(oldState)
+		a.updatePolicies(oldState, action)
+		a.lastAge = a.Age()
 	}
 
+}
+
+func (a *CustomAgent2) isNewDay() bool {
+	if a.Age() < a.lastAge {
+		a.lastAge = -1
+		return true
+	}
+	if a.Age() == a.lastAge {
+		return false
+	}
+	return true
+}
+
+func (a *CustomAgent2) HandleAskHP(msg messages.AskHPMessage) {
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
+	a.SendMessage(reply)
+	a.Log("Team2 replying askHP message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
+}
+
+func (a *CustomAgent2) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(a.lastFoodTaken))
+	a.SendMessage(reply)
+	a.Log("Team2 replying askFoodTaken message", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
+}
+
+func (a *CustomAgent2) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), (a.lastAction+1)*5)
+	a.SendMessage(reply)
+	a.Log("Team2 replying askIntendedFoodTaken message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor()})
+}
+
+func (a *CustomAgent2) HandleStateHP(msg messages.StateHPMessage) {
+	statement := msg.Statement()
+	if msg.SenderFloor() == a.Floor()+1 {
+		a.neiboughHP = statement
+	}
+	a.Log("Team2 replying StateHP message from ", infra.Fields{"senderFloor": msg.SenderFloor(), "statement": statement, "myFloor": a.Floor()})
+}
+
+func (a *CustomAgent2) CustomLogs() {
+	a.exportQTable()
+	a.exportPolicies()
 }

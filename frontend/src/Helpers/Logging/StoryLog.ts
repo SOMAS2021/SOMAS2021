@@ -30,9 +30,9 @@ export interface StoryPlatformLog extends StoryLog {
   floor: number;
 }
 
-export function GetStoryLogs(filename: string): Promise<StoryLog[]> {
+export function GetStoryLogs(filename: string, tick: number): Promise<StoryLog[]> {
   return new Promise<StoryLog[]>((resolve, reject) => {
-    GetFile(filename, "story")
+    GetFile(filename, "story", tick)
       .then((storylogs) =>
         resolve(
           storylogs.map(function (e: any) {

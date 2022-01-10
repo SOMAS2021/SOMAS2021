@@ -103,6 +103,7 @@ func (t *Tower) endOfDay() {
 		agent.hpDecay(t.healthInfo)
 		agent.increaseAge()
 		agent.updateTreaties()
+		t.stateLog.LogUtility(t.dayInfo, agent.agentType, agent.utility(), agent.IsAlive())
 	}
 }
 

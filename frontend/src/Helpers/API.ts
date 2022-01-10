@@ -11,38 +11,43 @@ function parseResponse(res: any, key: string) {
   });
 }
 
-export function GetLogs(): Promise<string[]> {
+export function GetLogs(toast: boolean = true): Promise<string[]> {
   return new Promise<string[]>((resolve, reject) => {
-    showToast("Loading logs in progress", "primary");
+    toast && showToast("Loading logs in progress", "primary");
     fetch(endpoint("directory"))
       .then(async (res) => {
         if (res.status !== 200) {
-          showToast(`Loading logs failed. (${res.status}) ${await res.text()}`, "danger", 5000);
+          toast && showToast(`Loading logs failed. (${res.status}) ${await res.text()}`, "danger", 5000);
           reject(res);
         }
         res
           .json()
           .then((res) => {
-            showToast("Loading logs completed", "success");
+            toast && showToast("Loading logs completed", "success");
             resolve(res["FolderNames"]);
           })
           .catch((err) => {
-            showToast(`Loading logs: failed. ${err}`, "danger", 5000);
+            toast && showToast(`Loading logs: failed. ${err}`, "danger", 5000);
             reject(err);
           });
       })
       .catch((err) => {
-        showToast(`Loading logs: failed. ${err}`, "danger", 5000);
+        toast && showToast(`Loading logs: failed. ${err}`, "danger", 5000);
         reject(err);
       });
   });
 }
 
-export function GetFile(filename: string, logtype: string): Promise<any> {
+export function GetFile(filename: string, logtype: string, tick: number = -1): Promise<any> {
   return new Promise<any>((resolve, reject) => {
     var requestOptions = {
       method: "POST",
-      body: JSON.stringify({ LogFileName: filename, LogType: logtype }),
+      body: JSON.stringify({
+        LogFileName: filename,
+        LogType: logtype,
+        TickFilter: tick > -1,
+        Tick: tick,
+      }),
     };
 
     fetch(endpoint("read"), requestOptions)
