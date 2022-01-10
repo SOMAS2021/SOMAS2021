@@ -8,6 +8,9 @@ import (
 /*------------------------REMOVE A PARTICULAR MESSAGE FROM OUR MESSAGE ARRAY------------------------*/
 
 func remove(slice []messages.Message, s int) []messages.Message {
+	if s == len(slice)-1 {
+		return slice[:s]
+	}
 	return append(slice[:s], slice[s+1:]...)
 }
 
