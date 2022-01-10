@@ -233,73 +233,32 @@ func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
 	}
 }
 
+func checkCondition(value int, conditionValue int, conditionOp messages.Op) bool {
+	switch conditionOp {
+	case messages.GT:
+		return value > conditionValue
+	case messages.GE:
+		return value >= conditionValue
+	case messages.EQ:
+		return value == conditionValue
+	case messages.LE:
+		return value <= conditionValue
+	case messages.LT:
+		return value < conditionValue
+	default:
+		return true
+	}
+}
+
 // Returns true if a given treaty applies to an agent by comparing the treaty condition to the agent's state
 func (a *CustomAgent6) conditionApplies(t *messages.Treaty) bool {
-
 	switch t.Condition() {
-	// Condition : HP
-	case 1:
-		switch t.ConditionOp() {
-		// GT
-		case 1:
-			return a.HP() > t.ConditionValue()
-		//GE
-		case 2:
-			return a.HP() >= t.ConditionValue()
-		//EQ
-		case 3:
-			return a.HP() == t.ConditionValue()
-		// LE
-		case 4:
-			return a.HP() <= t.ConditionValue()
-		// LT
-		case 5:
-			return a.HP() < t.ConditionValue()
-		default:
-			return true
-		}
-	// Condition : floor
-	case 2:
-		switch t.ConditionOp() {
-		// GT
-		case 1:
-			return a.Floor() > t.ConditionValue()
-		//GE
-		case 2:
-			return a.Floor() >= t.ConditionValue()
-		//EQ
-		case 3:
-			return a.Floor() == t.ConditionValue()
-		// LE
-		case 4:
-			return a.Floor() <= t.ConditionValue()
-		// LT
-		case 5:
-			return a.Floor() < t.ConditionValue()
-		default:
-			return true
-		}
-	// Condition : AvailableFood
-	case 3:
-		switch t.ConditionOp() {
-		// GT
-		case 1:
-			return int(a.CurrPlatFood()) > t.ConditionValue()
-		//GE
-		case 2:
-			return int(a.CurrPlatFood()) >= t.ConditionValue()
-		//EQ
-		case 3:
-			return int(a.CurrPlatFood()) == t.ConditionValue()
-		// LE
-		case 4:
-			return int(a.CurrPlatFood()) <= t.ConditionValue()
-		// LT
-		case 5:
-			return int(a.CurrPlatFood()) < t.ConditionValue()
-		default:
-			return true
-		}
+	case messages.HP:
+		return checkCondition(a.HP(), t.ConditionValue(), t.ConditionOp())
+	case messages.Floor:
+		return checkCondition(a.Floor(), t.ConditionValue(), t.ConditionOp())
+	case messages.AvailableFood:
+		return checkCondition(int(a.CurrPlatFood()), t.ConditionValue(), t.ConditionOp())
 	default:
 		return true
 	}
