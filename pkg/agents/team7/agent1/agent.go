@@ -115,7 +115,6 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			receivedReq:       false,
 			takeFood:          -1,
 			leaveFood:         -1,
-			// messageQueue:      messageQueue,
 		},
 	}, nil
 }
