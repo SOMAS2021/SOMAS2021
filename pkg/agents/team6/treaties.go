@@ -179,11 +179,9 @@ func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
 
 		// b. estimated utility when rejecting the treaty
 		currentShortTermUtility := a.evaluateUtility(a.shortTermMemory) // estimated utility on the current floor
-		currentLongTermUtility := a.evaluateUtility(a.longTermMemory)   // estimated utility over the entire time in the tower
 
 		// benefit of signing the treaty (> 0 == beneficial)
 		shortTermBenefit := treatyUtility - currentShortTermUtility
-		longTermBenefit := treatyUtility - currentLongTermUtility
 
 		estimatedPeriod := int(a.reassignPeriodGuess)
 		estimatedTimeLeft := estimatedPeriod - len(a.shortTermMemory)
@@ -208,6 +206,9 @@ func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
 			// 		--> The treaty counts as much on this level as for the time after
 			// (3) time left on this level = 1, duration = 100 --> shortTermFocus 1%
 			// 		--> The treaty mostly matters in the long term
+
+			currentLongTermUtility := a.evaluateUtility(a.longTermMemory) // estimated utility over the entire time in the tower
+			longTermBenefit := treatyUtility - currentLongTermUtility
 
 			shortTermFocus := float64(estimatedTimeLeft) / float64(t.Duration())
 			benefit = shortTermFocus*shortTermBenefit + (1.0-shortTermFocus)*longTermBenefit
@@ -268,20 +269,20 @@ func (a *CustomAgent6) constructTreaty() messages.Treaty {
 		switch rand.Intn(2) {
 		case 0:
 			// ConditionType, conditionValue, RequestType, requestValue, cop, rop, duration, proposerID
-			proposedTreaty = messages.NewTreaty(1, a.HealthInfo().WeakLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
+			proposedTreaty = messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
 		case 1:
 			// Different treaty
-			proposedTreaty = messages.NewTreaty(1, a.HealthInfo().WeakLevel, 2, 1, 1, 1, int(4*a.reassignPeriodGuess), a.ID())
+			proposedTreaty = messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
 		}
 
 	case "Selfish":
 		switch rand.Intn(2) {
 		case 0:
 			// ConditionType, conditionValue, RequestType, requestValue, cop, rop, duration, proposerID
-			proposedTreaty = messages.NewTreaty(1, levels.strongLevel, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
+			proposedTreaty = messages.NewTreaty(messages.HP, levels.strongLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
 		case 1:
 			// Different treaty
-			proposedTreaty = messages.NewTreaty(1, levels.strongLevel, 2, 1, 1, 1, int(4*a.reassignPeriodGuess), a.ID())
+			proposedTreaty = messages.NewTreaty(messages.HP, levels.strongLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
 		}
 	}
 
