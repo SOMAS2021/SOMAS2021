@@ -100,13 +100,13 @@ func chooseInitialBehaviour() behaviour {
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
-	initialBehaviour := chooseInitialBehaviour()
+	initialBehaviour := behaviour(5) //chooseInitialBehaviour()
 	return &CustomAgent6{
 		Base: baseAgent,
 		config: team6Config{
 			baseBehaviour:         initialBehaviour,
 			stubbornness:          0.2,
-			maxBehaviourSwing:     8,
+			maxBehaviourSwing:     0,
 			paramWeights:          behaviourParameterWeights{HPWeight: 0.7, floorWeight: 0.3}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
@@ -255,8 +255,8 @@ func (a *CustomAgent6) Run() {
 			treaty := a.constructTreaty()
 			a.proposeTreaty(treaty)
 		}
-		a.requestLeaveFood()
-		a.regainTrustInNeighbours()
+		//a.requestLeaveFood()
+		//a.regainTrustInNeighbours()
 
 	}
 
@@ -283,10 +283,13 @@ func (a *CustomAgent6) Run() {
 	// Eat if needed/wanted
 	desiredFood := a.desiredFoodIntake()
 	intendedFood := a.intendedFoodIntake()
+	fmt.Println(fmt.Sprint(a.HP()))
 	foodTaken, err := a.TakeFood(intendedFood)
 
 	if err == nil {
 		a.lastFoodTaken = foodTaken
+		fmt.Println("FoodTaken:" + fmt.Sprint(foodTaken))
+		fmt.Println(fmt.Sprint(a.HP()))
 		// Exponential moving average filter to average food taken whilst discounting previous food
 		a.updateAverageIntake(foodTaken)
 		// Updates trust in the above neighbour based on average food

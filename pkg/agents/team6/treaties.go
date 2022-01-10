@@ -83,7 +83,7 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	// readable constants
 	convertedFood := a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue())
 	conditionCheck := t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT
-	consultUtility := a.considerTreatyUsingUtility(t)
+	consultUtility := false //a.considerTreatyUsingUtility(t)
 
 	// We only consider meaningful LeaveAmountFood and LeavePercentFood treaties, i.e., the treaties with RequestOp GE or GT
 	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT {

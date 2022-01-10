@@ -1,6 +1,7 @@
 package team6
 
 import (
+	"fmt"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -52,7 +53,7 @@ func (a *CustomAgent6) desiredFoodIntake() food.FoodType {
 			if a.DaysAtCritical() == a.foodTakeDay {
 				return food.FoodType(2) // 2 is the amount of Food neeeded to go from Critical to WeakLevel
 			}
-			return food.FoodType(0)
+			return food.FoodType(0) //0
 		default:
 			return food.FoodType(0)
 		}
@@ -83,12 +84,12 @@ func (a *CustomAgent6) maxAllowedFood() food.FoodType {
 		if a.conditionApplies(&treaty) {
 			// Convert LeaveFoodAmount and LeavePercentFood to an equivalent takeFood value
 			takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue()) - 1 // -1 to make sure GT is fulfilled
+			fmt.Println(fmt.Sprint(a.CurrPlatFood()), "")
 
 			if takeFoodAmount <= max {
 				max = takeFoodAmount
 			}
 		}
-
 	}
 
 	// Check the RequestLeaveFood message
