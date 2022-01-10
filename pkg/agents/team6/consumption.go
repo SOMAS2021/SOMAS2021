@@ -81,8 +81,9 @@ func (a *CustomAgent6) maxAllowedFood() food.FoodType {
 	for _, treaty := range a.ActiveTreaties() {
 		// Only consider treaties who's condition applies to our state
 		if a.conditionApplies(&treaty) {
-			// Convert LeaveFoodAmount and LeavePercentFood to an equivalent takeFood value
-			takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue()) - 1 // -1 to make sure GT is fulfilled
+			// No need to convert LeaveFoodAmount and LeavePercentFood to an equivalent takeFood value as we are considering TakeAmountFood treaties only
+			//takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue()) - 1 // -1 to make sure GT is fulfilled
+			takeFoodAmount := food.FoodType(treaty.RequestValue()) // LE cases only
 
 			if takeFoodAmount <= max {
 				max = takeFoodAmount
@@ -99,7 +100,7 @@ func (a *CustomAgent6) maxAllowedFood() food.FoodType {
 	}
 
 	if a.reqTakeFoodAmount != -1 && a.reqTakeFoodAmount <= int(max) {
-		max = food.FoodType(a.reqLeaveFoodAmount)
+		max = food.FoodType(a.reqTakeFoodAmount)
 	}
 
 	return max

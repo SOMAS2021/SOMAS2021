@@ -81,12 +81,14 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	}
 
 	// readable constants
-	convertedFood := a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue())
+	// no need to convert LeaveAmountFood to TakeAmountFood, as we only propose TakeAmountFood treaties
+	//convertedFood := a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue())
+	requestAmountFood := food.FoodType(t.RequestValue())
 	conditionCheck := t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT
 	consultUtility := a.considerTreatyUsingUtility(t)
 
-	// We only consider meaningful LeaveAmountFood and LeavePercentFood treaties, i.e., the treaties with RequestOp GE or GT
-	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT {
+	// We only consider meaningful LeaveAmountFood and LeavePercentFood treaties, i.e., the treaties with RequestOp LE or LT for TakeAmountFood (GE or GT for LeaveAmountFood)
+	if t.RequestOp() == messages.LE || t.RequestOp() == messages.LT {
 		switch t.Condition() {
 		// HP
 		case messages.HP:
@@ -96,7 +98,7 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 			return consultUtility
 		// AvailableFood
 		case messages.AvailableFood:
-			return a.considerFoodTreaty(conditionCheck, consultUtility, convertedFood)
+			return a.considerFoodTreaty(conditionCheck, consultUtility, requestAmountFood)
 		default:
 			return consultUtility
 
@@ -106,17 +108,17 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 }
 
 // food treaties
-func (a *CustomAgent6) considerFoodTreaty(conditionCheck bool, consultUtility bool, convertedFood food.FoodType) bool {
+func (a *CustomAgent6) considerFoodTreaty(conditionCheck bool, consultUtility bool, requestAmountFood food.FoodType) bool {
 	switch a.currBehaviour.string() {
 	case "Altruist":
 		return true
 	case "Collectivist":
-		if conditionCheck || convertedFood <= 2 {
+		if conditionCheck || requestAmountFood <= 2 {
 			return consultUtility
 		}
 		return true
 	case "Selfish":
-		if conditionCheck || convertedFood <= 60 {
+		if conditionCheck || requestAmountFood <= 60 {
 			return consultUtility
 		}
 		return true
@@ -161,14 +163,15 @@ func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
 	}
 	averageFoodAvailable := float64(sum) / math.Max(float64(len(a.shortTermMemory)), 1.0)
 
-	// Converts different treaty "Request types" to a "food intake"
-	estimatedTakeFood := a.convertToTakeFoodAmount(averageFoodAvailable, t.Request(), t.RequestValue())
+	// No need to converts different treaty "Request types" to a "food intake" for TakeAmountFood treaties
+	//estimatedTakeFood := a.convertToTakeFoodAmount(averageFoodAvailable, t.Request(), t.RequestValue())
+	estimatedTakeFood := averageFoodAvailable
 	if estimatedTakeFood == -1 {
 		return false
 	}
 
-	// Checks the exact request condition. Only consider meaningful treaties (GE, GT)
-	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT /*t.ConditionOp() == messages.EQ || */ {
+	// Checks the exact request condition. Only consider meaningful treaties: LE, LT for TakeAmountFood (GE, GT for LeaveAmountFood)
+	if t.RequestOp() == messages.LE || t.RequestOp() == messages.LT /*t.ConditionOp() == messages.EQ || */ {
 		// The treaty is of the form "Take X (or less) food"
 
 		// 2. Calculate the agent's utility given different outcomes (accept or reject treaty)
@@ -218,7 +221,7 @@ func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
 		return benefit > 0.0
 
 	}
-	// We do not consider other type of treaties than LeaveAmountFood and LeavePercentFood
+	// We do not consider other type of treaties than TakeAmountFood treaties
 	return false
 }
 
@@ -271,11 +274,11 @@ func (a *CustomAgent6) constructTreaty() messages.Treaty {
 		case 0:
 			// ConditionType, conditionValue, RequestType, requestValue, cop, rop, duration, proposerID
 			// proposedTreaty = messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
-			return *messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GE, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
+			return *messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.TakeAmountFood, 0, messages.GE, messages.LE, int(2*a.reassignPeriodGuess), a.ID())
 		default:
 			// Different treaty
 			// proposedTreaty = messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
-			return *messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GE, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
+			return *messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.TakeAmountFood, 0, messages.GE, messages.LE, int(2*a.reassignPeriodGuess), a.ID())
 		}
 
 	case "Selfish":
@@ -283,14 +286,14 @@ func (a *CustomAgent6) constructTreaty() messages.Treaty {
 		case 0:
 			// ConditionType, conditionValue, RequestType, requestValue, cop, rop, duration, proposerID
 			// proposedTreaty = messages.NewTreaty(messages.HP, levels.strongLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
-			return *messages.NewTreaty(messages.HP, levels.strongLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
+			return *messages.NewTreaty(messages.HP, levels.strongLevel, messages.TakeAmountFood, 0, messages.GT, messages.LE, int(2*a.reassignPeriodGuess), a.ID())
 		default:
 			// Different treaty
 			// proposedTreaty = messages.NewTreaty(messages.HP, levels.strongLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
-			return *messages.NewTreaty(messages.HP, levels.strongLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
+			return *messages.NewTreaty(messages.HP, levels.strongLevel, messages.TakeAmountFood, 0, messages.GT, messages.LE, int(4*a.reassignPeriodGuess), a.ID())
 		}
 	default:
-		return *messages.NewTreaty(messages.HP, a.HealthInfo().MaxHP, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
+		return *messages.NewTreaty(messages.HP, a.HealthInfo().MaxHP, messages.TakeAmountFood, 0, messages.GT, messages.LE, int(4*a.reassignPeriodGuess), a.ID())
 	}
 }
 

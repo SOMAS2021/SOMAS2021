@@ -21,6 +21,7 @@ const (
 	LeaveAmountFood RequestType = iota + 1
 	LeavePercentFood
 	Inform
+	TakeAmountFood
 )
 
 //go:generate go run golang.org/x/tools/cmd/stringer -type=Op
