@@ -101,7 +101,7 @@ func (a *Base) Run() {
 }
 
 func (a *Base) HP() int {
-	return utilFunctions.MinInt(a.hp, 100)
+	return utilFunctions.MinInt(a.hp, a.tower.healthInfo.MaxHP)
 }
 
 func (a *Base) Age() int {
@@ -339,7 +339,7 @@ func (a *Base) HealthInfo() *health.HealthInfo {
 
 func (a *Base) storyState() logging.AgentState {
 	return logging.AgentState{
-		HP:        a.hp,
+		HP:        a.HP(),
 		AgentType: a.agentType,
 		Floor:     a.floor,
 		Age:       a.age,
