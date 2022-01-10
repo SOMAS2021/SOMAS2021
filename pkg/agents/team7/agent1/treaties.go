@@ -14,33 +14,18 @@ func (a *CustomAgent7) HandleBadTreaty(msg messages.ProposeTreatyMessage) {
 
 func (a *CustomAgent7) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 	treaty := msg.Treaty()
-	// switch{
-	// case (treaty.ConditionOp() == messages.LE || treaty.ConditionOp() == messages.LT) && treaty.Condition() == messages.HP || treaty.Condition() == messages.AvailableFood :
-	// 	a.HandleBadTreaty(msg)
-	// 	return
-	// case (treaty.ConditionOp() == messages.GE || treaty.ConditionOp() == messages.GT) && treaty.Condition() == messages.Floor:
-	// 	a.HandleBadTreaty(msg)
-	// 	return
-	// case treaty.Request() == messages.Inform:
-	// 	a.HandleBadTreaty(msg)
-	// 	return
-	// case treaty.Request() == messages.LeaveAmountFood || treaty.Request() == messages.LeavePercentFood && treaty.RequestOp() == messages.LT) || treaty.RequestOp() == messages.LE:
-	// 	a.HandleBadTreaty(msg)
-	// 	return
-	// case treaty.Condition() == messages.HP && treaty.ConditionValue() < a.HealthInfo().WeakLevel:
-	// 	a.HandleBadTreaty(msg)
-	// 	return
-	// case a.clashOfTreaties(treaty):
-	// 	a.HandleBadTreaty(msg)
-	// 	return
-	// }
-
-	if ((treaty.ConditionOp() == messages.LE || treaty.ConditionOp() == messages.LT) && treaty.Condition() == messages.HP || treaty.Condition() == messages.AvailableFood) ||
-		((treaty.ConditionOp() == messages.GE || treaty.ConditionOp() == messages.GT) && treaty.Condition() == messages.Floor) ||
-		(treaty.Request() == messages.Inform) ||
-		((treaty.Request() == messages.LeaveAmountFood || treaty.Request() == messages.LeavePercentFood && treaty.RequestOp() == messages.LT) || treaty.RequestOp() == messages.LE) ||
-		(treaty.Condition() == messages.HP && treaty.ConditionValue() < a.HealthInfo().WeakLevel) ||
-		(a.clashOfTreaties(treaty)) {
+	switch {
+	case (treaty.ConditionOp() == messages.LE || treaty.ConditionOp() == messages.LT) && (treaty.Condition() == messages.HP || treaty.Condition() == messages.AvailableFood):
+		fallthrough
+	case (treaty.ConditionOp() == messages.GE || treaty.ConditionOp() == messages.GT) && treaty.Condition() == messages.Floor:
+		fallthrough
+	case treaty.Request() == messages.Inform:
+		fallthrough
+	case (treaty.Request() == messages.LeaveAmountFood || treaty.Request() == messages.LeavePercentFood) && (treaty.RequestOp() == messages.LT || treaty.RequestOp() == messages.LE):
+		fallthrough
+	case treaty.Condition() == messages.HP && treaty.ConditionValue() < a.HealthInfo().WeakLevel:
+		fallthrough
+	case a.clashOfTreaties(treaty):
 		a.HandleBadTreaty(msg)
 		return
 	}

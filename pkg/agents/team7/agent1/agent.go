@@ -135,18 +135,14 @@ func (a *CustomAgent7) Run() {
 func (a *CustomAgent7) manageFood() {
 
 	if a.PlatformOnFloor() && !a.opMem.seenPlatform {
-
 		// ------------------ Run() Block C: Calculates average food available on this floor ------------------
 		a.foodAverage()
-
 		// ------------------ Run() Block D.1: Adjusting mood w.r.t. personality and randomness ------------------
 		a.adjustMood()
-
 		// ------------------ Run() Block D.2: Take food w.r.t. current health, mood, messages and treaties ------------------
 		var foodtotake food.FoodType
-
-		satisficedHP := a.HealthInfo().MaxHP * 3 / 10
-		healthyHP := a.HealthInfo().MaxHP * 65 / 100
+		satisficedHP := 30
+		healthyHP := 65
 		targetWeakFood := health.FoodRequired(a.HP(), a.HealthInfo().WeakLevel, a.HealthInfo())
 		targetSatisficedFood := health.FoodRequired(a.HP(), satisficedHP, a.HealthInfo())
 		targetHealthyFood := health.FoodRequired(a.HP(), healthyHP, a.HealthInfo())
@@ -163,7 +159,6 @@ func (a *CustomAgent7) manageFood() {
 		case a.HP() <= a.HealthInfo().HPCritical && a.DaysAtCritical() >= (a.HealthInfo().MaxDayCritical-1):
 
 			a.Log("CASE1------------------------------------------------------------------------------------------------------------------------")
-
 			foodtotake = targetSatisficedFood - food.FoodType(kindnessAdjuster/5) + food.FoodType(greedinessAdjuster)
 			a.criticalStateTreaty()
 			a.desperationTreaty()
@@ -179,37 +174,13 @@ func (a *CustomAgent7) manageFood() {
 		case len(a.ActiveTreaties()) != 0:
 			a.Log("CASE3------------------------------------------------------------------------------------------------------------------------")
 			foodtotake = targetSatisficedFood - food.FoodType(kindnessAdjuster/5) + food.FoodType(greedinessAdjuster)
-
 			if a.HP() <= a.HealthInfo().HPCritical {
 				a.propagateTreatyUpwards()
 			}
 
 			for _, tActive := range a.ActiveTreaties() {
 				if a.PlatformOnFloor() && tActive.Request() != messages.Inform {
-					available := a.CurrPlatFood()
-					amount := food.FoodType(float64(tActive.RequestValue()/100)) * available
-					if tActive.Request() == messages.LeaveAmountFood {
-						amount = food.FoodType(tActive.RequestValue())
-					}
-					// case tActive.condition
-					// check HP condition
-					switch tActive.ConditionOp() { // if HP > 10 , Leaveamount > 15, availble = 37, foottotake = 30
-					case messages.GT:
-						foodtotake = a.treatyGT(tActive, foodtotake, available, amount)
-
-					case messages.GE:
-						foodtotake = a.treatyGE(tActive, foodtotake, available, amount)
-
-					case messages.EQ:
-						foodtotake = a.treatyEQ(tActive, foodtotake, available, amount)
-
-					case messages.LT:
-						foodtotake = a.treatyLT(tActive, foodtotake, available, amount)
-
-					case messages.LE:
-						foodtotake = a.treatyLE(tActive, foodtotake, available, amount)
-
-					}
+					foodtotake = a.manageTreaties(tActive, foodtotake)
 				}
 			}
 			// In this case the agent can stay critical for another 4 or more days. Hence the fulfillment of treaties and requests is prioritized over this
@@ -277,6 +248,44 @@ func (a *CustomAgent7) foodAverage() {
 	}
 }
 
+func (a *CustomAgent7) manageTreaties(tActive messages.Treaty, foodtotake food.FoodType) food.FoodType {
+	available := a.CurrPlatFood()
+
+	amount := food.FoodType(float64(tActive.RequestValue()/100)) * available
+	if tActive.Request() == messages.LeaveAmountFood {
+		amount = food.FoodType(tActive.RequestValue())
+	}
+	// case tActive.condition
+	// check HP condition
+	switch tActive.ConditionOp() { // if HP > 10 , Leaveamount > 15, availble = 37, foottotake = 30
+	case messages.GT:
+		if a.HP() > tActive.ConditionValue() || int(a.CurrPlatFood()) > tActive.ConditionValue() {
+			foodtotake = a.treatyFood(tActive, foodtotake, available, amount)
+		}
+
+	case messages.GE:
+		if a.HP() >= tActive.ConditionValue() || int(a.CurrPlatFood()) >= tActive.ConditionValue() {
+			foodtotake = a.treatyFood(tActive, foodtotake, available, amount)
+		}
+
+	case messages.EQ:
+		if a.HP() == tActive.ConditionValue() || int(a.CurrPlatFood()) == tActive.ConditionValue() || a.Floor() == tActive.ConditionValue() {
+			foodtotake = a.treatyFood(tActive, foodtotake, available, amount)
+		}
+	case messages.LT:
+		if a.Floor() < tActive.ConditionValue() {
+			foodtotake = a.treatyFood(tActive, foodtotake, available, amount)
+		}
+
+	case messages.LE:
+		if a.Floor() <= tActive.ConditionValue() {
+			foodtotake = a.treatyFood(tActive, foodtotake, available, amount)
+		}
+
+	}
+	return foodtotake
+}
+
 func (a *CustomAgent7) adjustMood() {
 	r1 := rand.Intn(11) - 5
 	r2 := rand.Intn(11) - 5
@@ -342,8 +351,6 @@ func (a *CustomAgent7) foodNewFloor() {
 			if a.opMem.orderPrevFloors[i] < a.Floor() && a.opMem.orderPrevFloors[i] > closestFloorAboveCurrent {
 				closestFloorAboveCurrent = a.opMem.orderPrevFloors[i]
 			}
-		}
-		for i := 0; i < len(a.opMem.orderPrevFloors); i++ {
 			if a.opMem.orderPrevFloors[i] > a.Floor() && a.opMem.orderPrevFloors[i] < int(closestFloorBelowCurrent) {
 				closestFloorBelowCurrent = float64(a.opMem.orderPrevFloors[i])
 			}
@@ -357,7 +364,9 @@ func (a *CustomAgent7) foodNewFloor() {
 	} else {
 
 		if closestFloorAboveCurrent != 0 && closestFloorBelowCurrent != math.Inf(1) {
-			expectedFood = a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood + (a.opMem.prevFloors[closestFloorAboveCurrent].avgFood-a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood)*(int(closestFloorBelowCurrent)-a.Floor())/(int(closestFloorBelowCurrent)-int(closestFloorAboveCurrent))
+			expectedFood = a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood +
+				(a.opMem.prevFloors[closestFloorAboveCurrent].avgFood-a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood)*
+					(int(closestFloorBelowCurrent)-a.Floor())/(int(closestFloorBelowCurrent)-int(closestFloorAboveCurrent))
 		}
 		if closestFloorAboveCurrent == 0 && closestFloorBelowCurrent != math.Inf(1) {
 			if a.opMem.prevFloors[int(closestFloorBelowCurrent)].avgFood == 0 {
@@ -381,6 +390,7 @@ func (a *CustomAgent7) foodNewFloor() {
 	a.floorChangeMood(expectedFood)
 
 }
+
 func (a *CustomAgent7) floorChangeMood(expectedFood int) {
 	// Update Behaviour: Higher in the tower (lower floor number) increases greed/decreases kindess and vice versa
 	if a.Floor() < a.opMem.orderPrevFloors[len(a.opMem.orderPrevFloors)-1] {
@@ -405,47 +415,14 @@ func (a *CustomAgent7) floorChangeMood(expectedFood int) {
 	a.treatyOnFloorChange()
 }
 
+// ------------------ Run() Block B: Receive messages ------------------
 func (a *CustomAgent7) manageMessages() {
-	// ------------------ Run() Block B: Receive messages ------------------
 	receivedMsg := a.ReceiveMessage()
 	if receivedMsg != nil {
 		receivedMsg.Visit(a)
 	} else {
 		a.Log("No Messages")
 	}
-
-	// Messaging
-	if a.opMem.prevAge < a.Age() {
-		a.opMem.prevAge = a.Age()
-		a.opMem.msg1Sent = false
-		a.opMem.msg2Sent = false
-		a.opMem.msg3Sent = false
-	}
-
-	if !a.opMem.msg1Sent {
-		msg := messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()+1)
-		a.SendMessage(msg)
-		if a.Floor() != 1 {
-			msg = messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()-1)
-			a.SendMessage(msg)
-		}
-		a.opMem.msg1Sent = true
-	}
-
-	if a.PlatformOnFloor() && !a.opMem.msg2Sent {
-		if a.Floor() != 1 {
-			msg2 := messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), a.Floor()-1)
-			a.SendMessage(msg2)
-		}
-		a.opMem.msg2Sent = true
-	}
-
-	if !a.PlatformOnFloor() && a.CurrPlatFood() != -1 && a.opMem.seenPlatform && a.Floor() != 1 && !a.opMem.msg3Sent {
-		msg2 := messages.NewAskFoodTakenMessage(a.ID(), a.Floor(), a.Floor()+1)
-		a.SendMessage(msg2)
-		a.opMem.msg3Sent = true
-	}
-
 }
 
 func (a *CustomAgent7) manageNewDay() {
@@ -457,109 +434,21 @@ func (a *CustomAgent7) manageNewDay() {
 
 }
 
-func (a *CustomAgent7) treatyGT(tActive messages.Treaty, foodtotake food.FoodType, available food.FoodType, amount food.FoodType) food.FoodType {
-
-	if a.HP() > tActive.ConditionValue() || int(a.CurrPlatFood()) > tActive.ConditionValue() {
-		switch tActive.RequestOp() {
-		case messages.GT:
-			if foodtotake > available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount) - 1
-			}
-		case messages.GE:
-			if foodtotake >= available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount)
-			}
-		case messages.EQ:
-			if foodtotake != available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount)
-			}
+func (a *CustomAgent7) treatyFood(tActive messages.Treaty, foodtotake food.FoodType, available food.FoodType, amount food.FoodType) food.FoodType {
+	switch tActive.RequestOp() {
+	case messages.GT:
+		if foodtotake > available-food.FoodType(tActive.RequestValue()) {
+			foodtotake = available - food.FoodType(amount) - 1
+		}
+	case messages.GE:
+		if foodtotake >= available-food.FoodType(tActive.RequestValue()) {
+			foodtotake = available - food.FoodType(amount)
+		}
+	case messages.EQ:
+		if foodtotake != available-food.FoodType(tActive.RequestValue()) {
+			foodtotake = available - food.FoodType(amount)
 		}
 	}
-	return foodtotake
-
-}
-func (a *CustomAgent7) treatyGE(tActive messages.Treaty, foodtotake food.FoodType, available food.FoodType, amount food.FoodType) food.FoodType {
-
-	if a.HP() >= tActive.ConditionValue() || int(a.CurrPlatFood()) >= tActive.ConditionValue() {
-		switch tActive.RequestOp() {
-		case messages.GT:
-			if foodtotake > available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount) - 1
-			}
-		case messages.GE:
-			if foodtotake >= available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount)
-			}
-		case messages.EQ:
-			if foodtotake != available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount)
-			}
-		}
-	}
-	return foodtotake
-
-}
-func (a *CustomAgent7) treatyEQ(tActive messages.Treaty, foodtotake food.FoodType, available food.FoodType, amount food.FoodType) food.FoodType {
-
-	if a.HP() == tActive.ConditionValue() || int(a.CurrPlatFood()) == tActive.ConditionValue() || a.Floor() == tActive.ConditionValue() {
-		switch tActive.RequestOp() {
-		case messages.GT:
-			if foodtotake > available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount) - 1
-			}
-		case messages.GE:
-			if foodtotake >= available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount)
-			}
-		case messages.EQ:
-			if foodtotake != available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount)
-			}
-		}
-	}
-	return foodtotake
-
-}
-func (a *CustomAgent7) treatyLT(tActive messages.Treaty, foodtotake food.FoodType, available food.FoodType, amount food.FoodType) food.FoodType {
-
-	if a.Floor() < tActive.ConditionValue() {
-		switch tActive.RequestOp() {
-		case messages.GT:
-			if foodtotake > available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount) - 1
-			}
-		case messages.GE:
-			if foodtotake >= available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount)
-			}
-		case messages.EQ:
-			if foodtotake != available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount)
-			}
-		}
-	}
-	return foodtotake
-
-}
-func (a *CustomAgent7) treatyLE(tActive messages.Treaty, foodtotake food.FoodType, available food.FoodType, amount food.FoodType) food.FoodType {
-
-	if a.Floor() <= tActive.ConditionValue() {
-		switch tActive.RequestOp() {
-		case messages.GT:
-			if foodtotake > available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount) - 1
-			}
-		case messages.GE:
-			if foodtotake >= available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount)
-			}
-		case messages.EQ:
-			if foodtotake != available-food.FoodType(tActive.RequestValue()) {
-				foodtotake = available - food.FoodType(amount)
-			}
-		}
-	}
-
 	return foodtotake
 }
 
@@ -580,7 +469,8 @@ func (a *CustomAgent7) HandleAskFoodTaken(msg messages.AskFoodTakenMessage) {
 
 func (a *CustomAgent7) HandleAskIntendedFoodTaken(msg messages.AskIntendedFoodIntakeMessage) {
 	a.Log("Recieved askIntendedFoodTaken message from ", infra.Fields{"floor": msg.SenderFloor()})
-	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(health.FoodRequired(a.HP(), 60, a.HealthInfo())))
+	satisficedHP := 30
+	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), int(health.FoodRequired(a.HP(), satisficedHP, a.HealthInfo())))
 	a.SendMessage(reply)
 }
 
