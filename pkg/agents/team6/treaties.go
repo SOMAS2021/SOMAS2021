@@ -98,55 +98,63 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 		switch t.Condition() {
 		// HP
 		case 1:
-			switch a.currBehaviour.string() {
-			case "Altruist":
-				return true
-			case "Collectivist":
-				if conditionCheck || t.ConditionValue() < a.HealthInfo().WeakLevel {
-					return considerTreaty
-				}
-				return true
-
-			case "Selfish":
-				if conditionCheck || t.ConditionValue() < levels.strongLevel {
-					return considerTreaty
-				}
-				return true
-			case "Narcissist":
-				return considerTreaty
-			default:
-				return considerTreaty
-			}
+			return a.considerHPTreaty(conditionCheck, considerTreaty, levels, t.ConditionValue())
 		// Floor
 		case 2:
 			return considerTreaty
 		// AvailableFood
 		case 3:
-			switch a.currBehaviour.string() {
-			case "Altruist":
-				return true
-			case "Collectivist":
-				if conditionCheck || convertedFood <= 2 {
-					return considerTreaty
-				}
-				return true
-			case "Selfish":
-				if conditionCheck || convertedFood <= 60 {
-					return considerTreaty
-				}
-				return true
-
-			case "Narcissist":
-				return considerTreaty
-			default:
-				return considerTreaty
-			}
-
+			return a.considerFoodTreaty(conditionCheck, considerTreaty, convertedFood)
 		default:
 			return considerTreaty
 		}
-	} else {
-		return false
+	}
+	return false
+}
+
+// food treaties
+func (a *CustomAgent6) considerFoodTreaty(conditionCheck bool, considerTreaty bool, convertedFood food.FoodType) bool {
+	switch a.currBehaviour.string() {
+	case "Altruist":
+		return true
+	case "Collectivist":
+		if conditionCheck || convertedFood <= 2 {
+			return considerTreaty
+		}
+		return true
+	case "Selfish":
+		if conditionCheck || convertedFood <= 60 {
+			return considerTreaty
+		}
+		return true
+
+	case "Narcissist":
+		return considerTreaty
+	default:
+		return considerTreaty
+	}
+}
+
+// HP treaties
+func (a *CustomAgent6) considerHPTreaty(conditionCheck bool, considerTreaty bool, levels levelsData, conditionValue int) bool {
+	switch a.currBehaviour.string() {
+	case "Altruist":
+		return true
+	case "Collectivist":
+		if conditionCheck || conditionValue < a.HealthInfo().WeakLevel {
+			return considerTreaty
+		}
+		return true
+
+	case "Selfish":
+		if conditionCheck || conditionValue < levels.strongLevel {
+			return considerTreaty
+		}
+		return true
+	case "Narcissist":
+		return considerTreaty
+	default:
+		return considerTreaty
 	}
 }
 
