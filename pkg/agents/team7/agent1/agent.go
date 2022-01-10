@@ -130,8 +130,6 @@ func (a *CustomAgent7) Run() {
 	if !a.PlatformOnFloor() && a.opMem.seenPlatform {
 		a.manageNewDay()
 	}
-
-	//End of Run()
 }
 
 func (a *CustomAgent7) manageFood() {
