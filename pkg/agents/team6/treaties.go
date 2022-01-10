@@ -91,58 +91,50 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT {
 		switch t.Condition() {
 		// HP
-		case 1:
+		case messages.HP:
 			switch a.currBehaviour.string() {
 			case "Altruist":
 				return true
 			case "Collectivist":
 				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
-					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 					return a.considerTreatyUsingUtility(t)
 				} else {
 					if t.ConditionValue() >= a.HealthInfo().WeakLevel {
 						return true
 					} else {
-						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 						return a.considerTreatyUsingUtility(t)
 					}
 				}
 
 			case "Selfish":
 				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
-					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 					return a.considerTreatyUsingUtility(t)
 				} else {
 					if t.ConditionValue() >= levels.strongLevel {
 						return true
 					} else {
-						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 						return a.considerTreatyUsingUtility(t)
 
 					}
 				}
 			case "Narcissist":
-				a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 				return a.considerTreatyUsingUtility(t)
 			default:
-				a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 				return a.considerTreatyUsingUtility(t)
 			}
 		// Floor
-		case 2:
+		case messages.Floor:
 			return a.considerTreatyUsingUtility(t)
 		// AvailableFood
-		case 3:
+		case messages.AvailableFood:
 			switch a.currBehaviour.string() {
 			case "Altruist":
 				return true
 			case "Collectivist":
 				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
-					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 					return a.considerTreatyUsingUtility(t)
 				} else {
 					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 2 { // 2 is the amount needed to y sufficient to go from critical to WeakLevel
-						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 						return a.considerTreatyUsingUtility(t)
 					} else {
 						return true
@@ -150,11 +142,9 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 				}
 			case "Selfish":
 				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
-					a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 					return a.considerTreatyUsingUtility(t)
 				} else {
 					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 60 { // change to a.HealthInfo().MaxFoodIntake
-						a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 						return a.considerTreatyUsingUtility(t)
 					} else {
 						return true
@@ -162,15 +152,12 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 				}
 
 			case "Narcissist":
-				a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 				return a.considerTreatyUsingUtility(t)
 			default:
-				a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 				return a.considerTreatyUsingUtility(t)
 			}
 
 		default:
-			a.Log("I used considerTreatyUsingUtility", infra.Fields{"my floor:": a.Floor(), "my social motive": a.currBehaviour.string()})
 			return a.considerTreatyUsingUtility(t)
 		}
 	} else {
@@ -245,10 +232,9 @@ func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
 		// 3. If we benefit from the treaty, accept it
 		return benefit > 0.0
 
-	} else {
-		// We do not consider other type of treaties than LeaveAmountFood and LeavePercentFood
-		return false
 	}
+	// We do not consider other type of treaties than LeaveAmountFood and LeavePercentFood
+	return false
 }
 
 // Returns true if a given treaty applies to an agent by comparing the treaty condition to the agent's state
@@ -256,64 +242,64 @@ func (a *CustomAgent6) conditionApplies(t *messages.Treaty) bool {
 
 	switch t.Condition() {
 	// Condition : HP
-	case 1:
+	case messages.HP:
 		switch t.ConditionOp() {
 		// GT
-		case 1:
+		case messages.GT:
 			return a.HP() > t.ConditionValue()
 		//GE
-		case 2:
+		case messages.GE:
 			return a.HP() >= t.ConditionValue()
 		//EQ
-		case 3:
+		case messages.EQ:
 			return a.HP() == t.ConditionValue()
 		// LE
-		case 4:
+		case messages.LE:
 			return a.HP() <= t.ConditionValue()
 		// LT
-		case 5:
+		case messages.LT:
 			return a.HP() < t.ConditionValue()
 		default:
 			return true
 		}
 	// Condition : floor
-	case 2:
+	case messages.Floor:
 		switch t.ConditionOp() {
 		// GT
-		case 1:
+		case messages.GT:
 			return a.Floor() > t.ConditionValue()
 		//GE
-		case 2:
+		case messages.GE:
 			return a.Floor() >= t.ConditionValue()
 		//EQ
-		case 3:
+		case messages.EQ:
 			return a.Floor() == t.ConditionValue()
 		// LE
-		case 4:
+		case messages.LE:
 			return a.Floor() <= t.ConditionValue()
 		// LT
-		case 5:
+		case messages.LT:
 			return a.Floor() < t.ConditionValue()
 		default:
 			return true
 		}
 	// Condition : AvailableFood
-	case 3:
+	case messages.AvailableFood:
 		switch t.ConditionOp() {
 		// GT
-		case 1:
+		case messages.GT:
 			return int(a.CurrPlatFood()) > t.ConditionValue()
 		//GE
-		case 2:
+		case messages.GE:
 			return int(a.CurrPlatFood()) >= t.ConditionValue()
 		//EQ
-		case 3:
+		case messages.EQ:
 			return int(a.CurrPlatFood()) == t.ConditionValue()
 		// LE
-		case 4:
+		case messages.LE:
 			return int(a.CurrPlatFood()) <= t.ConditionValue()
 		// LT
-		case 5:
+		case messages.LT:
 			return int(a.CurrPlatFood()) < t.ConditionValue()
 		default:
 			return true

@@ -129,15 +129,34 @@ func (a *CustomAgent6) HandleRequestLeaveFood(msg messages.RequestLeaveFoodMessa
 // Handles RequestTakeFood messages the agent receives
 // Returns false, as our agents never accept to take a precise, fixed amount of food
 func (a *CustomAgent6) HandleRequestTakeFood(msg messages.RequestTakeFoodMessage) {
-	reply := false
+
+	var reply bool
+
+	a.updateTrust(-1, msg.SenderID())
+
+	if msg.Request() != 0 {
+		reply = false
+	} else {
+		switch a.currBehaviour.string() {
+		case "Altruist":
+			reply = true
+		case "Collectivist":
+			reply = a.HP() >= a.HealthInfo().WeakLevel
+		case "Selfish":
+			reply = a.HP() >= a.HealthInfo().WeakLevel && a.trustTeams[msg.SenderID()] >= 10
+		default:
+			reply = false
+		}
+	}
+
 	replyMessage := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), reply)
 	a.SendMessage(replyMessage)
 
 	if reply {
-		a.reqLeaveFoodAmount = msg.Request()
+		a.reqTakeFoodAmount = msg.Request()
 		a.Log("I received a requestTakeFood message and my response was true")
 	} else {
-		a.reqLeaveFoodAmount = -1
+		a.reqTakeFoodAmount = -1
 		a.Log("I received a requestTakeFood message and my response was false")
 	}
 	// Try to identify our neighbours

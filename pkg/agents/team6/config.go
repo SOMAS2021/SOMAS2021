@@ -58,6 +58,7 @@ type CustomAgent6 struct {
 	currBehaviour      behaviour
 	foodTakeDay        int
 	reqLeaveFoodAmount int
+	reqTakeFoodAmount  int
 	lastFoodTaken      food.FoodType
 	averageFoodIntake  float64
 	// Memory of food available throughout agent's lifetime
@@ -72,8 +73,6 @@ type CustomAgent6 struct {
 	platOnFloorCtr int
 	// Keeps track of previous floor to see if agent has been reassigned
 	prevFloor int
-	// Ticks counter
-	countTick int
 	// holding proposed treaty not accepted yet
 	proposedTreaties map[uuid.UUID]messages.Treaty
 	// Mapping of agent id to trust
@@ -119,6 +118,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		maxFloorGuess:       baseAgent.Floor() + 2,
 		foodTakeDay:         0,
 		reqLeaveFoodAmount:  -1,
+		reqTakeFoodAmount:   -1,
 		lastFoodTaken:       0,
 		averageFoodIntake:   0.0,
 		longTermMemory:      make(memory, 0),
@@ -127,7 +127,6 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		reassignPeriodGuess: 0,
 		platOnFloorCtr:      0,
 		prevFloor:           -1,
-		countTick:           1,
 		proposedTreaties:    make(map[uuid.UUID]messages.Treaty),
 		trustTeams:          make(trust),
 		neighbours:          neighbours{above: uuid.Nil, below: uuid.Nil},
@@ -283,6 +282,7 @@ func (a *CustomAgent6) Run() {
 	a.addToMemory()
 
 	// Eat if needed/wanted
+	desiredFood := a.desiredFoodIntake()
 	intendedFood := a.intendedFoodIntake()
 	foodTaken, err := a.TakeFood(intendedFood)
 
@@ -296,34 +296,17 @@ func (a *CustomAgent6) Run() {
 		} else {
 			a.updateTrust(1, a.neighbours.above)
 		}
-		a.Log("Agent6 took food!")
+		// LOG
+		a.Log("Team 6 agent took food:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "social motive": a.currBehaviour.string(), "desiredFood": desiredFood, "intendedFood": intendedFood})
 	}
 
 	// Reset the reqLeaveFoodAmount to nothing once the agent has eaten
 	if a.HasEaten() {
 		a.reqLeaveFoodAmount = -1
+		a.reqTakeFoodAmount = -1
 	}
-
-	// LOG
-	a.Log("Team 6 agent has floor:", infra.Fields{"floor": a.Floor()})
-	a.Log("Team 6 agent has HP:", infra.Fields{"hp": a.HP()})
-	a.Log("Team 6 agent desired to take:", infra.Fields{"desiredFood": a.desiredFoodIntake()})
-	a.Log("Team 6 agent intended to take:", infra.Fields{"intendedFood": a.intendedFoodIntake()})
-	a.Log("Team 6 agent took:", infra.Fields{"foodTaken": foodTaken, "bType": a.currBehaviour.string()})
-
-	// treaty := messages.NewTreaty(1, 1, 1, 1, 1, 1, 5, a.ID())
-	// min, max := a.foodRange()
-	// valid := a.treatyValid(treaty)
-
-	// a.Log("Team 6 processed treaty:", infra.Fields{"treaty": treaty, "range": max - min, "isValid:": valid})
-	// // treatyMsg := messages.NewProposalMessage(a.ID(), a.Floor()+1, *treaty)
-
-	// treatyMsg.Visit(a).
 
 	a.prevFloor = a.Floor() // keep at end of Run() function
 	a.prevAge = a.Age()
-
-	// Adds one tick to the counter
-	a.countTick++
 
 }
