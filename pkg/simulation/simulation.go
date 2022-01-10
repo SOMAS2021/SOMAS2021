@@ -103,6 +103,9 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 			agent.CustomLogs()
 		}
 	}
+
+	// dispatch loggers
+	sE.stateLog.SimEnd(sE.dayInfo)
 }
 
 func (s *SimEnv) Log(message string, fields ...Fields) {
