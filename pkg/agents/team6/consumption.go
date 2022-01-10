@@ -88,7 +88,6 @@ func (a *CustomAgent6) maxAllowedFood() food.FoodType {
 				max = takeFoodAmount
 			}
 		}
-
 	}
 
 	// Check the RequestLeaveFood message

@@ -107,7 +107,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			baseBehaviour:         initialBehaviour,
 			stubbornness:          0.2,
 			maxBehaviourSwing:     8,
-			paramWeights:          behaviourParameterWeights{HPWeight: 0.7, floorWeight: 0.3}, //ensure sum of weights = max behaviour enum
+			paramWeights:          behaviourParameterWeights{HPWeight: 0.8, floorWeight: 0.2}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
 			prevFoodDiscount:      0.6,
@@ -230,7 +230,7 @@ func (a *CustomAgent6) identifyNeighbours(id uuid.UUID, floor int) {
 }
 
 func (b behaviour) string() string {
-	behaviourMap := [...]thresholdBehaviourPair{{2, "Altruist"}, {7, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
+	behaviourMap := [...]thresholdBehaviourPair{{1, "Altruist"}, {5, "Collectivist"}, {7, "Selfish"}, {10, "Narcissist"}}
 
 	if b >= 0 {
 		for _, v := range behaviourMap {
@@ -257,7 +257,6 @@ func (a *CustomAgent6) Run() {
 		}
 		a.requestLeaveFood()
 		a.regainTrustInNeighbours()
-
 	}
 
 	// Receiving messages and treaties
