@@ -49,16 +49,13 @@ export function UtilityOnDeath(utilities: UtilityLog[]): UtilityLog[] {
 }
 
 export function AverageAgeUponDeath(deathLogs: DeathLog[]): { [agentType: string]: number } {
-  // Return: the average utility per agent over its entire existence
   var ageMap: { [agentType: string]: number } = {};
   var counts: { [agentType: string]: number } = {};
-  // Sum utility and count num entries
   deathLogs.forEach((log) => {
     let agentType = log.agentType;
     ageMap[agentType] = !ageMap[agentType] ? log.ageUponDeath : ageMap[agentType] + log.ageUponDeath;
     counts[agentType] = !counts[agentType] ? 1 : counts[agentType] + 1;
   });
-
   // Get averages
   for (var agentType in ageMap) {
     if (counts.hasOwnProperty(agentType)) {
