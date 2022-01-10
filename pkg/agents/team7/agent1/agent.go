@@ -151,7 +151,7 @@ func (a *CustomAgent7) manageFood() {
 		greedinessAdjuster := (float64(a.behaviour.greediness) / 300) * float64(targetFullFood-targetSatisficedFood)
 		kindnessAdjuster := (float64(a.behaviour.kindness) / 300) * float64(targetFullFood-targetSatisficedFood)
 
-		a.Log("ABCDEFG:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "W": targetWeakFood, "H": targetHealthyFood, "S": targetSatisficedFood, "F": targetFullFood, "msg1Sent": a.opMem.msg1Sent, "msg2Sent": a.opMem.msg2Sent, "msg3Sent": a.opMem.msg3Sent})
+		a.Log("Food Take Condition:", infra.Fields{"hp": a.HP(), "greed": a.behaviour.greediness, "kind": a.behaviour.kindness, "W": targetWeakFood, "H": targetHealthyFood, "S": targetSatisficedFood, "F": targetFullFood, "msg1Sent": a.opMem.msg1Sent, "msg2Sent": a.opMem.msg2Sent, "msg3Sent": a.opMem.msg3Sent})
 		a.Log("TREATYLEN: ", infra.Fields{"TREATYLEN": len(a.ActiveTreaties())})
 
 		switch {
@@ -207,7 +207,7 @@ func (a *CustomAgent7) eating(foodtotake food.FoodType, targetFullFood food.Food
 	if foodtotake > targetFullFood {
 		foodtotake = targetFullFood
 	}
-	a.Log("VWXYZ:", infra.Fields{"food": foodtotake})
+	a.Log("Food Requested:", infra.Fields{"food": foodtotake})
 	// Eat Food and Update Statuses
 	eaten, err := a.TakeFood(foodtotake)
 
