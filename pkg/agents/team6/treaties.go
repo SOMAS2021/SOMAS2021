@@ -36,14 +36,6 @@ func calculateUtility(x, z float64, socialMotive string) float64 {
 	return result
 }
 
-// Returns the minimum value of two food.Foodtype variables
-// func min(x, y food.FoodType) food.FoodType {
-// 	if x < y {
-// 		return x
-// 	}
-// 	return y
-// }
-
 // Evaluates our agents current utility based on the current desired food
 func (a *CustomAgent6) evaluateUtility(mem memory) float64 {
 	sum := food.FoodType(0)
@@ -87,86 +79,78 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 		weakLevel:    a.HealthInfo().WeakLevel,
 		critLevel:    0,
 	}
+
+	// readable constants
+	convertedFood := a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue())
+	conditionCheck := t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT
+	consultUtility := a.considerTreatyUsingUtility(t)
+
 	// We only consider meaningful LeaveAmountFood and LeavePercentFood treaties, i.e., the treaties with RequestOp GE or GT
 	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT {
 		switch t.Condition() {
 		// HP
 		case messages.HP:
-			switch a.currBehaviour.string() {
-			case "Altruist":
-				return true
-			case "Collectivist":
-				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
-					return a.considerTreatyUsingUtility(t)
-				} else {
-					if t.ConditionValue() >= a.HealthInfo().WeakLevel {
-						return true
-					} else {
-						return a.considerTreatyUsingUtility(t)
-					}
-				}
-
-			case "Selfish":
-				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
-					return a.considerTreatyUsingUtility(t)
-				} else {
-					if t.ConditionValue() >= levels.strongLevel {
-						return true
-					} else {
-						return a.considerTreatyUsingUtility(t)
-
-					}
-				}
-			case "Narcissist":
-				return a.considerTreatyUsingUtility(t)
-			default:
-				return a.considerTreatyUsingUtility(t)
-			}
+			return a.considerHPTreaty(conditionCheck, consultUtility, levels, t.ConditionValue())
 		// Floor
 		case messages.Floor:
-			return a.considerTreatyUsingUtility(t)
+			return consultUtility
 		// AvailableFood
 		case messages.AvailableFood:
-			switch a.currBehaviour.string() {
-			case "Altruist":
-				return true
-			case "Collectivist":
-				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
-					return a.considerTreatyUsingUtility(t)
-				} else {
-					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 2 { // 2 is the amount needed to y sufficient to go from critical to WeakLevel
-						return a.considerTreatyUsingUtility(t)
-					} else {
-						return true
-					}
-				}
-			case "Selfish":
-				if t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT {
-					return a.considerTreatyUsingUtility(t)
-				} else {
-					if a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue()) <= 60 { // change to a.HealthInfo().MaxFoodIntake
-						return a.considerTreatyUsingUtility(t)
-					} else {
-						return true
-					}
-				}
-
-			case "Narcissist":
-				return a.considerTreatyUsingUtility(t)
-			default:
-				return a.considerTreatyUsingUtility(t)
-			}
-
+			return a.considerFoodTreaty(conditionCheck, consultUtility, convertedFood)
 		default:
-			return a.considerTreatyUsingUtility(t)
+			return consultUtility
+
 		}
-	} else {
-		return false
+	}
+	return false
+}
+
+// food treaties
+func (a *CustomAgent6) considerFoodTreaty(conditionCheck bool, consultUtility bool, convertedFood food.FoodType) bool {
+	switch a.currBehaviour.string() {
+	case "Altruist":
+		return true
+	case "Collectivist":
+		if conditionCheck || convertedFood <= 2 {
+			return consultUtility
+		}
+		return true
+	case "Selfish":
+		if conditionCheck || convertedFood <= 60 {
+			return consultUtility
+		}
+		return true
+
+	default:
+		return consultUtility
+	}
+}
+
+// HP treaties
+func (a *CustomAgent6) considerHPTreaty(conditionCheck bool, consultUtility bool, levels levelsData, conditionValue int) bool {
+	switch a.currBehaviour.string() {
+	case "Altruist":
+		return true
+	case "Collectivist":
+		if conditionCheck || conditionValue < a.HealthInfo().WeakLevel {
+			return consultUtility
+		}
+		return true
+
+	case "Selfish":
+		if conditionCheck || conditionValue < levels.strongLevel {
+			return consultUtility
+		}
+		return true
+	default:
+		return consultUtility
 	}
 }
 
 // Decides if to accept or reject a treaty using utility. Used in "considerUtility" function above
 func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
+
+	// Log
 
 	// 1. Estimate the food intake of the proposed treaty
 
@@ -237,73 +221,32 @@ func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
 	return false
 }
 
+func checkCondition(value int, conditionValue int, conditionOp messages.Op) bool {
+	switch conditionOp {
+	case messages.GT:
+		return value > conditionValue
+	case messages.GE:
+		return value >= conditionValue
+	case messages.EQ:
+		return value == conditionValue
+	case messages.LE:
+		return value <= conditionValue
+	case messages.LT:
+		return value < conditionValue
+	default:
+		return true
+	}
+}
+
 // Returns true if a given treaty applies to an agent by comparing the treaty condition to the agent's state
 func (a *CustomAgent6) conditionApplies(t *messages.Treaty) bool {
-
 	switch t.Condition() {
-	// Condition : HP
 	case messages.HP:
-		switch t.ConditionOp() {
-		// GT
-		case messages.GT:
-			return a.HP() > t.ConditionValue()
-		//GE
-		case messages.GE:
-			return a.HP() >= t.ConditionValue()
-		//EQ
-		case messages.EQ:
-			return a.HP() == t.ConditionValue()
-		// LE
-		case messages.LE:
-			return a.HP() <= t.ConditionValue()
-		// LT
-		case messages.LT:
-			return a.HP() < t.ConditionValue()
-		default:
-			return true
-		}
-	// Condition : floor
+		return checkCondition(a.HP(), t.ConditionValue(), t.ConditionOp())
 	case messages.Floor:
-		switch t.ConditionOp() {
-		// GT
-		case messages.GT:
-			return a.Floor() > t.ConditionValue()
-		//GE
-		case messages.GE:
-			return a.Floor() >= t.ConditionValue()
-		//EQ
-		case messages.EQ:
-			return a.Floor() == t.ConditionValue()
-		// LE
-		case messages.LE:
-			return a.Floor() <= t.ConditionValue()
-		// LT
-		case messages.LT:
-			return a.Floor() < t.ConditionValue()
-		default:
-			return true
-		}
-	// Condition : AvailableFood
+		return checkCondition(a.Floor(), t.ConditionValue(), t.ConditionOp())
 	case messages.AvailableFood:
-		switch t.ConditionOp() {
-		// GT
-		case messages.GT:
-			return int(a.CurrPlatFood()) > t.ConditionValue()
-		//GE
-		case messages.GE:
-			return int(a.CurrPlatFood()) >= t.ConditionValue()
-		//EQ
-		case messages.EQ:
-			return int(a.CurrPlatFood()) == t.ConditionValue()
-		// LE
-		case messages.LE:
-			return int(a.CurrPlatFood()) <= t.ConditionValue()
-		// LT
-		case messages.LT:
-			return int(a.CurrPlatFood()) < t.ConditionValue()
-		default:
-			return true
-		}
+		return checkCondition(int(a.CurrPlatFood()), t.ConditionValue(), t.ConditionOp())
 	default:
 		return true
 	}
