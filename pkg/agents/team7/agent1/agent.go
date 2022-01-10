@@ -424,7 +424,6 @@ func (a *CustomAgent7) manageMessages() {
 
 	if !a.opMem.msg1Sent {
 		msg := messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()+1)
-		// a.opMem.messageQueue = append(a.opMem.messageQueue, msg)
 		a.SendMessage(msg)
 		if a.Floor() != 1 {
 			msg = messages.NewAskHPMessage(a.ID(), a.Floor(), a.Floor()-1)
