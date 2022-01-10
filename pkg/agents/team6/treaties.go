@@ -121,8 +121,6 @@ func (a *CustomAgent6) considerFoodTreaty(conditionCheck bool, considerTreaty bo
 		}
 		return true
 
-	case "Narcissist":
-		return considerTreaty
 	default:
 		return considerTreaty
 	}
@@ -144,8 +142,6 @@ func (a *CustomAgent6) considerHPTreaty(conditionCheck bool, considerTreaty bool
 			return considerTreaty
 		}
 		return true
-	case "Narcissist":
-		return considerTreaty
 	default:
 		return considerTreaty
 	}
