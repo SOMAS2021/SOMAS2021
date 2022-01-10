@@ -39,7 +39,7 @@ func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context, ch chan<- 
 		sE.Preface(t)
 		sE.AgentsRun(t)
 		sE.TowerTick()
-		sE.replaceAgents(t)
+		//sE.replaceAgents(t) commented out for reincarnation
 		// t.TowerStateLog(" end of tick")
 		sE.dayInfo.CurrTick++
 
