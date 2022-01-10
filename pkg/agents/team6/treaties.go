@@ -36,14 +36,6 @@ func calculateUtility(x, z float64, socialMotive string) float64 {
 	return result
 }
 
-// Returns the minimum value of two food.Foodtype variables
-// func min(x, y food.FoodType) food.FoodType {
-// 	if x < y {
-// 		return x
-// 	}
-// 	return y
-// }
-
 // Evaluates our agents current utility based on the current desired food
 func (a *CustomAgent6) evaluateUtility(mem memory) float64 {
 	sum := food.FoodType(0)
@@ -107,6 +99,7 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 			return a.considerFoodTreaty(conditionCheck, considerTreaty, convertedFood)
 		default:
 			return considerTreaty
+
 		}
 	}
 	return false
@@ -227,10 +220,9 @@ func (a *CustomAgent6) considerTreatyUsingUtility(t *messages.Treaty) bool {
 		// 3. If we benefit from the treaty, accept it
 		return benefit > 0.0
 
-	} else {
-		// We do not consider other type of treaties than LeaveAmountFood and LeavePercentFood
-		return false
 	}
+	// We do not consider other type of treaties than LeaveAmountFood and LeavePercentFood
+	return false
 }
 
 func checkCondition(value int, conditionValue int, conditionOp messages.Op) bool {

@@ -2,6 +2,8 @@ package team6
 
 import (
 	"math"
+
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 )
 
 // Updates agent social motive:
@@ -38,6 +40,10 @@ func (a *CustomAgent6) updateBehaviour() {
 	// Scale movement by stubbornness (minStubborn, maxStubborn) -> (fullMovement, 0)
 	updateMag := updateDir * behaviour(1-aConf.stubbornness)
 	newBehaviour := a.currBehaviour + updateMag
+
+	if newBehaviour.string() != a.currBehaviour.string() {
+		a.Log("Behaviour change", infra.Fields{"from": a.currBehaviour.string(), "to": newBehaviour.string()})
+	}
 
 	// Clip new behaviour between allowable behaviour range (based on behaviour swing)
 	if newBehaviour > behaviourMax { //limit behaviour to max swing
