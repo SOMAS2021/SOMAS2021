@@ -99,7 +99,7 @@ func (a *CustomAgent6) maxAllowedFood() food.FoodType {
 	}
 
 	if a.reqTakeFoodAmount != -1 && a.reqTakeFoodAmount <= int(max) {
-		max = food.FoodType(a.reqLeaveFoodAmount)
+		max = food.FoodType(a.reqTakeFoodAmount)
 	}
 
 	return max
