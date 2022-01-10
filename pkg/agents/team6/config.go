@@ -8,7 +8,6 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/google/uuid"
 
-	//"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
 
