@@ -97,13 +97,13 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT {
 		switch t.Condition() {
 		// HP
-		case 1:
+		case messages.HP:
 			return a.considerHPTreaty(conditionCheck, considerTreaty, levels, t.ConditionValue())
 		// Floor
-		case 2:
+		case messages.Floor:
 			return considerTreaty
 		// AvailableFood
-		case 3:
+		case messages.AvailableFood:
 			return a.considerFoodTreaty(conditionCheck, considerTreaty, convertedFood)
 		default:
 			return considerTreaty
