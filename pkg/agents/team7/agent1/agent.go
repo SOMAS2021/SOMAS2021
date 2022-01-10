@@ -64,7 +64,6 @@ type OperationalMemory struct {
 	receivedReq       bool
 	takeFood          int
 	leaveFood         int
-	// messageQueue      []int
 }
 
 type CustomAgent7 struct {
