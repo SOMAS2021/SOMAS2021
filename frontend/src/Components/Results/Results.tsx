@@ -65,7 +65,7 @@ function ResultDisplay(props: ResultDisplayProps) {
       <Divider />
       <div>
         <CollapsingSection title="Config" defaultOpen={true}>
-          <ConfigInfo config={result.config} />
+          <ConfigInfo config={result.config} initial={false} />
         </CollapsingSection>
         <StatsViewer result={result} />
         <CollapsingSection title="Story">

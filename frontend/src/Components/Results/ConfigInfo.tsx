@@ -11,24 +11,25 @@ import { SimConfig } from "../../Helpers/SimConfig";
 
 interface ConfigInfoProps {
   config: SimConfig;
+  initial: boolean;
 }
 
 export default function ConfigInfo(props: ConfigInfoProps) {
-  const { config } = props;
+  const { config, initial } = props;
 
   return (
     <div style={{ margin: "10px 0px" }}>
       <Pre>
-        <Params config={config} />
+        <Params config={config} initial={initial} />
         <Divider />
-        <Agents config={config} />
+        <Agents config={config} initial={initial} />
       </Pre>
     </div>
   );
 }
 
 function Params(props: ConfigInfoProps) {
-  const { config } = props;
+  const { config, initial } = props;
 
   return (
     <div className="row" style={{ padding: "10px 20px" }}>
@@ -45,7 +46,7 @@ function Params(props: ConfigInfoProps) {
 }
 
 function Agents(props: ConfigInfoProps) {
-  const { config } = props;
+  const { config, initial } = props;
 
   return (
     <div className="row" style={{ padding: "10px 20px" }}>
