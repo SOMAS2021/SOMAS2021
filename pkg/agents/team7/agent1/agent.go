@@ -81,7 +81,6 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	neuroticism := rand.Intn(60) + 20
 
 	prevFloors := make(map[int]floorInfo)
-	// messageQueue := make([]*messages.BaseMessage, 0)
 
 	return &CustomAgent7{
 		Base: baseAgent,
