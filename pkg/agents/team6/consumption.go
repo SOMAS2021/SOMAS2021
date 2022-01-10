@@ -1,7 +1,6 @@
 package team6
 
 import (
-	"fmt"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -84,7 +83,6 @@ func (a *CustomAgent6) maxAllowedFood() food.FoodType {
 		if a.conditionApplies(&treaty) {
 			// Convert LeaveFoodAmount and LeavePercentFood to an equivalent takeFood value
 			takeFoodAmount := a.convertToTakeFoodAmount(float64(a.CurrPlatFood()), treaty.Request(), treaty.RequestValue()) - 1 // -1 to make sure GT is fulfilled
-			fmt.Println(fmt.Sprint(a.CurrPlatFood()), "")
 
 			if takeFoodAmount <= max {
 				max = takeFoodAmount

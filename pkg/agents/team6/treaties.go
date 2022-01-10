@@ -83,7 +83,7 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	// readable constants
 	convertedFood := a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue())
 	conditionCheck := t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT
-	consultUtility := false //a.considerTreatyUsingUtility(t)
+	consultUtility := a.considerTreatyUsingUtility(t)
 
 	// We only consider meaningful LeaveAmountFood and LeavePercentFood treaties, i.e., the treaties with RequestOp GE or GT
 	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT {
@@ -235,7 +235,7 @@ func checkCondition(value int, conditionValue int, conditionOp messages.Op) bool
 	case messages.LT:
 		return value < conditionValue
 	default:
-		return true
+		return false
 	}
 }
 
@@ -249,7 +249,7 @@ func (a *CustomAgent6) conditionApplies(t *messages.Treaty) bool {
 	case messages.AvailableFood:
 		return checkCondition(int(a.CurrPlatFood()), t.ConditionValue(), t.ConditionOp())
 	default:
-		return true
+		return false
 	}
 }
 
@@ -262,31 +262,36 @@ func (a *CustomAgent6) constructTreaty() messages.Treaty {
 		weakLevel:    a.HealthInfo().WeakLevel,
 		critLevel:    0,
 	}
-	proposedTreaty := messages.NewTreaty(1, a.HealthInfo().MaxHP, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
+
+	// var proposedTreaty := messages.NewTreaty(1, a.HealthInfo().MaxHP, 2, 1, 1, 1, int(2*a.reassignPeriodGuess), a.ID())
 	// Altruist and Narcissist do not propose treaties
 	switch a.currBehaviour.string() {
 	case "Collectivist":
 		switch rand.Intn(2) {
 		case 0:
 			// ConditionType, conditionValue, RequestType, requestValue, cop, rop, duration, proposerID
-			proposedTreaty = messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
-		case 1:
+			// proposedTreaty = messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
+			return *messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GE, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
+		default:
 			// Different treaty
-			proposedTreaty = messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
+			// proposedTreaty = messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
+			return *messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GE, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
 		}
 
 	case "Selfish":
 		switch rand.Intn(2) {
 		case 0:
 			// ConditionType, conditionValue, RequestType, requestValue, cop, rop, duration, proposerID
-			proposedTreaty = messages.NewTreaty(messages.HP, levels.strongLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
-		case 1:
+			// proposedTreaty = messages.NewTreaty(messages.HP, levels.strongLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
+			return *messages.NewTreaty(messages.HP, levels.strongLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
+		default:
 			// Different treaty
-			proposedTreaty = messages.NewTreaty(messages.HP, levels.strongLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
+			// proposedTreaty = messages.NewTreaty(messages.HP, levels.strongLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
+			return *messages.NewTreaty(messages.HP, levels.strongLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
 		}
+	default:
+		return *messages.NewTreaty(messages.HP, a.HealthInfo().MaxHP, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
 	}
-
-	return *proposedTreaty
 }
 
 // Sends a message to the adjacent floors containing a treaty
