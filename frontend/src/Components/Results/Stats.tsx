@@ -1,5 +1,13 @@
 import ReportCard from "./ReportCard";
-import { Average, DeathsPerAgent, Max, Min, UtilityOnDeath, AverageUtilityPerAgent } from "../../Helpers/Utils";
+import {
+  Average,
+  DeathsPerAgent,
+  Max,
+  Min,
+  UtilityOnDeath,
+  AverageUtilityPerAgent,
+  AverageAgeUponDeath,
+} from "../../Helpers/Utils";
 import { Result } from "../../Helpers/Result";
 import BarChart from "./Graphs/BarChart";
 import LineChart from "./Graphs/LineChart";
@@ -13,6 +21,7 @@ export default function StatsViewer(props: StatsViewerProps) {
   let deaths = DeathsPerAgent(result.deaths);
   let utilityPerAgent = AverageUtilityPerAgent(result.utility);
   let utilityUponDeath = UtilityOnDeath(result.utility);
+  let averageAgeUponDeath = AverageAgeUponDeath(result.deaths);
   return (
     <div className="row">
       <div className="col-lg-6">
@@ -70,6 +79,13 @@ export default function StatsViewer(props: StatsViewerProps) {
             yAxis={Object.values(utilityPerAgent)}
             xAxis={Object.keys(utilityPerAgent)}
             graphTitle="Average utility per Agent type"
+          />
+        </div>
+        <div className="col-lg-6">
+          <BarChart
+            yAxis={Object.values(averageAgeUponDeath)}
+            xAxis={Object.keys(averageAgeUponDeath)}
+            graphTitle="Average age upon death per Agent type"
           />
         </div>
       </div>
