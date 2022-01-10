@@ -83,22 +83,22 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 	// readable constants
 	convertedFood := a.convertToTakeFoodAmount(float64(t.ConditionValue()), t.Request(), t.RequestValue())
 	conditionCheck := t.ConditionOp() == messages.LE || t.ConditionOp() == messages.LT
-	considerTreaty := a.considerTreatyUsingUtility(t)
+	consultUtility := a.considerTreatyUsingUtility(t)
 
 	// We only consider meaningful LeaveAmountFood and LeavePercentFood treaties, i.e., the treaties with RequestOp GE or GT
 	if t.RequestOp() == messages.GE || t.RequestOp() == messages.GT {
 		switch t.Condition() {
 		// HP
 		case messages.HP:
-			return a.considerHPTreaty(conditionCheck, considerTreaty, levels, t.ConditionValue())
+			return a.considerHPTreaty(conditionCheck, consultUtility, levels, t.ConditionValue())
 		// Floor
 		case messages.Floor:
-			return considerTreaty
+			return consultUtility
 		// AvailableFood
 		case messages.AvailableFood:
-			return a.considerFoodTreaty(conditionCheck, considerTreaty, convertedFood)
+			return a.considerFoodTreaty(conditionCheck, consultUtility, convertedFood)
 		default:
-			return considerTreaty
+			return consultUtility
 
 		}
 	}
@@ -106,44 +106,44 @@ func (a *CustomAgent6) considerTreaty(t *messages.Treaty) bool {
 }
 
 // food treaties
-func (a *CustomAgent6) considerFoodTreaty(conditionCheck bool, considerTreaty bool, convertedFood food.FoodType) bool {
+func (a *CustomAgent6) considerFoodTreaty(conditionCheck bool, consultUtility bool, convertedFood food.FoodType) bool {
 	switch a.currBehaviour.string() {
 	case "Altruist":
 		return true
 	case "Collectivist":
 		if conditionCheck || convertedFood <= 2 {
-			return considerTreaty
+			return consultUtility
 		}
 		return true
 	case "Selfish":
 		if conditionCheck || convertedFood <= 60 {
-			return considerTreaty
+			return consultUtility
 		}
 		return true
 
 	default:
-		return considerTreaty
+		return consultUtility
 	}
 }
 
 // HP treaties
-func (a *CustomAgent6) considerHPTreaty(conditionCheck bool, considerTreaty bool, levels levelsData, conditionValue int) bool {
+func (a *CustomAgent6) considerHPTreaty(conditionCheck bool, consultUtility bool, levels levelsData, conditionValue int) bool {
 	switch a.currBehaviour.string() {
 	case "Altruist":
 		return true
 	case "Collectivist":
 		if conditionCheck || conditionValue < a.HealthInfo().WeakLevel {
-			return considerTreaty
+			return consultUtility
 		}
 		return true
 
 	case "Selfish":
 		if conditionCheck || conditionValue < levels.strongLevel {
-			return considerTreaty
+			return consultUtility
 		}
 		return true
 	default:
-		return considerTreaty
+		return consultUtility
 	}
 }
 
