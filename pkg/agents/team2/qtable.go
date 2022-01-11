@@ -3,9 +3,9 @@ package team2
 import (
 	"encoding/csv"
 	"fmt"
+	"log"
 	"os"
-
-	log "github.com/sirupsen/logrus"
+	//"time"
 )
 
 type maxQAction struct {
@@ -44,7 +44,7 @@ func (a *CustomAgent2) updateQTable(state int, action int) {
 func (a *CustomAgent2) exportQTable() {
 	f, err := os.OpenFile(fmt.Sprintf("%s%s%s", a.ID(), "qtable", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		log.Error("error opening csv: ", err)
+		panic(err)
 	}
 	defer f.Close()
 
@@ -63,9 +63,10 @@ func (a *CustomAgent2) exportQTable() {
 		}
 	}
 
-	err = w.WriteAll(sQTable)
+	//fmt.Println("rows:", len(sQTable), "columns:", len(sQTable[0]))
+	w.WriteAll(sQTable)
 
-	if err != nil {
-		log.Error("error writing csv:", err)
+	if err := w.Error(); err != nil {
+		log.Fatalln("error writing csv:", err)
 	}
 }

@@ -10,12 +10,12 @@ func TestInitTable(t *testing.T) {
 	}
 
 	var initTableTests = []initTableTest{
-		{3, 3, 3, 3},
-		{4, 50, 4, 50},
-		{999, 10, 999, 10},
+		initTableTest{3,3,3,3},
+		initTableTest{4,50,4,50},
+		initTableTest{999,10,999,10},
 	}
 	// Check dimensions of table are correct
-	for _, test := range initTableTests {
+	for _, test := range initTableTests{
 		output := InitTable(test.arg1, test.arg2)
 		if len(output) != test.expected1 {
 			t.Errorf("Length %d not equal to expected %d", len(output), test.expected1)

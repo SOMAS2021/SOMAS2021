@@ -31,6 +31,5 @@ func (a *CustomAgent2) SelectAction() int {
 	for r > cdf[action] {
 		action++
 	}
-	a.lastAction = action
 	return action
 }

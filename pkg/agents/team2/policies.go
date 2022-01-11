@@ -3,9 +3,8 @@ package team2
 import (
 	"encoding/csv"
 	"fmt"
+	"log"
 	"os"
-
-	log "github.com/sirupsen/logrus"
 )
 
 func InitPolicies(numStates int, numActions int) [][]float64 {
@@ -20,15 +19,8 @@ func InitPolicies(numStates int, numActions int) [][]float64 {
 	return policies
 }
 
-func (a *CustomAgent2) updatePolicies(state int, action int) {
-	//Update state visit counter
-	a.visitCounter[state]++
-	//update average policies
-	for i := 0; i < len(a.actionSpace); i++ {
-		a.averagePolicies[state][i] = a.averagePolicies[state][i] + ((1.0 / float64(a.visitCounter[state])) * (a.policies[state][i] - a.averagePolicies[state][i]))
-	}
-	//update policies by WoLF
-	Delta := a.winOrLose(state) / float64(len(a.actionSpace)-1)
+func (a *CustomAgent2) updatePolicies(state int) {
+	Delta := 0.1 / float64(len(a.actionSpace)-1)
 	bestAction := a.getMaxQ(state).bestAction
 	sum := 0.0
 	for i := 0; i < len(a.actionSpace); i++ {
@@ -57,25 +49,10 @@ func (a *CustomAgent2) adjustPolicies() {
 	}
 }
 
-func (a *CustomAgent2) winOrLose(state int) float64 {
-	sumPolicies := 0.0
-	sumAveragePolicies := 0.0
-	Delta_win := 0.025
-	Delta_lose := 0.1
-	for i := 0; i < len(a.actionSpace); i++ {
-		sumPolicies += a.policies[state][i] * a.qTable[state][i]
-		sumAveragePolicies += a.averagePolicies[state][i] * a.qTable[state][i]
-	}
-	if sumPolicies > sumAveragePolicies {
-		return Delta_win
-	}
-	return Delta_lose
-}
-
 func (a *CustomAgent2) exportPolicies() {
 	f, err := os.OpenFile(fmt.Sprintf("%s%s%s", a.ID(), "policies", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		log.Error("error opening csv: ", err)
+		panic(err)
 	}
 	defer f.Close()
 
@@ -94,9 +71,9 @@ func (a *CustomAgent2) exportPolicies() {
 		}
 	}
 
-	err = w.WriteAll(sPolicies)
+	w.WriteAll(sPolicies)
 
-	if err != nil {
-		log.Error("error writing csv:", err)
+	if err := w.Error(); err != nil {
+		log.Fatalln("error writing csv:", err)
 	}
 }
