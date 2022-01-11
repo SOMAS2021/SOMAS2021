@@ -282,21 +282,23 @@ func (a *Base) UpdateHPChange(change int) {
 func (a *Base) utility(foodRequested, foodTaken food.FoodType) {
 	// Hyperparameters that are chosen to make utility commensurate for all agents
 	// These initialisations are chosen by Pitt, but may require tuning
-	// Requires that alpha > gamma > beta
+	// Requires that alpha > gamma > beta;
+
+	// The weighting assigned to the resources exactly needed to survive
 	alpha := 0.2
+	// The weighting assigned to bonus resources that aren't needed
 	beta := 0.1
+	// The weighting assigned to not getting the resources that are needed
 	gamma := 0.18
 
 	// Available resources normalised by total possible available resources
 	g := float64(a.CurrPlatFood()) / float64(a.tower.maxPlatFood)
 
+	// If an agent is not about to die, it effectively needs 0 food
+	q := 0.0
 	// If the agent is on the verge of dying, food is needed
-	var q float64
 	if a.daysAtCritical == a.HealthInfo().MaxDayCritical {
 		q = 1.0
-		// If an agent is not about to die, it effectively needs 0 food
-	} else {
-		q = 0.0
 	}
 	// No resources are recontributed to the common pool (provision = 0)
 	p := 0.0
