@@ -292,30 +292,30 @@ func (a *Base) updateUtility(foodRequested, foodTaken food.FoodType) {
 	gamma := 0.18
 
 	// Available resources normalised by total possible available resources
-	g := float64(a.CurrPlatFood()) / float64(a.tower.maxPlatFood)
+	foodAvailable := float64(a.CurrPlatFood()) / float64(a.tower.maxPlatFood)
 
 	// If an agent is not about to die, it effectively needs 0 food
-	q := 0.0
+	foodToSurvive := 0.0
 	// If the agent is on the verge of dying, food is needed
 	if a.daysAtCritical == a.HealthInfo().MaxDayCritical {
-		q = 1.0
+		foodToSurvive = 1.0
 	}
 	// No resources are recontributed to the common pool (provision = 0)
-	p := 0.0
+	foodProvision := 0.0
 
 	// Appropriation is the amount of food an agent actually takes, normalised by the max possible
-	r_prime := float64(foodTaken) / float64(a.tower.healthInfo.MaxFoodIntake)
+	foodAppropriated := float64(foodTaken) / float64(a.tower.healthInfo.MaxFoodIntake)
 
 	// Note that r isn't included. This is because it is just a metric for assessing Ostrom Institution Theory
 	// r >= r_prime (for conventional institution)
 
 	// Resource generation by agent per day is what they actually take, plus the resources available, minus the provisions made
-	R := r_prime + (g - p)
+	totalFoodGeneration := foodAppropriated + (foodAvailable - foodProvision)
 
-	if R >= q {
-		a.utility = alpha*q + beta*(R-q)
+	if totalFoodGeneration >= foodToSurvive {
+		a.utility = alpha*foodToSurvive + beta*(totalFoodGeneration-foodToSurvive)
 	} else {
-		a.utility = alpha*R - gamma*(q-R)
+		a.utility = alpha*totalFoodGeneration - gamma*(foodToSurvive-totalFoodGeneration)
 	}
 }
 
