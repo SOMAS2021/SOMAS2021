@@ -76,15 +76,9 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	sE.generateInitialAgents(t)
 
 	sE.Log("Simulation Started")
-	sE.simulationLoop(t, ctx, ch)
+	sE.simulationLoop(t, ctx)
 
-	//returns if there was a timeout
-	select {
-	case <-ctx.Done():
-		return
-	default:
-	}
-
+	// Assuming everything here will never timeout
 	sE.Log("Simulation Ended")
 	sE.Log("Summary of dead agents", infra.Fields{"Agent Type and number that died": t.DeadAgents()})
 	for agentType, count := range t.DeadAgents() {
@@ -106,6 +100,7 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 
 	// dispatch loggers
 	sE.stateLog.SimEnd(sE.dayInfo)
+	ch <- "Simulation Finished"
 }
 
 func (s *SimEnv) Log(message string, fields ...Fields) {
