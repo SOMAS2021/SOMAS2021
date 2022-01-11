@@ -265,35 +265,49 @@ func (a *Base) UpdateHPChange(change int) {
 	}
 }
 
-// Updates the utility of a given agent
-// For this paper, we take N agents i ∈{1,...,N}that perform the following actions in each iterated round t ∈{1,...,∞}:
-// Determines the resources it has available, gi ∈[0,1]
-// Determines its need for resources, qi ∈[0,1]
-// Makes a provision of resources, pi ∈[0,1]
-// Makes a demand for resources, di ∈[0,1]
-// Receives an allocation of resources, ri ∈[0,1]
-// Makes an appropriation of resources, r′i ∈[0,1]
+// Updates the utility of a given agent:
+// We take N agents i ∈{1,...,N}that perform the following actions in each iterated round t ∈{1,...,∞}:
+// 1.) Determines the resources it has available, gi ∈[0,1]
+// 2.) Determines its need for resources, qi ∈[0,1]
+// 3.) Makes a provision of resources, pi ∈[0,1]
+// 4.) Makes a demand for resources, di ∈[0,1]
+// 5.) Receives an allocation of resources, ri ∈[0,1]
+// 6.0 Makes an appropriation of resources, r′i ∈[0,1]
+
 // The total resources accrued at the end of a round is hence given by:
-// Ri = r′i + (gi −pi) (1)
+// Ri = r′i + (gi −pi)
 // Which provides the utility of an agent, ui, as:
-// ui =
-// αi(qi) + βi(Ri −qi), if Ri ≥qi
-// αi(Ri) −γi(qi −Ri), otherwise
+// ui = αi(qi) + βi(Ri −qi), if Ri ≥qi
+// 		αi(Ri) −γi(qi −Ri), otherwise
 func (a *Base) utility(foodRequested, foodTaken food.FoodType) {
+	// Hyperparameters that are chosen to make utility commensurate for all agents
+	// These initialisations are chosen by Pitt, but may require tuning
+	// Requires that alpha > gamma > beta
 	alpha := 0.2
 	beta := 0.1
 	gamma := 0.18
 
+	// Available resources normalised by total possible available resources
 	g := float64(a.CurrPlatFood()) / float64(a.tower.maxPlatFood)
+
+	// If the agent is on the verge of dying, food is needed
 	var q float64
 	if a.daysAtCritical == a.HealthInfo().MaxDayCritical {
 		q = 1.0
+		// If an agent is not about to die, it effectively needs 0 food
 	} else {
 		q = 0.0
 	}
+	// No resources are recontributed to the common pool (provision = 0)
 	p := 0.0
+
+	// Appropriation is the amount of food an agent actually takes, normalised by the max possible
 	r_prime := float64(foodTaken) / float64(a.tower.healthInfo.MaxFoodIntake)
 
+	// Note that r isn't included. This is because it is just a metric for assessing Ostrom Institution Theory
+	// r >= r_prime (for conventional institution)
+
+	// Resource generation by agent per day is what's available, minus what they give back, plus what they actually take
 	R := r_prime + (g - p)
 
 	if R >= q {
