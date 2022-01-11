@@ -41,8 +41,28 @@ func calcReward(oldHP int, hpInc int, foodIntended int, foodTaken int, DaysAtCri
 	return surviveBonus + eatingBonus + wastingBonus + savingBonus
 }
 
+/*
+#another simpler reward function
+func calcReward(HP int, foodTaken int, DaysAtCritical int, healthInfo *health.HealthInfo) float64 {
+	ret := 0.0
+	overEating := 80
+	if HP == healthInfo.HPCritical {
+		ret = ret - 1.5*float64(DaysAtCritical)
+	}
+
+	if HP >= overEating {
+		ret = ret - float64(foodTaken)*0.1
+	} else {
+		ret = 3
+	}
+
+	return ret
+}
+*/
+
 func (a *CustomAgent2) updateRTable(oldHP int, hpInc int, state int, action int) {
 	reward := calcReward(oldHP, hpInc, action*5, int(a.lastFoodTaken), a.DaysAtCritical(), a.neiboughHP, a.HealthInfo())
+	//reward := calcReward(a.HP(), int(a.lastFoodTaken), a.DaysAtCritical(), a.HealthInfo())
 	a.rTable[state][action] = reward
 	a.cumulativeRewards = a.cumulativeRewards + reward
 	target := []float64{a.cumulativeRewards}
