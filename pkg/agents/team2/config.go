@@ -145,6 +145,9 @@ func (a *CustomAgent2) Run() {
 		//write foodtaken vs hp
 		target = []float64{float64(foodTaken), float64(a.HP())}
 		a.writeToCSV(target, "foodtaken_vs_hp", 2)
+		// table logging
+		a.exportQTable()
+		a.exportPolicies()
 	}
 
 }
@@ -187,6 +190,6 @@ func (a *CustomAgent2) HandleStateHP(msg messages.StateHPMessage) {
 }
 
 func (a *CustomAgent2) CustomLogs() {
-	a.exportQTable()
-	a.exportPolicies()
+	//a.exportQTable()
+	//a.exportPolicies()
 }
