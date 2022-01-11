@@ -25,6 +25,8 @@ func (a *CustomAgent2) updateRTable(oldHP int, hpInc int, foodTaken int, state i
 	a.rTable[state][action] = reward
 	a.cumulativeRewards = a.cumulativeRewards + reward
 	target := []float64{a.cumulativeRewards}
+	r := []float64{reward}
+	a.writeToCSV(r, "csv_files/reward_vs_days", 1)
 	a.writeToCSV(target, "csv_files/cumulative_rewards", 1)
 }
 
