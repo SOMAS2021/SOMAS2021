@@ -4,6 +4,7 @@ import { DeathLog, GetDeathLogs } from "./Logging/Death";
 import { FoodLog, GetFoodLogs } from "./Logging/Food";
 import { GetSimConfig, SimConfig } from "./SimConfig";
 import { GetUtilityLogs } from "./Logging/Utility";
+import { GetMessagesLog, MessagesLog } from "./Logging/Message";
 
 export enum SimStatusExec {
   "finished",
@@ -23,6 +24,7 @@ export interface Result {
   config: SimConfig;
   simStatus: SimStatus;
   utility: UtilityLog[];
+  messages: MessagesLog;
 }
 
 function GetSimStatus(filename: string): Promise<SimStatus> {
@@ -71,13 +73,17 @@ export function GetResult(filename: string): Promise<Result> {
     // status
     var status: SimStatus = {
       status: SimStatusExec.finished,
-      maxTick: 3000
+      maxTick: 3000,
     };
     promises.push(GetSimStatus(filename).then((s) => (status = s)));
 
     // Agent state
     var utility: UtilityLog[] = [];
     promises.push(GetUtilityLogs(filename).then((a) => (utility = a)));
+
+    // Messages aggregate stats
+    var messages: MessagesLog;
+    promises.push(GetMessagesLog(filename).then((m) => (messages = m)));
 
     // all
     Promise.all(promises).then((_) =>
@@ -88,6 +94,7 @@ export function GetResult(filename: string): Promise<Result> {
         config: config,
         simStatus: status,
         utility: utility,
+        messages: messages,
       })
     );
   });
