@@ -31,7 +31,7 @@ func (sE *SimEnv) Preface(t *infra.Tower) {
 	}
 }
 
-func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context, ch chan<- string) {
+func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context) {
 	t.Reshuffle()
 	for sE.dayInfo.CurrTick <= sE.dayInfo.TotalTicks {
 		sE.Log("", Fields{"Current Simulation Tick": sE.dayInfo.CurrTick})
@@ -51,7 +51,6 @@ func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context, ch chan<- 
 		default:
 		}
 	}
-	ch <- "Simulation Finished"
 }
 
 func (sE *SimEnv) TowerTick() {

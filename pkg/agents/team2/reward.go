@@ -25,7 +25,7 @@ func (a *CustomAgent2) updateRTable(oldHP int, hpInc int, foodTaken int, state i
 	a.rTable[state][action] = reward
 	a.cumulativeRewards = a.cumulativeRewards + reward
 	target := []float64{a.cumulativeRewards}
-	a.writeToCSV(target, "cumulative_rewards", 1)
+	a.writeToCSV(target, "csv_files/cumulative_rewards", 1)
 }
 
 func ExpectedHPInc(foodTaken int, healthInfo *health.HealthInfo) int {

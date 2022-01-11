@@ -55,6 +55,9 @@ type CustomAgent2 struct {
 	daysAtCriticalCounter int
 	PreviousdayAtCritical int
 	lastAge               int
+	neiboughHP            int
+	lastAction            int
+	lastFoodTaken         food.FoodType
 	cumulativeRewards     float64
 }
 
@@ -86,6 +89,10 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		daysAtCriticalCounter: 0,
 		PreviousdayAtCritical: 0,
 		lastAge:               0,
+		neiboughHP:            -1,
+		lastAction:            0,
+		lastFoodTaken:         0,
+		cumulativeRewards:     0,
 	}, nil
 }
 
