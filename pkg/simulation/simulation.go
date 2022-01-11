@@ -2,6 +2,7 @@ package simulation
 
 import (
 	"context"
+	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/randomAgent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
@@ -39,6 +40,7 @@ type SimEnv struct {
 	world          world.World
 	stateLog       *logging.StateLog
 	agentNewFuncs  map[agent.AgentType]AgentNewFunc
+	parameters     *config.ConfigParameters
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
@@ -63,10 +65,11 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 			agent.Team7:       team7agent1.New,
 			agent.RandomAgent: randomAgent.New,
 		},
+		parameters: parameters,
 	}
 }
 
-func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
+func (sE *SimEnv) Simulate() {
 	sE.Log("Simulation Initializing")
 
 	totalAgents := utilFunctions.Sum(sE.AgentCount)
@@ -76,7 +79,32 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	sE.generateInitialAgents(t)
 
 	sE.Log("Simulation Started")
-	sE.simulationLoop(t, ctx)
+
+	//context and channel are passed all the way down to simulation loop to check every tick if there was a timeout
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ch := make(chan string, 1)
+
+	go func() {
+		log.Info("Simulation started")
+		sE.simulationLoop(t, ctx)
+	}()
+
+	// Listen on our channel AND a timeout channel - which ever happens first.
+	select {
+	case <-ch:
+		log.Info("Simulation Finished Successfully")
+		err := logging.UpdateSimStatusJson(sE.parameters.LogFolderName, "finished", GetMaxTick(sE.parameters.LogFolderName+"/story.json"))
+		if err != nil {
+			log.Fatal("Unable to update status file: " + err.Error())
+		}
+	case <-time.After(time.Duration(sE.parameters.SimTimeoutSeconds) * time.Second):
+		err := logging.UpdateSimStatusJson(sE.parameters.LogFolderName, "timedout", GetMaxTick(sE.parameters.LogFolderName+"/story.json"))
+		if err != nil {
+			log.Fatal("Unable to update status file: " + err.Error())
+		}
+		log.Error("Simulation Timeout")
+	}
 
 	// Assuming everything here will never timeout
 	sE.Log("Simulation Ended")
