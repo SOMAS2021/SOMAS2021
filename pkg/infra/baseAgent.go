@@ -266,19 +266,6 @@ func (a *Base) UpdateHPChange(change int) {
 }
 
 func (a *Base) updateUtility(foodRequested, foodTaken food.FoodType) {
-	// 1.) Determines the resources it has available, gi ∈[0,1]
-	// 2.) Determines its need for resources, qi ∈[0,1]
-	// 3.) Makes a provision of resources, pi ∈[0,1]
-	// 4.) Makes a demand for resources, di ∈[0,1]
-	// 5.) Receives an allocation of resources, ri ∈[0,1]
-	// 6.) Makes an appropriation of resources, r′i ∈[0,1]
-
-	// The total resources accrued at the end of a round is hence given by:
-	// Ri = r′i + (gi −pi)
-	// Which provides the utility of an agent, ui, as:
-	// ui = αi(qi) + βi(Ri −qi), if Ri ≥qi
-	// 		αi(Ri) −γi(qi −Ri), otherwise
-
 	// Hyperparameters that are chosen to make utility commensurate for all agents
 	// Requires that alpha > gamma > beta for diminishing returns + greed
 
@@ -289,32 +276,37 @@ func (a *Base) updateUtility(foodRequested, foodTaken food.FoodType) {
 	// The weighting assigned to not getting the resources that are needed
 	gamma := 0.18
 
-	// Available resources normalised by total possible available resources
+	// 1.) Determines the resources it has available, gi ∈[0,1]
 	foodAvailable := float64(a.CurrPlatFood()) / float64(a.tower.maxPlatFood)
 
+	// 2.) Determines its need for resources, qi ∈[0,1]
 	// If an agent is not about to die, it effectively needs 0 food
 	foodToSurvive := 0.0
 	// If the agent is on the verge of dying, food is needed
 	if a.daysAtCritical == a.HealthInfo().MaxDayCritical {
 		foodToSurvive = 1.0
 	}
-	
-	// No resources are recontributed to the common pool (provision = 0)
+
+	// 3.) Makes a provision of resources, pi ∈[0,1]
+	// Agents never recontribute to the common pool (provision = 0)
 	foodProvision := 0.0
 
+	// 4.) Makes an appropriation of resources, r′i ∈[0,1]
 	// Appropriation is the amount of food an agent actually takes, normalised by the max possible
 	foodAppropriated := float64(foodTaken) / float64(a.tower.healthInfo.MaxFoodIntake)
 
-	// Note that r isn't included. This is because it is just a metric for assessing Ostrom Institution Theory
-	// r >= r_prime (for conventional institution)
-
+	// The total resources accrued at the end of a round is hence given by:
+	// Ri = r′i + (gi −pi)
 	// Resource generation by agent per day is what they actually take, plus the resources available, minus the provisions made
-	totalFoodGeneration := foodAppropriated + (foodAvailable - foodProvision)
+	totalFoodAccrued := foodAppropriated + (foodAvailable - foodProvision)
 
-	if totalFoodGeneration >= foodToSurvive {
-		a.utility = alpha*foodToSurvive + beta*(totalFoodGeneration-foodToSurvive)
+	// Which provides the utility of an agent, ui, as:
+	// ui = αi(qi) + βi(Ri −qi), if Ri ≥qi
+	// 		αi(Ri) −γi(qi −Ri), otherwise
+	if totalFoodAccrued >= foodToSurvive {
+		a.utility = alpha*foodToSurvive + beta*(totalFoodAccrued-foodToSurvive)
 	} else {
-		a.utility = alpha*totalFoodGeneration - gamma*(foodToSurvive-totalFoodGeneration)
+		a.utility = alpha*totalFoodAccrued - gamma*(foodToSurvive-totalFoodAccrued)
 	}
 }
 
