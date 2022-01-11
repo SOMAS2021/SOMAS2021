@@ -10,7 +10,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type msgMap [9][14]int
+type msgMap [14][9]int
+type treatyResponsesCount [2][9]int // 0 for reject, 1 for accept
 
 type StateLog struct {
 	Logmanager *LogManager
@@ -26,8 +27,9 @@ type StateLog struct {
 	// Food state
 	prevFood int
 	// Messages state
-	messages *msgMap
-	msgMx    *sync.Mutex
+	messages        *msgMap
+	treatyResponses *treatyResponsesCount
+	msgMx           *sync.Mutex
 	// Custom log
 	CustomLog string
 }
@@ -77,26 +79,24 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 	mainLogger, err := l.AddLogger("main", mainLogName)
 	handleNewLoggerErr(err)
 
-	// init maps for messages
+	// Init message counters
 	var msgs msgMap
-	for i := 0; i < 9; i++ {
-		for j := 0; j < 14; j++ {
-			msgs[i][j] = 0
-		}
-	}
+	var treatyResponses treatyResponsesCount
+
 	return &StateLog{
-		Logmanager:    &l,
-		foodLogger:    foodLogger,
-		deathLogger:   deathLogger,
-		mainLogger:    mainLogger,
-		storyLogger:   storyLogger,
-		utilityLogger: utilityLogger,
-		msgLogger:     msgLogger,
-		messages:      &msgs,
-		msgMx:         &sync.Mutex{},
-		deathCount:    0,
-		prevFood:      0,
-		CustomLog:     customLog,
+		Logmanager:      &l,
+		foodLogger:      foodLogger,
+		deathLogger:     deathLogger,
+		mainLogger:      mainLogger,
+		storyLogger:     storyLogger,
+		utilityLogger:   utilityLogger,
+		msgLogger:       msgLogger,
+		messages:        &msgs,
+		treatyResponses: &treatyResponses,
+		msgMx:           &sync.Mutex{},
+		deathCount:      0,
+		prevFood:        0,
+		CustomLog:       customLog,
 	}
 }
 
@@ -144,8 +144,19 @@ func (ls *StateLog) LogPlatFoodState(simState *day.DayInfo, food int) {
 // Messages logging
 func (ls *StateLog) LogMessage(simState *day.DayInfo, state AgentState, message messages.Message) {
 	ls.msgMx.Lock()
-	temp := ls.messages[state.AgentType-1][message.MessageType()-1] + 1
-	ls.messages[state.AgentType-1][message.MessageType()-1] = temp
+	agentType := state.AgentType
+	msgType := message.MessageType()
+	temp := ls.messages[msgType-1][agentType-1] + 1
+	ls.messages[msgType-1][agentType-1] = temp
+	// Log treatyResponses accept/jerect. Tracks how many treatyResponses an agent rejects (0) and accepts (1)
+	if msgType == messages.TreatyResponse {
+		state := message.StoryLog()
+		if state == "yes" {
+			ls.treatyResponses[1][agentType-1] += 1
+		} else {
+			ls.treatyResponses[0][agentType-1] += 1
+		}
+	}
 	ls.msgMx.Unlock()
 }
 
@@ -222,11 +233,12 @@ func (ls *StateLog) SimEnd(simState *day.DayInfo) {
 	ls.msgLogger.
 		WithFields(
 			log.Fields{
-				"day":      simState.CurrDay,
-				"tick":     simState.CurrTick,
-				"msgcount": ls.messages,
-				"atypes":   atypes,
-				"mtypes":   mtypes,
+				"day":             simState.CurrDay,
+				"tick":            simState.CurrTick,
+				"msgcount":        ls.messages,
+				"atypes":          atypes,
+				"mtypes":          mtypes,
+				"treatyResponses": ls.treatyResponses,
 			},
 		).Info()
 
