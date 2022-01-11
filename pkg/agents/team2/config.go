@@ -1,8 +1,6 @@
 package team2
 
 import (
-	"fmt"
-
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
@@ -191,5 +189,4 @@ func (a *CustomAgent2) HandleStateHP(msg messages.StateHPMessage) {
 func (a *CustomAgent2) CustomLogs() {
 	a.exportQTable()
 	a.exportPolicies()
-	fmt.Println("This does not print")
 }
