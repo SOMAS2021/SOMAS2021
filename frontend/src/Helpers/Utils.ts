@@ -5,21 +5,21 @@ import { UtilityLog } from "./Logging/Utility";
 
 const arbitraryStackKey = "stack1";
 const colorFamily = [
-  "#0074D9",
-  "#FF4136",
-  "#2ECC40",
-  "#FF851B",
-  "#7FDBFF",
-  "#B10DC9",
-  "#FFDC00",
-  "#001f3f",
-  "#39CCCC",
-  "#01FF70",
-  "#85144b",
-  "#F012BE",
-  "#3D9970",
-  "#111111",
-  "#AAAAAA",
+  "#1F4B99",
+  "#2F649C",
+  "#447C9F",
+  "#5D94A1",
+  "#7CAAA2",
+  "#A0BFA2",
+  "#CCD3A1",
+  "#FFE39F",
+  "#F6C880",
+  "#EBAE65",
+  "#DE944D",
+  "#D07A38",
+  "#C06126",
+  "#B04718",
+  "#9E2B0E",
 ];
 
 export function Average(arr: number[]): number {
