@@ -281,11 +281,7 @@ func (a *Base) updateUtility(foodRequested, foodTaken food.FoodType) {
 
 	// 2.) Determines its need for resources, qi ∈[0,1]
 	// If an agent is not about to die, it effectively needs 0 food
-	foodToSurvive := 0.0
-	// If the agent is on the verge of dying, food is needed
-	if a.daysAtCritical == a.HealthInfo().MaxDayCritical {
-		foodToSurvive = 1.0
-	}
+	foodToSurvive := float64(a.daysAtCritical) / float64(a.HealthInfo().MaxDayCritical)
 
 	// 3.) Makes a provision of resources, pi ∈[0,1]
 	// Agents never recontribute to the common pool (provision = 0)
