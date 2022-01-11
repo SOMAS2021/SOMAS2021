@@ -62,6 +62,7 @@ type CustomAgent2 struct {
 	neiboughHP            int
 	lastAction            int
 	lastFoodTaken         food.FoodType
+	cumulativeRewards     float64
 }
 
 func InitTable(numStates int, numActions int) [][]float64 {
@@ -97,6 +98,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		neiboughHP:            -1,
 		lastAction:            0,
 		lastFoodTaken:         0,
+		cumulativeRewards:     0,
 	}, nil
 }
 
@@ -136,6 +138,13 @@ func (a *CustomAgent2) Run() {
 		a.updateQTable(oldState, action)
 		a.updatePolicies(oldState, action)
 		a.lastAge = a.Age()
+
+		//write hp vs days
+		target := []float64{float64(a.HP())}
+		a.writeToCSV(target, "HP_by_days", 1)
+		//write foodtaken vs hp
+		target = []float64{float64(foodTaken), float64(a.HP())}
+		a.writeToCSV(target, "foodtaken_vs_hp", 2)
 	}
 
 }
