@@ -114,7 +114,7 @@ export function ParseTreatyAcceptanceStats(stats: MessagesLog): any[] {
     {
       label: "Treaties Accepted", // Graph title
       data: stats.treatyResponses[1], // Data (y-axis)
-      backgroundColor: Colors.GREEN3,
+      backgroundColor: Colors.GREEN1,
     },
   ];
 }
