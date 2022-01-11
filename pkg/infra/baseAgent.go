@@ -309,7 +309,7 @@ func (a *Base) updateUtility(foodRequested, foodTaken food.FoodType) {
 	// Note that r isn't included. This is because it is just a metric for assessing Ostrom Institution Theory
 	// r >= r_prime (for conventional institution)
 
-	// Resource generation by agent per day is what's available, minus what they give back, plus what they actually take
+	// Resource generation by agent per day is what they actually take, plus the resources available, minus the provisions made
 	R := r_prime + (g - p)
 
 	if R >= q {
