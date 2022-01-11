@@ -55,7 +55,7 @@ type Base struct {
 	totalFoodSeen  food.FoodType
 	totalHPGained  int
 	totalHPLost    int
-	currentUtility float64
+	utility        float64
 }
 
 func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
@@ -83,7 +83,7 @@ func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, age
 		totalFoodSeen:  0,
 		totalHPGained:  0,
 		totalHPLost:    0,
-		currentUtility: 0, //discuss initialization
+		utility:        0, //discuss initialization
 	}, nil
 }
 
@@ -232,7 +232,7 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 		return 0, &NegFoodError{}
 	}
 	foodTaken := food.FoodType(utilFunctions.MinInt(int(a.tower.currPlatFood), int(amountOfFood), int(a.tower.healthInfo.MaxFoodIntake)))
-	a.utility(amountOfFood, foodTaken)
+	a.updateUtility(amountOfFood, foodTaken)
 	a.updateHP(foodTaken)
 	a.tower.currPlatFood -= foodTaken
 	a.setHasEaten(foodTaken > 0)
@@ -266,23 +266,23 @@ func (a *Base) UpdateHPChange(change int) {
 }
 
 // Updates the utility of a given agent:
-// We take N agents i ∈{1,...,N}that perform the following actions in each iterated round t ∈{1,...,∞}:
-// 1.) Determines the resources it has available, gi ∈[0,1]
-// 2.) Determines its need for resources, qi ∈[0,1]
-// 3.) Makes a provision of resources, pi ∈[0,1]
-// 4.) Makes a demand for resources, di ∈[0,1]
-// 5.) Receives an allocation of resources, ri ∈[0,1]
-// 6.) Makes an appropriation of resources, r′i ∈[0,1]
+func (a *Base) updateUtility(foodRequested, foodTaken food.FoodType) {
+	// We take N agents i ∈{1,...,N}that perform the following actions in each iterated round t ∈{1,...,∞}:
+	// 1.) Determines the resources it has available, gi ∈[0,1]
+	// 2.) Determines its need for resources, qi ∈[0,1]
+	// 3.) Makes a provision of resources, pi ∈[0,1]
+	// 4.) Makes a demand for resources, di ∈[0,1]
+	// 5.) Receives an allocation of resources, ri ∈[0,1]
+	// 6.) Makes an appropriation of resources, r′i ∈[0,1]
 
-// The total resources accrued at the end of a round is hence given by:
-// Ri = r′i + (gi −pi)
-// Which provides the utility of an agent, ui, as:
-// ui = αi(qi) + βi(Ri −qi), if Ri ≥qi
-// 		αi(Ri) −γi(qi −Ri), otherwise
-func (a *Base) utility(foodRequested, foodTaken food.FoodType) {
+	// The total resources accrued at the end of a round is hence given by:
+	// Ri = r′i + (gi −pi)
+	// Which provides the utility of an agent, ui, as:
+	// ui = αi(qi) + βi(Ri −qi), if Ri ≥qi
+	// 		αi(Ri) −γi(qi −Ri), otherwise
+
 	// Hyperparameters that are chosen to make utility commensurate for all agents
-	// These initialisations are chosen by Pitt, but may require tuning
-	// Requires that alpha > gamma > beta;
+	// Requires that alpha > gamma > beta for diminishing returns + greed
 
 	// The weighting assigned to the resources exactly needed to survive
 	alpha := 0.2
@@ -313,9 +313,9 @@ func (a *Base) utility(foodRequested, foodTaken food.FoodType) {
 	R := r_prime + (g - p)
 
 	if R >= q {
-		a.currentUtility = alpha*q + beta*(R-q)
+		a.utility = alpha*q + beta*(R-q)
 	} else {
-		a.currentUtility = alpha*R - gamma*(q-R)
+		a.utility = alpha*R - gamma*(q-R)
 	}
 }
 
@@ -330,7 +330,7 @@ func (a *Base) storyState() logging.AgentState {
 		Floor:     a.floor,
 		Age:       a.age,
 		Custom:    "",
-		Utility:   a.currentUtility,
+		Utility:   a.utility,
 	}
 }
 

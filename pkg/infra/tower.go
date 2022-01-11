@@ -102,8 +102,8 @@ func (t *Tower) endOfDay() {
 		agent.hpDecay(t.healthInfo)
 		agent.increaseAge()
 		agent.updateTreaties()
-		t.stateLog.LogUtility(t.dayInfo, agent.agentType, agent.currentUtility, agent.IsAlive())
-		agent.currentUtility = 0
+		t.stateLog.LogUtility(t.dayInfo, agent.agentType, agent.utility, agent.IsAlive())
+		agent.utility = 0
 	}
 	t.dayInfo.CurrDay += 1
 }
