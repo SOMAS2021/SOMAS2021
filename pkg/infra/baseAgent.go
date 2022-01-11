@@ -55,6 +55,7 @@ type Base struct {
 	totalFoodSeen  food.FoodType
 	totalHPGained  int
 	totalHPLost    int
+	currentUtility float64
 }
 
 func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
@@ -82,6 +83,7 @@ func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, age
 		totalFoodSeen:  0,
 		totalHPGained:  0,
 		totalHPLost:    0,
+		currentUtility: 0, //discuss initialization
 	}, nil
 }
 
@@ -230,6 +232,7 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 		return 0, &NegFoodError{}
 	}
 	foodTaken := food.FoodType(utilFunctions.MinInt(int(a.tower.currPlatFood), int(amountOfFood), int(a.tower.healthInfo.MaxFoodIntake)))
+	a.utility(amountOfFood, foodTaken)
 	a.updateHP(foodTaken)
 	a.tower.currPlatFood -= foodTaken
 	a.setHasEaten(foodTaken > 0)
@@ -262,75 +265,42 @@ func (a *Base) UpdateHPChange(change int) {
 	}
 }
 
-func (a *Base) utility() float64 {
-	// TODO: Improve utility calculation
-	// Currently just use ratio between food taken and food seen
-	// Somehow also factor
-	// Ideas: piecewise/bounded function with log, concave quadratic
+// Updates the utility of a given agent
+// For this paper, we take N agents i ∈{1,...,N}that perform the following actions in each iterated round t ∈{1,...,∞}:
+// Determines the resources it has available, gi ∈[0,1]
+// Determines its need for resources, qi ∈[0,1]
+// Makes a provision of resources, pi ∈[0,1]
+// Makes a demand for resources, di ∈[0,1]
+// Receives an allocation of resources, ri ∈[0,1]
+// Makes an appropriation of resources, r′i ∈[0,1]
+// The total resources accrued at the end of a round is hence given by:
+// Ri = r′i + (gi −pi) (1)
+// Which provides the utility of an agent, ui, as:
+// ui =
+// αi(qi) + βi(Ri −qi), if Ri ≥qi
+// αi(Ri) −γi(qi −Ri), otherwise
+func (a *Base) utility(foodRequested, foodTaken food.FoodType) {
+	alpha := 0.2
+	beta := 0.1
+	gamma := 0.18
 
-	hpGainFactor := netHPGainFactor(a.totalHPGained, a.totalHPLost, a.tower.healthInfo.MaxHP)
-	foodIntakeFactor := foodIntakeFactor(a.totalFoodTaken, a.totalFoodSeen)
-	// this means the multiplcation of these values can be larger than 1
-	return simpleQuadraticUtility(hpGainFactor * foodIntakeFactor)
-}
-
-/*
-HP Gain Factor.
-inputs:
-- gain >= 0
-- loss >= 0
-
-output range:
-- y >= 0.
-
-key values:
-- = 1: agent is sustaining overall
-- < 1: agent is losing hp on average
-- > 1: agent gaining hp on average
-- when loss is 0, default to percentage difference between gain and loss. Acknowledge that HP gain should increase utility
-*/
-// func hpGainFactor(gain, loss, maxhp int) float64 {
-// 	if loss == 0 {
-// 		return 1 + float64(gain)/float64(maxhp)
-// 	}
-// 	return float64(gain) / float64(loss)
-// }
-
-/*
-Net HP Gain Factor.
-This one uses net hp gain as opposed to hp gain/loss ratio.
-*/
-func netHPGainFactor(gain, loss, maxhp int) float64 {
-	netHPGain := gain - loss
-	multiplier := 1 + float64(netHPGain)/float64(maxhp) // reward positive net hp gain, punish otherwise
-	return utilFunctions.RestrictToRange(0, math.Inf(1), multiplier)
-}
-
-/*
-Food Intake Factor.
-inputs:
-- intake >= 0
-- total >= 0
-range: [0, 1]. == 1, agent has taken all the food it has seen
-
-*/
-func foodIntakeFactor(intake, seen food.FoodType) float64 {
-	// If an agent hasn't seen any food, has 0 utility
-	if seen == 0 {
-		return 0
+	g := float64(a.CurrPlatFood()) / float64(a.tower.maxPlatFood)
+	var q float64
+	if a.daysAtCritical == a.HealthInfo().MaxDayCritical {
+		q = 1.0
+	} else {
+		q = 0.0
 	}
-	return float64(intake) / float64(seen)
-}
+	p := 0.0
+	r_prime := float64(foodTaken) / float64(a.tower.healthInfo.MaxFoodIntake)
 
-// Quadratic function standard form: a(x-h)^2+k
-func quadratic(x, a, h, k float64) float64 {
-	return a*math.Pow((x-h), 2) + k
-}
+	R := r_prime + (g - p)
 
-// Utility function is a strictly increasing function that starts at 0,0 ends at 1,1
-func simpleQuadraticUtility(x float64) float64 {
-	// -(x-1)^2 + 1
-	return utilFunctions.RestrictToRange(0, 1, quadratic(x, -1, 1, 1))
+	if R >= q {
+		a.currentUtility = alpha*q + beta*(R-q)
+	} else {
+		a.currentUtility = alpha*R - gamma*(q-R)
+	}
 }
 
 func (a *Base) HealthInfo() *health.HealthInfo {
@@ -344,7 +314,7 @@ func (a *Base) storyState() logging.AgentState {
 		Floor:     a.floor,
 		Age:       a.age,
 		Custom:    "",
-		Utility:   a.utility(),
+		Utility:   a.currentUtility,
 	}
 }
 
