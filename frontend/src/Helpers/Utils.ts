@@ -1,5 +1,26 @@
+import { Colors } from "@blueprintjs/core";
 import { DeathLog } from "./Logging/Death";
+import { MessagesLog } from "./Logging/Message";
 import { UtilityLog } from "./Logging/Utility";
+
+const arbitraryStackKey = "stack1";
+const colorFamily = [
+  "#1F4B99",
+  "#2F649C",
+  "#447C9F",
+  "#5D94A1",
+  "#7CAAA2",
+  "#A0BFA2",
+  "#CCD3A1",
+  "#FFE39F",
+  "#F6C880",
+  "#EBAE65",
+  "#DE944D",
+  "#D07A38",
+  "#C06126",
+  "#B04718",
+  "#9E2B0E",
+];
 
 export function Average(arr: number[]): number {
   return arr.length > 0 ? arr.reduce((a, b) => a + b) / arr.length : 0;
@@ -63,4 +84,37 @@ export function AverageAgeUponDeath(deathLogs: DeathLog[]): { [agentType: string
     }
   }
   return ageMap;
+}
+
+// This needs to return an array of chartable objects
+export function ParseMessageStats(stats: MessagesLog): any[] {
+  var processedStats: any[] = [];
+  var mtypes = stats.mtypes;
+  var msgcount = stats.msgcount;
+
+  // for each agent type
+  for (let i = 0; i < mtypes.length; i++) {
+    processedStats.push({
+      label: mtypes[i], // Graph title
+      data: msgcount[i], // Data (y-axis)
+      backgroundColor: colorFamily[i],
+      stack: arbitraryStackKey,
+    });
+  }
+
+  return processedStats;
+}
+export function ParseTreatyAcceptanceStats(stats: MessagesLog): any[] {
+  return [
+    {
+      label: "Treaties Rejected", // Graph title
+      data: stats.treatyResponses[0], // Data (y-axis)
+      backgroundColor: Colors.RED1,
+    },
+    {
+      label: "Treaties Accepted", // Graph title
+      data: stats.treatyResponses[1], // Data (y-axis)
+      backgroundColor: Colors.GREEN1,
+    },
+  ];
 }
