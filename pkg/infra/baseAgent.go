@@ -272,7 +272,7 @@ func (a *Base) UpdateHPChange(change int) {
 // 3.) Makes a provision of resources, pi ∈[0,1]
 // 4.) Makes a demand for resources, di ∈[0,1]
 // 5.) Receives an allocation of resources, ri ∈[0,1]
-// 6.0 Makes an appropriation of resources, r′i ∈[0,1]
+// 6.) Makes an appropriation of resources, r′i ∈[0,1]
 
 // The total resources accrued at the end of a round is hence given by:
 // Ri = r′i + (gi −pi)
