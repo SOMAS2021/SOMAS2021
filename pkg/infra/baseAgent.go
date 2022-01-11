@@ -83,7 +83,7 @@ func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, age
 		totalFoodSeen:  0,
 		totalHPGained:  0,
 		totalHPLost:    0,
-		utility:        0, //discuss initialization
+		utility:        0,
 	}, nil
 }
 
@@ -288,7 +288,7 @@ func (a *Base) updateUtility(foodRequested, foodTaken food.FoodType) {
 	foodProvision := 0.0
 
 	// 4.) Makes an appropriation of resources, r′i ∈[0,1]
-	// Appropriation is the amount of food an agent actually takes, normalised by the max possible
+	// Amount of food taken, normalised by the max possible intake
 	foodAppropriated := float64(foodTaken) / float64(a.tower.healthInfo.MaxFoodIntake)
 
 	// The total resources accrued at the end of a round is hence given by:
