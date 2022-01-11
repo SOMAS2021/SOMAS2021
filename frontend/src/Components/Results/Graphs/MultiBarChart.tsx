@@ -17,10 +17,7 @@ interface MultiBarChartProps {
   xAxis: any[];
   data: any[];
 }
-// Y axis number of messages
-// X axis agent type
-// let data contain the values (y-axis) and titles (message type)
-// i.e. [{label1: [], data1: []}, ...]
+
 export default function MultiBarChart(props: MultiBarChartProps) {
   const { xAxis, data } = props;
   return (
