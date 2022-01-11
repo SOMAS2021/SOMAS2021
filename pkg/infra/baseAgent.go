@@ -55,6 +55,7 @@ type Base struct {
 	totalFoodSeen  food.FoodType
 	totalHPGained  int
 	totalHPLost    int
+	utility        float64
 }
 
 func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, agentFloor int, id uuid.UUID) (*Base, error) {
@@ -82,6 +83,7 @@ func NewBaseAgent(world world.World, agentType agent.AgentType, agentHP int, age
 		totalFoodSeen:  0,
 		totalHPGained:  0,
 		totalHPLost:    0,
+		utility:        0,
 	}, nil
 }
 
@@ -230,6 +232,7 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 		return 0, &NegFoodError{}
 	}
 	foodTaken := food.FoodType(utilFunctions.MinInt(int(a.tower.currPlatFood), int(amountOfFood), int(a.tower.healthInfo.MaxFoodIntake)))
+	a.updateUtility(amountOfFood, foodTaken)
 	a.updateHP(foodTaken)
 	a.tower.currPlatFood -= foodTaken
 	a.setHasEaten(foodTaken > 0)
@@ -262,75 +265,45 @@ func (a *Base) UpdateHPChange(change int) {
 	}
 }
 
-func (a *Base) utility() float64 {
-	// TODO: Improve utility calculation
-	// Currently just use ratio between food taken and food seen
-	// Somehow also factor
-	// Ideas: piecewise/bounded function with log, concave quadratic
+func (a *Base) updateUtility(foodRequested, foodTaken food.FoodType) {
+	// Hyperparameters that are chosen to make utility commensurate for all agents
+	// Requires that alpha > gamma > beta for diminishing returns + greed
 
-	hpGainFactor := netHPGainFactor(a.totalHPGained, a.totalHPLost, a.tower.healthInfo.MaxHP)
-	foodIntakeFactor := foodIntakeFactor(a.totalFoodTaken, a.totalFoodSeen)
-	// this means the multiplcation of these values can be larger than 1
-	return simpleQuadraticUtility(hpGainFactor * foodIntakeFactor)
-}
+	// The weighting assigned to the resources exactly needed to survive
+	alpha := 0.2
+	// The weighting assigned to bonus resources that aren't needed
+	beta := 0.1
+	// The weighting assigned to not getting the resources that are needed
+	gamma := 0.18
 
-/*
-HP Gain Factor.
-inputs:
-- gain >= 0
-- loss >= 0
+	// 1.) Determines the resources it has available, gi ∈[0,1]
+	foodAvailable := float64(a.CurrPlatFood()) / float64(a.tower.maxPlatFood)
 
-output range:
-- y >= 0.
+	// 2.) Determines its need for resources, qi ∈[0,1]
+	// If an agent is not about to die, it effectively needs 0 food
+	foodToSurvive := float64(a.daysAtCritical) / float64(a.HealthInfo().MaxDayCritical)
 
-key values:
-- = 1: agent is sustaining overall
-- < 1: agent is losing hp on average
-- > 1: agent gaining hp on average
-- when loss is 0, default to percentage difference between gain and loss. Acknowledge that HP gain should increase utility
-*/
-// func hpGainFactor(gain, loss, maxhp int) float64 {
-// 	if loss == 0 {
-// 		return 1 + float64(gain)/float64(maxhp)
-// 	}
-// 	return float64(gain) / float64(loss)
-// }
+	// 3.) Makes a provision of resources, pi ∈[0,1]
+	// Agents never recontribute to the common pool (provision = 0)
+	foodProvision := 0.0
 
-/*
-Net HP Gain Factor.
-This one uses net hp gain as opposed to hp gain/loss ratio.
-*/
-func netHPGainFactor(gain, loss, maxhp int) float64 {
-	netHPGain := gain - loss
-	multiplier := 1 + float64(netHPGain)/float64(maxhp) // reward positive net hp gain, punish otherwise
-	return utilFunctions.RestrictToRange(0, math.Inf(1), multiplier)
-}
+	// 4.) Makes an appropriation of resources, r′i ∈[0,1]
+	// Amount of food taken, normalised by the max possible intake
+	foodAppropriated := float64(foodTaken) / float64(a.tower.healthInfo.MaxFoodIntake)
 
-/*
-Food Intake Factor.
-inputs:
-- intake >= 0
-- total >= 0
-range: [0, 1]. == 1, agent has taken all the food it has seen
+	// The total resources accrued at the end of a round is hence given by:
+	// Ri = r′i + (gi −pi)
+	// Resource generation by agent per day is what they actually take, plus the resources available, minus the provisions made
+	totalFoodAccrued := foodAppropriated + (foodAvailable - foodProvision)
 
-*/
-func foodIntakeFactor(intake, seen food.FoodType) float64 {
-	// If an agent hasn't seen any food, has 0 utility
-	if seen == 0 {
-		return 0
+	// Which provides the utility of an agent, ui, as:
+	// ui = αi(qi) + βi(Ri −qi), if Ri ≥qi
+	// 		αi(Ri) −γi(qi −Ri), otherwise
+	if totalFoodAccrued >= foodToSurvive {
+		a.utility = alpha*foodToSurvive + beta*(totalFoodAccrued-foodToSurvive)
+	} else {
+		a.utility = alpha*totalFoodAccrued - gamma*(foodToSurvive-totalFoodAccrued)
 	}
-	return float64(intake) / float64(seen)
-}
-
-// Quadratic function standard form: a(x-h)^2+k
-func quadratic(x, a, h, k float64) float64 {
-	return a*math.Pow((x-h), 2) + k
-}
-
-// Utility function is a strictly increasing function that starts at 0,0 ends at 1,1
-func simpleQuadraticUtility(x float64) float64 {
-	// -(x-1)^2 + 1
-	return utilFunctions.RestrictToRange(0, 1, quadratic(x, -1, 1, 1))
 }
 
 func (a *Base) HealthInfo() *health.HealthInfo {
@@ -344,7 +317,7 @@ func (a *Base) storyState() logging.AgentState {
 		Floor:     a.floor,
 		Age:       a.age,
 		Custom:    "",
-		Utility:   a.utility(),
+		Utility:   a.utility,
 	}
 }
 
