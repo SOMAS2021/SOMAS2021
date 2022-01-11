@@ -265,9 +265,7 @@ func (a *Base) UpdateHPChange(change int) {
 	}
 }
 
-// Updates the utility of a given agent:
 func (a *Base) updateUtility(foodRequested, foodTaken food.FoodType) {
-	// We take N agents i ∈{1,...,N}that perform the following actions in each iterated round t ∈{1,...,∞}:
 	// 1.) Determines the resources it has available, gi ∈[0,1]
 	// 2.) Determines its need for resources, qi ∈[0,1]
 	// 3.) Makes a provision of resources, pi ∈[0,1]
@@ -300,6 +298,7 @@ func (a *Base) updateUtility(foodRequested, foodTaken food.FoodType) {
 	if a.daysAtCritical == a.HealthInfo().MaxDayCritical {
 		foodToSurvive = 1.0
 	}
+	
 	// No resources are recontributed to the common pool (provision = 0)
 	foodProvision := 0.0
 
