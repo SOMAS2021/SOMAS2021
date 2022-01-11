@@ -38,5 +38,5 @@ func (msg *ProposeTreatyMessage) Visit(a Agent) {
 
 // TODO: complete treaty details
 func (msg *ProposeTreatyMessage) StoryLog() string {
-	return "Treaty details"
+	return "Condition: " + msg.treaty.Condition().String() + " Req: " + msg.treaty.Request().String()
 }

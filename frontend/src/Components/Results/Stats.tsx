@@ -7,9 +7,12 @@ import {
   UtilityOnDeath,
   AverageUtilityPerAgent,
   AverageAgeUponDeath,
+  ParseMessageStats,
+  ParseTreatyAcceptanceStats,
 } from "../../Helpers/Utils";
 import { Result } from "../../Helpers/Result";
 import BarChart from "./Graphs/BarChart";
+import MultiBarChart from "./Graphs/MultiBarChart";
 import LineChart from "./Graphs/LineChart";
 
 interface StatsViewerProps {
@@ -22,6 +25,8 @@ export default function StatsViewer(props: StatsViewerProps) {
   let utilityPerAgent = AverageUtilityPerAgent(result.utility);
   let utilityUponDeath = UtilityOnDeath(result.utility);
   let averageAgeUponDeath = AverageAgeUponDeath(result.deaths);
+  let messageStats = ParseMessageStats(result.messages);
+  let treatyAcceptanceStats = ParseTreatyAcceptanceStats(result.messages);
   return (
     <div className="row">
       <div className="col-lg-6">
@@ -87,6 +92,12 @@ export default function StatsViewer(props: StatsViewerProps) {
             xAxis={Object.keys(averageAgeUponDeath)}
             graphTitle="Average age upon death per Agent type"
           />
+        </div>
+        <div className="col-lg-6">
+          <MultiBarChart xAxis={result.messages.atypes} data={treatyAcceptanceStats} />
+        </div>
+        <div className="row">
+          <MultiBarChart xAxis={result.messages.atypes} data={messageStats} />
         </div>
       </div>
     </div>
