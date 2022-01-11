@@ -42,7 +42,8 @@ func (a *CustomAgent2) updateQTable(state int, action int) {
 }
 
 func (a *CustomAgent2) exportQTable() {
-	f, err := os.OpenFile(fmt.Sprintf("%s%s%s", a.ID(), "qtable", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	//f, err := os.OpenFile(fmt.Sprintf("%s%s%s", a.ID(), "qtable", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	f, err := os.OpenFile(fmt.Sprintf("%s%s%s", a.ID(), "qtable", ".csv"), os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	if err != nil {
 		panic(err)
 	}
