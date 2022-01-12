@@ -96,7 +96,20 @@ var maxBehaviourThreshold behaviour = 10.0
 
 // Defines the initial/base behaviour of our agents
 func chooseInitialBehaviour() behaviour {
+	// 1. Whole spectrum
 	return behaviour(rand.Float64()) * maxBehaviourThreshold
+	// 2. Only Collectivist and Selfish, in a ratio 1/1
+	//return behaviour(rand.Float64())*(maxBehaviourThreshold-2) + 1
+	//return behaviour(rand.Float64())*4 + 1
+	// 3. Only Collectivist and Selfish, in a ratio 2/1
+	// initialScore := behaviour(rand.Float64()) * maxBehaviourThreshold
+	// // Selfish
+	// if initialScore >= 8 {
+	// 	return behaviour(rand.Float64())*4 + 5
+	// } else {
+	// 	// Collectivist
+	// 	return behaviour(rand.Float64())*4 + 1
+	// }
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
@@ -105,7 +118,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		Base: baseAgent,
 		config: team6Config{
 			baseBehaviour:         initialBehaviour,
-			stubbornness:          0.2,
+			stubbornness:          0.5,
 			maxBehaviourSwing:     8,
 			paramWeights:          behaviourParameterWeights{HPWeight: 0.8, floorWeight: 0.2}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
@@ -230,7 +243,7 @@ func (a *CustomAgent6) identifyNeighbours(id uuid.UUID, floor int) {
 }
 
 func (b behaviour) string() string {
-	behaviourMap := [...]thresholdBehaviourPair{{1, "Altruist"}, {5, "Collectivist"}, {7, "Selfish"}, {10, "Narcissist"}}
+	behaviourMap := [...]thresholdBehaviourPair{{1, "Altruist"}, {5, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
 
 	if b >= 0 {
 		for _, v := range behaviourMap {
