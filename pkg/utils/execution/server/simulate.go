@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/config"
+	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/execution"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/logging"
 	log "github.com/sirupsen/logrus"
@@ -47,21 +48,24 @@ func Simulate(w http.ResponseWriter, r *http.Request, devMode bool) {
 
 	ch := make(chan string, 1)
 
+	var sE simulation.SimEnv
 	go func() {
 		log.Info("Simulation " + logFolderName + " started")
-		execution.RunNewSimulation(parameters, logFolderName, ctx, ch)
+		sE = execution.RunNewSimulation(parameters, logFolderName, ctx, ch)
 	}()
 
 	// Listen on our channel AND a timeout channel - which ever happens first.
 	select {
 	case <-ch:
 		log.Info("Simulation " + logFolderName + " finished successfully")
+		sE.PostSim()
 		err = logging.UpdateSimStatusJson(logFolderName, "finished", execution.GetMaxTick(logFolderName+"/story.json"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			log.Error("Unable to update status file: " + err.Error())
 		}
 	case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
+		sE.PostSim()
 		http.Error(w, "Simulation Timeout", http.StatusInternalServerError)
 		log.Error("Simulation " + logFolderName + " timed out")
 		err = logging.UpdateSimStatusJson(logFolderName, "timedout", execution.GetMaxTick(logFolderName+"/story.json"))
