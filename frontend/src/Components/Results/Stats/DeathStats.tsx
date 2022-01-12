@@ -1,5 +1,7 @@
 import { DeathsPerAgent, UtilityOnDeath, Average, Max, Min, AverageAgeUponDeath } from "../../../Helpers/Utils";
 import BarChart from "../Graphs/BarChart";
+import LineChart from "../Graphs/LineChart";
+import ScatterChart from "../Graphs/ScatterChart";
 import ReportCard from "../ReportCard";
 import { StatsViewerProps } from "../Stats";
 
@@ -50,6 +52,15 @@ export default function DeathStats(props: StatsViewerProps) {
             yAxis={Object.values(averageAgeUponDeath)}
             xAxis={Object.keys(averageAgeUponDeath)}
             graphTitle="Average age upon death per Agent type"
+          />
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-lg-6">
+          <ScatterChart
+            yAxis={[0].concat(result.deaths.map((d) => d.cumulativeDeaths))}
+            xAxis={[0].concat(result.deaths.map((d) => d.tick))}
+            graphTitle="Cumulative deaths per tick"
           />
         </div>
       </div>

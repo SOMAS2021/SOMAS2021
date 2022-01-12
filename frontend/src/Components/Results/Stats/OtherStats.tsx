@@ -6,8 +6,8 @@ import {
   Average,
 } from "../../../Helpers/Utils";
 import BarChart from "../Graphs/BarChart";
-import LineChart from "../Graphs/LineChart";
 import MultiBarChart from "../Graphs/MultiBarChart";
+import ScatterChart from "../Graphs/ScatterChart";
 import ReportCard from "../ReportCard";
 import { StatsViewerProps } from "../Stats";
 
@@ -32,7 +32,7 @@ export default function OtherStats(props: StatsViewerProps) {
           <BarChart yAxis={Object.values(deaths)} xAxis={Object.keys(deaths)} graphTitle="Deaths per Agent type" />
         </div>
         <div className="col-lg-6">
-          <LineChart
+          <ScatterChart
             yAxis={result.food.map((f) => f.food)}
             xAxis={result.food.map((f) => f.tick)}
             graphTitle="Total Food on Platform per Tick"
