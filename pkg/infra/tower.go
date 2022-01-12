@@ -112,7 +112,7 @@ func (t *Tower) endOfDay() {
 func (t *Tower) resetHP() {
 	for _, agent := range t.Agents {
 		agent := agent.BaseAgent()
-		if !agent.IsAlive() {
+		if !agent.IsAlive() && agent.agentType.String() == "Team2" {
 			agent.setHP(t.healthInfo.MaxHP)
 			agent.daysAtCritical = 0
 			agent.age = 0
