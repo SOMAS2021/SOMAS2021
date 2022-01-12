@@ -4,7 +4,7 @@ import { useState } from "react";
 interface CollapsingSectionProps {
   children: JSX.Element;
   title: string;
-  disabled?: boolean
+  disabled?: boolean;
 }
 
 export default function CollapsingSection(props: CollapsingSectionProps) {

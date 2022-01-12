@@ -8,7 +8,7 @@ export interface StatsViewerProps {
 
 export default function StatsViewer(props: StatsViewerProps) {
   const { result } = props;
-  const disabled = result.simStatus.status === SimStatusExec.running
+  const disabled = result.simStatus.status === SimStatusExec.running;
   return (
     <div>
       <CollapsingSection title="Death Stats" disabled={disabled}>

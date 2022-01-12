@@ -97,6 +97,7 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 			agent.CustomLogs()
 		}
 	}
+	ch <- "Simulation Finished"
 }
 
 func (sE *SimEnv) PostSim() {
