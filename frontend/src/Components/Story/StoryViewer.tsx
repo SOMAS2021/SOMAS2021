@@ -1,4 +1,4 @@
-import { Button, Collapse, Divider, H5, Intent, Pre } from "@blueprintjs/core";
+import { Divider, H5, Pre } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
 import {
   GetStoryLogs,
@@ -17,28 +17,18 @@ interface StoryViewerProps {
 
 export default function StoryViewer(props: StoryViewerProps) {
   const { result } = props;
-  const [isOpen, setIsOpen] = useState(false);
   return (
     <div style={{ margin: "10px 0px" }}>
       {result.simStatus.maxTick > -1 ? (
-        <>
-          <Button
-            intent={isOpen ? Intent.PRIMARY : Intent.WARNING}
-            onClick={() => setIsOpen(!isOpen)}
-            style={{ width: 200 }}
-          >
-            {isOpen ? "Hide" : "Show"} Story
-          </Button>
-          <Collapse isOpen={isOpen} keepChildrenMounted={true}>
-            <Pre>
-              <StoryController title={result.title} maxTick={result.simStatus.maxTick} />
-            </Pre>
-          </Collapse>
-        </>
+        <Pre>
+          <StoryController title={result.title} maxTick={result.simStatus.maxTick} />
+        </Pre>
       ) : result.config.LogStory ? (
         <H5>Simulation still in progress</H5>
       ) : (
-        <></>
+        <H5>
+          <i>Story unavailable</i>
+        </H5>
       )}
     </div>
   );
