@@ -35,14 +35,11 @@ function Params(props: ConfigInfoProps) {
       <H4>Parameters</H4>
       {mainParams(config).map((param, index) => (
         <div className="col-md-2" key={index}>
-          <H2>{param.value}</H2>
+          <H2 style={{ display: "inline" }}>{param.value} </H2>
+          <H5 style={{ display: "inline" }}>{param.unit}</H5>
           <H5>{param.name}</H5>
         </div>
       ))}
-      <div className="col-md-2">
-        <H2>{config.UseFoodPerAgentRatio ? config.FoodPerAgentRatio : config.FoodOnPlatform}</H2>
-        <H5>{config.UseFoodPerAgentRatio ? "Food per agent" : "Food on platform"}</H5>
-      </div>
     </div>
   );
 }
@@ -77,16 +74,22 @@ function mainParams(config: SimConfig) {
       value: config.maxHP,
     },
     {
-      name: "Agents / Floor",
-      value: config.AgentsPerFloor,
+      name: "Shuffle Period",
+      value: config.ReshuffleDays,
+      unit: "day(s)",
     },
     {
       name: "Ticks / Floor",
       value: config.TicksPerFloor,
     },
     {
-      name: "Days",
+      name: "Sim Duration",
       value: config.SimDays,
+      unit: "day(s)",
+    },
+    {
+      name: config.UseFoodPerAgentRatio ? "Food per agent" : "Food on platform",
+      value: config.UseFoodPerAgentRatio ? config.FoodPerAgentRatio : config.FoodOnPlatform,
     },
   ];
 }
