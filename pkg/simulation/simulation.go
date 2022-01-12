@@ -39,6 +39,7 @@ type SimEnv struct {
 	world          world.World
 	stateLog       *logging.StateLog
 	agentNewFuncs  map[agent.AgentType]AgentNewFunc
+	behaviourCtr   map[string]int
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
@@ -62,6 +63,12 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 			agent.Team6:       team6.New,
 			agent.Team7:       team7agent1.New,
 			agent.RandomAgent: randomAgent.New,
+		},
+		behaviourCtr: map[string]int{
+			"Altruist":     0,
+			"Collectivist": 0,
+			"Selfish":      0,
+			"Narcissist":   0,
 		},
 	}
 }
@@ -96,7 +103,15 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 		if agent.BaseAgent().AgentType().String() == sE.stateLog.CustomLog {
 			agent.CustomLogs()
 		}
+		if agent.BaseAgent().AgentType() == 7 { // Team 6
+			agentBehaviour := agent.Behaviour()
+			if agentBehaviour != "Not Team 6" {
+				sE.behaviourCtr[agentBehaviour]++
+			}
+		}
 	}
+
+	sE.Log("Summary of agent social motives:", infra.Fields{"SocialMotivesMap": sE.behaviourCtr})
 
 	// dispatch loggers
 	sE.stateLog.SimEnd(sE.dayInfo)

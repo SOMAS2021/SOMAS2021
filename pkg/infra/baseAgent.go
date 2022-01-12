@@ -35,6 +35,7 @@ type Agent interface {
 	HandleTreatyResponse(msg messages.TreatyResponseMessage)
 	HandlePropogate(msg messages.Message)
 	CustomLogs()
+	Behaviour() string
 }
 
 type Fields = log.Fields
@@ -322,3 +323,7 @@ func (a *Base) storyState() logging.AgentState {
 }
 
 func (a *Base) CustomLogs() {}
+
+func (a *Base) Behaviour() string {
+	return "Not Team 6"
+}

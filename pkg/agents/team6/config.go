@@ -243,6 +243,10 @@ func (b behaviour) string() string {
 	return fmt.Sprintf("UNKNOWN Behaviour '%v'", int(b))
 }
 
+func (a *CustomAgent6) Behaviour() string {
+	return a.currBehaviour.string()
+}
+
 func (a *CustomAgent6) Run() {
 
 	// Reporting agent state
