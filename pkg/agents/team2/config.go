@@ -1,8 +1,6 @@
 package team2
 
 import (
-	"fmt"
-
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 )
@@ -111,10 +109,10 @@ func (a *CustomAgent2) Run() {
 		oldHP := a.HP()
 		a.Log("Agent team2 before action:", infra.Fields{"floor": a.Floor(), "hp": oldHP, "food": a.CurrPlatFood(), "state": oldState})
 		action := a.SelectAction()
-		fmt.Printf("************************\n")
-		fmt.Printf("It's day %d!\n", a.Age())
-		fmt.Printf("Food on Platform: %d\n", a.CurrPlatFood())
-		fmt.Printf("HP before action: %d\n", oldHP)
+		//fmt.Printf("************************\n")
+		//fmt.Printf("It's day %d!\n", a.Age())
+		//fmt.Printf("Food on Platform: %d\n", a.CurrPlatFood())
+		//fmt.Printf("HP before action: %d\n", oldHP)
 
 		foodTaken, err := a.TakeFood(food.FoodType(a.actionSpace[action])) //perform selected action
 		if err != nil {
@@ -130,10 +128,10 @@ func (a *CustomAgent2) Run() {
 				a.Log("Agent team2 at critical state", infra.Fields{"daysAtCriticalCounter": a.daysAtCriticalCounter, "floor": a.Floor(), "hp": a.HP(), "food": a.CurrPlatFood(), "state": a.CheckState()})
 			}
 		}
-		fmt.Printf("Intended action: %d\n", action*5)
-		fmt.Printf("Actual eaten food: %d\n", foodTaken)
-		fmt.Printf("HP after action: %d\n", a.HP())
-		fmt.Printf("************************\n")
+		//fmt.Printf("Intended action: %d\n", action*5)
+		//fmt.Printf("Actual eaten food: %d\n", foodTaken)
+		//fmt.Printf("HP after action: %d\n", a.HP())
+		//fmt.Printf("************************\n")
 		hpInc := a.HP() - oldHP
 		a.updateRTable(oldHP, hpInc, int(foodTaken), oldState, action)
 		a.updateQTable(oldState, action)
@@ -147,8 +145,8 @@ func (a *CustomAgent2) Run() {
 		target = []float64{float64(foodTaken), float64(a.HP())}
 		a.writeToCSV(target, "csv_files/foodtaken_vs_hp", 2)
 		// table logging
-		//a.exportQTable()
-		//a.exportPolicies()
+		a.exportQTable()
+		a.exportPolicies()
 	}
 
 }
