@@ -68,6 +68,7 @@ func (a *CustomAgent3) askLeaveFood(direction int) { //direction 1 or -1
 }
 func (a *CustomAgent3) treatyProposal() {
 	randomFloor := rand.Intn(a.Floor()-1) + 1
+
 	if !a.treatyFull() && !a.treatyPendingResponse() {
 		if a.vars.morality < 10 {
 			a.proposeTreatiesImmoral(randomFloor)
@@ -76,7 +77,7 @@ func (a *CustomAgent3) treatyProposal() {
 		}
 	} else { //propagate
 
-		if !a.treatyFull() && !a.treatyPendingResponse() {
+		if !a.treatyPendingResponse() {
 			for _, tr := range a.ActiveTreaties() {
 				a.knowledge.treatyProposed = tr //remember the treaty we proposed
 				msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), randomFloor, tr)
@@ -89,7 +90,7 @@ func (a *CustomAgent3) treatyProposal() {
 }
 
 func (a *CustomAgent3) msgSelect(direction int, hpRecorded int) {
-	r := rand.Intn(4)
+	r := rand.Intn(5)
 	switch r {
 	case 0:
 		a.askHP(direction)
