@@ -63,6 +63,10 @@ func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 	var wg sync.WaitGroup
 	for id, custAgent := range t.Agents {
 		wg.Add(1)
+		// Log the ctr for agent social motives
+		if sE.dayInfo.CurrTick%sE.dayInfo.TicksPerDay == 0 {
+			sE.setSMCtr(custAgent)
+		}
 		go func(wg *sync.WaitGroup, custAgent infra.Agent, id uuid.UUID) {
 			if custAgent.IsAlive() {
 				custAgent.Run()
@@ -71,4 +75,8 @@ func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 		}(&wg, custAgent, id)
 	}
 	wg.Wait()
+	if sE.dayInfo.CurrTick%sE.dayInfo.TicksPerDay == 0 {
+		sE.Log("Summary of agent social motives:", infra.Fields{"SocialMotivesMap": sE.behaviourCtr})
+		sE.resetSMCtr()
+	}
 }

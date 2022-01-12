@@ -103,19 +103,33 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 		if agent.BaseAgent().AgentType().String() == sE.stateLog.CustomLog {
 			agent.CustomLogs()
 		}
-		if agent.BaseAgent().AgentType() == 7 { // Team 6
-			agentBehaviour := agent.Behaviour()
-			if agentBehaviour != "Not Team 6" {
-				sE.behaviourCtr[agentBehaviour]++
-			}
-		}
+
+		// sE.setSMCtr(agent)
 	}
 
-	sE.Log("Summary of agent social motives:", infra.Fields{"SocialMotivesMap": sE.behaviourCtr})
+	// sE.Log("Summary of agent social motives:", infra.Fields{"SocialMotivesMap": sE.behaviourCtr})
 
 	// dispatch loggers
 	sE.stateLog.SimEnd(sE.dayInfo)
 	ch <- "Simulation Finished"
+}
+
+func (sE *SimEnv) setSMCtr(agent infra.Agent) {
+	if agent.BaseAgent().AgentType().String() == "Team6" { // Team 6
+		agentBehaviour := agent.Behaviour()
+		if agentBehaviour != "Not Team 6" {
+			sE.behaviourCtr[agentBehaviour]++
+		}
+	}
+}
+
+func (sE *SimEnv) resetSMCtr() {
+	sE.behaviourCtr = map[string]int{
+		"Altruist":     0,
+		"Collectivist": 0,
+		"Selfish":      0,
+		"Narcissist":   0,
+	}
 }
 
 func (s *SimEnv) Log(message string, fields ...Fields) {
