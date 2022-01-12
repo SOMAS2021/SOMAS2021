@@ -67,7 +67,7 @@ func (a *CustomAgent3) askLeaveFood(direction int) { //direction 1 or -1
 	a.Log("I sent a message", infra.Fields{"message": "RequestLeaveFood"})
 }
 func (a *CustomAgent3) treatyProposal() {
-	randomFloor := rand.Intn(a.Floor()-1) + 1
+	randomFloor := rand.Intn(a.Floor()) + 1
 
 	if !a.treatyFull() && !a.treatyPendingResponse() {
 		if a.vars.morality < 10 {
