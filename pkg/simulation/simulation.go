@@ -39,7 +39,6 @@ type SimEnv struct {
 	world          world.World
 	stateLog       *logging.StateLog
 	agentNewFuncs  map[agent.AgentType]AgentNewFunc
-	behaviourCtr   map[string]int
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
@@ -64,12 +63,6 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 			agent.Team7:       team7agent1.New,
 			agent.RandomAgent: randomAgent.New,
 		},
-		behaviourCtr: map[string]int{
-			"Altruist":     0,
-			"Collectivist": 0,
-			"Selfish":      0,
-			"Narcissist":   0,
-		},
 	}
 }
 
@@ -81,6 +74,9 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	sE.SetWorld(t)
 
 	sE.generateInitialAgents(t)
+
+	// Create CSV file to log agent SM counter
+	sE.CreateBehaviourCtrData()
 
 	sE.Log("Simulation Started")
 	sE.simulationLoop(t, ctx)
@@ -103,11 +99,10 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 		if agent.BaseAgent().AgentType().String() == sE.stateLog.CustomLog {
 			agent.CustomLogs()
 		}
-
-		// sE.setSMCtr(agent)
 	}
 
-	// sE.Log("Summary of agent social motives:", infra.Fields{"SocialMotivesMap": sE.behaviourCtr})
+	// Write SM counter data into csv file
+	sE.ExportCSV("socialMotives.csv")
 
 	// dispatch loggers
 	sE.stateLog.SimEnd(sE.dayInfo)
@@ -118,13 +113,13 @@ func (sE *SimEnv) setSMCtr(agent infra.Agent) {
 	if agent.BaseAgent().AgentType().String() == "Team6" { // Team 6
 		agentBehaviour := agent.Behaviour()
 		if agentBehaviour != "Not Team 6" {
-			sE.behaviourCtr[agentBehaviour]++
+			sE.dayInfo.BehaviourCtr[agentBehaviour]++
 		}
 	}
 }
 
 func (sE *SimEnv) resetSMCtr() {
-	sE.behaviourCtr = map[string]int{
+	sE.dayInfo.BehaviourCtr = map[string]int{
 		"Altruist":     0,
 		"Collectivist": 0,
 		"Selfish":      0,

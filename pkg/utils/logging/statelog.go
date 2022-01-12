@@ -22,6 +22,7 @@ type StateLog struct {
 	mainLogger    *log.Logger
 	utilityLogger *log.Logger
 	msgLogger     *log.Logger
+	smCtrLogger   *log.Logger
 	// Death state
 	deathCount int
 	// Food state
@@ -78,6 +79,8 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 	handleNewLoggerErr(err)
 	mainLogger, err := l.AddLogger("main", mainLogName)
 	handleNewLoggerErr(err)
+	smCtrLogger, err := l.AddLogger("socialMotives", "socialMotivesCtr.json")
+	handleNewLoggerErr(err)
 
 	// Init message counters
 	var msgs msgMap
@@ -91,6 +94,7 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 		storyLogger:     storyLogger,
 		utilityLogger:   utilityLogger,
 		msgLogger:       msgLogger,
+		smCtrLogger:     smCtrLogger,
 		messages:        &msgs,
 		treatyResponses: &treatyResponses,
 		msgMx:           &sync.Mutex{},
@@ -215,6 +219,18 @@ func (ls *StateLog) LogStoryPlatformMoved(simState *day.DayInfo, floor int) {
 				"tick":  simState.CurrTick,
 				"floor": floor,
 			}).Info("platform")
+}
+
+func (ls *StateLog) LogSocialMotivesCtr(simState *day.DayInfo) {
+	ls.smCtrLogger.
+		WithFields(
+			log.Fields{
+				// "Social Motive Ctr": simState.BehaviourCtr,
+				"Altruists":     simState.BehaviourCtr["Altruist"],
+				"Collectivists": simState.BehaviourCtr["Collectivist"],
+				"Selfish":       simState.BehaviourCtr["Selfish"],
+				"Narcissists":   simState.BehaviourCtr["Narcissist"],
+			}).Info()
 }
 
 // Simulation ended

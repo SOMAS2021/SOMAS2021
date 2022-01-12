@@ -9,6 +9,8 @@ type DayInfo struct {
 	TotalTicks        int
 	CurrTick          int
 	CurrDay           int
+	BehaviourCtr      map[string]int
+	BehaviourCtrData  [][]string
 }
 
 func NewDayInfo(TicksPerFloor, TicksPerDay, SimulationDays, DaysPerReshuffle int) *DayInfo {
@@ -21,5 +23,12 @@ func NewDayInfo(TicksPerFloor, TicksPerDay, SimulationDays, DaysPerReshuffle int
 		TotalTicks:        TicksPerDay * SimulationDays,
 		CurrTick:          1,
 		CurrDay:           1,
+		BehaviourCtr: map[string]int{
+			"Altruist":     0,
+			"Collectivist": 0,
+			"Selfish":      0,
+			"Narcissist":   0,
+		},
+		BehaviourCtrData: [][]string{},
 	}
 }

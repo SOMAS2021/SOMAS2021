@@ -76,7 +76,8 @@ func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 	}
 	wg.Wait()
 	if sE.dayInfo.CurrTick%sE.dayInfo.TicksPerDay == 0 {
-		sE.Log("Summary of agent social motives:", infra.Fields{"SocialMotivesMap": sE.behaviourCtr})
+		sE.stateLog.LogSocialMotivesCtr(sE.dayInfo)
+		sE.AddToBehaviourCtrData()
 		sE.resetSMCtr()
 	}
 }
