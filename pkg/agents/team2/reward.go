@@ -12,7 +12,7 @@ func calcReward(HP int, foodTaken int, DaysAtCritical int, healthInfo *health.He
 	if HP == healthInfo.HPCritical {
 		ret = ret - 5*float64(DaysAtCritical)
 	} else if HP >= overEating {
-		ret = ret - float64(foodTaken)*0.2
+		ret = ret - float64(foodTaken)*0.1
 	} else {
 		ret = 3
 	}
