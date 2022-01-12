@@ -38,7 +38,7 @@ export default function StoryViewer(props: StoryViewerProps) {
       ) : result.config.LogStory ? (
         <H5>Simulation still in progress</H5>
       ) : (
-        <H5>Story unavailable</H5>
+        <></>
       )}
     </div>
   );
