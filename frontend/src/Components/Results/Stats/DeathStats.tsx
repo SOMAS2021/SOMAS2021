@@ -1,6 +1,5 @@
 import { DeathsPerAgent, UtilityOnDeath, Average, Max, Min, AverageAgeUponDeath } from "../../../Helpers/Utils";
 import BarChart from "../Graphs/BarChart";
-import LineChart from "../Graphs/LineChart";
 import ScatterChart from "../Graphs/ScatterChart";
 import ReportCard from "../ReportCard";
 import { StatsViewerProps } from "../Stats";
