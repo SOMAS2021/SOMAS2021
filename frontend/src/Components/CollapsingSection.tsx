@@ -4,10 +4,11 @@ import { useState } from "react";
 interface CollapsingSectionProps {
   children: JSX.Element;
   title: string;
+  disabled?: boolean
 }
 
 export default function CollapsingSection(props: CollapsingSectionProps) {
-  const { children, title } = props;
+  const { children, title, disabled } = props;
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div>
@@ -17,6 +18,7 @@ export default function CollapsingSection(props: CollapsingSectionProps) {
           intent="none"
           onClick={() => setIsOpen(!isOpen)}
           style={{ marginRight: 10 }}
+          disabled={disabled}
         ></Button>
         {title}
       </H3>
