@@ -1,10 +1,4 @@
-import {
-  DeathsPerAgent,
-  AverageUtilityPerAgent,
-  ParseMessageStats,
-  ParseTreatyAcceptanceStats,
-  Average,
-} from "../../../Helpers/Utils";
+import { AverageUtilityPerAgent, ParseMessageStats, ParseTreatyAcceptanceStats, Average } from "../../../Helpers/Utils";
 import BarChart from "../Graphs/BarChart";
 import MultiBarChart from "../Graphs/MultiBarChart";
 import ScatterChart from "../Graphs/ScatterChart";
@@ -13,7 +7,6 @@ import { StatsViewerProps } from "../Stats";
 
 export default function OtherStats(props: StatsViewerProps) {
   const { result } = props;
-  let deaths = DeathsPerAgent(result.deaths);
   let utilityPerAgent = AverageUtilityPerAgent(result.utility);
   let messageStats = ParseMessageStats(result.messages);
   let treatyAcceptanceStats = ParseTreatyAcceptanceStats(result.messages);
@@ -28,9 +21,6 @@ export default function OtherStats(props: StatsViewerProps) {
         />
       </div>
       <div className="row">
-        <div className="col-lg-6">
-          <BarChart yAxis={Object.values(deaths)} xAxis={Object.keys(deaths)} graphTitle="Deaths per Agent type" />
-        </div>
         <div className="col-lg-6">
           <ScatterChart
             yAxis={result.food.map((f) => f.food)}

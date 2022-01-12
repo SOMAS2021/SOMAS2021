@@ -53,8 +53,9 @@ export default function DeathStats(props: StatsViewerProps) {
             graphTitle="Average age upon death per Agent type"
           />
         </div>
-      </div>
-      <div className="row">
+        <div className="col-lg-6">
+          <BarChart yAxis={Object.values(deaths)} xAxis={Object.keys(deaths)} graphTitle="Deaths per Agent type" />
+        </div>
         <div className="col-lg-6">
           <ScatterChart
             yAxis={[0].concat(result.deaths.map((d) => d.cumulativeDeaths))}
