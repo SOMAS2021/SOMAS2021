@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/server"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/execution"
+	"github.com/SOMAS2021/SOMAS2021/pkg/utils/execution/server"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -50,6 +50,6 @@ func main() {
 			log.Fatal(err)
 		}
 	} else {
-		simulation.LocalRun(*configPathPtr, *customLogsPtr)
+		execution.LocalRun(*configPathPtr, *customLogsPtr)
 	}
 }
