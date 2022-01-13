@@ -80,6 +80,10 @@ type CustomAgent6 struct {
 	neighbours neighbours
 	// Previous day age
 	prevAge int
+	// Previous day social motive
+	prevSM string
+	// Change in social motive
+	changeSM string
 }
 
 type thresholdBehaviourPair struct {
@@ -143,6 +147,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		trustTeams:          make(trust),
 		neighbours:          neighbours{above: uuid.Nil, below: uuid.Nil},
 		prevAge:             0,
+		prevSM:              initialBehaviour.string(),
 	}, nil
 }
 
@@ -256,10 +261,6 @@ func (b behaviour) string() string {
 	return fmt.Sprintf("UNKNOWN Behaviour '%v'", int(b))
 }
 
-func (a *CustomAgent6) Behaviour() string {
-	return a.currBehaviour.string()
-}
-
 func (a *CustomAgent6) Run() {
 
 	// Reporting agent state
@@ -268,6 +269,7 @@ func (a *CustomAgent6) Run() {
 	// Everything you need to do once a day
 	if a.Age() != a.prevAge {
 		a.updateBehaviour()
+
 		if a.currBehaviour.string() == "Collectivist" || a.currBehaviour.string() == "Selfish" {
 			treaty := a.constructTreaty()
 			a.proposeTreaty(treaty)
@@ -322,6 +324,78 @@ func (a *CustomAgent6) Run() {
 	}
 
 	a.prevFloor = a.Floor() // keep at end of Run() function
+	if a.Age() != a.prevAge {
+		a.updateChangeSMVariable()
+		a.prevSM = a.currBehaviour.string()
+	}
 	a.prevAge = a.Age()
 
+}
+
+func (a *CustomAgent6) Behaviour() string {
+	return a.currBehaviour.string()
+}
+
+func (a *CustomAgent6) BehaviourChange() string {
+	return a.changeSM
+}
+
+func (a *CustomAgent6) updateChangeSMVariable() {
+	switch a.prevSM {
+	case "Altruist":
+		switch a.currBehaviour.string() {
+		case "Altruist":
+			a.changeSM = "A2A"
+		case "Collectivist":
+			a.changeSM = "A2C"
+		case "Selfish":
+			a.changeSM = "A2S"
+		case "Narcissist":
+			a.changeSM = "A2N"
+		default:
+			a.changeSM = "N/A"
+		}
+	case "Collectivist":
+		switch a.currBehaviour.string() {
+		case "Altruist":
+			a.changeSM = "C2A"
+		case "Collectivist":
+			a.changeSM = "C2C"
+		case "Selfish":
+			a.changeSM = "C2S"
+		case "Narcissist":
+			a.changeSM = "C2N"
+		default:
+			a.changeSM = "N/A"
+		}
+	case "Selfish":
+		switch a.currBehaviour.string() {
+		case "Altruist":
+			a.changeSM = "S2A"
+		case "Collectivist":
+			a.changeSM = "S2C"
+		case "Selfish":
+			a.changeSM = "S2S"
+		case "Narcissist":
+			a.changeSM = "S2N"
+		default:
+			a.changeSM = "N/A"
+		}
+	case "Narcissist":
+		switch a.currBehaviour.string() {
+		case "Altruist":
+			a.changeSM = "N2A"
+		case "Collectivist":
+			a.changeSM = "N2C"
+		case "Selfish":
+			a.changeSM = "N2S"
+		case "Narcissist":
+			a.changeSM = "N2N"
+		default:
+			a.changeSM = "N/A"
+		}
+	default:
+		a.changeSM = "N/A"
+	}
+	// a.Log("SM Change summary", infra.Fields{"prevSM": a.prevSM, "currSM": a.currBehaviour.string(), "functionOutput": a.changeSM})
 }

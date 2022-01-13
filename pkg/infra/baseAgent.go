@@ -36,6 +36,7 @@ type Agent interface {
 	HandlePropogate(msg messages.Message)
 	CustomLogs()
 	Behaviour() string
+	BehaviourChange() string
 }
 
 type Fields = log.Fields
@@ -325,5 +326,9 @@ func (a *Base) storyState() logging.AgentState {
 func (a *Base) CustomLogs() {}
 
 func (a *Base) Behaviour() string {
+	return "Not Team 6"
+}
+
+func (a *Base) BehaviourChange() string {
 	return "Not Team 6"
 }

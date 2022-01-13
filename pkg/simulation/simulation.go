@@ -77,6 +77,7 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 
 	// Create CSV file to log agent SM counter
 	sE.CreateBehaviourCtrData()
+	sE.CreateBehaviourChangeCtrData()
 
 	sE.Log("Simulation Started")
 	sE.simulationLoop(t, ctx)
@@ -102,7 +103,8 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	}
 
 	// Write SM counter data into csv file
-	sE.ExportCSV("socialMotives.csv")
+	sE.ExportCSV(sE.dayInfo.BehaviourCtrData, "csvFiles/socialMotives.csv")
+	sE.ExportCSV(sE.dayInfo.BehaviourChangeCtrData, "csvFiles/socialMotivesChange.csv")
 
 	// dispatch loggers
 	sE.stateLog.SimEnd(sE.dayInfo)
@@ -124,6 +126,36 @@ func (sE *SimEnv) resetSMCtr() {
 		"Collectivist": 0,
 		"Selfish":      0,
 		"Narcissist":   0,
+	}
+}
+
+func (sE *SimEnv) setSMChangeCtr(agent infra.Agent) {
+	if agent.BaseAgent().AgentType().String() == "Team6" { // Team 6
+		agentBehaviourChange := agent.BehaviourChange()
+		if agentBehaviourChange != "Not Team 6" {
+			sE.dayInfo.BehaviourChangeCtr[agentBehaviourChange]++
+		}
+	}
+}
+
+func (sE *SimEnv) resetSMChangeCtr() {
+	sE.dayInfo.BehaviourChangeCtr = map[string]int{
+		"A2A": 0,
+		"A2C": 0,
+		"A2S": 0,
+		"A2N": 0,
+		"C2A": 0,
+		"C2C": 0,
+		"C2S": 0,
+		"C2N": 0,
+		"S2A": 0,
+		"S2C": 0,
+		"S2S": 0,
+		"S2N": 0,
+		"N2A": 0,
+		"N2C": 0,
+		"N2S": 0,
+		"N2N": 0,
 	}
 }
 
