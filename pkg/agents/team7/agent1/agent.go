@@ -222,7 +222,7 @@ func (a *CustomAgent7) eating(foodtotake food.FoodType, targetFullFood food.Food
 
 	a.opMem.foodEaten = eaten
 	if a.opMem.foodEaten > 0 {
-		a.behaviour.greediness -= int(0.5 * float64(a.opMem.daysHungry*a.opMem.daysHungry))
+		a.behaviour.greediness -= int(0.3 * float64(a.opMem.daysHungry*a.opMem.daysHungry))
 		a.opMem.daysHungry = 0
 	} else {
 		a.behaviour.greediness -= int(0.3 * float64(a.opMem.daysHungry*a.opMem.daysHungry))
