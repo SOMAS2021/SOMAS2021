@@ -75,6 +75,7 @@ func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 		}(&wg, custAgent, id)
 		if sE.dayInfo.CurrTick%sE.dayInfo.TicksPerDay == 0 {
 			sE.setSMChangeCtr(custAgent)
+			sE.addToUtilityCtr(custAgent)
 		}
 	}
 	wg.Wait()
@@ -82,8 +83,9 @@ func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 		sE.stateLog.LogSocialMotivesCtr(sE.dayInfo)
 		sE.AddToBehaviourCtrData()
 		sE.AddToBehaviourChangeCtrData()
-		sE.Log("Summary of behaviour change data", infra.Fields{"behaviourChangeCtr": sE.dayInfo.BehaviourChangeCtr, "behaviourChangeCtrData": sE.dayInfo.BehaviourChangeCtrData})
+		sE.AddToUtilityData()
 		sE.resetSMCtr()
 		sE.resetSMChangeCtr()
+		sE.clearUtilityCtr()
 	}
 }

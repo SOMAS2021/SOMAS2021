@@ -86,6 +86,13 @@ func (sE *SimEnv) AddToBehaviourChangeCtrData() {
 		strconv.Itoa(sE.dayInfo.BehaviourChangeCtr["N2S"]),
 		strconv.Itoa(sE.dayInfo.BehaviourChangeCtr["N2N"]),
 	}
-
 	sE.dayInfo.BehaviourChangeCtrData = append(sE.dayInfo.BehaviourChangeCtrData, row)
+}
+
+func (sE *SimEnv) CreateUtilityData() {
+	sE.dayInfo.UtilityData = append(sE.dayInfo.UtilityData, sE.utilityCSVHeader...)
+}
+
+func (sE *SimEnv) AddToUtilityData() {
+	sE.dayInfo.UtilityData = append(sE.dayInfo.UtilityData, sE.dayInfo.Utility)
 }

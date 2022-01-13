@@ -37,6 +37,7 @@ type Agent interface {
 	CustomLogs()
 	Behaviour() string
 	BehaviourChange() string
+	Utility() string
 }
 
 type Fields = log.Fields
@@ -331,4 +332,8 @@ func (a *Base) Behaviour() string {
 
 func (a *Base) BehaviourChange() string {
 	return "Not Team 6"
+}
+
+func (a *Base) Utility() string {
+	return fmt.Sprintf("%f", a.utility)
 }
