@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type msgMap [14][9]int
+type msgMap [12][9]int
 type treatyResponsesCount [2][9]int // 0 for reject, 1 for accept
 
 type StateLog struct {
@@ -225,8 +225,8 @@ func (ls *StateLog) SimEnd(simState *day.DayInfo) {
 		atypes[i] = agent.AgentType(i + 1).String()
 	}
 
-	var mtypes [14]string
-	for i := 0; i < 14; i++ {
+	var mtypes [12]string
+	for i := 0; i < 12; i++ {
 		mtypes[i] = messages.MessageType(i + 1).String()
 	}
 
