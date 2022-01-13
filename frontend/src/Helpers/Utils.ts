@@ -1,6 +1,5 @@
 import { Colors } from "@blueprintjs/core";
 import { DeathLog } from "./Logging/Death";
-import { MessagesLog } from "./Logging/Message";
 import { UtilityLog } from "./Logging/Utility";
 import { Result } from "./Result";
 
