@@ -58,7 +58,7 @@ export default function DeathStats(props: StatsViewerProps) {
             yAxis={[0].concat(
               result.deaths
                 .map((d) => d.cumulativeDeaths)
-                .concat(result.deaths[result.deaths.length - 1].cumulativeDeaths)
+                .concat(result.deaths.length > 0 ? result.deaths[result.deaths.length - 1].cumulativeDeaths : 0)
             )}
             xAxis={[0].concat(result.deaths.map((d) => d.day).concat(result.config.SimDays))}
             graphTitle="Cumulative deaths per day"
