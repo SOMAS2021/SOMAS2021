@@ -9,9 +9,9 @@ import (
 
 func remove(slice []messages.Message, s int) []messages.Message {
 	retSlice := []messages.Message{}
-	for i, value := range slice{
-		if i != s{
-			retSlice = append(retSlice,value )
+	for i, value := range slice {
+		if i != s {
+			retSlice = append(retSlice, value)
 		}
 	}
 	return retSlice
