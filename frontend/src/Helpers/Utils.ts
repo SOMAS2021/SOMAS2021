@@ -97,7 +97,6 @@ export function AverageAgeUponDeath(deathLogs: DeathLog[]): { [agentType: string
   return ageMap;
 }
 
-// Return
 export function ParseMessageStats(result: Result): [string[], any[]] {
   let agentsPresent = GetPresentAgents(result);
   var newLabels: string[] = FilterArrayByOther(result.messages.atypes, agentsPresent);
