@@ -40,6 +40,8 @@ type SimEnv struct {
 	stateLog         *logging.StateLog
 	agentNewFuncs    map[agent.AgentType]AgentNewFunc
 	utilityCSVHeader [][]string
+	deaths           int
+	cumulativeDeaths int
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
@@ -65,6 +67,8 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 			agent.RandomAgent: randomAgent.New,
 		},
 		utilityCSVHeader: [][]string{},
+		deaths:           0,
+		cumulativeDeaths: 0,
 	}
 }
 
@@ -88,6 +92,7 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	sE.CreateBehaviourCtrData()
 	sE.CreateBehaviourChangeCtrData()
 	sE.CreateUtilityData()
+	sE.CreateDeathData()
 
 	sE.Log("Simulation Started")
 	sE.simulationLoop(t, ctx)
@@ -97,6 +102,7 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	sE.Log("Summary of dead agents", infra.Fields{"Agent Type and number that died": t.DeadAgents()})
 	for agentType, count := range t.DeadAgents() {
 		sE.Log("dead agents", infra.Fields{"agentType": agentType.String(), "count": count})
+		sE.AddToDeathData(count)
 	}
 
 	sE.Log("Living agents at end of simulation")
@@ -112,10 +118,11 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 		}
 	}
 
-	// Write SM counter data into csv file
+	// Write data into respective CSV files
 	sE.ExportCSV(sE.dayInfo.BehaviourCtrData, "csvFiles/socialMotives.csv")
 	sE.ExportCSV(sE.dayInfo.BehaviourChangeCtrData, "csvFiles/socialMotivesChange.csv")
 	sE.ExportCSV(sE.dayInfo.UtilityData, "csvFiles/utilities.csv")
+	sE.ExportCSV(sE.dayInfo.DeathData, "csvFiles/deaths.csv")
 
 	// dispatch loggers
 	sE.stateLog.SimEnd(sE.dayInfo)

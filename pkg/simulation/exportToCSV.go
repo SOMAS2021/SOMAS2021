@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 )
 
 func (sE *SimEnv) ExportCSV(data [][]string, filePath string) {
@@ -95,4 +97,28 @@ func (sE *SimEnv) CreateUtilityData() {
 
 func (sE *SimEnv) AddToUtilityData() {
 	sE.dayInfo.UtilityData = append(sE.dayInfo.UtilityData, sE.dayInfo.Utility)
+}
+
+func (sE *SimEnv) CreateDeathData() {
+
+	row := []string{
+		"New",
+		"Cumulative",
+	}
+	sE.dayInfo.DeathData = append(sE.dayInfo.DeathData, row)
+}
+
+func (sE *SimEnv) AddToDeathData(cumDeath int) {
+	// cumDeath := sE.stateLog.DeathCount()
+	// newDeath := cumDeath - sE.cumulativeDeaths
+	// cumDeath := t.DeathCount
+	newDeath := cumDeath - sE.cumulativeDeaths
+
+	row := []string{
+		strconv.Itoa(newDeath),
+		strconv.Itoa(cumDeath),
+	}
+	sE.dayInfo.DeathData = append(sE.dayInfo.DeathData, row)
+	sE.cumulativeDeaths = cumDeath
+	sE.Log("Summary of deaths", infra.Fields{"New deaths": newDeath, "Cumulative deaths": cumDeath})
 }
