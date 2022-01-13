@@ -1,6 +1,6 @@
 {
     "UseFoodPerAgentRatio": false,
-    "FoodOnPlatform": 120,
+    "FoodOnPlatform": 100,
     "FoodPerAgentRatio": 0,
     "Team1Agents": 0,
     "Team1Agents2": 0,
@@ -14,8 +14,8 @@
     "AgentHP": 100,
     "AgentsPerFloor": 1,
     "TicksPerFloor": 2,
-    "SimDays": 30,
-    "ReshuffleDays": 60,
+    "SimDays": 60,
+    "ReshuffleDays": 30,
     "maxHP": 100,
     "weakLevel": 10,
     "width": 48,
@@ -28,5 +28,5 @@
     "HPLossSlope": 0.2,
     "LogMain": true,
     "LogStory": true,
-    "SimTimeoutSeconds": 140
+    "SimTimeoutSeconds": 200
 }
