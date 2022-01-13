@@ -34,25 +34,28 @@ func (a *CustomAgent6) updateBehaviour() {
 
 	// Find new direction required to reach new behaviour prediction
 	// Unconstrained new behaviour - current behaviour
-	updateDir := behaviour(behaviourPrediction)*aConf.maxBehaviourThreshold - a.currBehaviour
+	updateDir := behaviour(behaviourPrediction)*aConf.maxBehaviourThreshold - a.nurture
 
 	// Apply constraints
 	// Scale movement by stubbornness (minStubborn, maxStubborn) -> (fullMovement, 0)
 	updateMag := updateDir * behaviour(1-aConf.stubbornness)
-	newBehaviour := a.currBehaviour + updateMag
+	newBehaviour := a.nurture + updateMag
 
-	if newBehaviour.string() != a.currBehaviour.string() {
-		a.Log("Behaviour change", infra.Fields{"from": a.currBehaviour.string(), "to": newBehaviour.string()})
+	if newBehaviour.string() != a.nurture.string() {
+		a.Log("Behaviour change", infra.Fields{"from": a.nurture.string(), "to": newBehaviour.string()})
 	}
 
 	// Clip new behaviour between allowable behaviour range (based on behaviour swing)
 	if newBehaviour > behaviourMax { //limit behaviour to max swing
-		a.currBehaviour = behaviourMax
+		a.nurture = behaviourMax
 	} else if newBehaviour < behaviourMin {
-		a.currBehaviour = behaviourMin
+		a.nurture = behaviourMin
 	} else {
-		a.currBehaviour = newBehaviour
+		a.nurture = newBehaviour
 	}
+
+	genotypeWeight := 1.0 - hpScore
+	a.phenotype = behaviour(genotypeWeight)*a.genotype + behaviour(1-genotypeWeight)*a.nurture
 }
 
 // Returns range of allowable behaviours based on base behaviour and max behaviour swing
@@ -61,8 +64,8 @@ func (a *CustomAgent6) behaviourRange() (behaviourMax, behaviourMin behaviour) {
 
 	maxT := aConf.maxBehaviourThreshold
 
-	bMax := behaviour(math.Min(float64(maxT), float64(aConf.baseBehaviour)+aConf.maxBehaviourSwing))
-	bMin := behaviour(math.Max(0, float64(aConf.baseBehaviour)-aConf.maxBehaviourSwing))
+	bMax := behaviour(math.Min(float64(maxT), float64(a.genotype)+aConf.maxBehaviourSwing))
+	bMin := behaviour(math.Max(0, float64(a.genotype)-aConf.maxBehaviourSwing))
 
 	return bMax, bMin
 }

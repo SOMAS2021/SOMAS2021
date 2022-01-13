@@ -32,7 +32,7 @@ type utilityParameters struct {
 }
 
 type team6Config struct {
-	baseBehaviour behaviour
+	//baseBehaviour behaviour
 	//the scaling factor which limits the change in agent behaviour
 	stubbornness float64
 	//the largest jump in behaviour an agent can take
@@ -54,7 +54,9 @@ type CustomAgent6 struct {
 	config team6Config
 	//keep track of the lowest floor we've been to
 	maxFloorGuess      int
-	currBehaviour      behaviour
+	phenotype          behaviour
+	nurture            behaviour
+	genotype           behaviour
 	foodTakeDay        int
 	reqLeaveFoodAmount int
 	reqTakeFoodAmount  int
@@ -104,16 +106,18 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	return &CustomAgent6{
 		Base: baseAgent,
 		config: team6Config{
-			baseBehaviour:         initialBehaviour,
+			//baseBehaviour:         initialBehaviour,
 			stubbornness:          0.2,
 			maxBehaviourSwing:     8,
-			paramWeights:          behaviourParameterWeights{HPWeight: 0.8, floorWeight: 0.2}, //ensure sum of weights = max behaviour enum
+			paramWeights:          behaviourParameterWeights{HPWeight: -0.8, floorWeight: -0.2}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
 			prevFoodDiscount:      0.6,
 			maxTrust:              25,
 		},
-		currBehaviour:       initialBehaviour,
+		phenotype:           initialBehaviour,
+		nurture:             initialBehaviour,
+		genotype:            initialBehaviour,
 		maxFloorGuess:       baseAgent.Floor() + 2,
 		foodTakeDay:         0,
 		reqLeaveFoodAmount:  -1,
@@ -168,7 +172,7 @@ func newUtilityParams(socialMotive string) utilityParameters {
 
 // initialise trust based on our social motive - the more narcissistic we are, the less we're willing to initially trust
 func (a *CustomAgent6) startingTrust() int {
-	switch a.currBehaviour.string() {
+	switch a.phenotype.string() {
 	case "Altruist":
 		return 10
 	case "Collectivist":
@@ -183,7 +187,7 @@ func (a *CustomAgent6) startingTrust() int {
 // handle cases where we haven't yet found out who our neighbours are
 func (a *CustomAgent6) updateTrust(amount int, agentID uuid.UUID) {
 	if amount < 0 {
-		switch a.currBehaviour.string() {
+		switch a.phenotype.string() {
 		case "Altruist":
 			amount *= 0 // don't care about any negative opinion - totally forgive
 		case "Selfish":
@@ -193,7 +197,7 @@ func (a *CustomAgent6) updateTrust(amount int, agentID uuid.UUID) {
 		default:
 		}
 	} else {
-		switch a.currBehaviour.string() {
+		switch a.phenotype.string() {
 		case "Altruist":
 			amount *= 4 // double trust increase to show our love
 		case "Collectivist":
@@ -244,18 +248,18 @@ func (b behaviour) string() string {
 }
 
 func (a *CustomAgent6) Behaviour() string {
-	return a.currBehaviour.string()
+	return a.phenotype.string()
 }
 
 func (a *CustomAgent6) Run() {
 
 	// Reporting agent state
-	a.Log("Reporting agent state:", infra.Fields{"HP:": a.HP(), "Floor:": a.Floor(), "Social motive:": a.currBehaviour.string()})
+	a.Log("Reporting agent state:", infra.Fields{"HP:": a.HP(), "Floor:": a.Floor(), "Social motive:": a.phenotype.string()})
 
 	// Everything you need to do once a day
 	if a.Age() != a.prevAge {
 		a.updateBehaviour()
-		if a.currBehaviour.string() == "Collectivist" || a.currBehaviour.string() == "Selfish" {
+		if a.phenotype.string() == "Collectivist" || a.phenotype.string() == "Selfish" {
 			treaty := a.constructTreaty()
 			a.proposeTreaty(treaty)
 		}
@@ -299,7 +303,7 @@ func (a *CustomAgent6) Run() {
 			a.updateTrust(1, a.neighbours.above)
 		}
 		// LOG
-		a.Log("Team 6 agent took food:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "social motive": a.currBehaviour.string(), "desiredFood": desiredFood, "intendedFood": intendedFood})
+		a.Log("Team 6 agent took food:", infra.Fields{"floor": a.Floor(), "hp": a.HP(), "social motive": a.phenotype.string(), "desiredFood": desiredFood, "intendedFood": intendedFood})
 	}
 
 	// Reset the reqLeaveFoodAmount to nothing once the agent has eaten
