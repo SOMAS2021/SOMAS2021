@@ -8,8 +8,8 @@ import { StatsViewerProps } from "../Stats";
 export default function OtherStats(props: StatsViewerProps) {
   const { result } = props;
   let utilityPerAgent = AverageUtilityPerAgent(result.utility);
-  let messageStats = ParseMessageStats(result.messages);
-  let treatyAcceptanceStats = ParseTreatyAcceptanceStats(result.messages);
+  let [msgLabels, msgValues] = ParseMessageStats(result);
+  let [treatyAcceptanceLabels, treatyAcceptanceValues] = ParseTreatyAcceptanceStats(result);
   return (
     <div className="row">
       <div className="col-lg-6">
@@ -36,10 +36,10 @@ export default function OtherStats(props: StatsViewerProps) {
           />
         </div>
         <div className="col-lg-6">
-          <MultiBarChart xAxis={result.messages.atypes} data={treatyAcceptanceStats} />
+          <MultiBarChart xAxis={treatyAcceptanceLabels} data={treatyAcceptanceValues} />
         </div>
         <div className="row">
-          <MultiBarChart xAxis={result.messages.atypes} data={messageStats} />
+          <MultiBarChart xAxis={msgLabels} data={msgValues} />
         </div>
       </div>
     </div>
