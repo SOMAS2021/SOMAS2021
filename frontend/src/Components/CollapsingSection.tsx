@@ -5,11 +5,12 @@ interface CollapsingSectionProps {
   children: JSX.Element;
   title: string;
   disabled?: boolean;
+  defaultOpen?: boolean;
 }
 
 export default function CollapsingSection(props: CollapsingSectionProps) {
-  const { children, title, disabled } = props;
-  const [isOpen, setIsOpen] = useState(false);
+  const { children, title, disabled, defaultOpen } = props;
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
     <div>
       <H3 style={{ paddingTop: 20 }}>

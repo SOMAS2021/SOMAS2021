@@ -64,13 +64,13 @@ function ResultDisplay(props: ResultDisplayProps) {
       <ResultHeader result={result} reload={reload} />
       <Divider />
       <div>
-        <CollapsingSection title="Config">
+        <CollapsingSection title="Config" defaultOpen={true}>
           <ConfigInfo config={result.config} />
         </CollapsingSection>
+        <StatsViewer result={result} />
         <CollapsingSection title="Story">
           <StoryViewer result={result} />
         </CollapsingSection>
-        <StatsViewer result={result} />
       </div>
     </div>
   );
