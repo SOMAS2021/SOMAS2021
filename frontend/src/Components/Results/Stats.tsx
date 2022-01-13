@@ -11,7 +11,7 @@ export default function StatsViewer(props: StatsViewerProps) {
   const disabled = result.simStatus.status === SimStatusExec.running;
   return (
     <div>
-      <CollapsingSection title="Death Stats">
+      <CollapsingSection title="Death Stats" defaultOpen={true}>
         <DeathStats result={result} />
       </CollapsingSection>
       <CollapsingSection title="Other Stats" disabled={disabled}>
