@@ -73,7 +73,7 @@ func (t *Tower) Tick() {
 		t.Log("-----------------END----OF----DAY-----------------", Fields{})
 	}
 	// Reset dead agent's HP to enable reincarnation
-	//t.resetHP()
+	t.resetHP()
 }
 
 func (t *Tower) AddAgent(agent Agent) {
