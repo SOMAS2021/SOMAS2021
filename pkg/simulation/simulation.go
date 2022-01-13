@@ -75,16 +75,14 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 
 	sE.generateInitialAgents(t)
 
+	// Create CSV file to log agent SM counter
+	sE.CreateBehaviourCtrData()
+	sE.CreateBehaviourChangeCtrData()
+
 	sE.Log("Simulation Started")
-	sE.simulationLoop(t, ctx, ch)
+	sE.simulationLoop(t, ctx)
 
-	//returns if there was a timeout
-	select {
-	case <-ctx.Done():
-		return
-	default:
-	}
-
+	// Assuming everything here will never timeout
 	sE.Log("Simulation Ended")
 	sE.Log("Summary of dead agents", infra.Fields{"Agent Type and number that died": t.DeadAgents()})
 	for agentType, count := range t.DeadAgents() {
@@ -102,6 +100,62 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 		if agent.BaseAgent().AgentType().String() == sE.stateLog.CustomLog {
 			agent.CustomLogs()
 		}
+	}
+
+	// Write SM counter data into csv file
+	sE.ExportCSV(sE.dayInfo.BehaviourCtrData, "csvFiles/socialMotives.csv")
+	sE.ExportCSV(sE.dayInfo.BehaviourChangeCtrData, "csvFiles/socialMotivesChange.csv")
+
+	// dispatch loggers
+	sE.stateLog.SimEnd(sE.dayInfo)
+	ch <- "Simulation Finished"
+}
+
+func (sE *SimEnv) setSMCtr(agent infra.Agent) {
+	if agent.BaseAgent().AgentType().String() == "Team6" { // Team 6
+		agentBehaviour := agent.Behaviour()
+		if agentBehaviour != "Not Team 6" {
+			sE.dayInfo.BehaviourCtr[agentBehaviour]++
+		}
+	}
+}
+
+func (sE *SimEnv) resetSMCtr() {
+	sE.dayInfo.BehaviourCtr = map[string]int{
+		"Altruist":     0,
+		"Collectivist": 0,
+		"Selfish":      0,
+		"Narcissist":   0,
+	}
+}
+
+func (sE *SimEnv) setSMChangeCtr(agent infra.Agent) {
+	if agent.BaseAgent().AgentType().String() == "Team6" { // Team 6
+		agentBehaviourChange := agent.BehaviourChange()
+		if agentBehaviourChange != "Not Team 6" {
+			sE.dayInfo.BehaviourChangeCtr[agentBehaviourChange]++
+		}
+	}
+}
+
+func (sE *SimEnv) resetSMChangeCtr() {
+	sE.dayInfo.BehaviourChangeCtr = map[string]int{
+		"A2A": 0,
+		"A2C": 0,
+		"A2S": 0,
+		"A2N": 0,
+		"C2A": 0,
+		"C2C": 0,
+		"C2S": 0,
+		"C2N": 0,
+		"S2A": 0,
+		"S2C": 0,
+		"S2S": 0,
+		"S2N": 0,
+		"N2A": 0,
+		"N2C": 0,
+		"N2S": 0,
+		"N2N": 0,
 	}
 }
 

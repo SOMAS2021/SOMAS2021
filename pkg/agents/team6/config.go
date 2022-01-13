@@ -80,6 +80,10 @@ type CustomAgent6 struct {
 	neighbours neighbours
 	// Previous day age
 	prevAge int
+	// Previous day social motive
+	prevSM string
+	// Change in social motive
+	changeSM string
 }
 
 type thresholdBehaviourPair struct {
@@ -96,7 +100,23 @@ var maxBehaviourThreshold behaviour = 10.0
 
 // Defines the initial/base behaviour of our agents
 func chooseInitialBehaviour() behaviour {
+	// 1. Whole spectrum
 	return behaviour(rand.Float64()) * maxBehaviourThreshold
+	// 2. Only Collectivist
+	//return behaviour(rand.Float64()) * maxBehaviourThreshold/4+1
+	// 3. Only Collectivist and Selfish, in a ratio 1/1
+	//return behaviour(rand.Float64())*(maxBehaviourThreshold-2) + 1
+	//return behaviour(rand.Float64())*4 + 1
+	// 4. Only Collectivist and Selfish, in a ratio 2/1
+	// initialScore := behaviour(rand.Float64()) * maxBehaviourThreshold
+	// // Selfish
+	// if initialScore >= 8 {
+	// 	return behaviour(rand.Float64())*4 + 5
+	// } else {
+	// 	// Collectivist
+	// 	return behaviour(rand.Float64())*4 + 1
+	// }
+	// 4. Genetic replacement
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
@@ -106,7 +126,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		config: team6Config{
 			baseBehaviour:         initialBehaviour,
 			stubbornness:          0.2,
-			maxBehaviourSwing:     8,
+			maxBehaviourSwing:     2,
 			paramWeights:          behaviourParameterWeights{HPWeight: 0.8, floorWeight: 0.2}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
@@ -130,6 +150,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		trustTeams:          make(trust),
 		neighbours:          neighbours{above: uuid.Nil, below: uuid.Nil},
 		prevAge:             0,
+		prevSM:              initialBehaviour.string(),
 	}, nil
 }
 
@@ -230,7 +251,7 @@ func (a *CustomAgent6) identifyNeighbours(id uuid.UUID, floor int) {
 }
 
 func (b behaviour) string() string {
-	behaviourMap := [...]thresholdBehaviourPair{{1, "Altruist"}, {5, "Collectivist"}, {7, "Selfish"}, {10, "Narcissist"}}
+	behaviourMap := [...]thresholdBehaviourPair{{1, "Altruist"}, {5, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
 
 	if b >= 0 {
 		for _, v := range behaviourMap {
@@ -251,6 +272,7 @@ func (a *CustomAgent6) Run() {
 	// Everything you need to do once a day
 	if a.Age() != a.prevAge {
 		a.updateBehaviour()
+
 		if a.currBehaviour.string() == "Collectivist" || a.currBehaviour.string() == "Selfish" {
 			treaty := a.constructTreaty()
 			a.proposeTreaty(treaty)
@@ -305,6 +327,78 @@ func (a *CustomAgent6) Run() {
 	}
 
 	a.prevFloor = a.Floor() // keep at end of Run() function
+	if a.Age() != a.prevAge {
+		a.updateChangeSMVariable()
+		a.prevSM = a.currBehaviour.string()
+	}
 	a.prevAge = a.Age()
 
+}
+
+func (a *CustomAgent6) Behaviour() string {
+	return a.currBehaviour.string()
+}
+
+func (a *CustomAgent6) BehaviourChange() string {
+	return a.changeSM
+}
+
+func (a *CustomAgent6) updateChangeSMVariable() {
+	switch a.prevSM {
+	case "Altruist":
+		switch a.currBehaviour.string() {
+		case "Altruist":
+			a.changeSM = "A2A"
+		case "Collectivist":
+			a.changeSM = "A2C"
+		case "Selfish":
+			a.changeSM = "A2S"
+		case "Narcissist":
+			a.changeSM = "A2N"
+		default:
+			a.changeSM = "N/A"
+		}
+	case "Collectivist":
+		switch a.currBehaviour.string() {
+		case "Altruist":
+			a.changeSM = "C2A"
+		case "Collectivist":
+			a.changeSM = "C2C"
+		case "Selfish":
+			a.changeSM = "C2S"
+		case "Narcissist":
+			a.changeSM = "C2N"
+		default:
+			a.changeSM = "N/A"
+		}
+	case "Selfish":
+		switch a.currBehaviour.string() {
+		case "Altruist":
+			a.changeSM = "S2A"
+		case "Collectivist":
+			a.changeSM = "S2C"
+		case "Selfish":
+			a.changeSM = "S2S"
+		case "Narcissist":
+			a.changeSM = "S2N"
+		default:
+			a.changeSM = "N/A"
+		}
+	case "Narcissist":
+		switch a.currBehaviour.string() {
+		case "Altruist":
+			a.changeSM = "N2A"
+		case "Collectivist":
+			a.changeSM = "N2C"
+		case "Selfish":
+			a.changeSM = "N2S"
+		case "Narcissist":
+			a.changeSM = "N2N"
+		default:
+			a.changeSM = "N/A"
+		}
+	default:
+		a.changeSM = "N/A"
+	}
+	// a.Log("SM Change summary", infra.Fields{"prevSM": a.prevSM, "currSM": a.currBehaviour.string(), "functionOutput": a.changeSM})
 }

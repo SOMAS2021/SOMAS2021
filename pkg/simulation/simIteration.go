@@ -31,7 +31,7 @@ func (sE *SimEnv) Preface(t *infra.Tower) {
 	}
 }
 
-func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context, ch chan<- string) {
+func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context) {
 	t.Reshuffle()
 	for sE.dayInfo.CurrTick <= sE.dayInfo.TotalTicks {
 		sE.Log("", Fields{"Current Simulation Tick": sE.dayInfo.CurrTick})
@@ -51,7 +51,6 @@ func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context, ch chan<- 
 		default:
 		}
 	}
-	ch <- "Simulation Finished"
 }
 
 func (sE *SimEnv) TowerTick() {
@@ -64,12 +63,27 @@ func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 	var wg sync.WaitGroup
 	for id, custAgent := range t.Agents {
 		wg.Add(1)
+		// Log the ctr for agent social motives
+		if sE.dayInfo.CurrTick%sE.dayInfo.TicksPerDay == 0 {
+			sE.setSMCtr(custAgent)
+		}
 		go func(wg *sync.WaitGroup, custAgent infra.Agent, id uuid.UUID) {
 			if custAgent.IsAlive() {
 				custAgent.Run()
 			}
 			wg.Done()
 		}(&wg, custAgent, id)
+		if sE.dayInfo.CurrTick%sE.dayInfo.TicksPerDay == 0 {
+			sE.setSMChangeCtr(custAgent)
+		}
 	}
 	wg.Wait()
+	if sE.dayInfo.CurrTick%sE.dayInfo.TicksPerDay == 0 {
+		sE.stateLog.LogSocialMotivesCtr(sE.dayInfo)
+		sE.AddToBehaviourCtrData()
+		sE.AddToBehaviourChangeCtrData()
+		sE.Log("Summary of behaviour change data", infra.Fields{"behaviourChangeCtr": sE.dayInfo.BehaviourChangeCtr, "behaviourChangeCtrData": sE.dayInfo.BehaviourChangeCtrData})
+		sE.resetSMCtr()
+		sE.resetSMChangeCtr()
+	}
 }

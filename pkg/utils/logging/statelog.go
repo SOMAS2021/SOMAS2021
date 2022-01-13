@@ -2,12 +2,16 @@ package logging
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/agent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/day"
 	log "github.com/sirupsen/logrus"
 )
+
+type msgMap [14][9]int
+type treatyResponsesCount [2][9]int // 0 for reject, 1 for accept
 
 type StateLog struct {
 	Logmanager *LogManager
@@ -17,10 +21,16 @@ type StateLog struct {
 	storyLogger   *log.Logger
 	mainLogger    *log.Logger
 	utilityLogger *log.Logger
+	msgLogger     *log.Logger
+	smCtrLogger   *log.Logger
 	// Death state
 	deathCount int
 	// Food state
 	prevFood int
+	// Messages state
+	messages        *msgMap
+	treatyResponses *treatyResponsesCount
+	msgMx           *sync.Mutex
 	// Custom log
 	CustomLog string
 }
@@ -61,26 +71,40 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 	handleNewLoggerErr(err)
 	deathLogger, err := l.AddLogger("death", "death.json")
 	handleNewLoggerErr(err)
+	msgLogger, err := l.AddLogger("messages", "messages.json")
+	handleNewLoggerErr(err)
 	storyLogger, err := l.AddLogger("story", storyLogName)
 	handleNewLoggerErr(err)
 	utilityLogger, err := l.AddLogger("utility", "utility.json")
 	handleNewLoggerErr(err)
 	mainLogger, err := l.AddLogger("main", mainLogName)
 	handleNewLoggerErr(err)
+	smCtrLogger, err := l.AddLogger("socialMotives", "socialMotivesCtr.json")
+	handleNewLoggerErr(err)
+
+	// Init message counters
+	var msgs msgMap
+	var treatyResponses treatyResponsesCount
 
 	return &StateLog{
-		Logmanager:    &l,
-		foodLogger:    foodLogger,
-		deathLogger:   deathLogger,
-		mainLogger:    mainLogger,
-		storyLogger:   storyLogger,
-		utilityLogger: utilityLogger,
-		deathCount:    0,
-		prevFood:      0,
-		CustomLog:     customLog,
+		Logmanager:      &l,
+		foodLogger:      foodLogger,
+		deathLogger:     deathLogger,
+		mainLogger:      mainLogger,
+		storyLogger:     storyLogger,
+		utilityLogger:   utilityLogger,
+		msgLogger:       msgLogger,
+		smCtrLogger:     smCtrLogger,
+		messages:        &msgs,
+		treatyResponses: &treatyResponses,
+		msgMx:           &sync.Mutex{},
+		deathCount:      0,
+		prevFood:        0,
+		CustomLog:       customLog,
 	}
 }
 
+// Death loggging
 func (ls *StateLog) LogAgentDeath(simState *day.DayInfo, agentType agent.AgentType, age int) {
 	ls.deathCount++
 	ls.deathLogger.
@@ -94,6 +118,7 @@ func (ls *StateLog) LogAgentDeath(simState *day.DayInfo, agentType agent.AgentTy
 			}).Info()
 }
 
+// Utility logging
 func (ls *StateLog) LogUtility(simState *day.DayInfo, agentType agent.AgentType, utility float64, isAlive bool) {
 	ls.utilityLogger.
 		WithFields(
@@ -106,6 +131,7 @@ func (ls *StateLog) LogUtility(simState *day.DayInfo, agentType agent.AgentType,
 			}).Info()
 }
 
+// Food logging
 func (ls *StateLog) LogPlatFoodState(simState *day.DayInfo, food int) {
 	if ls.prevFood != food {
 		ls.foodLogger.
@@ -117,6 +143,25 @@ func (ls *StateLog) LogPlatFoodState(simState *day.DayInfo, food int) {
 				}).Info()
 		ls.prevFood = food
 	}
+}
+
+// Messages logging
+func (ls *StateLog) LogMessage(simState *day.DayInfo, state AgentState, message messages.Message) {
+	ls.msgMx.Lock()
+	agentType := state.AgentType
+	msgType := message.MessageType()
+	temp := ls.messages[msgType-1][agentType-1] + 1
+	ls.messages[msgType-1][agentType-1] = temp
+	// Log treatyResponses accept/jerect. Tracks how many treatyResponses an agent rejects (0) and accepts (1)
+	if msgType == messages.TreatyResponse {
+		state := message.StoryLog()
+		if state == "yes" {
+			ls.treatyResponses[1][agentType-1] += 1
+		} else {
+			ls.treatyResponses[0][agentType-1] += 1
+		}
+	}
+	ls.msgMx.Unlock()
 }
 
 // Story logging
@@ -174,4 +219,43 @@ func (ls *StateLog) LogStoryPlatformMoved(simState *day.DayInfo, floor int) {
 				"tick":  simState.CurrTick,
 				"floor": floor,
 			}).Info("platform")
+}
+
+func (ls *StateLog) LogSocialMotivesCtr(simState *day.DayInfo) {
+	ls.smCtrLogger.
+		WithFields(
+			log.Fields{
+				// "Social Motive Ctr": simState.BehaviourCtr,
+				"Altruists":     simState.BehaviourCtr["Altruist"],
+				"Collectivists": simState.BehaviourCtr["Collectivist"],
+				"Selfish":       simState.BehaviourCtr["Selfish"],
+				"Narcissists":   simState.BehaviourCtr["Narcissist"],
+			}).Info()
+}
+
+// Simulation ended
+func (ls *StateLog) SimEnd(simState *day.DayInfo) {
+	// Dump messages map state
+	var atypes [9]string
+	for i := 0; i < 9; i++ {
+		atypes[i] = agent.AgentType(i + 1).String()
+	}
+
+	var mtypes [14]string
+	for i := 0; i < 14; i++ {
+		mtypes[i] = messages.MessageType(i + 1).String()
+	}
+
+	ls.msgLogger.
+		WithFields(
+			log.Fields{
+				"day":             simState.CurrDay,
+				"tick":            simState.CurrTick,
+				"msgcount":        ls.messages,
+				"atypes":          atypes,
+				"mtypes":          mtypes,
+				"treatyResponses": ls.treatyResponses,
+			},
+		).Info()
+
 }
