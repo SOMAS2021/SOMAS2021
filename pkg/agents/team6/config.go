@@ -102,10 +102,12 @@ var maxBehaviourThreshold behaviour = 10.0
 func chooseInitialBehaviour() behaviour {
 	// 1. Whole spectrum
 	return behaviour(rand.Float64()) * maxBehaviourThreshold
-	// 2. Only Collectivist and Selfish, in a ratio 1/1
+	// 2. Only Collectivist
+	//return behaviour(rand.Float64()) * maxBehaviourThreshold/4+1
+	// 3. Only Collectivist and Selfish, in a ratio 1/1
 	//return behaviour(rand.Float64())*(maxBehaviourThreshold-2) + 1
 	//return behaviour(rand.Float64())*4 + 1
-	// 3. Only Collectivist and Selfish, in a ratio 2/1
+	// 4. Only Collectivist and Selfish, in a ratio 2/1
 	// initialScore := behaviour(rand.Float64()) * maxBehaviourThreshold
 	// // Selfish
 	// if initialScore >= 8 {
@@ -114,6 +116,7 @@ func chooseInitialBehaviour() behaviour {
 	// 	// Collectivist
 	// 	return behaviour(rand.Float64())*4 + 1
 	// }
+	// 4. Genetic replacement
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
@@ -122,8 +125,8 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		Base: baseAgent,
 		config: team6Config{
 			baseBehaviour:         initialBehaviour,
-			stubbornness:          0.5,
-			maxBehaviourSwing:     8,
+			stubbornness:          0.2,
+			maxBehaviourSwing:     2,
 			paramWeights:          behaviourParameterWeights{HPWeight: 0.8, floorWeight: 0.2}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
 			maxBehaviourThreshold: maxBehaviourThreshold,
