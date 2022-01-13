@@ -23,6 +23,16 @@ type neighbours struct {
 	below uuid.UUID
 }
 
+type thresholdBehaviourPair struct {
+	threshold behaviour
+	bType     string
+}
+
+type behaviourParameterWeights struct {
+	HPWeight    float64
+	floorWeight float64
+}
+
 type utilityParameters struct {
 	// Greediness
 	g float64
@@ -48,6 +58,8 @@ type team6Config struct {
 	prevFoodDiscount float64
 	// maximum/minimum trust an agent can have of another
 	maxTrust int
+
+	behaviourMap []thresholdBehaviourPair
 }
 
 type CustomAgent6 struct {
@@ -87,17 +99,7 @@ type CustomAgent6 struct {
 	changeSM string
 }
 
-type thresholdBehaviourPair struct {
-	threshold behaviour
-	bType     string
-}
-
-type behaviourParameterWeights struct {
-	HPWeight    float64
-	floorWeight float64
-}
-
-var maxBehaviourThreshold behaviour = 10.0
+// var maxBehaviourThreshold behaviour = 10.0
 
 // Defines the initial/base behaviour of our agents
 func (a *CustomAgent6) chooseInitialBehaviour() behaviour {
@@ -128,7 +130,7 @@ func (a *CustomAgent6) chooseBehaviourGenetic() behaviour {
 	// fmt.Println(smSoftmax)
 	randn := randnFromDistr(smSoftmax)
 	// fmt.Println(randn)
-	initBehaviour := randnToBehaviour(randn)
+	initBehaviour := a.randnToBehaviour(randn)
 	return initBehaviour
 }
 
@@ -145,6 +147,12 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 			maxBehaviourThreshold: 10,
 			prevFoodDiscount:      0.6,
 			maxTrust:              25,
+			behaviourMap: []thresholdBehaviourPair{
+				{1, "Altruist"},
+				{5, "Collectivist"},
+				{9, "Selfish"},
+				{10, "Narcissist"},
+			},
 		},
 		currBehaviour:       initialBehaviour,
 		maxFloorGuess:       baseAgent.Floor() + 2,
@@ -421,19 +429,19 @@ func (a *CustomAgent6) updateChangeSMVariable() {
 	// a.Log("SM Change summary", infra.Fields{"prevSM": a.prevSM, "currSM": a.currBehaviour.string(), "functionOutput": a.changeSM})
 }
 
-func randnToBehaviour(randn int) behaviour {
-	behaviourMap := [...]thresholdBehaviourPair{{1, "Altruist"}, {5, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
+func (a *CustomAgent6) randnToBehaviour(randn int) behaviour {
+	// behaviourMap := [...]thresholdBehaviourPair{{1, "Altruist"}, {5, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
 	switch randn {
 	case 0: // Altruist
-		return behaviourMap[0].threshold / 2
+		return a.config.behaviourMap[0].threshold / 2
 	case 1: // Collectivist
-		return (behaviourMap[0].threshold + behaviourMap[1].threshold) / 2
+		return (a.config.behaviourMap[0].threshold + a.config.behaviourMap[1].threshold) / 2
 	case 2: // Selfish
-		return (behaviourMap[1].threshold + behaviourMap[2].threshold) / 2
+		return (a.config.behaviourMap[1].threshold + a.config.behaviourMap[2].threshold) / 2
 	case 3: // Narcissist
-		return (behaviourMap[2].threshold + behaviourMap[3].threshold) / 2
+		return (a.config.behaviourMap[2].threshold + a.config.behaviourMap[3].threshold) / 2
 	default: // Random SM
-		return behaviour(rand.Float64()) * maxBehaviourThreshold
+		return behaviour(rand.Float64()) * a.config.maxBehaviourThreshold
 	}
 }
 

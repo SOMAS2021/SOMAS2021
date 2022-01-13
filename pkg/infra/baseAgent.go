@@ -340,12 +340,6 @@ func (a *Base) Utility() string {
 }
 
 func (a *Base) SMCtr() []int {
-	// ctr := []string{
-	// 	strconv.Itoa(a.tower.dayInfo.BehaviourCtr["Altruist"]),
-	// 	strconv.Itoa(a.tower.dayInfo.BehaviourCtr["Collectivist"]),
-	// 	strconv.Itoa(a.tower.dayInfo.BehaviourCtr["Selfish"]),
-	// 	strconv.Itoa(a.tower.dayInfo.BehaviourCtr["Narcissist"]),
-	// }
 	ctr := []int{
 		a.tower.dayInfo.BehaviourCtr["Altruist"],
 		a.tower.dayInfo.BehaviourCtr["Collectivist"],
