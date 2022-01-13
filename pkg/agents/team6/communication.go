@@ -248,12 +248,14 @@ func (a *CustomAgent6) HandleProposeTreaty(msg messages.ProposeTreatyMessage) {
 		a.AddTreaty(treaty)
 
 		// Replies with acceptance message
-		reply := messages.NewTreatyResponseMessage(a.ID(), a.Floor(), msg.SenderFloor(), true, treaty.ID(), treaty.ProposerID())
+		reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), true)
 		a.SendMessage(reply)
 		a.updateTrust(2, msg.SenderID()) // good treaty - these guys are probably nice :)
 		a.Log("I accepted a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.string()})
 
 	} else {
+		reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), false)
+		a.SendMessage(reply)
 		a.updateTrust(-1, msg.SenderID()) // bad treaty - these guys are trying to sabotage us >:)
 		a.Log("I rejected a treaty proposed from ", infra.Fields{"senderFloor": msg.SenderFloor(), "myFloor": a.Floor(), "my social motive": a.currBehaviour.string()})
 	}

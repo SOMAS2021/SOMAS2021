@@ -36,7 +36,7 @@ type SimEnv struct {
 	logger         log.Entry
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
-	world          world.World
+	Tower          world.World
 	stateLog       *logging.StateLog
 	agentNewFuncs  map[agent.AgentType]AgentNewFunc
 }
@@ -97,15 +97,17 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 			agent.CustomLogs()
 		}
 	}
-
-	// dispatch loggers
-	sE.stateLog.SimEnd(sE.dayInfo)
 	ch <- "Simulation Finished"
 }
 
-func (s *SimEnv) Log(message string, fields ...Fields) {
+func (sE *SimEnv) PostSim() {
+	// dispatch loggers
+	sE.stateLog.SimEnd(sE.dayInfo)
+}
+
+func (sE *SimEnv) Log(message string, fields ...Fields) {
 	if len(fields) == 0 {
 		fields = append(fields, Fields{})
 	}
-	s.logger.WithFields(fields[0]).Info(message)
+	sE.logger.WithFields(fields[0]).Info(message)
 }

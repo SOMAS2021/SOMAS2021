@@ -1,6 +1,7 @@
-import { H3, H5, H6, Divider, Spinner, Colors, Icon, Button } from "@blueprintjs/core";
+import { H3, H5, H6, Spinner, Colors, Icon, Button, Divider } from "@blueprintjs/core";
 import { useCallback, useEffect, useState } from "react";
 import { GetResult, Result, SimStatusExec } from "../../Helpers/Result";
+import CollapsingSection from "../CollapsingSection";
 import StoryViewer from "../Story/StoryViewer";
 import ConfigInfo from "./ConfigInfo";
 import StatsViewer from "./Stats";
@@ -37,7 +38,7 @@ export default function Results(props: ResultsProps) {
           <ResultDisplay result={result} reload={() => LoadResult()} />
         ) : (
           <H6 style={{ paddingTop: 20 }}>
-            <i>Select an existing simulation result to view results</i>
+            <i>Select an existing simulation from the sidebar to view results</i>
           </H6>
         ))}
     </div>
@@ -61,13 +62,15 @@ function ResultDisplay(props: ResultDisplayProps) {
       }}
     >
       <ResultHeader result={result} reload={reload} />
+      <Divider />
       <div>
-        <Divider></Divider>
-        <ConfigInfo config={result.config} />
-        <Divider></Divider>
-        <StoryViewer result={result} />
-        <Divider></Divider>
+        <CollapsingSection title="Config" defaultOpen={true}>
+          <ConfigInfo config={result.config} />
+        </CollapsingSection>
         <StatsViewer result={result} />
+        <CollapsingSection title="Story">
+          <StoryViewer result={result} />
+        </CollapsingSection>
       </div>
     </div>
   );

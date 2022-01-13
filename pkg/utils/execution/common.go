@@ -14,12 +14,15 @@ import (
 )
 
 // Returns the logfile name as it is needed in the HTTP response
-func RunNewSimulation(parameters config.ConfigParameters, logFolderName string, ctx context.Context, ch chan<- string) {
+func RunNewSimulation(parameters config.ConfigParameters, logFolderName string, ctx context.Context, ch chan<- string) simulation.SimEnv {
 	healthInfo := health.NewHealthInfo(&parameters)
 	parameters.LogFolderName = logFolderName
 	// TODO: agentParameters - struct
 	simEnv := simulation.NewSimEnv(&parameters, healthInfo)
-	simEnv.Simulate(ctx, ch)
+	go func() {
+		simEnv.Simulate(ctx, ch)
+	}()
+	return *simEnv
 }
 
 func SetupLogFile(parameters config.ConfigParameters) (ffolderName string, err error) {
