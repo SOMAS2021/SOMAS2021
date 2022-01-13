@@ -7,6 +7,7 @@ import blob5 from "../../assets/blobs/blob5.png";
 import blob6 from "../../assets/blobs/blob6.png";
 import blob7 from "../../assets/blobs/blob7.png";
 import blob8 from "../../assets/blobs/blob8.png";
+import { useState } from "react";
 import { SimConfig } from "../../Helpers/SimConfig";
 
 interface ConfigInfoProps {
@@ -75,22 +76,16 @@ function mainParams(config: SimConfig) {
       value: config.maxHP,
     },
     {
-      name: "Shuffle Period",
-      value: config.ReshuffleDays,
-      unit: "day(s)",
+      name: "Agents / Floor",
+      value: config.AgentsPerFloor,
     },
     {
       name: "Ticks / Floor",
       value: config.TicksPerFloor,
     },
     {
-      name: "Sim Duration",
+      name: "Days",
       value: config.SimDays,
-      unit: "day(s)",
-    },
-    {
-      name: config.UseFoodPerAgentRatio ? "Food per agent" : "Food on platform",
-      value: config.UseFoodPerAgentRatio ? config.FoodPerAgentRatio : config.FoodOnPlatform,
     },
   ];
 }

@@ -37,15 +37,6 @@ docker run -it -p 9000:9000 $NAME
 1. Download Go 1.17 from [here](https://go.dev/doc/install).
 2. Download `golangci-lint` from [here](https://golangci-lint.run/usage/install/).
 
-## Running the simulation
-There are two ways of running the simulation:
-1. Use Docker. You can use the [scripts/docker.sh](https://github.com/SOMAS2021/SOMAS2021/tree/main/scripts/docker.sh) script to do this for you. Go to `localhost:9000` in your browser.
-2. Run the frontend and backend separately. Use the [scripts/frontend.sh](https://github.com/SOMAS2021/SOMAS2021/tree/main/scripts/frontend.sh) and [scripts/backend.sh](https://github.com/SOMAS2021/SOMAS2021/tree/main/scripts/backend.sh) scripts to do this: they will need to be run from separate terminals.
-   - This should open a browser tab at `localhost:3000`
-   - Note that the frontend script uses `npm install` instead of `npm ci`. If something in the frontend isn't working, try `npm ci` instead. Be careful when committing files as `npm install` changes `package-lock.json`.
-
-All scripts should be run from the root directory.
-
 ## Contribution Guidelines
 A lot of these guidelines are from the [SOMAS2020 repo](https://github.com/SOMAS2020/SOMAS2020/blob/main/docs/SETUP.md) :)
 ### Coding Rules

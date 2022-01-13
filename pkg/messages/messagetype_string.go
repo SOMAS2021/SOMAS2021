@@ -12,21 +12,22 @@ func _() {
 	_ = x[AskHP-2]
 	_ = x[AskFoodOnPlatform-3]
 	_ = x[AskIntendedFoodIntake-4]
-	_ = x[StateFoodTaken-5]
-	_ = x[StateHP-6]
-	_ = x[StateFoodOnPlatform-7]
-	_ = x[StateIntendedFoodIntake-8]
-	_ = x[StateResponse-9]
-	_ = x[ProposeTreaty-10]
-	_ = x[RequestLeaveFood-11]
-	_ = x[RequestTakeFood-12]
-	_ = x[Response-13]
-	_ = x[TreatyResponse-14]
+	_ = x[AskIdentity-5]
+	_ = x[StateFoodTaken-6]
+	_ = x[StateHP-7]
+	_ = x[StateFoodOnPlatform-8]
+	_ = x[StateIntendedFoodIntake-9]
+	_ = x[StateResponse-10]
+	_ = x[ProposeTreaty-11]
+	_ = x[RequestLeaveFood-12]
+	_ = x[RequestTakeFood-13]
+	_ = x[Response-14]
+	_ = x[TreatyResponse-15]
 }
 
-const _MessageType_name = "AskFoodTakenAskHPAskFoodOnPlatformAskIntendedFoodIntakeStateFoodTakenStateHPStateFoodOnPlatformStateIntendedFoodIntakeStateResponseProposeTreatyRequestLeaveFoodRequestTakeFoodResponseTreatyResponse"
+const _MessageType_name = "AskFoodTakenAskHPAskFoodOnPlatformAskIntendedFoodIntakeAskIdentityStateFoodTakenStateHPStateFoodOnPlatformStateIntendedFoodIntakeStateResponseProposeTreatyRequestLeaveFoodRequestTakeFoodResponseTreatyResponse"
 
-var _MessageType_index = [...]uint8{0, 12, 17, 34, 55, 69, 76, 95, 118, 131, 144, 160, 175, 183, 197}
+var _MessageType_index = [...]uint8{0, 12, 17, 34, 55, 66, 80, 87, 106, 129, 142, 155, 171, 186, 194, 208}
 
 func (i MessageType) String() string {
 	i -= 1

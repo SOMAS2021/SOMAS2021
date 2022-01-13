@@ -4,16 +4,16 @@ import { Parameter } from "./ParameterLabels";
 
 export default function TowerFood(props: any) {
   const { config, configHandler } = props;
-  const [disableTotalFood, setDisableTotalFood] = useState(true);
+  const [disableTotalFood, setDisableTotalFood] = useState(Boolean(true));
   return (
     <div style={{ paddingTop: 20 }}>
       <H5 className="text-center">Food Information</H5>
       <div className="row">
-        <div className="col-lg-6 d-flex justify-content-center" key="Switch">
+        <div className="col-lg-4 d-flex justify-content-center" key="Switch">
           <FormGroup>
             <Switch
               label="Use Food Per Agent"
-              checked={config.UseFoodPerAgentRatio}
+              defaultChecked={true}
               onChange={(value) => {
                 setDisableTotalFood((value.target as HTMLInputElement).checked);
                 configHandler((value.target as HTMLInputElement).checked, "UseFoodPerAgentRatio");
@@ -23,7 +23,7 @@ export default function TowerFood(props: any) {
         </div>
         {foodParams.map((i) =>
           i.key === "FoodOnPlatform" ? (
-            <div className="col-lg-6 d-flex justify-content-center" key={i.key}>
+            <div className="col-lg-4 d-flex justify-content-center" key={i.key}>
               <FormGroup {...i} disabled={disableTotalFood}>
                 <NumericInput
                   disabled={disableTotalFood}
@@ -33,21 +33,11 @@ export default function TowerFood(props: any) {
                 />
               </FormGroup>
             </div>
-          ) : i.key === "FoodPerAgentRatio" ? (
-            <div className="col-lg-6 d-flex justify-content-center" key={i.key}>
+          ) : (
+            <div className="col-sm d-flex justify-content-center" key={i.key}>
               <FormGroup {...i} disabled={!disableTotalFood}>
                 <NumericInput
                   disabled={!disableTotalFood}
-                  placeholder={config[i.key].toString()}
-                  onValueChange={(value) => configHandler(value, i.key)}
-                  min={i.min}
-                />
-              </FormGroup>
-            </div>
-          ) : (
-            <div className="col-lg-6 d-flex justify-content-center" key={i.key}>
-              <FormGroup {...i}>
-                <NumericInput
                   placeholder={config[i.key].toString()}
                   onValueChange={(value) => configHandler(value, i.key)}
                   min={i.min}
@@ -68,14 +58,6 @@ const foodParams: Parameter[] = [
     labelFor: "text-input",
     labelInfo: "",
     key: "FoodOnPlatform",
-    min: 1,
-  },
-  {
-    helperText: "Maximum Food Intake For An Agent",
-    label: "Max Food Intake",
-    labelFor: "text-input",
-    labelInfo: "",
-    key: "MaxFoodIntake",
     min: 1,
   },
   {

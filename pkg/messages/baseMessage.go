@@ -13,6 +13,7 @@ const (
 	AskHP
 	AskFoodOnPlatform
 	AskIntendedFoodIntake
+	AskIdentity
 	StateFoodTaken
 	StateHP
 	StateFoodOnPlatform
@@ -112,7 +113,6 @@ func (msg *BaseMessage) TargetFloor() int {
 func (msg *BaseMessage) ID() uuid.UUID {
 	return msg.id
 }
-
 func (msg *BaseMessage) SenderID() uuid.UUID {
 	return msg.senderID
 }

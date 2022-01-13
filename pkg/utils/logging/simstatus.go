@@ -7,15 +7,13 @@ import (
 )
 
 type SimStatus struct {
-	Status  string `json:"status"`
-	MaxTick int    `json:"maxTick"`
+	Status string `json:"status"`
 }
 
-func UpdateSimStatusJson(folderPath string, status string, maxTick int) error {
+func UpdateSimStatusJson(folderPath string, status string) error {
 
 	statusStruct := SimStatus{
-		Status:  status,
-		MaxTick: maxTick,
+		Status: status,
 	}
 
 	statusJson, err := json.Marshal(statusStruct)

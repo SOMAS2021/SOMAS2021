@@ -15,7 +15,6 @@ import (
 
 type ConfigParameters struct {
 	FoodOnPlatform          food.FoodType           `json:"FoodOnPlatform"`
-	MaxFoodIntake           food.FoodType           `json:"MaxFoodIntake"`
 	FoodPerAgentRatio       int                     `json:"FoodPerAgentRatio"`
 	UseFoodPerAgentRatio    bool                    `json:"UseFoodPerAgentRatio"`
 	Team1Agents             int                     `json:"Team1Agents"`
@@ -43,7 +42,6 @@ type ConfigParameters struct {
 	HPLossSlope             float64                 `json:"HPLossSlope"`
 	LogFolderName           string                  `json:"LogFileName"`
 	LogMain                 bool                    `json:"LogMain"`
-	LogStory                bool                    `json:"LogStory"`
 	SimTimeoutSeconds       int                     `json:"SimTimeoutSeconds"`
 	NumOfAgents             map[agent.AgentType]int `json:"-"`
 	NumberOfFloors          int                     `json:"-"`
@@ -193,11 +191,7 @@ func CheckParametersAreValid(parameters *ConfigParameters) error {
 	}
 
 	if parameters.Tau == 0 {
-		return errors.New("tau not initialised or set to 0")
-	}
-
-	if parameters.MaxFoodIntake == 0 {
-		return errors.New("MaxFoodIntake not initialised or set to 0")
+		return errors.New("wau not initialised or set to 0")
 	}
 
 	if parameters.HpReqCToW == 0 {

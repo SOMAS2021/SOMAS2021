@@ -1,52 +1,47 @@
-import { Divider, H5, Pre } from "@blueprintjs/core";
-import { useEffect, useState } from "react";
+import { Button, Collapse, Divider, Intent, Pre } from "@blueprintjs/core";
+import { useState } from "react";
 import {
-  GetStoryLogs,
   StoryDeathLog,
   StoryFoodLog,
   StoryLog,
   StoryMessageLog,
   StoryPlatformLog,
 } from "../../Helpers/Logging/StoryLog";
-import { Result } from "../../Helpers/Result";
 import { Ticker } from "./Ticker";
 
 interface StoryViewerProps {
-  result: Result;
+  story: StoryLog[];
 }
 
 export default function StoryViewer(props: StoryViewerProps) {
-  const { result } = props;
+  const { story } = props;
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <div style={{ margin: "10px 0px" }}>
-      {result.simStatus.maxStoryTick > -1 ? (
+      <Button
+        intent={isOpen ? Intent.PRIMARY : Intent.WARNING}
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ width: 200 }}
+      >
+        {isOpen ? "Hide" : "Show"} Story
+      </Button>
+      <Collapse isOpen={isOpen} keepChildrenMounted={true}>
         <Pre>
-          <StoryController title={result.title} maxTick={result.simStatus.maxStoryTick} />
+          <StoryController story={story} />
         </Pre>
-      ) : result.config.LogStory ? (
-        <H5>Simulation still in progress</H5>
-      ) : (
-        <H5>
-          <i>Story unavailable</i>
-        </H5>
-      )}
+      </Collapse>
     </div>
   );
 }
 
 interface StoryControllerProps {
-  title: string;
-  maxTick: number;
+  story: StoryLog[];
 }
 
 function StoryController(props: StoryControllerProps) {
-  const { title, maxTick } = props;
+  const { story } = props;
   const [tick, setTick] = useState(1);
-  const [story, setStory] = useState<StoryLog[]>([]);
-
-  useEffect(() => {
-    GetStoryLogs(title, tick).then((story) => setStory(story));
-  }, [tick, title]);
+  const maxTick = Math.max(...story.map((e) => e.tick));
 
   return (
     <div style={{ overflow: "hidden" }}>

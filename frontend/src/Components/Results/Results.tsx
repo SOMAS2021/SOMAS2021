@@ -1,7 +1,6 @@
-import { H3, H5, H6, Spinner, Colors, Icon, Button, Divider } from "@blueprintjs/core";
+import { H3, H5, H6, Divider, Spinner, Colors, Icon, Button } from "@blueprintjs/core";
 import { useCallback, useEffect, useState } from "react";
-import { GetResult, Result, SimStatusExec } from "../../Helpers/Result";
-import CollapsingSection from "../CollapsingSection";
+import { GetResult, Result, SimStatus } from "../../Helpers/Result";
 import StoryViewer from "../Story/StoryViewer";
 import ConfigInfo from "./ConfigInfo";
 import StatsViewer from "./Stats";
@@ -38,7 +37,7 @@ export default function Results(props: ResultsProps) {
           <ResultDisplay result={result} reload={() => LoadResult()} />
         ) : (
           <H6 style={{ paddingTop: 20 }}>
-            <i>Select an existing simulation from the sidebar to view results</i>
+            <i>Select an existing simulation result to view results</i>
           </H6>
         ))}
     </div>
@@ -62,15 +61,11 @@ function ResultDisplay(props: ResultDisplayProps) {
       }}
     >
       <ResultHeader result={result} reload={reload} />
-      <Divider />
       <div>
         <CollapsingSection title="Config" defaultOpen={true}>
           <ConfigInfo config={result.config} initial={false} />
         </CollapsingSection>
         <StatsViewer result={result} />
-        <CollapsingSection title="Story">
-          <StoryViewer result={result} />
-        </CollapsingSection>
       </div>
     </div>
   );
@@ -84,19 +79,19 @@ function ResultHeader(props: ResultDisplayProps) {
         <H3>{result.title}</H3>
       </div>
       <div className="col-lg-6" style={{ textAlign: "right", paddingRight: "20px", height: 40 }}>
-        {result.simStatus.status === SimStatusExec.timedout && (
+        {result.status === SimStatus.timedout && (
           <H5 style={{ color: Colors.ORANGE2 }}>
             <Icon icon="warning-sign" size={20} style={{ paddingRight: 10 }} intent="warning" />
             Simulation timed out!
           </H5>
         )}
-        {result.simStatus.status === SimStatusExec.finished && (
+        {result.status === SimStatus.finished && (
           <H5 style={{ color: Colors.GREEN2 }}>
             <Icon icon="tick" size={20} style={{ paddingRight: 10 }} intent="success" />
             Simulation completed!
           </H5>
         )}
-        {result.simStatus.status === SimStatusExec.running && (
+        {result.status === SimStatus.running && (
           <>
             <H5 style={{ color: Colors.BLUE2 }}>
               <Icon className="rotate-image" icon="refresh" size={20} style={{ padding: "0 10px" }} intent="primary" />

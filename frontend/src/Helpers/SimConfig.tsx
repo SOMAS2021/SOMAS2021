@@ -4,7 +4,6 @@ import { GetFile } from "./API";
 export default function InitConfigState() {
   return useState<SimConfig>({
     FoodOnPlatform: 100,
-    MaxFoodIntake: 60,
     FoodPerAgentRatio: 10,
     UseFoodPerAgentRatio: true,
     Team1Agents: 0,
@@ -18,8 +17,8 @@ export default function InitConfigState() {
     AgentHP: 100,
     AgentsPerFloor: 1,
     TicksPerFloor: 10,
-    SimDays: 100,
-    ReshuffleDays: 7,
+    SimDays: 8,
+    ReshuffleDays: 1,
     maxHP: 100,
     weakLevel: 10,
     width: 48,
@@ -31,15 +30,13 @@ export default function InitConfigState() {
     HPLossSlope: 0.2,
     LogFileName: "",
     LogMain: false,
-    LogStory: false,
-    SimTimeoutSeconds: 300,
+    SimTimeoutSeconds: 10,
     RandomReplacementAgents: false,
   });
 }
 
 export interface SimConfig {
   FoodOnPlatform: number;
-  MaxFoodIntake: number;
   FoodPerAgentRatio: number;
   UseFoodPerAgentRatio: boolean;
   Team1Agents: number;
@@ -66,7 +63,6 @@ export interface SimConfig {
   HPLossSlope: number;
   LogFileName: string;
   LogMain: boolean;
-  LogStory: boolean;
   SimTimeoutSeconds: number;
   RandomReplacementAgents: boolean;
 }

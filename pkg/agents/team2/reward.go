@@ -1,51 +1,37 @@
 package team2
 
-import (
-	"math"
-
-	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
-)
-
-func calcReward(oldHP int, hpInc int, foodIntended int, foodTaken int, DaysAtCritical int, neighbourHP int, healthInfo *health.HealthInfo) float64 {
-	surviveBonus := 0.0
-	eatingBonus := 0.0
-	wastingBonus := 0.0
-	savingBonus := 0.0
+func calcReward(hp int, hpInc int) float64 {
+	//TODO: reward should be redone later according to new healthInfo
+	ret := 0.0
 
 	//we encourage agent to survive
-	if DaysAtCritical == 0 {
-		surviveBonus += 1.0
+	if hp > 20 {
+		ret += 1.0
 	} else {
-		surviveBonus -= 3.0 * float64(DaysAtCritical)
+		ret -= 0.5
 	}
-	if oldHP == healthInfo.HPCritical {
-		surviveBonus += 5.0 * float64(DaysAtCritical)
+	// Use slop instead of hard threshold?
+	/*
+		threshold := float64(20)
+		hpT := float64(hp)
+		if hpT > threshold {
+			ret += 1.0*(1.0/(100.0-threshold))*hpT - threshold/(100.0-threshold)
+		} else {
+			ret -= 0.5 * ((-1.0/(threshold))*hpT + 1)
+		}
+	*/
+	//we encourage ageny to eat less when hp level is high
+	oldHP := float64(hp - hpInc)
+	incRate := float64(hpInc) / oldHP
+	if incRate > 1.0 {
+		return ret + 1.0
 	}
-
-	//We encourage agent to eat when weak
-	if oldHP <= healthInfo.WeakLevel {
-		eatingBonus += 0.01 * float64(foodTaken)
-	}
-
-	//We penalise for wanting to waste food
-	wastingBonus -= 0.2 * float64(ExpectedHPInc(foodIntended, healthInfo)-hpInc)
-	//We penalise for wasting food
-	wastingBonus -= 0.2 * float64(ExpectedHPInc(foodTaken, healthInfo)-hpInc)
-
-	//We reward agent when neighbour is not in critical state
-	if neighbourHP == healthInfo.HPCritical {
-		savingBonus -= 3.0
-	} else {
-		savingBonus += 1.0
-	}
-	return surviveBonus + eatingBonus + wastingBonus + savingBonus
+	return ret - 1.0
+	//TODO: we encourage agent to save other agent
+	// if actionTaken == 0 => ret+= 1 * num_of_saved_agent
 }
 
-func (a *CustomAgent2) updateRTable(oldHP int, hpInc int, state int, action int) {
-	reward := calcReward(oldHP, hpInc, action*5, int(a.lastFoodTaken), a.DaysAtCritical(), a.neiboughHP, a.HealthInfo())
+func (a *CustomAgent2) updateRTable(hpInc int, state int, action int) {
+	reward := calcReward(a.HP(), hpInc)
 	a.rTable[state][action] = reward
-}
-
-func ExpectedHPInc(foodTaken int, healthInfo *health.HealthInfo) int {
-	return int(math.Round(healthInfo.Width * (1 - math.Pow(math.E, -float64(foodTaken)/healthInfo.Tau))))
 }

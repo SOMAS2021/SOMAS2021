@@ -10,33 +10,20 @@ import (
 )
 
 func (sE *SimEnv) SetWorld(w world.World) {
-	if sE.Tower == nil {
-		sE.Tower = w
+	if sE.world == nil {
+		sE.world = w
 	}
 }
 
 func (sE *SimEnv) World() world.World {
-	return sE.Tower
+	return sE.world
 }
 
-// For things that need to be done once per tick, before agents take action
-func (sE *SimEnv) Preface(t *infra.Tower) {
-	// Update food seen metric only once for alive agents
-	for _, custAgent := range t.Agents {
-		agent := custAgent.BaseAgent()
-		platFood := agent.CurrPlatFood()
-		if agent.IsAlive() && platFood != -1 {
-			agent.UpdateFoodSeen(platFood)
-		}
-	}
-}
-
-func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context) {
+func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context, ch chan<- string) {
 	t.Reshuffle()
 	for sE.dayInfo.CurrTick <= sE.dayInfo.TotalTicks {
 		sE.Log("", Fields{"Current Simulation Tick": sE.dayInfo.CurrTick})
 		t.TowerStateLog(" start of tick")
-		sE.Preface(t)
 		sE.AgentsRun(t)
 		sE.TowerTick()
 		sE.replaceAgents(t)
@@ -51,6 +38,7 @@ func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context) {
 		default:
 		}
 	}
+	ch <- "Simulation Finished"
 }
 
 func (sE *SimEnv) TowerTick() {

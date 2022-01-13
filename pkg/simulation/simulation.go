@@ -36,14 +36,14 @@ type SimEnv struct {
 	logger           log.Entry
 	dayInfo          *day.DayInfo
 	healthInfo       *health.HealthInfo
-	Tower            world.World
+	world            world.World
 	stateLog         *logging.StateLog
 	agentNewFuncs    map[agent.AgentType]AgentNewFunc
 	activeAgentTypes []agent.AgentType
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
-	stateLog := logging.NewLogState(parameters.LogFolderName, parameters.LogMain, parameters.LogStory, parameters.CustomLog)
+	stateLog := logging.NewLogState(parameters.LogFolderName, parameters.LogMain)
 	activeAgentTypesList := make([]agent.AgentType, 0)
 	if parameters.RandomReplacementAgents == true {
 		activeAgentTypesList = listOfNonZeroAgentsTypes(parameters.NumOfAgents)
@@ -82,40 +82,30 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	sE.generateInitialAgents(t)
 
 	sE.Log("Simulation Started")
-	sE.simulationLoop(t, ctx)
+	sE.simulationLoop(t, ctx, ch)
 
-	// Assuming everything here will never timeout
+	//returns if there was a timeout
+	select {
+	case <-ctx.Done():
+		return
+	default:
+	}
+
 	sE.Log("Simulation Ended")
 	sE.Log("Summary of dead agents", infra.Fields{"Agent Type and number that died": t.DeadAgents()})
-	for agentType, count := range t.DeadAgents() {
-		sE.Log("dead agents", infra.Fields{"agentType": agentType.String(), "count": count})
-	}
 
 	sE.Log("Living agents at end of simulation")
 	for agentID, agent := range t.Agents {
 		agent := agent.BaseAgent()
 		sE.Log("Agent survives till the end of the simulation", infra.Fields{"agentID": agentID, "agentType": agent.AgentType().String(), "agentAge": agent.Age()})
 	}
-
-	// custom loggers
-	for _, agent := range t.Agents {
-		if agent.BaseAgent().AgentType().String() == sE.stateLog.CustomLog {
-			agent.CustomLogs()
-		}
-	}
-	ch <- "Simulation Finished"
 }
 
-func (sE *SimEnv) PostSim() {
-	// dispatch loggers
-	sE.stateLog.SimEnd(sE.dayInfo)
-}
-
-func (sE *SimEnv) Log(message string, fields ...Fields) {
+func (s *SimEnv) Log(message string, fields ...Fields) {
 	if len(fields) == 0 {
 		fields = append(fields, Fields{})
 	}
-	sE.logger.WithFields(fields[0]).Info(message)
+	s.logger.WithFields(fields[0]).Info(message)
 }
 
 func listOfNonZeroAgentsTypes(AgentCount map[agent.AgentType]int) []agent.AgentType {

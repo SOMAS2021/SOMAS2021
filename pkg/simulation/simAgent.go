@@ -25,7 +25,7 @@ func (sE *SimEnv) createNewAgent(tower *infra.Tower, agentType agent.AgentType, 
 
 	uuid := uuid.New()
 
-	bAgent, err := infra.NewBaseAgent(sE.Tower, agentType, sE.AgentHP, floor, uuid)
+	bAgent, err := infra.NewBaseAgent(sE.world, agentType, sE.AgentHP, floor, uuid)
 	if err != nil {
 		log.Fatal(err)
 	}

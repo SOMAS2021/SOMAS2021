@@ -97,15 +97,13 @@ func (t *Tower) Reshuffle() {
 }
 
 func (t *Tower) endOfDay() {
+	t.dayInfo.CurrDay += 1
 	for _, agent := range t.Agents {
 		agent := agent.BaseAgent()
 		agent.hpDecay(t.healthInfo)
 		agent.increaseAge()
 		agent.updateTreaties()
-		t.stateLog.LogUtility(t.dayInfo, agent.agentType, agent.utility, agent.IsAlive())
-		agent.utility = 0
 	}
-	t.dayInfo.CurrDay += 1
 }
 
 func (t *Tower) SendMessage(senderFloor int, msg messages.Message) {
