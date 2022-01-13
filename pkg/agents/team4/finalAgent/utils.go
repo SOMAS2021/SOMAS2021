@@ -8,10 +8,13 @@ import (
 /*------------------------REMOVE A PARTICULAR MESSAGE FROM OUR MESSAGE ARRAY------------------------*/
 
 func remove(slice []messages.Message, s int) []messages.Message {
-	if s == len(slice)-1 {
-		return slice[:s]
+	retSlice := []messages.Message{}
+	for i, value := range slice{
+		if i != s{
+			retSlice = append(retSlice,value )
+		}
 	}
-	return append(slice[:s], slice[s+1:]...)
+	return retSlice
 }
 
 /*------------------------RETURNS HEALTH STATUS INFORMATION------------------------*/
