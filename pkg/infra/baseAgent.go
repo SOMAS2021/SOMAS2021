@@ -338,3 +338,19 @@ func (a *Base) BehaviourChange() string {
 func (a *Base) Utility() string {
 	return fmt.Sprintf("%f", a.utility)
 }
+
+func (a *Base) SMCtr() []int {
+	// ctr := []string{
+	// 	strconv.Itoa(a.tower.dayInfo.BehaviourCtr["Altruist"]),
+	// 	strconv.Itoa(a.tower.dayInfo.BehaviourCtr["Collectivist"]),
+	// 	strconv.Itoa(a.tower.dayInfo.BehaviourCtr["Selfish"]),
+	// 	strconv.Itoa(a.tower.dayInfo.BehaviourCtr["Narcissist"]),
+	// }
+	ctr := []int{
+		a.tower.dayInfo.BehaviourCtr["Altruist"],
+		a.tower.dayInfo.BehaviourCtr["Collectivist"],
+		a.tower.dayInfo.BehaviourCtr["Selfish"],
+		a.tower.dayInfo.BehaviourCtr["Narcissist"],
+	}
+	return ctr
+}

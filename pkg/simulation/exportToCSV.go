@@ -109,9 +109,6 @@ func (sE *SimEnv) CreateDeathData() {
 }
 
 func (sE *SimEnv) AddToDeathData(cumDeath int) {
-	// cumDeath := sE.stateLog.DeathCount()
-	// newDeath := cumDeath - sE.cumulativeDeaths
-	// cumDeath := t.DeathCount
 	newDeath := cumDeath - sE.cumulativeDeaths
 
 	row := []string{
