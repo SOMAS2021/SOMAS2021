@@ -1,4 +1,4 @@
-import { Button, Collapse, H2, H4, H5, Pre, Intent, Divider } from "@blueprintjs/core";
+import { H2, H4, H5, Pre, Divider } from "@blueprintjs/core";
 import blob1 from "../../assets/blobs/blob1.png";
 import blob2 from "../../assets/blobs/blob2.png";
 import blob3 from "../../assets/blobs/blob3.png";
@@ -7,7 +7,6 @@ import blob5 from "../../assets/blobs/blob5.png";
 import blob6 from "../../assets/blobs/blob6.png";
 import blob7 from "../../assets/blobs/blob7.png";
 import blob8 from "../../assets/blobs/blob8.png";
-import { useState } from "react";
 import { SimConfig } from "../../Helpers/SimConfig";
 
 interface ConfigInfoProps {
@@ -17,24 +16,13 @@ interface ConfigInfoProps {
 export default function ConfigInfo(props: ConfigInfoProps) {
   const { config } = props;
 
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
     <div style={{ margin: "10px 0px" }}>
-      <Button
-        intent={isOpen ? Intent.PRIMARY : Intent.WARNING}
-        onClick={() => setIsOpen(!isOpen)}
-        style={{ width: 200 }}
-      >
-        {isOpen ? "Hide" : "Show"} config
-      </Button>
-      <Collapse isOpen={isOpen}>
-        <Pre>
-          <Params config={config} />
-          <Divider />
-          <Agents config={config} />
-        </Pre>
-      </Collapse>
+      <Pre>
+        <Params config={config} />
+        <Divider />
+        <Agents config={config} />
+      </Pre>
     </div>
   );
 }
@@ -47,14 +35,11 @@ function Params(props: ConfigInfoProps) {
       <H4>Parameters</H4>
       {mainParams(config).map((param, index) => (
         <div className="col-md-2" key={index}>
-          <H2>{param.value}</H2>
+          <H2 style={{ display: "inline" }}>{param.value} </H2>
+          <H5 style={{ display: "inline" }}>{param.unit}</H5>
           <H5>{param.name}</H5>
         </div>
       ))}
-      <div className="col-md-2">
-        <H2>{config.UseFoodPerAgentRatio ? config.FoodPerAgentRatio : config.FoodOnPlatform}</H2>
-        <H5>{config.UseFoodPerAgentRatio ? "Food per agent" : "Food on platform"}</H5>
-      </div>
     </div>
   );
 }
@@ -89,16 +74,22 @@ function mainParams(config: SimConfig) {
       value: config.maxHP,
     },
     {
-      name: "Agents / Floor",
-      value: config.AgentsPerFloor,
+      name: "Shuffle Period",
+      value: config.ReshuffleDays,
+      unit: "day(s)",
     },
     {
       name: "Ticks / Floor",
       value: config.TicksPerFloor,
     },
     {
-      name: "Days",
+      name: "Sim Duration",
       value: config.SimDays,
+      unit: "day(s)",
+    },
+    {
+      name: config.UseFoodPerAgentRatio ? "Food per agent" : "Food on platform",
+      value: config.UseFoodPerAgentRatio ? config.FoodPerAgentRatio : config.FoodOnPlatform,
     },
   ];
 }

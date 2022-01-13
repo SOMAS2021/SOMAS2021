@@ -4,7 +4,7 @@ import { Parameter } from "./ParameterLabels";
 
 export default function TowerFood(props: any) {
   const { config, configHandler } = props;
-  const [disableTotalFood, setDisableTotalFood] = useState(Boolean);
+  const [disableTotalFood, setDisableTotalFood] = useState(true);
   return (
     <div style={{ paddingTop: 20 }}>
       <H5 className="text-center">Food Information</H5>
@@ -13,6 +13,7 @@ export default function TowerFood(props: any) {
           <FormGroup>
             <Switch
               label="Use Food Per Agent"
+              checked={config.UseFoodPerAgentRatio}
               onChange={(value) => {
                 setDisableTotalFood((value.target as HTMLInputElement).checked);
                 configHandler((value.target as HTMLInputElement).checked, "UseFoodPerAgentRatio");
