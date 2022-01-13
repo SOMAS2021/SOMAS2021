@@ -23,9 +23,16 @@ export default function DeathStats(props: StatsViewerProps) {
     const checkType = (d: DeathLog) => {
       return d.agentType === agentType;
     };
-    yAxisDeathAgents.push([0].concat(result.deaths.filter(checkType).map((d) => d.cumulativeDeaths)));
-    xAxisDeathAgents.push([0].concat(result.deaths.filter(checkType).map((d) => d.day)));
-    console.log(result.deaths.filter(checkType));
+    const filteredDeaths = result.deaths.filter(checkType);
+    yAxisDeathAgents.push(
+      [0].concat(
+        filteredDeaths
+          .map((d) => d.cumulativeDeaths)
+          .concat(filteredDeaths.length > 0 ? filteredDeaths[filteredDeaths.length - 1].cumulativeDeaths : 0)
+      )
+    );
+    xAxisDeathAgents.push([0].concat(filteredDeaths.map((d) => d.day).concat(result.config.SimDays)));
+    console.log(filteredDeaths);
   }
 
   console.log(xAxisDeathAgents, yAxisDeathAgents);
