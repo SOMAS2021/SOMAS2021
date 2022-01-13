@@ -67,6 +67,7 @@ func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 		if sE.dayInfo.CurrTick%sE.dayInfo.TicksPerDay == 0 {
 			sE.setSMCtr(custAgent)
 		}
+
 		go func(wg *sync.WaitGroup, custAgent infra.Agent, id uuid.UUID) {
 			if custAgent.IsAlive() {
 				custAgent.Run()
@@ -75,15 +76,19 @@ func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 		}(&wg, custAgent, id)
 		if sE.dayInfo.CurrTick%sE.dayInfo.TicksPerDay == 0 {
 			sE.setSMChangeCtr(custAgent)
+			sE.addToUtilityCtr(custAgent)
 		}
 	}
 	wg.Wait()
+	// To do once a day
 	if sE.dayInfo.CurrTick%sE.dayInfo.TicksPerDay == 0 {
 		sE.stateLog.LogSocialMotivesCtr(sE.dayInfo)
 		sE.AddToBehaviourCtrData()
 		sE.AddToBehaviourChangeCtrData()
-		sE.Log("Summary of behaviour change data", infra.Fields{"behaviourChangeCtr": sE.dayInfo.BehaviourChangeCtr, "behaviourChangeCtrData": sE.dayInfo.BehaviourChangeCtrData})
+		sE.AddToUtilityData()
+		sE.AddToDeathData(t.DeathCount)
 		sE.resetSMCtr()
 		sE.resetSMChangeCtr()
+		sE.clearUtilityCtr()
 	}
 }

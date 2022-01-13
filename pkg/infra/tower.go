@@ -25,6 +25,7 @@ type Tower struct {
 	dayInfo        *day.DayInfo
 	healthInfo     *health.HealthInfo
 	deadAgents     map[agent.AgentType]int
+	DeathCount     int
 }
 
 func (t *Tower) Log(message string, fields ...Fields) {
@@ -53,6 +54,7 @@ func NewTower(maxPlatFood food.FoodType, agentCount,
 		dayInfo:        dayInfo,
 		healthInfo:     healthInfo,
 		deadAgents:     make(map[agent.AgentType]int),
+		DeathCount:     0,
 	}
 }
 

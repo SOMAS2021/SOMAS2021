@@ -29,16 +29,19 @@ type Fields = log.Fields
 type AgentNewFunc func(base *infra.Base) (infra.Agent, error)
 
 type SimEnv struct {
-	FoodOnPlatform food.FoodType
-	AgentCount     map[agent.AgentType]int
-	AgentHP        int
-	AgentsPerFloor int
-	logger         log.Entry
-	dayInfo        *day.DayInfo
-	healthInfo     *health.HealthInfo
-	world          world.World
-	stateLog       *logging.StateLog
-	agentNewFuncs  map[agent.AgentType]AgentNewFunc
+	FoodOnPlatform   food.FoodType
+	AgentCount       map[agent.AgentType]int
+	AgentHP          int
+	AgentsPerFloor   int
+	logger           log.Entry
+	dayInfo          *day.DayInfo
+	healthInfo       *health.HealthInfo
+	world            world.World
+	stateLog         *logging.StateLog
+	agentNewFuncs    map[agent.AgentType]AgentNewFunc
+	utilityCSVHeader [][]string
+	deaths           int
+	cumulativeDeaths int
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
@@ -63,6 +66,9 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 			agent.Team7:       team7agent1.New,
 			agent.RandomAgent: randomAgent.New,
 		},
+		utilityCSVHeader: [][]string{},
+		deaths:           0,
+		cumulativeDeaths: 0,
 	}
 }
 
@@ -75,9 +81,18 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 
 	sE.generateInitialAgents(t)
 
-	// Create CSV file to log agent SM counter
+	// Store all agent id and teams in an array to use as headers for utility CSV file
+	for id, agent := range t.Agents {
+		idTeamPair := []string{id.String(), agent.BaseAgent().AgentType().String()}
+		sE.utilityCSVHeader = append(sE.utilityCSVHeader, idTeamPair)
+	}
+	sE.utilityCSVHeader = transpose(sE.utilityCSVHeader)
+
+	// Create CSV files
 	sE.CreateBehaviourCtrData()
 	sE.CreateBehaviourChangeCtrData()
+	sE.CreateUtilityData()
+	sE.CreateDeathData()
 
 	sE.Log("Simulation Started")
 	sE.simulationLoop(t, ctx)
@@ -87,6 +102,7 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	sE.Log("Summary of dead agents", infra.Fields{"Agent Type and number that died": t.DeadAgents()})
 	for agentType, count := range t.DeadAgents() {
 		sE.Log("dead agents", infra.Fields{"agentType": agentType.String(), "count": count})
+		sE.AddToDeathData(count)
 	}
 
 	sE.Log("Living agents at end of simulation")
@@ -102,9 +118,11 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 		}
 	}
 
-	// Write SM counter data into csv file
+	// Write data into respective CSV files
 	sE.ExportCSV(sE.dayInfo.BehaviourCtrData, "csvFiles/socialMotives.csv")
 	sE.ExportCSV(sE.dayInfo.BehaviourChangeCtrData, "csvFiles/socialMotivesChange.csv")
+	sE.ExportCSV(sE.dayInfo.UtilityData, "csvFiles/utilities.csv")
+	sE.ExportCSV(sE.dayInfo.DeathData, "csvFiles/deaths.csv")
 
 	// dispatch loggers
 	sE.stateLog.SimEnd(sE.dayInfo)
@@ -159,9 +177,32 @@ func (sE *SimEnv) resetSMChangeCtr() {
 	}
 }
 
+func (sE *SimEnv) addToUtilityCtr(agent infra.Agent) {
+	sE.dayInfo.Utility = append(sE.dayInfo.Utility, agent.BaseAgent().Utility())
+}
+
+func (sE *SimEnv) clearUtilityCtr() {
+	sE.dayInfo.Utility = []string{}
+}
+
 func (s *SimEnv) Log(message string, fields ...Fields) {
 	if len(fields) == 0 {
 		fields = append(fields, Fields{})
 	}
 	s.logger.WithFields(fields[0]).Info(message)
+}
+
+func transpose(slice [][]string) [][]string {
+	xl := len(slice[0])
+	yl := len(slice)
+	result := make([][]string, xl)
+	for i := range result {
+		result[i] = make([]string, yl)
+	}
+	for i := 0; i < xl; i++ {
+		for j := 0; j < yl; j++ {
+			result[i][j] = slice[j][i]
+		}
+	}
+	return result
 }

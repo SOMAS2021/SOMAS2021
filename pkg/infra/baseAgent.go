@@ -37,6 +37,7 @@ type Agent interface {
 	CustomLogs()
 	Behaviour() string
 	BehaviourChange() string
+	Utility() string
 }
 
 type Fields = log.Fields
@@ -203,6 +204,7 @@ func (a *Base) hpDecay(healthInfo *health.HealthInfo) {
 	a.setHasEaten(false)
 	if a.daysAtCritical >= healthInfo.MaxDayCritical {
 		a.Log("Killing agent", Fields{"daysLived": a.Age(), "agentType": a.agentType})
+		a.tower.DeathCount++
 		a.tower.stateLog.LogAgentDeath(a.tower.dayInfo, a.agentType, a.Age())
 		a.tower.stateLog.LogStoryAgentDied(a.tower.dayInfo, a.storyState())
 		newHP = 0
@@ -331,4 +333,8 @@ func (a *Base) Behaviour() string {
 
 func (a *Base) BehaviourChange() string {
 	return "Not Team 6"
+}
+
+func (a *Base) Utility() string {
+	return fmt.Sprintf("%f", a.utility)
 }
