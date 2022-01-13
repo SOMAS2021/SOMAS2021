@@ -49,7 +49,7 @@ func handleNewLoggerErr(err error) {
 	}
 }
 
-func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customLog string, agentsMap map[agent.AgentType]int) *StateLog {
+func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customLog string) *StateLog {
 	// init manager
 	l := NewLogger(folderpath)
 
