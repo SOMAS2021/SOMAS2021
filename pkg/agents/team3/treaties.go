@@ -36,7 +36,7 @@ func (a *CustomAgent3) treatyFull() bool {
 }
 
 func (a *CustomAgent3) treatyPendingResponse() bool {
-	return !(a.knowledge.treatyProposed.ID() == uuid.Nil)
+	return !(a.knowledge.treatyProposed.ProposerID() == uuid.Nil)
 }
 
 func (a *CustomAgent3) proposeTreatiesImmoral(floor int) { //troll treaties (then add some more b)
@@ -49,7 +49,7 @@ func (a *CustomAgent3) proposeTreatiesImmoral(floor int) { //troll treaties (the
 
 func (a *CustomAgent3) proposeTreatiesMoral(direction int) {
 	tr := messages.NewTreaty(messages.HP, 20, messages.LeavePercentFood, 95, messages.GT, messages.GT, 3, a.ID())
-	r := rand.Intn(2)
+	r := rand.Intn(3)
 	switch r {
 	case 0:
 		tr = messages.NewTreaty(messages.HP, 60, messages.LeavePercentFood, 60, messages.GT, messages.GT, 5, a.ID())
@@ -59,7 +59,7 @@ func (a *CustomAgent3) proposeTreatiesMoral(direction int) {
 		tr = messages.NewTreaty(messages.AvailableFood, 50, messages.LeaveAmountFood, a.foodReqCalc(a.HP(), a.HealthInfo().HPReqCToW), messages.LT, messages.GT, 5, a.ID())
 	}
 	a.knowledge.treatyProposed = *tr //remember the treaty we proposed
-	msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()+direction, *tr)
+	msg := messages.NewProposalMessage(a.BaseAgent().ID(), a.Floor(), a.Floor()-direction, *tr)
 	a.SendMessage(msg)
 	a.Log("I sent a treaty")
 }
