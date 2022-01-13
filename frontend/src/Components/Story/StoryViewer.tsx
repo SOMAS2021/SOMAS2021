@@ -19,9 +19,9 @@ export default function StoryViewer(props: StoryViewerProps) {
   const { result } = props;
   return (
     <div style={{ margin: "10px 0px" }}>
-      {result.simStatus.maxTick > -1 ? (
+      {result.simStatus.maxStoryTick > -1 ? (
         <Pre>
-          <StoryController title={result.title} maxTick={result.simStatus.maxTick} />
+          <StoryController title={result.title} maxTick={result.simStatus.maxStoryTick} />
         </Pre>
       ) : result.config.LogStory ? (
         <H5>Simulation still in progress</H5>

@@ -14,7 +14,7 @@ export enum SimStatusExec {
 
 export interface SimStatus {
   status: SimStatusExec;
-  maxTick: number;
+  maxStoryTick: number;
 }
 
 export interface Result {
@@ -25,6 +25,7 @@ export interface Result {
   simStatus: SimStatus;
   utility: UtilityLog[];
   messages: MessagesLog;
+  maxTick: number;
 }
 
 function GetSimStatus(filename: string): Promise<SimStatus> {
@@ -33,7 +34,7 @@ function GetSimStatus(filename: string): Promise<SimStatus> {
       .then((status) => {
         var s: SimStatus = {
           status: SimStatusExec.finished,
-          maxTick: status[0]["maxTick"],
+          maxStoryTick: status[0]["maxTick"],
         };
         switch (status[0]["status"]) {
           case SimStatusExec[SimStatusExec.finished]:
@@ -73,7 +74,7 @@ export function GetResult(filename: string): Promise<Result> {
     // status
     var status: SimStatus = {
       status: SimStatusExec.finished,
-      maxTick: 3000,
+      maxStoryTick: 3000,
     };
     promises.push(GetSimStatus(filename).then((s) => (status = s)));
 
@@ -86,7 +87,21 @@ export function GetResult(filename: string): Promise<Result> {
     promises.push(GetMessagesLog(filename).then((m) => (messages = m)));
 
     // all
-    Promise.all(promises).then((_) =>
+    Promise.all(promises).then((_) => {
+      // max tick is days * ticks per floor * floors
+      let maxTick = 
+        config.TicksPerFloor * 
+        config.SimDays * 
+        (
+          config.Team1Agents + 
+          config.Team2Agents +
+          config.Team3Agents +
+          config.Team4Agents +
+          config.Team5Agents +
+          config.Team6Agents +
+          config.Team7Agents +  
+          config.RandomAgents
+        )
       resolve({
         title: filename,
         deaths: deaths,
@@ -95,7 +110,8 @@ export function GetResult(filename: string): Promise<Result> {
         simStatus: status,
         utility: utility,
         messages: messages,
-      })
-    );
+        maxTick: maxTick,
+      });
+    });
   });
 }

@@ -55,9 +55,13 @@ export default function DeathStats(props: StatsViewerProps) {
         </div>
         <div className="col-lg-12">
           <ScatterChart
-            yAxis={[0].concat(result.deaths.map((d) => d.cumulativeDeaths))}
-            xAxis={[0].concat(result.deaths.map((d) => d.tick))}
-            graphTitle="Cumulative deaths per tick"
+            yAxis={[0].concat(
+              result.deaths
+                .map((d) => d.cumulativeDeaths)
+                .concat(result.deaths[result.deaths.length - 1].cumulativeDeaths)
+            )}
+            xAxis={[0].concat(result.deaths.map((d) => d.day).concat(result.config.SimDays))}
+            graphTitle="Cumulative deaths per day"
           />
         </div>
       </div>
