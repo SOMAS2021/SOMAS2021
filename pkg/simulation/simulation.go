@@ -178,11 +178,11 @@ func (sE *SimEnv) resetSMChangeCtr() {
 }
 
 func (sE *SimEnv) addToUtilityCtr(agent infra.Agent) {
-	sE.dayInfo.Utility = append(sE.dayInfo.Utility, agent.BaseAgent().Utility())
+	sE.dayInfo.Utility += agent.BaseAgent().Utility()
 }
 
 func (sE *SimEnv) clearUtilityCtr() {
-	sE.dayInfo.Utility = []string{}
+	sE.dayInfo.Utility = 0.0
 }
 
 func (s *SimEnv) Log(message string, fields ...Fields) {

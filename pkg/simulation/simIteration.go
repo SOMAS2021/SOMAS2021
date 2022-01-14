@@ -89,7 +89,7 @@ func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 		sE.stateLog.LogSocialMotivesCtr(sE.dayInfo)
 		sE.AddToBehaviourCtrData()
 		sE.AddToBehaviourChangeCtrData()
-		sE.AddToUtilityData()
+		sE.AddToUtilityData(t)
 		sE.AddToDeathData(t.DeathCount)
 		sE.clearUtilityCtr()
 	}
