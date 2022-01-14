@@ -104,7 +104,7 @@ type CustomAgent6 struct {
 // Defines the initial/base behaviour of our agents
 func (a *CustomAgent6) chooseInitialBehaviour() behaviour {
 	// 1. Whole spectrum
-	// return behaviour(rand.Float64()) * a.config.maxBehaviourThreshold
+	return behaviour(rand.Float64()) * a.config.maxBehaviourThreshold
 	// 2. Only Collectivist
 	//return behaviour(rand.Float64()) * maxBehaviourThreshold/4+1
 	// 3. Only Collectivist and Selfish, in a ratio 1/1
@@ -120,7 +120,7 @@ func (a *CustomAgent6) chooseInitialBehaviour() behaviour {
 	// 	return behaviour(rand.Float64())*4 + 1
 	// }
 	// 4. Genetic replacement
-	return a.chooseBehaviourGenetic()
+	//return a.chooseBehaviourGenetic()
 }
 
 func (a *CustomAgent6) chooseBehaviourGenetic() behaviour {
@@ -141,7 +141,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		config: team6Config{
 			baseBehaviour:         initialBehaviour,
 			stubbornness:          0.2,
-			maxBehaviourSwing:     2,
+			maxBehaviourSwing:     0,
 			paramWeights:          behaviourParameterWeights{HPWeight: 0.8, floorWeight: 0.2}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
 			maxBehaviourThreshold: 10,
