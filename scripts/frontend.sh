@@ -1,5 +1,5 @@
 set -euxo pipefail
 
 cd frontend
-npm install
+npm ci
 npm start
