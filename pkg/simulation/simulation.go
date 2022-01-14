@@ -121,7 +121,7 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	// Write data into respective CSV files
 	sE.ExportCSV(sE.dayInfo.BehaviourCtrData, "csvFiles/socialMotives.csv")
 	sE.ExportCSV(sE.dayInfo.BehaviourChangeCtrData, "csvFiles/socialMotivesChange.csv")
-	sE.ExportCSV(sE.dayInfo.UtilityData, "csvFiles/utilities.csv")
+	sE.ExportCSV(sE.dayInfo.UtilityData, "csvFiles/utility.csv")
 	sE.ExportCSV(sE.dayInfo.DeathData, "csvFiles/deaths.csv")
 
 	// dispatch loggers
