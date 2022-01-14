@@ -19,7 +19,6 @@ type ConfigParameters struct {
 	FoodPerAgentRatio    int                     `json:"FoodPerAgentRatio"`
 	UseFoodPerAgentRatio bool                    `json:"UseFoodPerAgentRatio"`
 	Team1Agents          int                     `json:"Team1Agents"`
-	Team1Agents2         int                     `json:"Team1Agents2"`
 	Team2Agents          int                     `json:"Team2Agents"`
 	Team3Agents          int                     `json:"Team3Agents"`
 	Team4Agents          int                     `json:"Team4Agents"`
@@ -111,8 +110,7 @@ func CalculateDependentParameters(parameters *ConfigParameters) error {
 
 	//appending the sizes of the agents to the array
 	parameters.NumOfAgents = map[agent.AgentType]int{
-		agent.Team1Agent1: parameters.Team1Agents,
-		agent.Team1Agent2: parameters.Team1Agents2,
+		agent.Team1:       parameters.Team1Agents,
 		agent.Team2:       parameters.Team2Agents,
 		agent.Team3:       parameters.Team3Agents,
 		agent.Team4:       parameters.Team4Agents,

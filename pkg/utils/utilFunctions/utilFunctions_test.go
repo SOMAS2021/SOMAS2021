@@ -68,7 +68,7 @@ func TestSum(t *testing.T) {
 			name: "zero",
 			args: args{
 				input: map[agent.AgentType]int{
-					agent.Team1Agent1: 0,
+					agent.Team1: 0,
 				},
 			},
 			want: 0,
@@ -77,7 +77,7 @@ func TestSum(t *testing.T) {
 			name: "single",
 			args: args{
 				input: map[agent.AgentType]int{
-					agent.Team1Agent1: 53,
+					agent.Team1: 53,
 				},
 			},
 			want: 53,
@@ -86,8 +86,7 @@ func TestSum(t *testing.T) {
 			name: "triangular",
 			args: args{
 				input: map[agent.AgentType]int{
-					agent.Team1Agent1: 1,
-					agent.Team1Agent2: 2,
+					agent.Team1:       1,
 					agent.Team2:       3,
 					agent.Team3:       4,
 					agent.Team4:       5,
@@ -97,14 +96,13 @@ func TestSum(t *testing.T) {
 					agent.RandomAgent: 9,
 				},
 			},
-			want: 45,
+			want: 43,
 		},
 		{
 			name: "negatives",
 			args: args{
 				input: map[agent.AgentType]int{
-					agent.Team1Agent1: -1,
-					agent.Team1Agent2: -2,
+					agent.Team1:       -1,
 					agent.Team2:       -3,
 					agent.Team3:       -4,
 					agent.Team4:       -5,
@@ -114,14 +112,13 @@ func TestSum(t *testing.T) {
 					agent.RandomAgent: -9,
 				},
 			},
-			want: -45,
+			want: -43,
 		},
 		{
 			name: "pos and neg",
 			args: args{
 				input: map[agent.AgentType]int{
-					agent.Team1Agent1: -1,
-					agent.Team1Agent2: 2,
+					agent.Team1:       -1,
 					agent.Team2:       -3,
 					agent.Team3:       4,
 					agent.Team4:       -5,
@@ -131,7 +128,7 @@ func TestSum(t *testing.T) {
 					agent.RandomAgent: -9,
 				},
 			},
-			want: -5,
+			want: -7,
 		},
 	}
 	for _, tt := range tests {

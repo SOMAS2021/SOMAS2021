@@ -10,8 +10,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type msgMap [14][9]int
-type treatyResponsesCount [2][9]int // 0 for reject, 1 for accept
+type msgMap [14][8]int
+type treatyResponsesCount [2][8]int // 0 for reject, 1 for accept
 
 type StateLog struct {
 	Logmanager *LogManager
@@ -221,7 +221,7 @@ func (ls *StateLog) LogStoryPlatformMoved(simState *day.DayInfo, floor int) {
 func (ls *StateLog) SimEnd(simState *day.DayInfo) {
 	// Dump messages map state
 	var atypes [9]string
-	for i := 0; i < 9; i++ {
+	for i := 0; i < 8; i++ {
 		atypes[i] = agent.AgentType(i + 1).String()
 	}
 

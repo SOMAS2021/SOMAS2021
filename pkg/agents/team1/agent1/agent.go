@@ -133,5 +133,5 @@ func (a *CustomAgent1) HandleStateIntendedFoodTaken(msg messages.StateIntendedFo
 }
 
 func (a *CustomAgent1) CustomLogs() {
-	log.Info("I can export or CSV or do something if --log=Team1Agent1 !")
+	log.Info("I can export or CSV or do something if --log=Team1 !")
 }
