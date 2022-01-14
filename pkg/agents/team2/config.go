@@ -145,8 +145,8 @@ func (a *CustomAgent2) Run() {
 		target = []float64{float64(foodTaken), float64(a.HP())}
 		a.writeToCSV(target, "csv_files/foodtaken_vs_hp", 2)
 		// table logging
-		a.exportQTable()
-		a.exportPolicies()
+		//a.exportQTable()
+		//a.exportPolicies()
 	}
 
 }
