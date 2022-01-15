@@ -220,7 +220,7 @@ func (ls *StateLog) LogStoryPlatformMoved(simState *day.DayInfo, floor int) {
 // Simulation ended
 func (ls *StateLog) SimEnd(simState *day.DayInfo) {
 	// Dump messages map state
-	var atypes [9]string
+	var atypes [8]string
 	for i := 0; i < 8; i++ {
 		atypes[i] = agent.AgentType(i + 1).String()
 	}
