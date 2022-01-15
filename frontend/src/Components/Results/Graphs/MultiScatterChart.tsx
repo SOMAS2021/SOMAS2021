@@ -9,8 +9,10 @@ import {
   Legend,
 } from "chart.js";
 import { Scatter } from "react-chartjs-2";
+import { Min, Max } from "../../../Helpers/Utils";
+import zoomPlugin from "chartjs-plugin-zoom";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, zoomPlugin);
 
 interface MultiScatterChartProps {
   xAxis: number[][];
@@ -42,6 +44,23 @@ export default function MultiScatterChart(props: MultiScatterChartProps) {
         datasets: datasets,
       }}
       options={{
+        plugins: {
+          zoom: {
+            limits: {
+              y: { min: Min(yAxis.map((i) => Min(i))), max: Max(yAxis.map((i) => Max(i))) },
+              x: { min: Min(xAxis.map((i) => Min(i))), max: Max(xAxis.map((i) => Max(i))) },
+            },
+            zoom: {
+              drag: {
+                enabled: true,
+              },
+              wheel: {
+                enabled: true,
+              },
+              mode: "xy",
+            },
+          },
+        },
         scales: {
           y: {
             ticks: {
