@@ -11,6 +11,8 @@ import {
 import { Scatter } from "react-chartjs-2";
 import { Min, Max } from "../../../Helpers/Utils";
 import zoomPlugin from "chartjs-plugin-zoom";
+import { uniqueId } from "@blueprintjs/core/lib/esm/common/utils";
+import { Button } from "@blueprintjs/core";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, zoomPlugin);
 
@@ -38,48 +40,58 @@ export default function MultiScatterChart(props: MultiScatterChartProps) {
       borderColor: color[d],
     });
   }
+  const uuid = uniqueId("somas");
+  const resetChart = () => {
+    const x = ChartJS.getChart(uuid);
+    if (x !== undefined) {
+      x.resetZoom();
+    } else {
+      console.log("undefined chart " + uuid);
+    }
+  };
   return (
-    <Scatter
-      data={{
-        datasets: datasets,
-      }}
-      options={{
-        plugins: {
-          zoom: {
-            limits: {
-              y: { min: Min(yAxis.map((i) => Min(i))), max: Max(yAxis.map((i) => Max(i))) },
-              x: { min: Min(xAxis.map((i) => Min(i))), max: Max(xAxis.map((i) => Max(i))) },
-            },
+    <div>
+      <Scatter
+        id={uuid}
+        data={{
+          datasets: datasets,
+        }}
+        options={{
+          plugins: {
             zoom: {
-              drag: {
-                enabled: true,
+              limits: {
+                y: { min: Min(yAxis.map((i) => Min(i))), max: Max(yAxis.map((i) => Max(i))) },
+                x: { min: Min(xAxis.map((i) => Min(i))), max: Max(xAxis.map((i) => Max(i))) },
               },
-              wheel: {
-                enabled: true,
-              },
-              mode: "xy",
-            },
-          },
-        },
-        scales: {
-          y: {
-            ticks: {
-              // Include a dollar sign in the ticks
-              callback: function (value, index, ticks) {
-                return value + " " + (yUnit ? yUnit : "");
+              zoom: {
+                drag: {
+                  enabled: true,
+                },
+                mode: "x",
               },
             },
           },
-          x: {
-            ticks: {
-              // Include a dollar sign in the ticks
-              callback: function (value, index, ticks) {
-                return value + " " + (xUnit ? xUnit : "");
+          scales: {
+            y: {
+              ticks: {
+                // Include a dollar sign in the ticks
+                callback: function (value, index, ticks) {
+                  return value + " " + (yUnit ? yUnit : "");
+                },
+              },
+            },
+            x: {
+              ticks: {
+                // Include a dollar sign in the ticks
+                callback: function (value, index, ticks) {
+                  return value + " " + (xUnit ? xUnit : "");
+                },
               },
             },
           },
-        },
-      }}
-    />
+        }}
+      />
+      <Button text="Reset Zoom" onClick={() => resetChart()} />
+    </div>
   );
 }
