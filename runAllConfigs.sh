@@ -1,4 +1,3 @@
-
 CONFIG_DIR="configs/*.json"
 for f in $CONFIG_DIR
 do
