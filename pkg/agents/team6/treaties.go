@@ -134,9 +134,9 @@ func (a *CustomAgent6) considerHPTreaty(conditionCheck bool, consultUtility bool
 	case "Altruist":
 		return true
 	case "Collectivist":
-		if conditionCheck || conditionValue < a.HealthInfo().WeakLevel {
-			return consultUtility
-		}
+		// if conditionCheck || conditionValue < a.HealthInfo().WeakLevel {
+		// 	return consultUtility
+		// }
 		return true
 
 	case "Selfish":
@@ -278,8 +278,8 @@ func (a *CustomAgent6) constructTreaty() messages.Treaty {
 		default:
 			// Different treaty
 			// proposedTreaty = messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
-			return *messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.TakeAmountFood, 0, messages.GE, messages.LE, int(2*a.reassignPeriodGuess), a.ID())
-			//return *messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.TakeAmountFood, 2, messages.LT, messages.LE, int(2*a.reassignPeriodGuess), a.ID())
+			//return *messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.TakeAmountFood, 0, messages.GE, messages.LE, int(2*a.reassignPeriodGuess), a.ID())
+			return *messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.TakeAmountFood, 2, messages.LT, messages.LE, int(2*a.reassignPeriodGuess), a.ID())
 		}
 
 	case "Selfish":
