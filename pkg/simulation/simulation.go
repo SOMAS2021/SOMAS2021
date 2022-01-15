@@ -5,7 +5,6 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/randomAgent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team3"
 
@@ -53,8 +52,7 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 		logger:         *stateLog.Logmanager.GetLogger("main").WithFields(log.Fields{"reporter": "simulation"}),
 		stateLog:       stateLog,
 		agentNewFuncs: map[agent.AgentType]AgentNewFunc{
-			agent.Team1Agent1: agent1.New,
-			agent.Team1Agent2: agent2.New,
+			agent.Team1:       agent1.New,
 			agent.Team2:       team2.New,
 			agent.Team3:       team3.New,
 			agent.Team4:       team4EvoAgent.New,

@@ -4,8 +4,7 @@ type AgentType int
 
 //go:generate go run golang.org/x/tools/cmd/stringer -type=AgentType
 const (
-	Team1Agent1 AgentType = iota + 1
-	Team1Agent2
+	Team1 AgentType = iota + 1
 	Team2
 	Team3
 	Team4

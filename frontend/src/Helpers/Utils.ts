@@ -1,7 +1,7 @@
 import { Colors } from "@blueprintjs/core";
 import { DeathLog } from "./Logging/Death";
-import { MessagesLog } from "./Logging/Message";
 import { UtilityLog } from "./Logging/Utility";
+import { Result } from "./Result";
 
 const arbitraryStackKey = "stack1";
 const colorFamily = [
@@ -20,6 +20,16 @@ const colorFamily = [
   "#C06126",
   "#B04718",
   "#9E2B0E",
+];
+const agentList = [
+  "Team1Agents",
+  "Team2Agents",
+  "Team3Agents",
+  "Team4Agents",
+  "Team5Agents",
+  "Team6Agents",
+  "Team7Agents",
+  "RandomAgents",
 ];
 
 export function Average(arr: number[]): number {
@@ -86,35 +96,52 @@ export function AverageAgeUponDeath(deathLogs: DeathLog[]): { [agentType: string
   return ageMap;
 }
 
-// This needs to return an array of chartable objects
-export function ParseMessageStats(stats: MessagesLog): any[] {
-  var processedStats: any[] = [];
-  var mtypes = stats.mtypes;
-  var msgcount = stats.msgcount;
-
-  // for each agent type
-  for (let i = 0; i < mtypes.length; i++) {
-    processedStats.push({
-      label: mtypes[i], // Graph title
-      data: msgcount[i], // Data (y-axis)
+export function ParseMessageStats(result: Result): [string[], any[]] {
+  let agentsPresent = GetPresentAgents(result);
+  var newLabels: string[] = FilterArrayByOther(result.messages.atypes, agentsPresent);
+  var newValues: any[] = [];
+  for (let i = 0; i < result.messages.mtypes.length; i++) {
+    newValues.push({
+      label: result.messages.mtypes[i], // Graph title
+      data: FilterArrayByOther(result.messages.msgcount[i], agentsPresent), // Data (y-axis)
       backgroundColor: colorFamily[i],
       stack: arbitraryStackKey,
     });
   }
-
-  return processedStats;
+  return [newLabels, newValues];
 }
-export function ParseTreatyAcceptanceStats(stats: MessagesLog): any[] {
-  return [
+
+export function ParseTreatyAcceptanceStats(result: Result): [string[], any[]] {
+  let agentsPresent = GetPresentAgents(result);
+  let newLabels: string[] = FilterArrayByOther(result.messages.atypes, agentsPresent);
+  let newValues: any[] = [
     {
-      label: "Treaties Rejected", // Graph title
-      data: stats.treatyResponses[0], // Data (y-axis)
+      label: "Treaties Rejected",
+      data: FilterArrayByOther(result.messages.treatyResponses[0], agentsPresent), // Data (y-axis)
       backgroundColor: Colors.RED1,
     },
     {
-      label: "Treaties Accepted", // Graph title
-      data: stats.treatyResponses[1], // Data (y-axis)
+      label: "Treaties Accepted",
+      data: FilterArrayByOther(result.messages.treatyResponses[1], agentsPresent), // Data (y-axis)
       backgroundColor: Colors.GREEN1,
     },
   ];
+  return [newLabels, newValues];
+}
+
+// Filter an array by an equal lengthed boolean array, no length check atm
+export function FilterArrayByOther(data: any[], present: boolean[]): any[] {
+  return data.filter((_, i) => {
+    return present[i];
+  });
+}
+
+export function GetPresentAgents(result: Result): boolean[] {
+  var present: boolean[] = [];
+  var config = result.config;
+  agentList.forEach((agentType) => {
+    const keyTyped = agentType as keyof typeof config;
+    present.push(config[keyTyped] > 0);
+  });
+  return present;
 }
