@@ -133,7 +133,7 @@ export function ParseTreatyProposalStats(result: Result): [string[], any[]] {
   let agentsPresent = GetPresentAgents(result);
   var newLabels: string[] = FilterArrayByOther(result.messages.atypes, agentsPresent);
   var newValues: any[] = [];
-  const i = 9;
+  const i = 7;
   newValues.push({
     label: result.messages.mtypes[i], // Graph title
     data: FilterArrayByOther(result.messages.msgcount[i], agentsPresent), // Data (y-axis)
