@@ -129,6 +129,20 @@ export function ParseTreatyAcceptanceStats(result: Result): [string[], any[]] {
   return [newLabels, newValues];
 }
 
+export function ParseTreatyProposalStats(result: Result): [string[], any[]] {
+  let agentsPresent = GetPresentAgents(result);
+  var newLabels: string[] = FilterArrayByOther(result.messages.atypes, agentsPresent);
+  var newValues: any[] = [];
+  const i = 7;
+  newValues.push({
+    label: result.messages.mtypes[i], // Graph title
+    data: FilterArrayByOther(result.messages.msgcount[i], agentsPresent), // Data (y-axis)
+    backgroundColor: colorFamily[i],
+    stack: arbitraryStackKey,
+  });
+  return [newLabels, newValues];
+}
+
 // Filter an array by an equal lengthed boolean array, no length check atm
 export function FilterArrayByOther(data: any[], present: boolean[]): any[] {
   return data.filter((_, i) => {

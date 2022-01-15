@@ -32,10 +32,7 @@ export default function DeathStats(props: StatsViewerProps) {
       )
     );
     xAxisDeathAgents.push([0].concat(filteredDeaths.map((d) => d.day).concat(result.config.SimDays)));
-    console.log(filteredDeaths);
   }
-
-  console.log(xAxisDeathAgents, yAxisDeathAgents);
 
   return (
     <div className="row">
@@ -85,11 +82,13 @@ export default function DeathStats(props: StatsViewerProps) {
           <ScatterChart
             yAxis={[0].concat(
               result.deaths
-                .map((d) => d.cumulativeDeaths)
-                .concat(result.deaths.length > 0 ? result.deaths[result.deaths.length - 1].cumulativeDeaths : 0)
+                .map((d) => d.totalDeaths)
+                .concat(result.deaths.length > 0 ? result.deaths[result.deaths.length - 1].totalDeaths : 0)
             )}
             xAxis={[0].concat(result.deaths.map((d) => d.day).concat(result.config.SimDays))}
-            graphTitle="Cumulative deaths per day"
+            graphTitle="Total deaths"
+            xUnit="days"
+            yUnit="deaths"
           />
         </div>
         <div className="col-lg-12">
@@ -98,6 +97,8 @@ export default function DeathStats(props: StatsViewerProps) {
             yAxis={yAxisDeathAgents}
             graphTitle={titleDeathAgents}
             color={color}
+            xUnit="days"
+            yUnit="deaths"
           />
         </div>
       </div>
