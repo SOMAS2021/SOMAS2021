@@ -28,6 +28,16 @@ import (
 type Fields = log.Fields
 type AgentNewFunc func(base *infra.Base) (infra.Agent, error)
 
+// var parameters *config.ConfigParameters
+// var numAgents int = parameters.
+
+// type State struct {
+// 	ID            []string
+// 	SM            []string
+// 	FoodAvailable []string
+// 	Utility       []string
+// }
+
 type SimEnv struct {
 	FoodOnPlatform   food.FoodType
 	AgentCount       map[agent.AgentType]int
@@ -46,6 +56,7 @@ type SimEnv struct {
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
 	stateLog := logging.NewLogState(parameters.LogFolderName, parameters.LogMain, parameters.LogStory, parameters.CustomLog)
+	// numAgents := parameters.NumOfAgents[agent.RandomAgent]
 	return &SimEnv{
 		FoodOnPlatform: parameters.FoodOnPlatform,
 		AgentCount:     parameters.NumOfAgents,
@@ -74,7 +85,6 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 
 func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	sE.Log("Simulation Initializing")
-
 	totalAgents := utilFunctions.Sum(sE.AgentCount)
 	t := infra.NewTower(sE.FoodOnPlatform, totalAgents, sE.AgentsPerFloor, sE.dayInfo, sE.healthInfo, sE.stateLog)
 	sE.SetWorld(t)
@@ -93,6 +103,7 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	sE.CreateBehaviourChangeCtrData()
 	sE.CreateUtilityData()
 	sE.CreateDeathData()
+	sE.CreateStateData(totalAgents)
 
 	sE.Log("Simulation Started")
 	sE.simulationLoop(t, ctx)
@@ -123,6 +134,13 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	sE.ExportCSV(sE.dayInfo.BehaviourChangeCtrData, "csvFiles/socialMotivesChange.csv")
 	sE.ExportCSV(sE.dayInfo.UtilityData, "csvFiles/utility.csv")
 	sE.ExportCSV(sE.dayInfo.DeathData, "csvFiles/deaths.csv")
+
+	// Export state data into respective CSV files
+	sE.ExportCSV(sE.dayInfo.StateData.ID, "csvFiles/states/id.csv")
+	sE.ExportCSV(sE.dayInfo.StateData.HP, "csvFiles/states/hp.csv")
+	sE.ExportCSV(sE.dayInfo.StateData.SM, "csvFiles/states/sm.csv")
+	sE.ExportCSV(sE.dayInfo.StateData.FoodAvailable, "csvFiles/states/foodAvailable.csv")
+	sE.ExportCSV(sE.dayInfo.StateData.Utility, "csvFiles/states/utility.csv")
 
 	// dispatch loggers
 	sE.stateLog.SimEnd(sE.dayInfo)

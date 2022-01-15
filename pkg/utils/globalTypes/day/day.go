@@ -1,5 +1,21 @@
 package day
 
+type State struct {
+	ID            []string
+	HP            []string
+	SM            []string
+	FoodAvailable []string
+	Utility       []string
+}
+
+type StateData struct {
+	ID            [][]string
+	HP            [][]string
+	SM            [][]string
+	FoodAvailable [][]string
+	Utility       [][]string
+}
+
 type DayInfo struct {
 	TicksPerFloor          int
 	TicksPerDay            int
@@ -16,6 +32,8 @@ type DayInfo struct {
 	Utility                float64 // Convert to string before appending to UtilityData
 	UtilityData            [][]string
 	DeathData              [][]string
+	State                  State
+	StateData              StateData
 }
 
 func NewDayInfo(TicksPerFloor, TicksPerDay, SimulationDays, DaysPerReshuffle int) *DayInfo {
@@ -57,5 +75,19 @@ func NewDayInfo(TicksPerFloor, TicksPerDay, SimulationDays, DaysPerReshuffle int
 		Utility:                0.0,
 		UtilityData:            [][]string{},
 		DeathData:              [][]string{},
+		State: State{
+			ID:            []string{},
+			HP:            []string{},
+			SM:            []string{},
+			FoodAvailable: []string{},
+			Utility:       []string{},
+		},
+		StateData: StateData{
+			ID:            [][]string{},
+			HP:            [][]string{},
+			SM:            [][]string{},
+			FoodAvailable: [][]string{},
+			Utility:       [][]string{},
+		},
 	}
 }

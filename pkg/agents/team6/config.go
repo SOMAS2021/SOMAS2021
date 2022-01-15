@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"strconv"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -97,6 +98,8 @@ type CustomAgent6 struct {
 	prevSM string
 	// Change in social motive
 	changeSM string
+	// Stores food received on platform
+	foodReceived food.FoodType
 }
 
 // var maxBehaviourThreshold behaviour = 10.0
@@ -172,6 +175,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		neighbours:          neighbours{above: uuid.Nil, below: uuid.Nil},
 		prevAge:             0,
 		prevSM:              initialBehaviour.string(),
+		foodReceived:        -2,
 	}
 
 	a.config.baseBehaviour = a.chooseInitialBehaviour()
@@ -367,6 +371,10 @@ func (a *CustomAgent6) Behaviour() string {
 
 func (a *CustomAgent6) BehaviourChange() string {
 	return a.changeSM
+}
+
+func (a *CustomAgent6) FoodReceived() string {
+	return strconv.Itoa(int(a.foodReceived))
 }
 
 func (a *CustomAgent6) updateChangeSMVariable() {

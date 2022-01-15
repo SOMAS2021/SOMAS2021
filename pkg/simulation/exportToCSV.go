@@ -92,10 +92,6 @@ func (sE *SimEnv) AddToBehaviourChangeCtrData() {
 	sE.dayInfo.BehaviourChangeCtrData = append(sE.dayInfo.BehaviourChangeCtrData, row)
 }
 
-// func (sE *SimEnv) CreateUtilityData() {
-// 	sE.dayInfo.UtilityData = append(sE.dayInfo.UtilityData, sE.utilityCSVHeader...)
-// }
-
 func (sE *SimEnv) CreateUtilityData() {
 	row := []string{"Average Utility"}
 	sE.dayInfo.UtilityData = append(sE.dayInfo.UtilityData, row)
@@ -127,4 +123,27 @@ func (sE *SimEnv) AddToDeathData(cumDeath int) {
 	sE.dayInfo.DeathData = append(sE.dayInfo.DeathData, row)
 	sE.cumulativeDeaths = cumDeath
 	sE.Log("Summary of deaths", infra.Fields{"New deaths": newDeath, "Cumulative deaths": cumDeath})
+}
+
+func (sE *SimEnv) CreateStateData(numAgents int) {
+	headers := []string{}
+	i := 0
+	for i < numAgents {
+		headers = append(headers, "Floor "+strconv.Itoa(i+1))
+		i++
+	}
+
+	sE.dayInfo.StateData.ID = append(sE.dayInfo.StateData.ID, headers)
+	sE.dayInfo.StateData.HP = append(sE.dayInfo.StateData.HP, headers)
+	sE.dayInfo.StateData.SM = append(sE.dayInfo.StateData.SM, headers)
+	sE.dayInfo.StateData.FoodAvailable = append(sE.dayInfo.StateData.FoodAvailable, headers)
+	sE.dayInfo.StateData.Utility = append(sE.dayInfo.StateData.Utility, headers)
+}
+
+func (sE *SimEnv) AddToStateData() {
+	sE.dayInfo.StateData.ID = append(sE.dayInfo.StateData.ID, sE.dayInfo.State.ID)
+	sE.dayInfo.StateData.HP = append(sE.dayInfo.StateData.HP, sE.dayInfo.State.HP)
+	sE.dayInfo.StateData.SM = append(sE.dayInfo.StateData.SM, sE.dayInfo.State.SM)
+	sE.dayInfo.StateData.FoodAvailable = append(sE.dayInfo.StateData.FoodAvailable, sE.dayInfo.State.FoodAvailable)
+	sE.dayInfo.StateData.Utility = append(sE.dayInfo.StateData.Utility, sE.dayInfo.State.Utility)
 }

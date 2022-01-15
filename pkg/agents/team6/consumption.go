@@ -1,8 +1,10 @@
 package team6
 
 import (
+	"fmt"
 	"math/rand"
 
+	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/food"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/globalTypes/health"
@@ -22,6 +24,7 @@ type levelsData struct {
 
 // Desired food intake without any constraint coming from messages/treaties
 func (a *CustomAgent6) desiredFoodIntake() food.FoodType {
+
 	healthInfo := a.HealthInfo()
 
 	thresholds := thresholdData{
@@ -44,11 +47,15 @@ func (a *CustomAgent6) desiredFoodIntake() food.FoodType {
 		return food.FoodType(0)
 
 	case "Collectivist": // Only eat when in critical zone randomly before expiry
+		a.Log("Collectivist agent take food day", infra.Fields{"a.foodTakeDay": a.foodTakeDay})
 		switch {
 		case currentHP >= levels.weakLevel:
-			a.foodTakeDay = rand.Intn(healthInfo.MaxDayCritical) // Stagger the days when agents return to weak
+			a.foodTakeDay = rand.Intn(healthInfo.MaxDayCritical) + 1 // Stagger the days when agents return to weak
 			return food.FoodType(0)
 		case currentHP >= levels.critLevel:
+			if a.foodTakeDay == 0 {
+				a.foodTakeDay = rand.Intn(healthInfo.MaxDayCritical) + 1
+			}
 			if a.DaysAtCritical() == a.foodTakeDay {
 				return food.FoodType(2) // 2 is the amount of Food neeeded to go from Critical to WeakLevel
 			}
@@ -112,10 +119,20 @@ func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 	desiredFoodIntake := a.desiredFoodIntake()
 	maxAllowedFood := a.maxAllowedFood()
 
+	var foodIntake food.FoodType
+
+	fmt.Println(desiredFoodIntake, maxAllowedFood)
 	if maxAllowedFood >= desiredFoodIntake {
-		return desiredFoodIntake
+		foodIntake = desiredFoodIntake
+	} else {
+		foodIntake = maxAllowedFood
 	}
-	return maxAllowedFood
+
+	if a.PlatformOnFloor() {
+		// fmt.Println(a.ActualCurrPlatFood(), foodIntake)
+		a.foodReceived = a.ActualCurrPlatFood() + foodIntake
+	}
+	return foodIntake
 }
 
 // Rolling average of food taken

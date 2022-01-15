@@ -37,7 +37,9 @@ type Agent interface {
 	CustomLogs()
 	Behaviour() string
 	BehaviourChange() string
+	FoodReceived() string
 	Utility() float64
+	TotalFoodSeen() food.FoodType
 }
 
 type Fields = log.Fields
@@ -132,6 +134,15 @@ func (a *Base) CurrPlatFood() food.FoodType {
 	foodOnPlatform := a.tower.currPlatFood
 	platformFloor := a.tower.currPlatFloor
 	if platformFloor == a.floor || platformFloor == a.floor+1 {
+		return foodOnPlatform
+	}
+	return -1
+}
+
+func (a *Base) ActualCurrPlatFood() food.FoodType {
+	foodOnPlatform := a.tower.currPlatFood
+	platformFloor := a.tower.currPlatFloor
+	if platformFloor == a.floor {
 		return foodOnPlatform
 	}
 	return -1
@@ -253,6 +264,10 @@ func (a *Base) TakeFood(amountOfFood food.FoodType) (food.FoodType, error) {
 	return foodTaken, nil
 }
 
+func (a *Base) TotalFoodSeen() food.FoodType {
+	return a.totalFoodSeen
+}
+
 func (a *Base) UpdateFoodSeen(amountSeen food.FoodType) {
 	a.totalFoodSeen += amountSeen
 }
@@ -335,9 +350,12 @@ func (a *Base) BehaviourChange() string {
 	return "Not Team 6"
 }
 
+func (a *Base) FoodReceived() string {
+	return "Not Team 6"
+}
+
 func (a *Base) Utility() float64 {
 	return a.utility
-	// return fmt.Sprintf("%f", a.utility)
 }
 
 func (a *Base) SMCtr() []int {
