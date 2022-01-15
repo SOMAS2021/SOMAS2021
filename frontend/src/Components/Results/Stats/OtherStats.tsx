@@ -24,8 +24,10 @@ export default function OtherStats(props: StatsViewerProps) {
         <div className="col-lg-6">
           <ScatterChart
             yAxis={result.food.map((f) => f.food)}
-            xAxis={result.food.map((f) => f.tick)}
-            graphTitle="Total Food on Platform per Tick"
+            xAxis={result.food.map((f) => f.day)}
+            graphTitle="Total Food on Platform per Day"
+            xUnit="days"
+            yUnit="food"
           />
         </div>
         <div className="col-lg-6">
