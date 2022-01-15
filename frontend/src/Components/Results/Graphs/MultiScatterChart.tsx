@@ -50,48 +50,60 @@ export default function MultiScatterChart(props: MultiScatterChartProps) {
     }
   };
   return (
-    <div>
-      <Scatter
-        id={uuid}
-        data={{
-          datasets: datasets,
-        }}
-        options={{
-          plugins: {
-            zoom: {
-              limits: {
-                y: { min: Min(yAxis.map((i) => Min(i))), max: Max(yAxis.map((i) => Max(i))) },
-                x: { min: Min(xAxis.map((i) => Min(i))), max: Max(xAxis.map((i) => Max(i))) },
-              },
+    <div className="d-flex justify-content-center">
+      <div className="border rounded" style={{ width: "90%" }}>
+        <Scatter
+          id={uuid}
+          data={{
+            datasets: datasets,
+          }}
+          options={{
+            plugins: {
               zoom: {
-                drag: {
+                pan: {
                   enabled: true,
+                  onPanStart({ chart, point }) {
+                    const area = chart.chartArea;
+                    if (point.x < area.left || point.x > area.right || point.y < area.top || point.y > area.bottom) {
+                      return false; // abort
+                    }
+                  },
+                  mode: "xy",
                 },
-                mode: "x",
-              },
-            },
-          },
-          scales: {
-            y: {
-              ticks: {
-                // Include a dollar sign in the ticks
-                callback: function (value, index, ticks) {
-                  return value + " " + (yUnit ? yUnit : "");
+                limits: {
+                  y: { min: Min(yAxis.map((i) => Min(i))), max: Max(yAxis.map((i) => Max(i))) },
+                  x: { min: Min(xAxis.map((i) => Min(i))), max: Max(xAxis.map((i) => Max(i))) },
                 },
-              },
-            },
-            x: {
-              ticks: {
-                // Include a dollar sign in the ticks
-                callback: function (value, index, ticks) {
-                  return value + " " + (xUnit ? xUnit : "");
+                zoom: {
+                  wheel: {
+                    enabled: true,
+                  },
+                  mode: "x",
                 },
               },
             },
-          },
-        }}
-      />
-      <Button text="Reset Zoom" onClick={() => resetChart()} />
+            scales: {
+              y: {
+                ticks: {
+                  // Include a dollar sign in the ticks
+                  callback: function (value, index, ticks) {
+                    return value + " " + (yUnit ? yUnit : "");
+                  },
+                },
+              },
+              x: {
+                ticks: {
+                  // Include a dollar sign in the ticks
+                  callback: function (value, index, ticks) {
+                    return value + " " + (xUnit ? xUnit : "");
+                  },
+                },
+              },
+            },
+          }}
+        />
+        <Button text="Reset Zoom" onClick={() => resetChart()} />
+      </div>
     </div>
   );
 }
