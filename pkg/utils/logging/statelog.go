@@ -109,15 +109,15 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 // Death loggging
 func (ls *StateLog) LogAgentDeath(simState *day.DayInfo, agentType agent.AgentType, age int) {
 	ls.deathCount++
-	temp := ls.deaths[agentType] + 1
-	ls.deaths[agentType] = temp
+	temp := ls.deaths[agentType-1] + 1
+	ls.deaths[agentType-1] = temp
 	ls.deathLogger.
 		WithFields(
 			log.Fields{
 				"day":              simState.CurrDay,
 				"tick":             simState.CurrTick,
 				"agent_type":       agentType.String(),
-				"cumulativeDeaths": ls.deaths[agentType],
+				"cumulativeDeaths": ls.deaths[agentType-1],
 				"totalDeaths":      ls.deathCount,
 				"ageUponDeath":     age,
 			}).Info()
