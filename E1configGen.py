@@ -86,7 +86,7 @@ for foodPerAgent in [5]:
                     "LogMain": {LogMain},
                     "LogStory": {LogStory},
                     "SimTimeoutSeconds": {SimTimeoutSeconds},
-                    "LogFileName": {logName}
+                    "LogFileName": "{logName}"
                 """
                 jsonString = "{" + jsonString + "}"
                 f = open(f"configs/{configName}.json", "w")
