@@ -37,70 +37,70 @@ export default function ScatterChart(props: ScatterChartProps) {
   };
   return (
     <div className="d-flex justify-content-center">
-    <div className="border rounded" style={{ width: "95%", padding: 10 }}>
-      <Scatter
-        id={uuid}
-        data={{
-          datasets: [
-            {
-              data: Array.from(xAxis.keys()).map((i) => {
-                return { x: xAxis[i], y: yAxis[i] };
-              }),
-              showLine: true,
-              label: graphTitle,
-              pointBackgroundColor: Colors.BLUE1,
-              backgroundColor: Colors.BLUE1,
-              borderColor: Colors.BLUE1,
-            },
-          ],
-        }}
-        options={{
-          plugins: {
-            zoom: {
-              pan: {
-                enabled: true,
-                onPanStart({ chart, point }) {
-                  const area = chart.chartArea;
-                  if (point.x < area.left || point.x > area.right || point.y < area.top || point.y > area.bottom) {
-                    return false; // abort
-                  }
-                },
-                mode: "xy",
+      <div className="border rounded" style={{ width: "95%", padding: 10 }}>
+        <Scatter
+          id={uuid}
+          data={{
+            datasets: [
+              {
+                data: Array.from(xAxis.keys()).map((i) => {
+                  return { x: xAxis[i], y: yAxis[i] };
+                }),
+                showLine: true,
+                label: graphTitle,
+                pointBackgroundColor: Colors.BLUE1,
+                backgroundColor: Colors.BLUE1,
+                borderColor: Colors.BLUE1,
               },
-              limits: {
-                y: { min: Min(yAxis), max: Max(yAxis) },
-                x: { min: Min(xAxis), max: Max(xAxis) },
-              },
+            ],
+          }}
+          options={{
+            plugins: {
               zoom: {
-                wheel: {
+                pan: {
                   enabled: true,
+                  onPanStart({ chart, point }) {
+                    const area = chart.chartArea;
+                    if (point.x < area.left || point.x > area.right || point.y < area.top || point.y > area.bottom) {
+                      return false; // abort
+                    }
+                  },
+                  mode: "xy",
                 },
-                mode: "xy",
-              },
-            },
-          },
-          scales: {
-            y: {
-              ticks: {
-                // Include a dollar sign in the ticks
-                callback: function (value, index, ticks) {
-                  // when the floored value is the same as the value we have a whole number
-                  return (Math.round((value as number) * 100) / 100).toFixed(2) + " " + (yUnit ? yUnit : "");
+                limits: {
+                  y: { min: Min(yAxis), max: Max(yAxis) },
+                  x: { min: Min(xAxis), max: Max(xAxis) },
                 },
-              },
-            },
-            x: {
-              ticks: {
-                // Include a dollar sign in the ticks
-                callback: function (value, index, ticks) {
-                  return (Math.round((value as number) * 100) / 100).toFixed(2) + " " + (xUnit ? xUnit : "");
+                zoom: {
+                  wheel: {
+                    enabled: true,
+                  },
+                  mode: "xy",
                 },
               },
             },
-          },
-        }}
-      />
-      <Button text="Reset Zoom" onClick={() => resetChart()} />
+            scales: {
+              y: {
+                ticks: {
+                  // Include a dollar sign in the ticks
+                  callback: function (value, index, ticks) {
+                    // when the floored value is the same as the value we have a whole number
+                    return (Math.round((value as number) * 100) / 100).toFixed(2) + " " + (yUnit ? yUnit : "");
+                  },
+                },
+              },
+              x: {
+                ticks: {
+                  // Include a dollar sign in the ticks
+                  callback: function (value, index, ticks) {
+                    return (Math.round((value as number) * 100) / 100).toFixed(2) + " " + (xUnit ? xUnit : "");
+                  },
+                },
+              },
+            },
+          }}
+        />
+        <Button text="Reset Zoom" onClick={() => resetChart()} />
       </div>
     </div>
   );
