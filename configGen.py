@@ -372,4 +372,8 @@ for playerA in [2,3,4,5,6,7]:
         jsonString = "{" + jsonString + "}"
         f = open(f"configs/{configName}.json", "w")
         f.write(jsonString)
+<<<<<<< HEAD
         f.close()
+=======
+        f.close()
+>>>>>>> adding config genrator scripts and a way to run all of them
