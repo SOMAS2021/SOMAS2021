@@ -89,7 +89,7 @@ for reshuffleFrequency in [2,7,14]: # effect of reshuffleFrequency
                             "LogMain": {LogMain},
                             "LogStory": {LogStory},
                             "SimTimeoutSeconds": {SimTimeoutSeconds},
-                            "LogFileName": {logName}
+                            "LogFileName": "{logName}"
                         """
                         jsonString = "{" + jsonString + "}"
                         f = open(f"configs/{configName}.json", "w")

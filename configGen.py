@@ -86,7 +86,7 @@ for foodPerAgent in [5]:
                     "LogMain": {LogMain},
                     "LogStory": {LogStory},
                     "SimTimeoutSeconds": {SimTimeoutSeconds},
-                    "LogFileName": {logName}
+                    "LogFileName": "{logName}"
                 """
                 jsonString = "{" + jsonString + "}"
                 f = open(f"configs/{configName}.json", "w")
@@ -153,7 +153,7 @@ for reshuffleFrequency in [2,7,14]: # effect of reshuffleFrequency
                             "LogMain": {LogMain},
                             "LogStory": {LogStory},
                             "SimTimeoutSeconds": {SimTimeoutSeconds},
-                            "LogFileName": {logName}
+                            "LogFileName": "{logName}"
                         """
                         jsonString = "{" + jsonString + "}"
                         f = open(f"configs/{configName}.json", "w")
@@ -230,7 +230,7 @@ for foodPerAgent in [5]:
                     "LogMain": {LogMain},
                     "LogStory": {LogStory},
                     "SimTimeoutSeconds": {SimTimeoutSeconds},
-                    "LogFileName": {logName}
+                    "LogFileName": "{logName}"
                 """
                 
                 jsonString = "{" + jsonString + "}"
@@ -299,7 +299,7 @@ for playerA in [2,3,4,5,6,7]:
             "LogMain": {LogMain},
             "LogStory": {LogStory},
             "SimTimeoutSeconds": {SimTimeoutSeconds},
-            "LogFileName": {logName}
+            "LogFileName": "{logName}"
         """
         
         jsonString = "{" + jsonString + "}"
@@ -366,7 +366,7 @@ for playerA in [2,3,4,5,6,7]:
             "LogMain": {LogMain},
             "LogStory": {LogStory},
             "SimTimeoutSeconds": {SimTimeoutSeconds},
-            "LogFileName": {logName}
+            "LogFileName": "{logName}"
         """
         
         jsonString = "{" + jsonString + "}"
@@ -510,3 +510,5 @@ for playerA in [2,3,4,5,6,7]:
         f.write(jsonString)
         f.close()
 >>>>>>> adding config genrator scripts and a way to run all of them
+=======
+>>>>>>> fixed string bug

@@ -90,7 +90,7 @@ for playerA in [2,3,4,5,6,7]:
             "LogMain": {LogMain},
             "LogStory": {LogStory},
             "SimTimeoutSeconds": {SimTimeoutSeconds},
-            "LogFileName": {logName}
+            "LogFileName": "{logName}"
         """
         
         jsonString = "{" + jsonString + "}"
