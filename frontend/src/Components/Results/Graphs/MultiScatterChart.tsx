@@ -85,7 +85,6 @@ export default function MultiScatterChart(props: MultiScatterChartProps) {
             scales: {
               y: {
                 ticks: {
-                  // Include a dollar sign in the ticks
                   callback: function (value, index, ticks) {
                     return (Math.round((value as number) * 100) / 100).toFixed(2) + " " + (yUnit ? yUnit : "");
                   },
@@ -93,7 +92,6 @@ export default function MultiScatterChart(props: MultiScatterChartProps) {
               },
               x: {
                 ticks: {
-                  // Include a dollar sign in the ticks
                   callback: function (value, index, ticks) {
                     return (Math.round((value as number) * 100) / 100).toFixed(2) + " " + (xUnit ? xUnit : "");
                   },

@@ -82,16 +82,13 @@ export default function ScatterChart(props: ScatterChartProps) {
             scales: {
               y: {
                 ticks: {
-                  // Include a dollar sign in the ticks
                   callback: function (value, index, ticks) {
-                    // when the floored value is the same as the value we have a whole number
                     return (Math.round((value as number) * 100) / 100).toFixed(2) + " " + (yUnit ? yUnit : "");
                   },
                 },
               },
               x: {
                 ticks: {
-                  // Include a dollar sign in the ticks
                   callback: function (value, index, ticks) {
                     return (Math.round((value as number) * 100) / 100).toFixed(2) + " " + (xUnit ? xUnit : "");
                   },
