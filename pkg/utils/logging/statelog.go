@@ -11,7 +11,7 @@ import (
 )
 
 type msgMap [12][8]int
-type treatyResponsesCount [2][9]int // 0 for reject, 1 for accept
+type treatyResponsesCount [2][8]int // 0 for reject, 1 for accept
 
 type StateLog struct {
 	Logmanager *LogManager
