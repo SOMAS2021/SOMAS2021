@@ -1,7 +1,8 @@
 import csv
+from encodings import utf_8
 import os
 
-NUM_ITERS = 3
+NUM_ITERS = 10
 
 DEATH_FILE = "csvFiles/deaths.csv"
 SOCIAL_MOTIVES_FILE = "csvFiles/socialMotives.csv"
@@ -50,7 +51,7 @@ def createTotalFile(mode):
     
     totalFile = open(totalFileName, mode='w+')
     writer = csv.writer(totalFile)
-    with open(fileName, "rb") as f:
+    with open(fileName, "r") as f:
         reader = csv.reader(f)
         for row in reader:
             ls.append(row)
@@ -124,7 +125,7 @@ def updateTotalFile(mode):
 
     totalFile = open(totalFileName, mode='w+')
     writer = csv.writer(totalFile)
-    with open(fileName, "rb") as f:
+    with open(fileName, "r") as f:
         reader = csv.reader(f)
         for j, row in enumerate(reader):
             if j == 0:
