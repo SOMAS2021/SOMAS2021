@@ -17,10 +17,12 @@ interface MultiScatterChartProps {
   yAxis: number[][];
   graphTitle: string[];
   color: string[];
+  yUnit?: string;
+  xUnit?: string;
 }
 
 export default function MultiScatterChart(props: MultiScatterChartProps) {
-  const { xAxis, yAxis, graphTitle, color } = props;
+  const { xAxis, yAxis, graphTitle, color, xUnit, yUnit } = props;
   var datasets = [];
   for (let d = 0; d < graphTitle.length; d++) {
     datasets.push({
@@ -38,6 +40,26 @@ export default function MultiScatterChart(props: MultiScatterChartProps) {
     <Scatter
       data={{
         datasets: datasets,
+      }}
+      options={{
+        scales: {
+          y: {
+            ticks: {
+              // Include a dollar sign in the ticks
+              callback: function (value, index, ticks) {
+                return value + " " + (yUnit ? yUnit : "");
+              },
+            },
+          },
+          x: {
+            ticks: {
+              // Include a dollar sign in the ticks
+              callback: function (value, index, ticks) {
+                return value + " " + (xUnit ? xUnit : "");
+              },
+            },
+          },
+        },
       }}
     />
   );

@@ -11,6 +11,7 @@ import (
 )
 
 type msgMap [12][8]int
+type deathMap [8]int
 type treatyResponsesCount [2][8]int // 0 for reject, 1 for accept
 
 type StateLog struct {
@@ -24,6 +25,7 @@ type StateLog struct {
 	msgLogger     *log.Logger
 	// Death state
 	deathCount int
+	deaths     deathMap
 	// Food state
 	prevFood int
 	// Messages state
@@ -83,6 +85,9 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 	var msgs msgMap
 	var treatyResponses treatyResponsesCount
 
+	// Init death counter
+	var deaths deathMap
+
 	return &StateLog{
 		Logmanager:      &l,
 		foodLogger:      foodLogger,
@@ -95,6 +100,7 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 		treatyResponses: &treatyResponses,
 		msgMx:           &sync.Mutex{},
 		deathCount:      0,
+		deaths:          deaths,
 		prevFood:        0,
 		CustomLog:       customLog,
 	}
@@ -103,13 +109,16 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 // Death loggging
 func (ls *StateLog) LogAgentDeath(simState *day.DayInfo, agentType agent.AgentType, age int) {
 	ls.deathCount++
+	temp := ls.deaths[agentType] + 1
+	ls.deaths[agentType] = temp
 	ls.deathLogger.
 		WithFields(
 			log.Fields{
 				"day":              simState.CurrDay,
 				"tick":             simState.CurrTick,
 				"agent_type":       agentType.String(),
-				"cumulativeDeaths": ls.deathCount,
+				"cumulativeDeaths": ls.deaths[agentType],
+				"totalDeaths":      ls.deathCount,
 				"ageUponDeath":     age,
 			}).Info()
 }

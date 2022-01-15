@@ -17,10 +17,12 @@ interface ScatterChartProps {
   xAxis: number[];
   yAxis: number[];
   graphTitle: string;
+  yUnit?: string;
+  xUnit?: string;
 }
 
 export default function ScatterChart(props: ScatterChartProps) {
-  const { xAxis, yAxis, graphTitle } = props;
+  const { xAxis, yAxis, graphTitle, yUnit, xUnit } = props;
   return (
     <Scatter
       data={{
@@ -36,6 +38,26 @@ export default function ScatterChart(props: ScatterChartProps) {
             borderColor: Colors.BLUE1,
           },
         ],
+      }}
+      options={{
+        scales: {
+          y: {
+            ticks: {
+              // Include a dollar sign in the ticks
+              callback: function (value, index, ticks) {
+                return value + " " + (yUnit ? yUnit : "");
+              },
+            },
+          },
+          x: {
+            ticks: {
+              // Include a dollar sign in the ticks
+              callback: function (value, index, ticks) {
+                return value + " " + (xUnit ? xUnit : "");
+              },
+            },
+          },
+        },
       }}
     />
   );
