@@ -51,7 +51,7 @@ export default function MultiScatterChart(props: MultiScatterChartProps) {
   };
   return (
     <div className="d-flex justify-content-center">
-      <div className="border rounded" style={{ width: "90%" }}>
+      <div className="border rounded" style={{ width: "95%", padding: 10 }}>
         <Scatter
           id={uuid}
           data={{
@@ -78,7 +78,7 @@ export default function MultiScatterChart(props: MultiScatterChartProps) {
                   wheel: {
                     enabled: true,
                   },
-                  mode: "x",
+                  mode: "xy",
                 },
               },
             },
@@ -87,7 +87,7 @@ export default function MultiScatterChart(props: MultiScatterChartProps) {
                 ticks: {
                   // Include a dollar sign in the ticks
                   callback: function (value, index, ticks) {
-                    return value + " " + (yUnit ? yUnit : "");
+                    return (Math.round((value as number) * 100) / 100).toFixed(2) + " " + (yUnit ? yUnit : "");
                   },
                 },
               },
@@ -95,7 +95,7 @@ export default function MultiScatterChart(props: MultiScatterChartProps) {
                 ticks: {
                   // Include a dollar sign in the ticks
                   callback: function (value, index, ticks) {
-                    return value + " " + (xUnit ? xUnit : "");
+                    return (Math.round((value as number) * 100) / 100).toFixed(2) + " " + (xUnit ? xUnit : "");
                   },
                 },
               },

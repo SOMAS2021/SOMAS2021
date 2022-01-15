@@ -36,7 +36,8 @@ export default function ScatterChart(props: ScatterChartProps) {
     }
   };
   return (
-    <div>
+    <div className="d-flex justify-content-center">
+    <div className="border rounded" style={{ width: "95%", padding: 10 }}>
       <Scatter
         id={uuid}
         data={{
@@ -56,15 +57,25 @@ export default function ScatterChart(props: ScatterChartProps) {
         options={{
           plugins: {
             zoom: {
+              pan: {
+                enabled: true,
+                onPanStart({ chart, point }) {
+                  const area = chart.chartArea;
+                  if (point.x < area.left || point.x > area.right || point.y < area.top || point.y > area.bottom) {
+                    return false; // abort
+                  }
+                },
+                mode: "xy",
+              },
               limits: {
                 y: { min: Min(yAxis), max: Max(yAxis) },
                 x: { min: Min(xAxis), max: Max(xAxis) },
               },
               zoom: {
-                drag: {
+                wheel: {
                   enabled: true,
                 },
-                mode: "x",
+                mode: "xy",
               },
             },
           },
@@ -90,6 +101,7 @@ export default function ScatterChart(props: ScatterChartProps) {
         }}
       />
       <Button text="Reset Zoom" onClick={() => resetChart()} />
+      </div>
     </div>
   );
 }
