@@ -124,7 +124,7 @@ func (ls *StateLog) LogAgentDeath(simState *day.DayInfo, agentType agent.AgentTy
 }
 
 // Utility logging
-func (ls *StateLog) LogUtility(simState *day.DayInfo, agentType agent.AgentType, utility float64, isAlive bool) {
+func (ls *StateLog) LogUtility(simState *day.DayInfo, agentType agent.AgentType, utility float64, isAlive bool, floor int, floorCount int) {
 	ls.utilityLogger.
 		WithFields(
 			log.Fields{
@@ -133,18 +133,22 @@ func (ls *StateLog) LogUtility(simState *day.DayInfo, agentType agent.AgentType,
 				"agent_type": agentType.String(),
 				"utility":    utility,
 				"isAlive":    isAlive,
+				"floor":      floor,
+				"floorCount": floorCount,
 			}).Info()
 }
 
 // Food logging
-func (ls *StateLog) LogPlatFoodState(simState *day.DayInfo, food int) {
+func (ls *StateLog) LogPlatFoodState(simState *day.DayInfo, food int, floor int, floorCount int) {
 	if ls.prevFood != food {
 		ls.foodLogger.
 			WithFields(
 				log.Fields{
-					"day":  simState.CurrDay,
-					"tick": simState.CurrTick,
-					"food": food,
+					"day":        simState.CurrDay,
+					"tick":       simState.CurrTick,
+					"food":       food,
+					"floor":      floor,
+					"floorCount": floorCount,
 				}).Info()
 		ls.prevFood = food
 	}
