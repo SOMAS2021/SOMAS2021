@@ -13,21 +13,25 @@ import (
 type msgMap [12][8]int
 type deathMap [8]int
 type treatyResponsesCount [2][8]int // 0 for reject, 1 for accept
+type foodFloorMap []int
 
 type StateLog struct {
 	Logmanager *LogManager
 	// Loggers
-	foodLogger    *log.Logger
-	deathLogger   *log.Logger
-	storyLogger   *log.Logger
-	mainLogger    *log.Logger
-	utilityLogger *log.Logger
-	msgLogger     *log.Logger
+	foodDayLogger   *log.Logger
+	foodFloorLogger *log.Logger
+	deathLogger     *log.Logger
+	storyLogger     *log.Logger
+	mainLogger      *log.Logger
+	utilityLogger   *log.Logger
+	msgLogger       *log.Logger
 	// Death state
 	deathCount int
 	deaths     deathMap
 	// Food state
-	prevFood int
+	prevFood     int
+	foodFloorMap foodFloorMap
+	prevFloor    int
 	// Messages state
 	messages        *msgMap
 	treatyResponses *treatyResponsesCount
@@ -51,7 +55,7 @@ func handleNewLoggerErr(err error) {
 	}
 }
 
-func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customLog string) *StateLog {
+func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customLog string, floorCount int) *StateLog {
 	// init manager
 	l := NewLogger(folderpath)
 
@@ -68,7 +72,9 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 	}
 
 	// new loggers
-	foodLogger, err := l.AddLogger("food", "food.json")
+	foodDayLogger, err := l.AddLogger("foodDay", "foodDay.json")
+	handleNewLoggerErr(err)
+	foodFloorLogger, err := l.AddLogger("foodFloor", "foodFloor.json")
 	handleNewLoggerErr(err)
 	deathLogger, err := l.AddLogger("death", "death.json")
 	handleNewLoggerErr(err)
@@ -90,7 +96,8 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 
 	return &StateLog{
 		Logmanager:      &l,
-		foodLogger:      foodLogger,
+		foodDayLogger:   foodDayLogger,
+		foodFloorLogger: foodFloorLogger,
 		deathLogger:     deathLogger,
 		mainLogger:      mainLogger,
 		storyLogger:     storyLogger,
@@ -103,6 +110,7 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 		deaths:          deaths,
 		prevFood:        0,
 		CustomLog:       customLog,
+		foodFloorMap:    make(foodFloorMap, floorCount),
 	}
 }
 
@@ -139,19 +147,25 @@ func (ls *StateLog) LogUtility(simState *day.DayInfo, agentType agent.AgentType,
 }
 
 // Food logging
-func (ls *StateLog) LogPlatFoodState(simState *day.DayInfo, food int, floor int, floorCount int) {
+func (ls *StateLog) LogPlatFoodDayState(simState *day.DayInfo, food int) {
 	if ls.prevFood != food {
-		ls.foodLogger.
+		ls.foodDayLogger.
 			WithFields(
 				log.Fields{
-					"day":        simState.CurrDay,
-					"tick":       simState.CurrTick,
-					"food":       food,
-					"floor":      floor,
-					"floorCount": floorCount,
+					"day":  simState.CurrDay,
+					"tick": simState.CurrTick,
+					"food": food,
 				}).Info()
 		ls.prevFood = food
 	}
+}
+
+func (ls *StateLog) LogPlatFoodFloorState(simState *day.DayInfo, food int, floor int, floorCount int) {
+	if ls.prevFloor != floor {
+		temp := ls.foodFloorMap[floor-1] + food
+		ls.foodFloorMap[floor-1] = temp
+	}
+	ls.prevFloor = floor
 }
 
 // Messages logging
@@ -255,4 +269,16 @@ func (ls *StateLog) SimEnd(simState *day.DayInfo) {
 			},
 		).Info()
 
+	// Dispatch food per floor state
+	for i := 0; i < len(ls.foodFloorMap); i++ {
+		ls.foodFloorLogger.
+			WithFields(
+				log.Fields{
+					"day":   simState.CurrDay,
+					"tick":  simState.CurrTick,
+					"floor": i + 1,
+					"food":  ls.foodFloorMap[i] / simState.SimulationDays,
+				},
+			).Info()
+	}
 }

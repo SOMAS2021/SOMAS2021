@@ -37,7 +37,8 @@ func (t *Tower) Log(message string, fields ...Fields) {
 
 func (t *Tower) TowerStateLog(timeOfTick string) {
 	t.Log("Reporting platform status"+timeOfTick, Fields{"food_left": t.currPlatFood, "floor": t.currPlatFloor})
-	t.stateLog.LogPlatFoodState(t.dayInfo, int(t.currPlatFood), t.currPlatFloor, t.floorCount)
+	t.stateLog.LogPlatFoodDayState(t.dayInfo, int(t.currPlatFood))
+	t.stateLog.LogPlatFoodFloorState(t.dayInfo, int(t.currPlatFood), t.currPlatFloor, t.floorCount)
 }
 
 func NewTower(maxPlatFood food.FoodType, agentCount int,

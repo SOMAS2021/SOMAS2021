@@ -1,4 +1,4 @@
-import { Divider, H4 } from "@blueprintjs/core";
+import { Colors, Divider, H4 } from "@blueprintjs/core";
 import {
   AverageUtilityPerAgent,
   ParseMessageStats,
@@ -32,13 +32,23 @@ export default function OtherStats(props: StatsViewerProps) {
           />
         </div>
         <div className="col-lg-6"></div>
-        <div className="col-lg-6">
+        <div className="col-lg-12">
           <ScatterChart
             yAxis={result.food.map((f) => f.food)}
             xAxis={result.food.map((f) => f.day)}
             graphTitle="Total Food on Platform per Day"
             xUnit="days"
             yUnit="food"
+          />
+        </div>
+        <div className="col-lg-6">
+          <ScatterChart
+            yAxis={result.foodFloor.map((f) => f.food)}
+            xAxis={result.foodFloor.map((f) => f.floor)}
+            graphTitle="Average Food on Platform per Floor"
+            xUnit="floor"
+            yUnit="food"
+            color={Colors.ORANGE1}
           />
         </div>
         <div className="col-lg-6">
