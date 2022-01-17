@@ -17,6 +17,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Generic agent interace
 type Agent interface {
 	Run()
 	IsAlive() bool
@@ -37,8 +38,10 @@ type Agent interface {
 	CustomLogs()
 }
 
+// Fields custom type for logging
 type Fields = log.Fields
 
+// Base agent parameters (which any agent should have)
 type Base struct {
 	id             uuid.UUID
 	hp             int

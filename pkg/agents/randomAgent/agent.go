@@ -9,7 +9,6 @@ import (
 
 type CustomAgentRandom struct {
 	*infra.Base
-	// new params
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
