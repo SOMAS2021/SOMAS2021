@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/config"
+	"github.com/SOMAS2021/SOMAS2021/pkg/simulation"
 	"github.com/SOMAS2021/SOMAS2021/pkg/utils/logging"
 	log "github.com/sirupsen/logrus"
 )
@@ -42,22 +43,26 @@ func LocalRun(configPath string, customLogs string) {
 
 	ch := make(chan string, 1)
 
+	var sE simulation.SimEnv
+
 	go func() {
 		log.Info("Simulation started")
 		parameters.CustomLog = customLogs
-		RunNewSimulation(parameters, logFolderName, ctx, ch)
+		sE = RunNewSimulation(parameters, logFolderName, ctx, ch)
 	}()
 
 	// Listen on our channel AND a timeout channel - which ever happens first.
 	select {
 	case <-ch:
 		log.Info("Simulation Finished Successfully")
+		sE.PostSim()
 		err = logging.UpdateSimStatusJson(logFolderName, "finished", GetMaxTick(logFolderName+"/story.json"))
 		if err != nil {
 			log.Fatal("Unable to update status file: " + err.Error())
 			return
 		}
 	case <-time.After(time.Duration(parameters.SimTimeoutSeconds) * time.Second):
+		sE.PostSim()
 		err = logging.UpdateSimStatusJson(logFolderName, "timedout", GetMaxTick(logFolderName+"/story.json"))
 		if err != nil {
 			log.Fatal("Unable to update status file: " + err.Error())

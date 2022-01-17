@@ -1,10 +1,11 @@
 import { GetFile } from "../API";
 import { Log } from "./Log";
 
-export interface DeathLog extends Log{
-  cumulativeDeaths: number
-  agentType: string
-  ageUponDeath: number
+export interface DeathLog extends Log {
+  cumulativeDeaths: number;
+  totalDeaths: number;
+  agentType: string;
+  ageUponDeath: number;
 }
 
 export function GetDeathLogs(filename: string): Promise<DeathLog[]> {
@@ -15,6 +16,7 @@ export function GetDeathLogs(filename: string): Promise<DeathLog[]> {
           deaths.map(function (e: any) {
             const d: DeathLog = {
               cumulativeDeaths: e["cumulativeDeaths"],
+              totalDeaths: e["totalDeaths"],
               agentType: e["agent_type"],
               tick: e["tick"],
               day: e["day"],

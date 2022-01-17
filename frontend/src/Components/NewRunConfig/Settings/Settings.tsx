@@ -5,7 +5,7 @@ import { Simulate } from "../../../Helpers/API";
 import TowerFood from "../ParameterGroups/TowerFood";
 import TowerLength from "../ParameterGroups/TowerLength";
 import AgentTypesParams from "../ParameterGroups/AgentTypes";
-import AgentGeneral from "../ParameterGroups/AgentGeneral";
+// import AgentGeneral from "../ParameterGroups/AgentGeneral";
 import FileName from "../ParameterGroups/FileName";
 
 interface SettingsInterface {
@@ -45,8 +45,8 @@ export default function Settings(props: SettingsInterface) {
             <Divider />
             <AgentTypesParams config={config} configHandler={configHandler} />
             <Divider />
-            <AgentGeneral config={config} configHandler={configHandler} />
-            <Divider />
+            {/* <AgentGeneral config={config} configHandler={configHandler} /> */}
+            {/* <Divider /> */}
             <FileName configHandler={configHandler} />
           </div>
           <div className="modal-footer">

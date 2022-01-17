@@ -13,13 +13,13 @@ import (
 )
 
 func (sE *SimEnv) SetWorld(w world.World) {
-	if sE.world == nil {
-		sE.world = w
+	if sE.Tower == nil {
+		sE.Tower = w
 	}
 }
 
 func (sE *SimEnv) World() world.World {
-	return sE.world
+	return sE.Tower
 }
 
 // For things that need to be done once per tick, before agents take action

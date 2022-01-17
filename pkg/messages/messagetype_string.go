@@ -10,23 +10,21 @@ func _() {
 	var x [1]struct{}
 	_ = x[AskFoodTaken-1]
 	_ = x[AskHP-2]
-	_ = x[AskFoodOnPlatform-3]
-	_ = x[AskIntendedFoodIntake-4]
-	_ = x[StateFoodTaken-5]
-	_ = x[StateHP-6]
-	_ = x[StateFoodOnPlatform-7]
-	_ = x[StateIntendedFoodIntake-8]
-	_ = x[StateResponse-9]
-	_ = x[ProposeTreaty-10]
-	_ = x[RequestLeaveFood-11]
-	_ = x[RequestTakeFood-12]
-	_ = x[Response-13]
-	_ = x[TreatyResponse-14]
+	_ = x[AskIntendedFoodIntake-3]
+	_ = x[StateFoodTaken-4]
+	_ = x[StateHP-5]
+	_ = x[StateIntendedFoodIntake-6]
+	_ = x[StateResponse-7]
+	_ = x[ProposeTreaty-8]
+	_ = x[RequestLeaveFood-9]
+	_ = x[RequestTakeFood-10]
+	_ = x[Response-11]
+	_ = x[TreatyResponse-12]
 }
 
-const _MessageType_name = "AskFoodTakenAskHPAskFoodOnPlatformAskIntendedFoodIntakeStateFoodTakenStateHPStateFoodOnPlatformStateIntendedFoodIntakeStateResponseProposeTreatyRequestLeaveFoodRequestTakeFoodResponseTreatyResponse"
+const _MessageType_name = "AskFoodTakenAskHPAskIntendedFoodIntakeStateFoodTakenStateHPStateIntendedFoodIntakeStateResponseProposeTreatyRequestLeaveFoodRequestTakeFoodResponseTreatyResponse"
 
-var _MessageType_index = [...]uint8{0, 12, 17, 34, 55, 69, 76, 95, 118, 131, 144, 160, 175, 183, 197}
+var _MessageType_index = [...]uint8{0, 12, 17, 38, 52, 59, 82, 95, 108, 124, 139, 147, 161}
 
 func (i MessageType) String() string {
 	i -= 1

@@ -1,7 +1,7 @@
 import { GetFile } from "./API";
 import { UtilityLog } from "./Logging/Utility";
 import { DeathLog, GetDeathLogs } from "./Logging/Death";
-import { FoodLog, GetFoodLogs } from "./Logging/Food";
+import { FoodFloorLog, FoodLog, GetFoodFloorLogs, GetFoodLogs } from "./Logging/Food";
 import { GetSimConfig, SimConfig } from "./SimConfig";
 import { GetUtilityLogs } from "./Logging/Utility";
 import { GetMessagesLog, MessagesLog } from "./Logging/Message";
@@ -14,17 +14,19 @@ export enum SimStatusExec {
 
 export interface SimStatus {
   status: SimStatusExec;
-  maxTick: number;
+  maxStoryTick: number;
 }
 
 export interface Result {
   title: string;
   deaths: DeathLog[];
   food: FoodLog[];
+  foodFloor: FoodFloorLog[];
   config: SimConfig;
   simStatus: SimStatus;
   utility: UtilityLog[];
   messages: MessagesLog;
+  maxTick: number;
 }
 
 function GetSimStatus(filename: string): Promise<SimStatus> {
@@ -33,7 +35,7 @@ function GetSimStatus(filename: string): Promise<SimStatus> {
       .then((status) => {
         var s: SimStatus = {
           status: SimStatusExec.finished,
-          maxTick: status[0]["maxTick"],
+          maxStoryTick: status[0]["maxTick"],
         };
         switch (status[0]["status"]) {
           case SimStatusExec[SimStatusExec.finished]:
@@ -66,6 +68,10 @@ export function GetResult(filename: string): Promise<Result> {
     var foods: FoodLog[] = [];
     promises.push(GetFoodLogs(filename).then((f) => (foods = f)));
 
+    // other food logs
+    var foodsFloor: FoodFloorLog[] = [];
+    promises.push(GetFoodFloorLogs(filename).then((f) => (foodsFloor = f)));
+
     // config
     var config: SimConfig = undefined!;
     promises.push(GetSimConfig(filename).then((c) => (config = c)));
@@ -73,7 +79,7 @@ export function GetResult(filename: string): Promise<Result> {
     // status
     var status: SimStatus = {
       status: SimStatusExec.finished,
-      maxTick: 3000,
+      maxStoryTick: 3000,
     };
     promises.push(GetSimStatus(filename).then((s) => (status = s)));
 
@@ -86,16 +92,31 @@ export function GetResult(filename: string): Promise<Result> {
     promises.push(GetMessagesLog(filename).then((m) => (messages = m)));
 
     // all
-    Promise.all(promises).then((_) =>
+    Promise.all(promises).then((_) => {
+      // max tick is days * ticks per floor * floors
+      console.log(foodsFloor)
+      let maxTick =
+        config.TicksPerFloor *
+        config.SimDays *
+        (config.Team1Agents +
+          config.Team2Agents +
+          config.Team3Agents +
+          config.Team4Agents +
+          config.Team5Agents +
+          config.Team6Agents +
+          config.Team7Agents +
+          config.RandomAgents);
       resolve({
         title: filename,
         deaths: deaths,
         food: foods,
+        foodFloor: foodsFloor,
         config: config,
         simStatus: status,
         utility: utility,
         messages: messages,
-      })
-    );
+        maxTick: maxTick,
+      });
+    });
   });
 }

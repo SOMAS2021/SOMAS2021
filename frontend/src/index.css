@@ -49,3 +49,11 @@ body {
 .rotate {
   animation: rotation 2s;
 }
+
+.col-lg-6{
+  padding: 10px !important;
+}
+
+.col-lg-12{
+  padding: 10px !important;
+}

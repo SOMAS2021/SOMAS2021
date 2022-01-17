@@ -5,7 +5,6 @@ import (
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/randomAgent"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent1"
-	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team1/agent2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team3"
 
@@ -46,7 +45,7 @@ type SimEnv struct {
 	logger           log.Entry
 	dayInfo          *day.DayInfo
 	healthInfo       *health.HealthInfo
-	world            world.World
+	Tower            world.World
 	stateLog         *logging.StateLog
 	agentNewFuncs    map[agent.AgentType]AgentNewFunc
 	utilityCSVHeader [][]string
@@ -55,8 +54,7 @@ type SimEnv struct {
 }
 
 func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInfo) *SimEnv {
-	stateLog := logging.NewLogState(parameters.LogFolderName, parameters.LogMain, parameters.LogStory, parameters.CustomLog)
-	// numAgents := parameters.NumOfAgents[agent.RandomAgent]
+	stateLog := logging.NewLogState(parameters.LogFolderName, parameters.LogMain, parameters.LogStory, parameters.CustomLog, parameters.NumberOfFloors)
 	return &SimEnv{
 		FoodOnPlatform: parameters.FoodOnPlatform,
 		AgentCount:     parameters.NumOfAgents,
@@ -67,8 +65,7 @@ func NewSimEnv(parameters *config.ConfigParameters, healthInfo *health.HealthInf
 		logger:         *stateLog.Logmanager.GetLogger("main").WithFields(log.Fields{"reporter": "simulation"}),
 		stateLog:       stateLog,
 		agentNewFuncs: map[agent.AgentType]AgentNewFunc{
-			agent.Team1Agent1: agent1.New,
-			agent.Team1Agent2: agent2.New,
+			agent.Team1:       agent1.New,
 			agent.Team2:       team2.New,
 			agent.Team3:       team3.New,
 			agent.Team4:       team4EvoAgent.New,
@@ -128,6 +125,7 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 			agent.CustomLogs()
 		}
 	}
+	ch <- "Simulation Finished"
 
 	// Write data into respective CSV files
 	sE.ExportCSV(sE.dayInfo.BehaviourCtrData, "csvFiles/socialMotives.csv")
@@ -144,7 +142,6 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 
 	// dispatch loggers
 	sE.stateLog.SimEnd(sE.dayInfo)
-	ch <- "Simulation Finished"
 }
 
 func (sE *SimEnv) setSMCtr(agent infra.Agent) {
@@ -203,11 +200,11 @@ func (sE *SimEnv) clearUtilityCtr() {
 	sE.dayInfo.Utility = 0.0
 }
 
-func (s *SimEnv) Log(message string, fields ...Fields) {
+func (sE *SimEnv) Log(message string, fields ...Fields) {
 	if len(fields) == 0 {
 		fields = append(fields, Fields{})
 	}
-	s.logger.WithFields(fields[0]).Info(message)
+	sE.logger.WithFields(fields[0]).Info(message)
 }
 
 func transpose(slice [][]string) [][]string {

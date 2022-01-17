@@ -26,6 +26,7 @@ type Tower struct {
 	healthInfo     *health.HealthInfo
 	deadAgents     map[agent.AgentType]int
 	DeathCount     int
+	floorCount     int
 }
 
 func (t *Tower) Log(message string, fields ...Fields) {
@@ -37,10 +38,11 @@ func (t *Tower) Log(message string, fields ...Fields) {
 
 func (t *Tower) TowerStateLog(timeOfTick string) {
 	t.Log("Reporting platform status"+timeOfTick, Fields{"food_left": t.currPlatFood, "floor": t.currPlatFloor})
-	t.stateLog.LogPlatFoodState(t.dayInfo, int(t.currPlatFood))
+	t.stateLog.LogPlatFoodDayState(t.dayInfo, int(t.currPlatFood))
+	t.stateLog.LogPlatFoodFloorState(t.dayInfo, int(t.currPlatFood), t.currPlatFloor, t.floorCount)
 }
 
-func NewTower(maxPlatFood food.FoodType, agentCount,
+func NewTower(maxPlatFood food.FoodType, agentCount int,
 	agentsPerFloor int, dayInfo *day.DayInfo, healthInfo *health.HealthInfo, stateLog *logging.StateLog) *Tower {
 	return &Tower{
 		currPlatFood:   maxPlatFood,
@@ -55,6 +57,7 @@ func NewTower(maxPlatFood food.FoodType, agentCount,
 		healthInfo:     healthInfo,
 		deadAgents:     make(map[agent.AgentType]int),
 		DeathCount:     0,
+		floorCount:     int(agentCount / agentsPerFloor),
 	}
 }
 
@@ -104,7 +107,7 @@ func (t *Tower) endOfDay() {
 		agent.hpDecay(t.healthInfo)
 		agent.increaseAge()
 		agent.updateTreaties()
-		t.stateLog.LogUtility(t.dayInfo, agent.agentType, agent.utility, agent.IsAlive())
+		t.stateLog.LogUtility(t.dayInfo, agent.agentType, agent.utility, agent.IsAlive(), agent.floor, t.floorCount)
 		agent.utility = 0
 	}
 	t.dayInfo.CurrDay += 1
