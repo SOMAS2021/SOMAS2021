@@ -41,7 +41,6 @@ func (a *CustomAgent2) Run() {
 	} else {
 		a.Log("I got no thing")
 	}
-
 }
 
 // Message handling example
