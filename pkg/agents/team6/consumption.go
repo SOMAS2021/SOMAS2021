@@ -1,7 +1,6 @@
 package team6
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 
@@ -123,7 +122,7 @@ func (a *CustomAgent6) intendedFoodIntake() food.FoodType {
 
 	var foodIntake food.FoodType
 
-	fmt.Println(desiredFoodIntake, maxAllowedFood)
+	// fmt.Println(desiredFoodIntake, maxAllowedFood)
 	if maxAllowedFood >= desiredFoodIntake {
 		foodIntake = desiredFoodIntake
 	} else {

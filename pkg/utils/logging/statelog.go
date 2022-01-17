@@ -2,6 +2,7 @@ package logging
 
 import (
 	"fmt"
+	"strconv"
 	"sync"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -13,7 +14,7 @@ import (
 type msgMap [12][8]int
 type deathMap [8]int
 type treatyResponsesCount [2][8]int // 0 for reject, 1 for accept
-type foodFloorMap []int
+type FoodFloorMap []int
 
 type StateLog struct {
 	Logmanager *LogManager
@@ -30,9 +31,10 @@ type StateLog struct {
 	deathCount int
 	deaths     deathMap
 	// Food state
-	prevFood     int
-	foodFloorMap foodFloorMap
-	prevFloor    int
+	prevFood           int
+	FoodFloorMap       FoodFloorMap
+	FoodFloorMapString [][]string
+	prevFloor          int
 	// Messages state
 	messages        *msgMap
 	treatyResponses *treatyResponsesCount
@@ -98,23 +100,24 @@ func NewLogState(folderpath string, saveMainLog bool, saveStoryLog bool, customL
 	var deaths deathMap
 
 	return &StateLog{
-		Logmanager:      &l,
-		foodDayLogger:   foodDayLogger,
-		foodFloorLogger: foodFloorLogger,
-		deathLogger:     deathLogger,
-		mainLogger:      mainLogger,
-		storyLogger:     storyLogger,
-		utilityLogger:   utilityLogger,
-		msgLogger:       msgLogger,
-		smCtrLogger:     smCtrLogger,
-		messages:        &msgs,
-		treatyResponses: &treatyResponses,
-		msgMx:           &sync.Mutex{},
-		deathCount:      0,
-		deaths:          deaths,
-		prevFood:        0,
-		CustomLog:       customLog,
-		foodFloorMap:    make(foodFloorMap, floorCount),
+		Logmanager:         &l,
+		foodDayLogger:      foodDayLogger,
+		foodFloorLogger:    foodFloorLogger,
+		deathLogger:        deathLogger,
+		mainLogger:         mainLogger,
+		storyLogger:        storyLogger,
+		utilityLogger:      utilityLogger,
+		msgLogger:          msgLogger,
+		smCtrLogger:        smCtrLogger,
+		messages:           &msgs,
+		treatyResponses:    &treatyResponses,
+		msgMx:              &sync.Mutex{},
+		deathCount:         0,
+		deaths:             deaths,
+		prevFood:           0,
+		CustomLog:          customLog,
+		FoodFloorMap:       make(FoodFloorMap, floorCount),
+		FoodFloorMapString: [][]string{},
 	}
 }
 
@@ -166,8 +169,8 @@ func (ls *StateLog) LogPlatFoodDayState(simState *day.DayInfo, food int) {
 
 func (ls *StateLog) LogPlatFoodFloorState(simState *day.DayInfo, food int, floor int, floorCount int) {
 	if ls.prevFloor != floor {
-		temp := ls.foodFloorMap[floor-1] + food
-		ls.foodFloorMap[floor-1] = temp
+		temp := ls.FoodFloorMap[floor-1] + food
+		ls.FoodFloorMap[floor-1] = temp
 	}
 	ls.prevFloor = floor
 }
@@ -285,15 +288,17 @@ func (ls *StateLog) SimEnd(simState *day.DayInfo) {
 			},
 		).Info()
 
+	ls.FoodFloorMapString = append(ls.FoodFloorMapString, []string{"Average Food"})
 	// Dispatch food per floor state
-	for i := 0; i < len(ls.foodFloorMap); i++ {
+	for i := 0; i < len(ls.FoodFloorMap); i++ {
+		ls.FoodFloorMapString = append(ls.FoodFloorMapString, []string{strconv.Itoa(int(ls.FoodFloorMap[i]))})
 		ls.foodFloorLogger.
 			WithFields(
 				log.Fields{
 					"day":   simState.CurrDay,
 					"tick":  simState.CurrTick,
 					"floor": i + 1,
-					"food":  ls.foodFloorMap[i] / simState.SimulationDays,
+					"food":  ls.FoodFloorMap[i] / simState.SimulationDays,
 				},
 			).Info()
 	}

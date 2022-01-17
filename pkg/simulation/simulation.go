@@ -8,6 +8,8 @@ import (
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team2"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team3"
 
+	"strconv"
+
 	team4EvoAgent "github.com/SOMAS2021/SOMAS2021/pkg/agents/team4/finalAgent"
 	team5 "github.com/SOMAS2021/SOMAS2021/pkg/agents/team5"
 	"github.com/SOMAS2021/SOMAS2021/pkg/agents/team6"
@@ -127,21 +129,27 @@ func (sE *SimEnv) Simulate(ctx context.Context, ch chan<- string) {
 	}
 	ch <- "Simulation Finished"
 
-	// Write data into respective CSV files
-	sE.ExportCSV(sE.dayInfo.BehaviourCtrData, "csvFiles/socialMotives.csv")
-	sE.ExportCSV(sE.dayInfo.BehaviourChangeCtrData, "csvFiles/socialMotivesChange.csv")
-	sE.ExportCSV(sE.dayInfo.UtilityData, "csvFiles/utility.csv")
-	sE.ExportCSV(sE.dayInfo.DeathData, "csvFiles/deaths.csv")
+	sE.stateLog.FoodFloorMapString = append(sE.stateLog.FoodFloorMapString, []string{"Average Food"})
+	for i := 0; i < len(sE.stateLog.FoodFloorMap); i++ {
+		sE.stateLog.FoodFloorMapString = append(sE.stateLog.FoodFloorMapString, []string{strconv.Itoa(int(sE.stateLog.FoodFloorMap[i] / sE.dayInfo.SimulationDays))})
+	}
 
-	// Export state data into respective CSV files
-	sE.ExportCSV(sE.dayInfo.StateData.ID, "csvFiles/states/id.csv")
-	sE.ExportCSV(sE.dayInfo.StateData.HP, "csvFiles/states/hp.csv")
-	sE.ExportCSV(sE.dayInfo.StateData.SM, "csvFiles/states/sm.csv")
-	sE.ExportCSV(sE.dayInfo.StateData.FoodAvailable, "csvFiles/states/foodAvailable.csv")
-	sE.ExportCSV(sE.dayInfo.StateData.Utility, "csvFiles/states/utility.csv")
+	// Export data into respective CSV files
+	sE.ExportCSV(sE.stateLog.FoodFloorMapString, "csvFiles/priceLaw.csv")
+	// sE.ExportCSV(sE.dayInfo.BehaviourCtrData, "csvFiles/socialMotives.csv")
+	// sE.ExportCSV(sE.dayInfo.BehaviourChangeCtrData, "csvFiles/socialMotivesChange.csv")
+	// sE.ExportCSV(sE.dayInfo.UtilityData, "csvFiles/utility.csv")
+	// sE.ExportCSV(sE.dayInfo.DeathData, "csvFiles/deaths.csv")
+
+	// // Export state data into respective CSV files
+	// sE.ExportCSV(sE.dayInfo.StateData.ID, "csvFiles/states/id.csv")
+	// sE.ExportCSV(sE.dayInfo.StateData.HP, "csvFiles/states/hp.csv")
+	// sE.ExportCSV(sE.dayInfo.StateData.SM, "csvFiles/states/sm.csv")
+	// sE.ExportCSV(sE.dayInfo.StateData.FoodAvailable, "csvFiles/states/foodAvailable.csv")
+	// sE.ExportCSV(sE.dayInfo.StateData.Utility, "csvFiles/states/utility.csv")
 
 	// dispatch loggers
-	sE.stateLog.SimEnd(sE.dayInfo)
+	// sE.stateLog.SimEnd(sE.dayInfo)
 }
 
 func (sE *SimEnv) setSMCtr(agent infra.Agent) {
@@ -220,4 +228,12 @@ func transpose(slice [][]string) [][]string {
 		}
 	}
 	return result
+}
+
+func (sE *SimEnv) PostSim() {
+
+	// dispatch loggers
+
+	sE.stateLog.SimEnd(sE.dayInfo)
+
 }
