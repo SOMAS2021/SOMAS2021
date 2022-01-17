@@ -22,10 +22,15 @@ interface ScatterChartProps {
   graphTitle: string;
   yUnit?: string;
   xUnit?: string;
+  color?: string;
 }
 
 export default function ScatterChart(props: ScatterChartProps) {
   const { xAxis, yAxis, graphTitle, yUnit, xUnit } = props;
+  var { color } = props;
+  if (color === undefined) {
+    color = Colors.BLUE1;
+  }
   const uuid = uniqueId("somas");
   const resetChart = () => {
     const x = ChartJS.getChart(uuid);
@@ -48,9 +53,9 @@ export default function ScatterChart(props: ScatterChartProps) {
                 }),
                 showLine: true,
                 label: graphTitle,
-                pointBackgroundColor: Colors.BLUE1,
-                backgroundColor: Colors.BLUE1,
-                borderColor: Colors.BLUE1,
+                pointBackgroundColor: color,
+                backgroundColor: color,
+                borderColor: color,
               },
             ],
           }}
