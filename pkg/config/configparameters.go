@@ -141,8 +141,6 @@ func CalculateDependentParameters(parameters *ConfigParameters) error {
 //This can happen if they are missing from the json config / http request, as they'd all be initialised to 0 / nil
 func CheckParametersAreValid(parameters *ConfigParameters) error {
 
-	//Checking that Food amount is valid
-
 	if parameters.UseFoodPerAgentRatio {
 		if parameters.FoodPerAgentRatio == 0 {
 			return errors.New("foodPerAgentRatio not initialised or set to 0")

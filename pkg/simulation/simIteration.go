@@ -40,7 +40,6 @@ func (sE *SimEnv) simulationLoop(t *infra.Tower, ctx context.Context) {
 		sE.AgentsRun(t)
 		sE.TowerTick()
 		sE.replaceAgents(t)
-		// t.TowerStateLog(" end of tick")
 		sE.dayInfo.CurrTick++
 
 		//returns if there is a timeout

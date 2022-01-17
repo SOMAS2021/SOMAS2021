@@ -8,7 +8,6 @@ import (
 type CustomAgent2 struct {
 	*infra.Base
 	myNumber int
-	// new params
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
@@ -18,6 +17,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 	}, nil
 }
 
+// Run function example
 func (a *CustomAgent2) Run() {
 	a.Log("Custom agent reporting status without using fields")
 	_, err := a.TakeFood(15)
@@ -41,9 +41,9 @@ func (a *CustomAgent2) Run() {
 	} else {
 		a.Log("I got no thing")
 	}
-
 }
 
+// Message handling example
 func (a *CustomAgent2) HandleAskHP(msg messages.AskHPMessage) {
 	reply := msg.Reply(a.ID(), a.Floor(), msg.SenderFloor(), a.HP())
 	a.SendMessage(reply)
