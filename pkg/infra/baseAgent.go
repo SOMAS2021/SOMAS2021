@@ -37,7 +37,7 @@ type Agent interface {
 	CustomLogs()
 	Behaviour() string
 	BehaviourChange() string
-	Utility() string
+	Utility() float64
 }
 
 type Fields = log.Fields
@@ -335,6 +335,17 @@ func (a *Base) BehaviourChange() string {
 	return "Not Team 6"
 }
 
-func (a *Base) Utility() string {
-	return fmt.Sprintf("%f", a.utility)
+func (a *Base) Utility() float64 {
+	return a.utility
+	// return fmt.Sprintf("%f", a.utility)
+}
+
+func (a *Base) SMCtr() []int {
+	ctr := []int{
+		a.tower.dayInfo.BehaviourCtr["Altruist"],
+		a.tower.dayInfo.BehaviourCtr["Collectivist"],
+		a.tower.dayInfo.BehaviourCtr["Selfish"],
+		a.tower.dayInfo.BehaviourCtr["Narcissist"],
+	}
+	return ctr
 }

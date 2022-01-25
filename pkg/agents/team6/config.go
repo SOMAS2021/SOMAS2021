@@ -2,6 +2,7 @@ package team6
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/infra"
@@ -20,6 +21,16 @@ type behaviour float64
 type neighbours struct {
 	above uuid.UUID
 	below uuid.UUID
+}
+
+type thresholdBehaviourPair struct {
+	threshold behaviour
+	bType     string
+}
+
+type behaviourParameterWeights struct {
+	HPWeight    float64
+	floorWeight float64
 }
 
 type utilityParameters struct {
@@ -47,6 +58,8 @@ type team6Config struct {
 	prevFoodDiscount float64
 	// maximum/minimum trust an agent can have of another
 	maxTrust int
+
+	behaviourMap []thresholdBehaviourPair
 }
 
 type CustomAgent6 struct {
@@ -86,24 +99,14 @@ type CustomAgent6 struct {
 	changeSM string
 }
 
-type thresholdBehaviourPair struct {
-	threshold behaviour
-	bType     string
-}
-
-type behaviourParameterWeights struct {
-	HPWeight    float64
-	floorWeight float64
-}
-
-var maxBehaviourThreshold behaviour = 10.0
+// var maxBehaviourThreshold behaviour = 10.0
 
 // Defines the initial/base behaviour of our agents
-func chooseInitialBehaviour() behaviour {
+func (a *CustomAgent6) chooseInitialBehaviour() behaviour {
 	// 1. Whole spectrum
-	//return behaviour(rand.Float64()) * maxBehaviourThreshold
+	return behaviour(rand.Float64()) * a.config.maxBehaviourThreshold
 	// 2. Only Collectivist
-	return behaviour(rand.Float64())*maxBehaviourThreshold/4 + 1
+	//return behaviour(rand.Float64())*4 + 1
 	// 3. Only Collectivist and Selfish, in a ratio 1/1
 	//return behaviour(rand.Float64())*(maxBehaviourThreshold-2) + 1
 	//return behaviour(rand.Float64())*4 + 1
@@ -117,21 +120,39 @@ func chooseInitialBehaviour() behaviour {
 	// 	return behaviour(rand.Float64())*4 + 1
 	// }
 	// 4. Genetic replacement
+	//return a.chooseBehaviourGenetic()
+}
+
+func (a *CustomAgent6) chooseBehaviourGenetic() behaviour {
+	smctr := a.SMCtr()
+	// fmt.Println(smctr)
+	smSoftmax := softmax(smctr)
+	// fmt.Println(smSoftmax)
+	randn := randnFromDistr(smSoftmax)
+	// fmt.Println(randn)
+	initBehaviour := a.randnToBehaviour(randn)
+	return initBehaviour
 }
 
 func New(baseAgent *infra.Base) (infra.Agent, error) {
-	initialBehaviour := chooseInitialBehaviour()
-	return &CustomAgent6{
+	initialBehaviour := behaviour(0) // Dummy variable, is changed immediately after assignment
+	a := &CustomAgent6{
 		Base: baseAgent,
 		config: team6Config{
 			baseBehaviour:         initialBehaviour,
 			stubbornness:          0.2,
-			maxBehaviourSwing:     0,
+			maxBehaviourSwing:     8,
 			paramWeights:          behaviourParameterWeights{HPWeight: 0.8, floorWeight: 0.2}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
-			maxBehaviourThreshold: maxBehaviourThreshold,
+			maxBehaviourThreshold: 10,
 			prevFoodDiscount:      0.6,
 			maxTrust:              25,
+			behaviourMap: []thresholdBehaviourPair{
+				{1, "Altruist"},
+				{5, "Collectivist"},
+				{9, "Selfish"},
+				{10, "Narcissist"},
+			},
 		},
 		currBehaviour:       initialBehaviour,
 		maxFloorGuess:       baseAgent.Floor() + 2,
@@ -151,7 +172,12 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		neighbours:          neighbours{above: uuid.Nil, below: uuid.Nil},
 		prevAge:             0,
 		prevSM:              initialBehaviour.string(),
-	}, nil
+	}
+
+	a.config.baseBehaviour = a.chooseInitialBehaviour()
+	a.currBehaviour = a.config.baseBehaviour
+
+	return a, nil
 }
 
 // Todo: define some sensible values
@@ -272,6 +298,8 @@ func (a *CustomAgent6) Run() {
 	// Everything you need to do once a day
 	if a.Age() != a.prevAge {
 		a.updateBehaviour()
+		a.reqLeaveFoodAmount = -1
+		a.reqTakeFoodAmount = -1
 
 		if a.currBehaviour.string() == "Collectivist" || a.currBehaviour.string() == "Selfish" {
 			treaty := a.constructTreaty()
@@ -401,4 +429,53 @@ func (a *CustomAgent6) updateChangeSMVariable() {
 		a.changeSM = "N/A"
 	}
 	// a.Log("SM Change summary", infra.Fields{"prevSM": a.prevSM, "currSM": a.currBehaviour.string(), "functionOutput": a.changeSM})
+}
+
+func (a *CustomAgent6) randnToBehaviour(randn int) behaviour {
+	// behaviourMap := [...]thresholdBehaviourPair{{1, "Altruist"}, {5, "Collectivist"}, {9, "Selfish"}, {10, "Narcissist"}}
+	switch randn {
+	case 0: // Altruist
+		return a.config.behaviourMap[0].threshold / 2
+	case 1: // Collectivist
+		return (a.config.behaviourMap[0].threshold + a.config.behaviourMap[1].threshold) / 2
+	case 2: // Selfish
+		return (a.config.behaviourMap[1].threshold + a.config.behaviourMap[2].threshold) / 2
+	case 3: // Narcissist
+		return (a.config.behaviourMap[2].threshold + a.config.behaviourMap[3].threshold) / 2
+	default: // Random SM
+		return behaviour(rand.Float64()) * a.config.maxBehaviourThreshold
+	}
+}
+
+// Returns int between 0 and number of bins - 1 according to given distribution
+func randnFromDistr(distr []float64) int {
+
+	partitions := []float64{distr[0]}
+	for i := 1; i < 4; i++ {
+		partitions = append(partitions, distr[i]+partitions[i-1])
+	}
+
+	randFloat := rand.Float64()
+	// fmt.Println(randFloat)
+	for i, val := range partitions {
+		if randFloat <= val {
+			return i
+		}
+	}
+	return -1
+}
+
+func softmax(inputArr []int) []float64 {
+	sumExp := 0.0
+	for _, val := range inputArr {
+		sumExp += math.Exp(float64(val))
+	}
+
+	softmaxOutput := []float64{}
+
+	for _, val := range inputArr {
+		softmaxOutput = append(softmaxOutput, math.Exp(float64(val))/sumExp)
+	}
+
+	return softmaxOutput
 }

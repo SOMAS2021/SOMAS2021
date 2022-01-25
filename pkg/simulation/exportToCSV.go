@@ -2,6 +2,7 @@ package simulation
 
 import (
 	"encoding/csv"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -91,12 +92,20 @@ func (sE *SimEnv) AddToBehaviourChangeCtrData() {
 	sE.dayInfo.BehaviourChangeCtrData = append(sE.dayInfo.BehaviourChangeCtrData, row)
 }
 
+// func (sE *SimEnv) CreateUtilityData() {
+// 	sE.dayInfo.UtilityData = append(sE.dayInfo.UtilityData, sE.utilityCSVHeader...)
+// }
+
 func (sE *SimEnv) CreateUtilityData() {
-	sE.dayInfo.UtilityData = append(sE.dayInfo.UtilityData, sE.utilityCSVHeader...)
+	row := []string{"Average Utility"}
+	sE.dayInfo.UtilityData = append(sE.dayInfo.UtilityData, row)
 }
 
-func (sE *SimEnv) AddToUtilityData() {
-	sE.dayInfo.UtilityData = append(sE.dayInfo.UtilityData, sE.dayInfo.Utility)
+func (sE *SimEnv) AddToUtilityData(t *infra.Tower) {
+	// row := []string{strconv.Itoa(sE.dayInfo.Utility)}
+	avgUtil := sE.dayInfo.Utility / float64(t.TotalAgents())
+	row := []string{fmt.Sprintf("%f", avgUtil)}
+	sE.dayInfo.UtilityData = append(sE.dayInfo.UtilityData, row)
 }
 
 func (sE *SimEnv) CreateDeathData() {
@@ -109,9 +118,6 @@ func (sE *SimEnv) CreateDeathData() {
 }
 
 func (sE *SimEnv) AddToDeathData(cumDeath int) {
-	// cumDeath := sE.stateLog.DeathCount()
-	// newDeath := cumDeath - sE.cumulativeDeaths
-	// cumDeath := t.DeathCount
 	newDeath := cumDeath - sE.cumulativeDeaths
 
 	row := []string{

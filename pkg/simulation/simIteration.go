@@ -61,6 +61,10 @@ func (sE *SimEnv) TowerTick() {
 
 func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 	var wg sync.WaitGroup
+	if sE.dayInfo.CurrTick%sE.dayInfo.TicksPerDay == 0 {
+		sE.resetSMCtr()
+		sE.resetSMChangeCtr()
+	}
 	for id, custAgent := range t.Agents {
 		wg.Add(1)
 		// Log the ctr for agent social motives
@@ -85,10 +89,8 @@ func (sE *SimEnv) AgentsRun(t *infra.Tower) {
 		sE.stateLog.LogSocialMotivesCtr(sE.dayInfo)
 		sE.AddToBehaviourCtrData()
 		sE.AddToBehaviourChangeCtrData()
-		sE.AddToUtilityData()
+		sE.AddToUtilityData(t)
 		sE.AddToDeathData(t.DeathCount)
-		sE.resetSMCtr()
-		sE.resetSMChangeCtr()
 		sE.clearUtilityCtr()
 	}
 }

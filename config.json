@@ -28,5 +28,5 @@
     "HPLossSlope": 0.2,
     "LogMain": true,
     "LogStory": true,
-    "SimTimeoutSeconds": 280
+    "SimTimeoutSeconds": 220
 }

@@ -13,7 +13,7 @@ type DayInfo struct {
 	BehaviourCtrData       [][]string
 	BehaviourChangeCtr     map[string]int
 	BehaviourChangeCtrData [][]string
-	Utility                []string
+	Utility                float64 // Convert to string before appending to UtilityData
 	UtilityData            [][]string
 	DeathData              [][]string
 }
@@ -54,7 +54,7 @@ func NewDayInfo(TicksPerFloor, TicksPerDay, SimulationDays, DaysPerReshuffle int
 			"N2N": 0,
 		},
 		BehaviourChangeCtrData: [][]string{},
-		Utility:                []string{},
+		Utility:                0.0,
 		UtilityData:            [][]string{},
 		DeathData:              [][]string{},
 	}
