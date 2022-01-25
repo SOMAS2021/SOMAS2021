@@ -1,6 +1,7 @@
 package team6
 
 import (
+	"math"
 	"math/rand"
 
 	"github.com/SOMAS2021/SOMAS2021/pkg/messages"
@@ -102,7 +103,8 @@ func (a *CustomAgent6) maxAllowedFood() food.FoodType {
 		max = food.FoodType(a.reqTakeFoodAmount)
 	}
 
-	return max
+	// FUNCTION IS RETURNING NEGATIVE VALUES: Clipped outputs at 0 for now
+	return food.FoodType(math.Max(float64(max), 0))
 }
 
 // Returns how much food the agent intends on consuming

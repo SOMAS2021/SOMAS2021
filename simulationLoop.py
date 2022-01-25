@@ -2,7 +2,7 @@ import csv
 from encodings import utf_8
 import os
 
-NUM_ITERS = 10
+NUM_ITERS = 30
 
 DEATH_FILE = "csvFiles/deaths.csv"
 SOCIAL_MOTIVES_FILE = "csvFiles/socialMotives.csv"

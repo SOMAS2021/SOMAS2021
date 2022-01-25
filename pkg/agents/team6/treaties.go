@@ -275,7 +275,7 @@ func (a *CustomAgent6) constructTreaty() messages.Treaty {
 		default:
 			// Different treaty
 			// proposedTreaty = messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GT, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
-			return *messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GE, messages.GE, int(2*a.reassignPeriodGuess), a.ID())
+			return *messages.NewTreaty(messages.HP, a.HealthInfo().WeakLevel, messages.LeavePercentFood, 1, messages.GE, messages.GE, int(4*a.reassignPeriodGuess), a.ID())
 		}
 
 	case "Selfish":

@@ -106,7 +106,7 @@ func (a *CustomAgent6) chooseInitialBehaviour() behaviour {
 	// 1. Whole spectrum
 	return behaviour(rand.Float64()) * a.config.maxBehaviourThreshold
 	// 2. Only Collectivist
-	//return behaviour(rand.Float64()) * maxBehaviourThreshold/4+1
+	//return behaviour(rand.Float64())*4 + 1
 	// 3. Only Collectivist and Selfish, in a ratio 1/1
 	//return behaviour(rand.Float64())*(maxBehaviourThreshold-2) + 1
 	//return behaviour(rand.Float64())*4 + 1
@@ -141,7 +141,7 @@ func New(baseAgent *infra.Base) (infra.Agent, error) {
 		config: team6Config{
 			baseBehaviour:         initialBehaviour,
 			stubbornness:          0.2,
-			maxBehaviourSwing:     0,
+			maxBehaviourSwing:     8,
 			paramWeights:          behaviourParameterWeights{HPWeight: 0.8, floorWeight: 0.2}, //ensure sum of weights = max behaviour enum
 			lambda:                3.0,
 			maxBehaviourThreshold: 10,
@@ -298,6 +298,8 @@ func (a *CustomAgent6) Run() {
 	// Everything you need to do once a day
 	if a.Age() != a.prevAge {
 		a.updateBehaviour()
+		a.reqLeaveFoodAmount = -1
+		a.reqTakeFoodAmount = -1
 
 		if a.currBehaviour.string() == "Collectivist" || a.currBehaviour.string() == "Selfish" {
 			treaty := a.constructTreaty()
